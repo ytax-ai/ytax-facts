@@ -1,0 +1,1449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/foreignTaxNoForm1116Threshold">
+      <Name>No-Form-1116 foreign tax eligibility threshold (Schedule 3 line 1 Exception)</Name>
+      <Description>The maximum total foreign tax for which the FTC may be claimed without Form 1116:
+        $600 married filing jointly, else $300. Above this the taxpayer must file Form 1116 (out of
+        scope), so /foreignTaxCreditAmount is 0.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>600</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>300</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForeignTaxPaid">
+      <Name>Foreign income tax paid, eligible for the no-Form-1116 credit (Schedule 3 line 1)</Name>
+      <Description>The total foreign income tax paid, as reported on Form 1099-INT box 6 / Form 1099-DIV
+        box 7, for a taxpayer who qualifies to claim the foreign tax credit WITHOUT Form 1116 (all foreign
+        income is passive interest/dividends on 1099s and the total foreign tax is ≤ $300, or ≤ $600 if
+        married filing jointly). Supplied directly as a taxpayer input. Complete-safe: 0 / unanswered ⇒
+        no FTC. If the amount exceeds the /foreignTaxNoForm1116Threshold the no-1116 election is
+        unavailable and /foreignTaxCreditAmount is 0 (Form 1116 required; see form1116.xml, which
+        computes the Form 1116 route directly).
+
+        THIS AMOUNT IS CONDITION 2 AND NOTHING ELSE. Conditions 1 and 3 are
+        /writableAllForeignIncomeReportedOn1099 and /writableForeignSecuritiesHeld16Days, and
+        the three are combined by /qualifiesForNoForm1116Exception.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForeignTaxSection901kDeductionEligibleTaxes">
+      <Name>Foreign tax barred by IRC 901(k) but deductible on Schedule A (no-Form-1116 filer entry)</Name>
+      <Description>The portion of the foreign tax amount entered for the no-Form-1116 exception
+        that is barred from the credit by IRC 901(k)'s holding-period rule but remains deductible
+        under section 901(k)(7). This is a filer attestation because the return has no lot or
+        holding-period records for the no-Form-1116 foreign-tax boxes. It is separate from
+        /writableForeignTaxPaid: that amount is the gross foreign tax reported for the credit
+        screen, while this amount is the barred subset that must be removed from the credit and
+        carried to Schedule A line 6. The complete-safe derived consumer caps it at the gross
+        foreign-tax amount and uses it only when the no-Form-1116 exception is available and
+        Form 1116 was not opened. An unanswered entry contributes $0.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableAllForeignIncomeReportedOn1099">
+      <Name>All foreign source gross income was 1099-reported interest and dividends (Schedule 3 line 1 Exception condition 1)</Name>
+      <Description>CONDITION 1 of the no-Form-1116 exception, as an attestation. The filer states
+        that ALL foreign source gross income was from interest and dividends AND that all of that
+        income and the foreign tax paid on it were reported on Form 1099-INT, Form 1099-DIV or
+        Schedule K-3 (or a substitute statement). False, or unanswered, means the exception is
+        unavailable and the credit requires Form 1116.
+
+        AN ATTESTATION RATHER THAN A DERIVATION, DELIBERATELY. The dictionary does hold 1099-INT
+        box 6 and 1099-DIV box 7 foreign-tax boxes, so a partial derivation ("is /writableForeignTaxPaid
+        larger than the sum of the 1099 boxes?") is available — and it would still be only a partial
+        one, because condition 1 quantifies over foreign source GROSS INCOME, not over foreign tax:
+        a filer with foreign WAGES and no foreign tax on them fails condition 1 while every foreign
+        tax dollar is 1099-reported. A derivation that cannot see the failing case is worse than an
+        attestation that names it.
+
+        COMPLETE-SAFE FALSE at /qualifiesForNoForm1116Exception, which is where the IsComplete guard
+        lives; this writable is left plainly unanswered so the application intake can tell "not asked"
+        from "answered no".</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForeignSecuritiesHeld16Days">
+      <Name>Held the stock or bonds at least 16 days and was not obligated to pass the payments on (Schedule 3 line 1 Exception condition 3)</Name>
+      <Description>CONDITION 3 of the no-Form-1116 exception, as an attestation. The filer states
+        that the stock or bonds on which the dividends or interest were paid were held for at least
+        16 days AND that the filer was not obligated to pay those amounts to someone else. False, or
+        unanswered, means the exception is unavailable and the credit requires Form 1116.
+
+        ONE FACT FOR TWO PRINTED CLAUSES, because the instruction joins them with "and" inside a
+        single numbered condition and no consumer distinguishes them; splitting would invent a
+        structure the source does not print. Neither clause is derivable — this dictionary has no
+        holding-period intake and no securities-lending intake.
+
+        THE 16 DAYS THIS FACT ASKS IS NOT THE ONLY HOLDING PERIOD THE LAW SETS, and the second one
+        is a SEPARATE fact rather than a rewording of this one:
+        /writableForeignPreferenceDividendsHeld45DaysOrLess carries IRC 901(k)(3), which substitutes
+        45 days for 15 and a 91-day period for the 31-day period when the dividends are preferred
+        and attributable to periods aggregating more than 366 days. The printed condition quoted
+        below says 16 days and must keep saying it; the statutory refinement is asked alongside it
+        and is conjoined at /qualifiesForNoForm1116Exception. See that fact for the defect this split closes and for why its silence grants.
+
+        COMPLETE-SAFE FALSE at /qualifiesForNoForm1116Exception. Same not-asked/answered-no
+        distinction as its condition-1 sibling.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForeignSecuritiesDealerSection901k4Exception">
+      <Name>The IRC 901(k)(4) securities-dealer exception applies to the foreign tax</Name>
+      <Description>Whether the foreign tax is a qualified tax on securities held in the active conduct
+        of a foreign securities-dealer business, so IRC 901(k)(4) lifts the minimum-holding-period
+        and related-payment bars. This is a filer attestation: the graph has no registration,
+        foreign-country net-basis, or foreign tax-credit records with which to derive the statutory
+        qualifications. An unanswered entry does not grant the exception; the complete-safe reader
+        below supplies FALSE.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignSecuritiesDealerSection901k4Exception">
+      <Name>The IRC 901(k)(4) securities-dealer exception applies (complete-safe)</Name>
+      <Description>The answered dealer-exception attestation, or FALSE when unanswered. This is the
+        complete-safe selector that can bypass the ordinary 901(k) holding-period and related-payment
+        test without propagating an unanswered service question into the no-Form-1116 gate.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForeignSecuritiesDealerSection901k4Exception" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForeignSecuritiesDealerSection901k4Exception" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForeignPreferenceDividendsHeld45DaysOrLess">
+      <Name>Preferred-stock dividends attributable to more than 366 days, held 45 days or less (IRC 901(k)(3), the statutory overlay on Exception condition 3)</Name>
+      <Description>THE IRC 901(k)(3) OVERLAY ON CONDITION 3, AND WHY IT IS A SECOND FACT RATHER THAN
+        A REWORDING OF THE FIRST. /writableForeignSecuritiesHeld16Days asks printed condition 3 as
+        printed, which is the 16-day form of the holding-period test, and that wording is
+        worksheet-verified against the Form 1040 instructions; rewriting it to say 46 days would
+        make it disagree with its own source for the ordinary filer. IRC 901(k)(3) states a LONGER
+        period for one narrow class of dividend: for stock having preference in dividends, where the
+        dividends are attributable to a period or periods aggregating in excess of 366 days, the 15
+        days of IRC 901(k)(1)(A)(i) becomes 45 days and its 31-day period becomes a 91-day period, so
+        the complement the filer must meet is 46 days within the 91-day period rather than 16 within
+        31. The Instructions for Form 1116 print the existence of that longer period on the same rule
+        and send the reader to the statute for its size: "This required holding period is greater
+        for" "preferred-stock dividends attributable to periods totaling" "more than 366 days. See
+        section 901(k)(3) or Pub. 514."
+
+        TRUE DISQUALIFIES. TRUE when any of the foreign dividends behind /writableForeignTaxPaid are
+        preferred-stock dividends attributable to periods totalling more than 366 days AND that stock
+        was held 45 days or less during the 91-day period beginning 45 days before the ex-dividend
+        date. TRUE makes /qualifiesForNoForm1116Exception FALSE through the complete-safe reader
+        /foreignPreferenceDividendsHeld45DaysOrLess, so /foreignTaxCreditAmount falls to 0.
+
+        WHAT HAPPENS NEXT DEPENDS ON THE POPULATION. A flat statement that
+        "/foreignTaxCreditAmount falls to 0 and /knockoutForeignTaxRequiresForm1116 SURFACES the
+        return rather than filing it" is FALSE for one real population. Worked through the knockout's three arms for a filer
+        who has ELECTED the section 901(a) credit and OPENED Form 1116 with a line 8 total above $0:
+        arm 1 is negated by its own Not(All(elected, opened)); arm 2 needs Not(elected); arm 3 needs
+        the line 8 total at $0. No arm fires, nothing is refused, and schedule3 /sched3Line1's arm 2
+        selector is Not(exception) plus form1116 /form1116Answered — so that filer is ROUTED to
+        form1116 /form1116Line35ForeignTaxCredit, which carries no 901(k) holding-period bar at all.
+        The truthful statement is therefore:
+          - NO Form 1116 opened (the population this module models): the credit falls to 0 and
+            /knockoutForeignTaxRequiresForm1116 SURFACES the return rather than filing it. Refuse,
+            never silently zero, which is this module's standing disposition.
+          - Form 1116 OPENED and the credit elected: this fact RE-ROUTES rather than refuses, onto a
+            Form 1116 path where the same bar is not built. That half is form1116.xml's and is reported, not taken here. Naming it is not a scope boundary
+            standing in for a build; the build this fact makes is real and the residue is what it
+            does not reach.
+          - Form 1116 opened but only half filled: form1116 /form1116Line35ForeignTaxCredit is
+            deliberately NOT complete-safe (schedule3.xml says so on its own arm), so such a return
+            can move /sched3Line1 from Complete to Incomplete. That class pre-exists this fact -
+            answering printed condition 1, 3 or 5 FALSE does the same - and this fact widens its
+            population without creating it.
+
+        THE DEFECT IT ADDRESSES, AND HOW MUCH OF IT. Without this fact, a filer holding preferred stock paying an
+        arrearage over 366 days who held it 20 days answered the printed 16-day question TRUE
+        truthfully and was credited where the statute denies the credit. Direction: OVER-credit, the
+        taxpayer under-charged, bounded by the $300/$600 threshold and the line-16 cap. No answer the
+        filer could give expressed the 901(k)(3) failure at all.
+        WHAT IS ACTUALLY BOUGHT, stated at the strength the files support and no higher: the failure
+        becomes EXPRESSIBLE and refuses where it is stated on the no-Form-1116 route. NO FILED RETURN
+        CHANGES TODAY, because the writable grants on silence and no intake asks it yet - the application
+        owes the card this fact specifies, and until that card exists this build is reachable only
+        by an intake that does not exist. That is a narrower claim than "closes", and it is the
+        honest one. THREE RESIDUES, NAMED so the row is not retired on this fact alone:
+        (1) the Form 1116 route, above, where no 901(k) bar is built;
+        (2) IRC 901(l), which carries the same minimum-holding-period rule for income OTHER than
+        dividends - printed condition 3's sibling clause already covers the related-payments half,
+        but nothing here asks the 901(l) holding period for interest;
+        (3) the Part I line 1a half, which is form1116.xml's.
+
+        ONE FACT FOR THE WHOLE OF 901(k)(3), for the reason its condition-3 sibling gives for its own
+        two clauses: the statute states one rule in one paragraph, its subparagraphs (A) and (B) are
+        the two halves of a single substitution, and no consumer distinguishes them.
+
+        A FOURTH RESIDUE, VENDORED RATHER THAN GUESSED:
+        IRC 901(k)(4) is an EXCEPTION to the whole of the minimum-holding-period rule, and nothing
+        in this module asks it. It says paragraphs (1) and (2) "shall not apply to any qualified tax
+        with respect to any security held in the active conduct in a foreign country of a business
+        as a securities dealer" by a person registered as a broker or dealer under section 15(a) or
+        section 15C(a) of the Securities Exchange Act of 1934, or licensed to conduct securities
+        activities in that foreign country, where the dividend is taxed on a net basis by that
+        country and that country credits the other country's tax in full. A dealer who answers this
+        writable TRUE is therefore refused a credit IRC 901(k)(4) allows. Direction: OVER-REFUSAL of
+        a narrow population - the taxpayer-safe half of the two errors available, and reachable only
+        by a filer who volunteers the TRUE, since silence grants. IRC 901(k)(5) likewise imports the
+        holding-period computation rules of section 246(c)(3) and (4), which this attestation leaves
+        to the filer to apply. Successor: a dealer carve-out, or an intake question that names the
+        exception so a dealer answers FALSE truthfully.
+
+        THE SILENCE DIRECTION DEPARTS FROM THIS MODULE'S DOCTRINE, DELIBERATELY, AND THE SUCCESSOR IS
+        NAMED. The banner's rule is that a fact about the world outside the return must not GRANT on
+        silence, and this is such a fact; its complete-safe reader supplies FALSE for an unanswered
+        writable, which grants. The doctrine-compliant shape is a sixth required conjunct under the
+        IsComplete guard, and that would flip every committed fixture, unit scenario and demo profile
+        that states conditions 1, 3 and 5 into a refusal until each is re-answered, a corpus change this module cannot make or verify. What is bought today is strictly more than the tree had: the
+        failure is now expressible, refusing where it is stated, and no return moves where it is not.
+        THE NAMED SUCCESSOR, so a later reader does not read the choice as the end of the matter:
+        DERIVE the trigger instead of asking it, from dividendReports
+        /dividendReports/*/writableForeignTaxPaid (Form 1099-DIV box 7), and require the overlay only
+        for a return that holds a box-7 amount, fenced by All(IsComplete(/dividendReports), ...) so
+        an unanswered collection cannot resolve the test.
+
+        SCREEN, for the application. ASK-WHEN: /writableForeignSecuritiesHeld16Days answered TRUE and
+        /writableForeignTaxPaid answered above $0. The question is a refinement of condition 3 and is
+        meaningless to a filer who already fails condition 3 or claims no foreign tax.
+        QUESTION TEXT: "Were any of those dividends paid on PREFERRED stock, for a period of more
+        than 366 days? If so, did you hold that stock for 45 days or less during the 91-day period
+        that began 45 days before the ex-dividend date?" Yes writes TRUE, No writes FALSE.
+        VALIDATION: type Boolean. No Min, no Max, no enum options path, not multi-select, no free
+        text. UNANSWERED: left plainly unanswered, so the intake can tell "not asked" from "answered
+        no"; the complete-safe reader supplies FALSE. THE APPLICATION MUST ASK THIS QUESTION.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignPreferenceDividendsHeld45DaysOrLess">
+      <Name>The IRC 901(k)(3) preference-dividend holding period was failed (complete-safe)</Name>
+      <Description>/writableForeignPreferenceDividendsHeld45DaysOrLess when answered, else false: the
+        IsComplete/Switch wrapper, the same shape as this module's
+        /electsForeignTaxCreditUnderSection901 and /notExcludingPossessionOrPuertoRicoIncome. It
+        depends on NOTHING but its own writable, so the conjunction that reads it cannot re-enter the
+        nonrefundable-credit ordering and introduces no cycle.
+
+        READ NEGATED by /qualifiesForNoForm1116Exception, and that is what makes the wrapper safe to
+        add to a shipping conjunction: the FALSE it supplies for an unanswered writable leaves the
+        exception exactly where it stood before this fact existed, so every committed fixture is
+        byte-identical and the whole of the change is that a filer who STATES the 901(k)(3) failure
+        is now believed. The direction of that silence and its named successor are argued on the
+        writable, not here.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForeignPreferenceDividendsHeld45DaysOrLess" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForeignPreferenceDividendsHeld45DaysOrLess" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignDividendTaxRequiresPreferenceHoldingPeriodAnswer">
+      <Name>A Form 1099-DIV box 7 amount is what makes the 45-day question applicable</Name>
+      <Description>TRUE when the dividend-report collection is answered and at least one report on it
+        carries a COMPLETE, POSITIVE Form 1099-DIV box 7 amount. An absent collection, an
+        answered-empty collection, an unanswered box 7 and a zero or negative box 7 all give FALSE.
+        Positive and negative boxes are NOT netted: one report with foreign tax on it makes the
+        question applicable however many reports beside it carry none.
+
+        WHY THIS EXISTS. The IRC 901(k)(3) overlay below used to GRANT the exception on silence, and
+        the defence of that was that no filer had ever been asked the question. A legal disposition
+        must not be hostage to whether a screen exists in another repo, because no fact in this graph
+        can observe that. This fact is the trigger the module's own named successor called for: it
+        turns on something the graph CAN observe - a Form 1099-DIV with foreign tax in box 7 - so the
+        answer is required of the filers who can actually have a preference-dividend problem and of
+        nobody else. A filer with no foreign dividend tax at all is never asked and never refused.
+
+        THE PRODUCING MODULE'S OWN DESCRIPTION IS NOW STALE ON ONE SENTENCE:
+        dividendReports /dividendReports/*/writableForeignTaxPaid says WHAT IT FEEDS: nothing federal
+        from this intake. This fact is a federal reader of it. It is a READER only - box 7 supplies
+        no dollar to any credit leg here, only the applicability of a question - but that sentence is wrong now and belongs to dividendReports.xml.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="dividendReports" path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/dividendReports">
+                      <All>
+                        <IsComplete>
+                          <Dependency path="writableForeignTaxPaid" />
+                        </IsComplete>
+                        <GreaterThan>
+                          <Left>
+                            <Dependency path="writableForeignTaxPaid" />
+                          </Left>
+                          <Right>
+                            <Dollar>0</Dollar>
+                          </Right>
+                        </GreaterThan>
+                      </All>
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignPreferenceHoldingPeriodRequirementSatisfied">
+      <Name>The IRC 901(k)(3) preference-dividend requirement is met for this return</Name>
+      <Description>FALSE whenever the filer has STATED that the 45-day preference-dividend holding
+        period was failed, and FALSE whenever the question is applicable - a complete positive Form
+        1099-DIV box 7 somewhere on the return - and has not been answered at all. TRUE otherwise,
+        which is every return with no foreign dividend tax on it.
+
+        THIS IS THE CONJUNCT /qualifiesForNoForm1116Exception NOW READS, in place of the bare
+        Not(/foreignPreferenceDividendsHeld45DaysOrLess) it read before. The difference is exactly
+        the silence case, and only for the population the trigger names: an unanswered question
+        used to GRANT the exception, and now REFUSES it for a filer holding foreign dividend tax.
+        That is the direction every other election in this family already runs - this module's own
+        /writableElectsForeignTaxCreditUnderSection901 refuses on silence, and form1116's
+        provisional-credit election denies the benefit on silence - and the refusal is
+        /knockoutForeignTaxRequiresForm1116, whose printed remedy is to file Form 1116, not a silent
+        zero.
+
+        COMPLETE-SAFE. Both inputs resolve on every return: the trigger is Complete false over an
+        absent or empty dividend collection, and the wrapped preference flag is complete-safe false.
+        So nothing here can propagate an Incomplete into /foreignTaxCreditAmount, /sched3Line1 or
+        Form 1040 line 20.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/foreignPreferenceDividendsHeld45DaysOrLess" />
+          </Not>
+          <Any>
+            <Not>
+              <Dependency path="/foreignDividendTaxRequiresPreferenceHoldingPeriodAnswer" />
+            </Not>
+            <IsComplete>
+              <Dependency path="/writableForeignPreferenceDividendsHeld45DaysOrLess" />
+            </IsComplete>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignSecuritiesHoldingRequirementSatisfied">
+      <Name>The ordinary or securities-dealer holding-period requirement is satisfied (complete-safe)</Name>
+      <Description>TRUE when the IRC 901(k)(4) dealer exception applies. Otherwise the ordinary
+        condition-3 holding/related-payment attestation and the 901(k)(3) preference-dividend overlay
+        must both pass. Every unanswered branch resolves FALSE so the no-Form-1116 exception never
+        grants on an unanswered world fact.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/foreignSecuritiesDealerSection901k4Exception" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Any>
+                <Dependency path="/foreignSecuritiesDealerSection901k4Exception" />
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/writableForeignSecuritiesHeld16Days" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <All>
+                        <Dependency path="/writableForeignSecuritiesHeld16Days" />
+                        <Dependency path="/foreignPreferenceHoldingPeriodRequirementSatisfied" />
+                      </All>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><False /></Then>
+                  </Case>
+                </Switch>
+              </Any>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForeignSecuritiesHeld16Days" />
+              </IsComplete>
+            </When>
+            <Then>
+              <All>
+                <Dependency path="/writableForeignSecuritiesHeld16Days" />
+                <Dependency path="/foreignPreferenceHoldingPeriodRequirementSatisfied" />
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForeignTaxesLegallyOwedAndAllowed">
+      <Name>All the foreign taxes were legally owed, not treaty-refundable, and paid to a recognized non-terrorism-supporting country (Schedule 3 line 1 Exception condition 5)</Name>
+      <Description>CONDITION 5 of the no-Form-1116 exception, as an attestation. The filer states
+        that ALL of the foreign taxes were (a) legally owed and not eligible for a refund or a
+        reduced rate under a tax treaty, AND (b) paid to countries that are recognized by the
+        United States and do not support terrorism. False, or unanswered, means the exception is
+        unavailable and the credit requires Form 1116.
+
+        ONE FACT FOR THE PRINTED SUB-PARTS (a) AND (b), for the reason its condition-3 sibling
+        gives: the instruction prints them as lettered halves of ONE numbered condition joined by
+        "and", and no consumer distinguishes them. Splitting would invent a structure the source
+        does not print.
+
+        NOT DERIVABLE, AND NOT NEARLY. Nothing in this dictionary knows which country a foreign
+        tax was paid to, whether a treaty allows a reduced rate or a refund, or the U.S.
+        recognition and state-sponsor-of-terrorism lists — those lists live outside the tax forms
+        entirely. This is the condition of the five with the least surface in this repo, which is
+        why it is an attestation rather than a computation and why it is NOT a deferral: a
+        deferral that held the gate FALSE would refuse every filer claiming a no-1116 foreign tax
+        credit, an over-refusal of the entire population with no printed basis.
+
+        See the ⚠⚠⚠ block in the module
+        banner: this condition is printed at https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 115, FIFTY
+        LINES ABOVE the Exception header, because the page's column carry puts the continuation
+        earlier in the .txt than its own heading.
+
+        COMPLETE-SAFE FALSE at /qualifiesForNoForm1116Exception, where the IsComplete guard lives;
+        this writable is left plainly unanswered so the application intake can tell "not asked" from
+        "answered no".</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForeignTaxesIncludeUnresolvedContestedLiability">
+      <Name>Any of the foreign taxes is a contested liability whose contest is not resolved (Instructions for Form 1116, "Contested foreign income tax liability")</Name>
+      <Description>A SIXTH TEST THAT IS NOT A SIXTH PRINTED CONDITION, and not condition 5 either.
+        The Instructions for Form 1116 state the bar in their own voice, under their own heading:
+        "Contested foreign income tax liability. In general, you" "can't claim a credit for a
+        contested foreign income tax liability" "until the contest is resolved and the amount of the
+        liability is" finally determined. The rule is about WHEN a foreign tax becomes creditable at
+        all, so it governs both printed routes; the Schedule 3 line 1 Exception simply does not
+        restate it, the way it does not restate any of the Form 1116 instructions' eligibility rules.
+
+        WHY IT IS NOT /writableForeignTaxesLegallyOwedAndAllowed. Printed condition 5 asks two
+        things: legally owed and not eligible for a refund or reduced rate under a treaty, and paid
+        to a recognized non-terrorism-supporting country. A contested liability can satisfy both and
+        still not be creditable this year: the filer believes it is legally owed, no treaty is in
+        play, and the contest is simply unresolved. Widening condition 5 to swallow the contest
+        would make that fact disagree with the text it quotes, which is the same reason the IRC
+        901(k)(3) overlay above is its own fact rather than a rewording of condition 3.
+
+        TRUE DISQUALIFIES. Answer TRUE when any part of /writableForeignTaxPaid is a contested
+        foreign income tax liability whose contest has not been resolved and whose amount has not
+        been finally determined. TRUE makes /qualifiesForNoForm1116Exception FALSE through the
+        complete-safe reader /foreignTaxesIncludeUnresolvedContestedLiability, so
+        /foreignTaxCreditAmount falls to 0. WHAT HAPPENS NEXT DEPENDS ON THE POPULATION, exactly as
+        it does for the 901(k)(3) overlay above, and the same correction applies here: with no Form
+        1116 opened the return is REFUSED by /knockoutForeignTaxRequiresForm1116 (refuse, never
+        silently zero); with the credit elected and Form 1116 opened above $0 no knockout arm fires
+        and schedule3 /sched3Line1 ROUTES to form1116 /form1116Line35ForeignTaxCredit, which carries
+        no contested-liability bar; with Form 1116 opened and half filled that line can go
+        Incomplete. See the 901(k)(3) fact for the arm-by-arm working, which is identical.
+
+        THE DEFECT IT ADDRESSES, AND HOW MUCH OF IT. Read the 901(k)(3) fact's matching paragraph first: the same
+        strength limit applies word for word. The failure becomes EXPRESSIBLE and refuses where it
+        is stated on the no-Form-1116 route; NO FILED RETURN CHANGES TODAY, because this writable
+        grants on silence and the application owes the card this fact specifies before any intake asks it.
+        Before this fact, the word "contested" occurred exactly once in dictionary/ty2025/ - in this
+        module's /writableElectsForeignTaxCreditUnderSection901 authority comment, which mines the
+        same printed paragraph for its ELECTION sentence and leaves the rule that paragraph states
+        with no representation at all. Direction: OVER-credit, the taxpayer under-charged. It is a
+        TIMING error rather than a permanent one, because the credit becomes allowable when the
+        contest resolves, but it accelerates the credit into the wrong year and applies the section
+        904 limitation against the wrong year's tax. Bounded on this path by $300/$600.
+
+        WHAT THIS FACT DOES NOT COVER, named rather than implied. (1) The Form 1116 route: the same
+        bar governs form1116 /form1116ForeignCountries/*/form1116ColumnUTotalForeignTaxes and nothing
+        there reads this fact. That is form1116.xml's to build and is reported, not taken here.
+        (2) The PROVISIONAL-CREDIT ELECTION the same instruction offers ("Alternatively, you can
+        elect to claim a provisional credit for contested taxes, as described later"): a filer who
+        makes it may credit a contested tax, and this fact has no arm for it, so such a filer is
+        refused where the instruction would let them file. That is an over-refusal of a narrow
+        population, and it is the taxpayer-safe direction of the two available without the election
+        fact; building the election is a successor. (3) The cash-method / accrual-method split the
+        instruction draws: this graph holds no method-of-accounting fact for foreign taxes, so one
+        Boolean carries both.
+
+        THE SILENCE DIRECTION, and the same named departure as the 901(k)(3) overlay above: the
+        complete-safe reader supplies FALSE for an unanswered writable, which GRANTS. The
+        doctrine-compliant shape is a required conjunct under the IsComplete guard, and it would
+        flip every committed fixture and unit scenario that states conditions 1, 3 and 5 into a
+        refusal until each is re-answered. What this buys today is that the failure is EXPRESSIBLE
+        and refuses where it is stated; before it, no answer the filer could give reached the rule.
+
+        SCREEN, for the application. ASK-WHEN: /writableForeignTaxPaid answered above $0. Not gated on the
+        other conditions, because the bar is about the tax itself rather than about the exception.
+        QUESTION TEXT: "Is any part of that foreign tax an amount you are DISPUTING with the foreign
+        country, where the dispute has not been settled and the final amount is not yet known?" Yes
+        writes TRUE, No writes FALSE. VALIDATION: type Boolean. No Min, no Max, no enum options
+        path, not multi-select, no free text. UNANSWERED: left plainly unanswered, so the intake can
+        tell "not asked" from "answered no"; the complete-safe reader supplies FALSE. THE APPLICATION MUST ASK THIS QUESTION.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignTaxesIncludeUnresolvedContestedLiability">
+      <Name>The foreign taxes include an unresolved contested liability (complete-safe)</Name>
+      <Description>/writableForeignTaxesIncludeUnresolvedContestedLiability when answered, else false:
+        the IsComplete/Switch wrapper, the same shape as this module's
+        /foreignPreferenceDividendsHeld45DaysOrLess and /electsForeignTaxCreditUnderSection901. It
+        depends on NOTHING but its own writable, so the conjunction that reads it cannot re-enter the
+        nonrefundable-credit ordering and introduces no cycle.
+
+        READ NEGATED by /qualifiesForNoForm1116Exception, so the FALSE it supplies for an unanswered
+        writable leaves that conjunction exactly where it stood before this fact existed: every
+        committed fixture is byte-identical and the whole of the change is that a filer who STATES an
+        unresolved contest is now believed. The direction of that silence, the uncovered
+        provisional-credit election and the Form 1116 half of the same bar are argued on the
+        writable, not here.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForeignTaxesIncludeUnresolvedContestedLiability" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForeignTaxesIncludeUnresolvedContestedLiability" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/notExcludingPossessionOrPuertoRicoIncome">
+      <Name>Not filing Form 4563 and not excluding Puerto Rico source income (Schedule 3 line 1 Exception condition 4)</Name>
+      <Description>CONDITION 4 of the no-Form-1116 exception, DERIVED from the return's own
+        entries rather than attested. TRUE unless this return excludes section 933 Puerto Rico
+        income (Schedule 8812 line 2a, ctcOdc:/puertoRicoIncomeExclusion933) or section 931
+        possession income (line 2c, Form 4563 line 15, ctcOdc:/possessionIncomeExclusion931).
+
+        COMPLETE-SAFE TRUE, AND THE ASYMMETRY WITH ITS SIBLINGS IS DELIBERATE. Conditions 1, 3
+        and 5 refuse on silence because they are facts about the world outside the return.
+        Condition 4 is a fact about the return itself: excluding possession income is an
+        affirmative amount the filer enters, and both ctcOdc aliases are already complete-safe $0
+        over their own writable, so "unanswered = not excluding" is the same statement six other
+        MAGI surfaces in this dictionary already compute on. NO CYCLE: each alias depends only on
+        its own writable, so this read cannot re-enter the nonrefundable-credit ordering.
+
+        THE SCOPE-DISCHARGE ARGUMENT WAS TRIED AND IS FALSE — recorded so it is not re-tried.
+        ctcOdc:/knockoutPossessionOrPuertoRicoIncomeExclusion is a flow:/flowIsKnockedOut member
+        (flow.xml), and if it refused every possession return this fact would be unnecessary. It does not: its body is All(Any(exclusion > 0), Any(six
+        apportionment-failure conditions)), so a section 933 filer whose Publication 570
+        apportionment is usable and who trips none of the six FILES. That knockout's own
+        "UNCONDITIONAL ON A NON-ZERO ENTRY" paragraph is stale against its narrowed body. Reading
+        the AMOUNTS also means this condition does not rest on another refusal holding its reason
+        up, and survives that knockout's retirement (which is ordered LAST).
+
+        RESIDUAL, NAMED: the printed condition says "aren't FILING Form 4563"; this graph sees
+        only the AMOUNT. A filer who files Form 4563 reporting $0 on line 15 fails the printed
+        condition and is not caught. Narrow and taxpayer-favourable, bounded by $300/$600.</Description>
+
+      <Derived>
+        <Not>
+          <Any>
+            <GreaterThan>
+              <Left>
+                <Dependency module="ctcOdc" path="/puertoRicoIncomeExclusion933" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+            <GreaterThan>
+              <Left>
+                <Dependency module="ctcOdc" path="/possessionIncomeExclusion931" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+          </Any>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiesForNoForm1116Exception">
+      <Name>The Schedule 3 line 1 no-Form-1116 exception is available (all five printed conditions)</Name>
+      <Description>TRUE only when ALL FIVE printed conditions hold: condition 1
+        (/writableAllForeignIncomeReportedOn1099), condition 2 (/writableForeignTaxPaid not more
+        than /foreignTaxNoForm1116Threshold), condition 3 (/writableForeignSecuritiesHeld16Days),
+        condition 4 (/notExcludingPossessionOrPuertoRicoIncome) and condition 5
+        (/writableForeignTaxesLegallyOwedAndAllowed).
+        The instruction's own quantifier is "if all of the following apply", and it names its own
+        count two columns later — "Do you meet all five requirements just listed?" — so both the
+        conjunction and the number five are the source's and not this dictionary's.
+
+        AND ONE STATUTORY OVERLAY, WHICH IS NOT A SIXTH CONDITION. The conjunction also carries
+        Not(/foreignPreferenceDividendsHeld45DaysOrLess), the IRC 901(k)(3) refinement of printed
+        condition 3: for preferred-stock dividends attributable to periods aggregating more than 366
+        days the statute substitutes 45 days for 15 and a 91-day period for the 31-day period, so
+        the 16-day answer condition 3 asks for is not the test that governs those dividends. The
+        count of PRINTED conditions is still five and the banner's list of five is unchanged; this
+        term is the statute behind the third of them, and it is named separately precisely so the
+        printed wording of condition 3 can stay as printed. Its absence would over-credit. The overlay is complete-safe FALSE and needs no IsComplete
+        guard here for the same reason condition 4 does not.
+
+        AND ONE ELIGIBILITY BAR FROM THE FORM 1116 INSTRUCTIONS, WHICH IS ALSO NOT A SIXTH PRINTED
+        CONDITION OF THIS EXCEPTION. The conjunction also carries
+        Not(/foreignTaxesIncludeUnresolvedContestedLiability): the instructions' own paragraph
+        headed "Contested foreign income tax liability" bars a credit for a contested foreign income
+        tax liability until the contest is resolved and the amount finally determined. That rule is
+        about when a foreign tax becomes creditable AT ALL, so it governs the no-Form-1116 route as
+        much as Form 1116; the Schedule 3 line 1 Exception does not restate it any more than it
+        restates the instructions' other eligibility rules. Its absence would over-credit, by acceleration into the wrong year. Complete-safe FALSE,
+        so it needs no IsComplete guard here either.
+
+        THE PRINTED CONDITIONS REMAIN FIVE AND THE BANNER'S LIST REMAINS FIVE. Both terms above are
+        law the conjunction must obey, not conditions the instruction prints; counting them as printed conditions would be the three-condition misreading run in the other direction. See the ⚠⚠⚠ block in the module banner for the extraction trap behind that misreading: conditions 4 and 5 sit FIFTY LINES ABOVE the
+        Exception header in the .txt, because pdftotext emits this two-column page by Y-position
+        and the Exception carries over a column break.
+
+        COMPLETE-SAFE FALSE, and that is the whole safety argument. The Switch's guard requires the
+        amount and all THREE ATTESTATIONS to be Complete (condition 4 is complete-safe TRUE on its
+        own and needs no guard here — see its own Description for why its silence default runs the
+        other way); anything less falls to the False leg, so an unanswered
+        attestation NEVER grants the exception and never propagates an Incomplete into
+        /foreignTaxCreditAmount, /sched3Line1, Form 1040 line 20 or the AMT foreign tax credit. The
+        consequence of the false leg is a REFUSAL (/knockoutForeignTaxRequiresForm1116), not a
+        silently zeroed credit — see that fact's Description for why.
+
+        EXPORTED: schedule3 /sched3Line1
+        switches on this predicate to decide whether Schedule 3 line 1 carries the no Form 1116
+        exception amount (this predicate TRUE) or Form 1116 line 35 (this predicate FALSE and
+        form1116 /form1116Answered TRUE).</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableForeignTaxPaid" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableAllForeignIncomeReportedOn1099" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/foreignSecuritiesHoldingRequirementSatisfied" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableForeignTaxesLegallyOwedAndAllowed" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <All>
+                <Dependency path="/writableAllForeignIncomeReportedOn1099" />
+                <Dependency path="/foreignSecuritiesHoldingRequirementSatisfied" />
+                <Dependency path="/writableForeignTaxesLegallyOwedAndAllowed" />
+                <Dependency path="/notExcludingPossessionOrPuertoRicoIncome" />
+                <Not>
+                  <Dependency path="/foreignTaxesIncludeUnresolvedContestedLiability" />
+                </Not>
+                <Not>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableForeignTaxPaid" />
+                    </Left>
+                    <Right>
+                      <Dependency path="/foreignTaxNoForm1116Threshold" />
+                    </Right>
+                  </GreaterThan>
+                </Not>
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignTaxCreditNoForm1116Section901kDeductionEligibleTaxes">
+      <Name>Section 901(k) deduction-eligible foreign tax on the no-Form-1116 route</Name>
+      <Description>The complete-safe reading of the no-Form-1116 section 901(k) deduction
+        attestation. It is available only when all five no-Form-1116 conditions hold and the filer
+        has not opened Form 1116; an opened Form 1116 uses its country-row computation instead.
+        The nonnegative amount is capped at /writableForeignTaxPaid so it cannot exceed the foreign-tax total
+        being split between the credit and Schedule A. It is also $0 when the filer ANSWERED the
+        section 901(a) election for the deduction: no credit is claimed, so there is no barred
+        portion to split off, and the whole foreign tax is the filer's own Schedule A line 6 entry. This helper is the single shared source for
+        the credit reduction and the Schedule A line-6 deduction, preventing the barred dollars from
+        being claimed in both places. Unanswered means Complete $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/qualifiesForNoForm1116Exception" />
+                <Not>
+                  <Dependency module="form1116" path="/form1116Answered" />
+                </Not>
+                <IsComplete>
+                  <Dependency path="/writableForeignTaxSection901kDeductionEligibleTaxes" />
+                </IsComplete>
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+                    </IsComplete>
+                    <Not>
+                      <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+                    </Not>
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="/writableForeignTaxSection901kDeductionEligibleTaxes" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <GreaterOf>
+                  <Dependency path="/writableForeignTaxPaid" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignTaxCreditAmount">
+      <Name>Foreign tax credit, no-Form-1116 (Form 1040 Schedule 3 line 1)</Name>
+      <Description>The nonrefundable foreign tax credit on Schedule 3 line 1 under the no-Form-1116
+        exception = smaller of (a) /writableForeignTaxPaid and (b) Form 1040 line 16
+        (/tentativeTaxFromTaxableIncome) + Schedule 2 line 1a (schedule2 /line1aOfSchedule2, the
+        excess-APTC repayment in scope) — the instruction's line-level limit. U-065a repointed this from
+        /totalAdditionalTaxesOwed (Schedule 2 line 3) to the line-1a value: the instruction's cap is
+        line 1a, and Schedule 2 line 3 now also carries the AMT (Form 6251) — so referencing line 3 would
+        (a) wrongly inflate the FTC cap with the AMT and (b) create a cycle (AMT line 10 subtracts this
+        credit). It reads /line1aOfSchedule2 and not /line1zOfSchedule2 because line 1z ≠ line 1a (line 1z also adds the clean-vehicle repayment, lines 1b/1c); /line1aOfSchedule2
+        is exactly the line-1a excess-APTC repayment, so every existing FTC value is byte-identical
+        (no scenario combines an eligible no-1116 FTC with a clean-vehicle repayment). Gated on
+        /qualifiesForNoForm1116Exception — ALL FIVE printed conditions, not just the $300/$600
+        amount. Also $0 when the filer ANSWERED /writableElectsForeignTaxCreditUnderSection901 false:
+        section 901(a) makes the credit the taxpayer's choice, and section 904(j) only lifts the
+        section 904(a) limitation for a filer who claims it, so a filer who chose the deduction
+        gets no credit on this route either (an unanswered election keeps the credit). Complete-safe 0 otherwise. Flows to /sched3Line1 →
+        /line8OfSchedule3 → Form 1040 line 20.
+
+        THE GATE IS /qualifiesForNoForm1116Exception, not condition 2 alone, which would grant the credit to a filer who fails condition 1 or condition 3 and never states it. The gate does not change this fact's arithmetic, its cap, or its value on any return that states all five conditions; it changes WHICH returns reach the arithmetic. Every return that now falls to the 0 leg for
+        an unstated condition is also REFUSED by /knockoutForeignTaxRequiresForm1116, so the 0 is
+        never filed.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/qualifiesForNoForm1116Exception" />
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+                    </IsComplete>
+                    <Not>
+                      <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+                    </Not>
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dollar>0</Dollar>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/writableForeignTaxPaid" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/foreignTaxCreditNoForm1116Section901kDeductionEligibleTaxes" />
+                    </Subtrahends>
+                  </Subtract>
+                </GreaterOf>
+                <GreaterOf>
+                  <Dollar>0</Dollar>
+                  <Add>
+                    <Dependency module="taxCalculations" path="/tentativeTaxFromTaxableIncome" />
+                    <Dependency module="schedule2" path="/line1aOfSchedule2" />
+                  </Add>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableElectsForeignTaxCreditUnderSection901">
+      <Name>Elects the IRC 901(a) credit for foreign income taxes instead of the IRC 164(a)(3) deduction (writable)</Name>
+      <Description>The filer's choice between the two printed routes for the same foreign income
+        taxes: the CREDIT of section 901(a), computed on Form 1116 and carried to Schedule 3 line
+        1, or the DEDUCTION of section 164(a)(3), entered on Schedule A line 6. Section 901(a)
+        allows the credit only "If the taxpayer chooses to have the benefits of this subpart", and
+        the Form 1116 instructions print the alternative under their own heading, Credit or
+        Deduction: "Instead of claiming a credit for eligible foreign taxes, you can" "choose to
+        deduct foreign income taxes", deducted "on Schedule A (Form 1040), Itemized" "Deductions."
+        The choice belongs to the filer and this dictionary cannot make it for them, because for a
+        filer whose credit is cut by the section 904 limitation the deduction can be worth more.
+
+        ANNUAL, from the statute's own second sentence: "Such choice for any taxable year may be
+        made or changed at any time before the expiration of the period prescribed for making a
+        claim for credit or refund of the tax imposed by this chapter for such taxable year." The
+        choice is per taxable year, and this return holds one taxable year, so ONE Boolean is the
+        whole of it. The "or changed" clause is an amended-return act and is out of this return's
+        reach; it is named here so a later reader does not mistake the silence for a claim that
+        the choice is irrevocable.
+
+        ALL-OR-NOTHING, and quoted with the instructions' own hedge rather than without it:
+        "Generally, if you take the credit for any eligible" "foreign taxes, you can’t take any
+        part of that year’s foreign" "taxes as a deduction." The word Generally is the
+        instructions', and the qualifications it points at are about taxes that are not creditable
+        in the first place, which is a different question from which route an eligible tax takes.
+        That is why this is one flag for the whole return and not one per country, per category or
+        per tax: the printed rule quantifies over "that year's foreign taxes".
+
+        NOT DERIVABLE, and not nearly. The comparison the filer performs is "credit versus
+        deduction on THIS return", and this dictionary cannot compute the deduction leg's answer:
+        Schedule A line 6 is a free-entry line that also holds non-foreign items, the filer may be
+        taking the standard deduction, and nothing here re-runs the return both ways. The same
+        shape as scheduleA /writableElectsClaimOfRightRepaymentDeduction, the section 1341 method-1
+        election, which this fact is modelled on line for line: a choice the statute gives the
+        taxpayer, an intake rather than a derivation, and the honest boundary of what the return
+        can file.
+
+        LEFT PLAINLY UNANSWERED, with the complete-safe guard on its reader
+        /electsForeignTaxCreditUnderSection901, so the application intake can tell "not asked" from
+        "answered no" — the disposition its four condition-attestation neighbours in this module
+        already use.
+
+        ================ SCREEN SPECIFICATION ================
+        the application implements this screen from this block alone; no IRS document needs opening.
+
+        SCREEN TITLE: "Foreign taxes: credit or deduction?"
+
+        QUESTION TEXT, as asked, one question, two answers:
+          "You paid $X of foreign income tax. You can take it as a CREDIT that lowers your tax
+           dollar for dollar, or as a DEDUCTION that lowers the income you are taxed on. You have
+           to pick one for all of your foreign taxes this year — you cannot split them.
+           Do you want to take the credit?"
+          • Yes — take the credit (fill out Form 1116) → writes TRUE
+          • No — take the deduction instead → writes FALSE
+        ($X is /writableForeignTaxPaid, already answered before this screen; render it as the
+        whole-dollar amount the filer entered.)
+
+        HELP TEXT (paraphrase, with its cite, so the application never guesses):
+          "The law lets you choose. Section 901(a) allows the credit only if you choose it
+           (26 U.S.C. 901, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section901&amp;num=0&amp;edition=2024), and section 164(a)(3) allows the same taxes as
+           an itemized deduction if you do not (26 U.S.C. 164, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section164&amp;num=0&amp;edition=2024). The
+           IRS says it this way: 'Instead of claiming a credit for eligible foreign taxes, you can
+           choose to deduct foreign income taxes' and 'Generally, if you take the credit for any
+           eligible foreign taxes, you can’t take any part of that year’s foreign taxes as a
+           deduction' (https://www.irs.gov/pub/irs-pdf/i1116.pdf, page 2). The choice is for THIS tax
+           year only (section 901(a)'s 'Such choice for any taxable year'), so choosing the credit
+           now does not bind next year's return.
+           WHICH IS BETTER: a credit is usually worth more, because $1 of credit cuts your tax by
+           $1 while $1 of deduction cuts it by your tax rate. The exception is when the section
+           904 limit on Form 1116 caps your credit below what you paid — the unused part carries
+           back one year and forward ten, but it may expire unused. Form 1116 computes the limit,
+           so a filer who wants to compare can complete the form and come back to this screen."
+
+        ASKED-WHEN (the gating facts): ask this screen when
+        /qualifiesForNoForm1116Exception is FALSE **and either** /writableForeignTaxPaid is
+        answered above $0 **or** form1116 /form1116Answered is true — that is, whenever the filer
+        can claim the credit by EITHER route. A filer on the no-Form-1116 exception need not be
+        asked, because for them the section 904 limitation does not apply and an unanswered
+        election keeps their credit; but an ANSWERED false is honoured on that route too (below).
+        A filer with no foreign tax on either route is not asked at all.
+        ⚠ THE "or form1116 /form1116Answered" HALF IS LOAD-BEARING. Asking only on the Schedule 3 line 1 amount would mean a filer routed straight to the Form 1116 country table — the flow the election exists to unlock — is never shown the election at all. The guard's arm 2 now REFUSES that
+        return rather than filing an unelected credit, so an application flow that skips this screen for
+        Form 1116 filers produces an unfileable return; asking on either route is what makes the
+        unlock reachable.
+        ⚠ ORDER: ask after /qualifiesForNoForm1116Exception resolves. A filer on the exception keeps
+        the credit through /foreignTaxCreditAmount when this is unanswered or TRUE; an answered
+        FALSE turns that credit off (section 904(j) only lifts the section 904(a) limitation for a
+        filer who claims the credit), and the foreign tax is then the filer's own Schedule A line 6
+        entry.
+
+        UNANSWERED POSTURE, and why it is not a default: leave it unanswered until the filer
+        answers. There is no safe default — TRUE would file a credit the filer may not want, FALSE
+        would give up a credit they are probably owed — so the reader
+        /electsForeignTaxCreditUnderSection901 reads FALSE for an unanswered election and
+        /knockoutForeignTaxRequiresForm1116 keeps refusing the return. The filer sees a refusal,
+        not a wrong number. The application must therefore treat this screen as REQUIRED for the
+        asked-when population: skipping it makes the return unfileable.
+
+        VALIDATION: type Boolean. No Min, no Max, no enum options path — the two labels above are
+        the rendering of true and false, not an Enum. Not multi-select. No free text.
+
+        WHAT THE ANSWER FEEDS: /electsForeignTaxCreditUnderSection901 (complete-safe reader) →
+        /knockoutForeignTaxRequiresForm1116 (answered TRUE plus an opened Form 1116 lifts the
+        refusal; answered FALSE keeps it). It does NOT change any dollar on the return by itself:
+        the credit is computed by form1116 /form1116Line35ForeignTaxCredit and carried by
+        schedule3 /sched3Line1, and the deduction is a separate self-report,
+        scheduleA /writableScheduleALine6OtherTaxes.
+
+        DOWNSTREAM SCREEN ORDER, because the two answers lead to different places:
+          answered TRUE → send the filer into the Form 1116 country table
+                           (form1116 /form1116ForeignCountries) — the return cannot be filed until
+                           that collection exists, and this election alone does not lift the
+                           refusal.
+          answered FALSE → send the filer to Schedule A line 6 and write the same $X into
+                           scheduleA /writableScheduleALine6OtherTaxes with the type half
+                           /writableScheduleALine6OtherTaxesType set to name the foreign income
+                           tax. THIS ROUTING IS NOT BUILT IN THE DICTIONARY and must not be
+                           inferred: /writableForeignTaxPaid is the CREDIT intake and nothing here
+                           copies it to Schedule A, so a return that elects the deduction and does
+                           not make that Schedule A entry loses the amount entirely. Until the application
+                           builds that hand-off, the deduction answer leaves the return refused,
+                           which is the honest state and is residue (c) of the knockout.
+
+        MeF (in scope): electing the credit means the transmitted return
+        carries the Form 1116 document — the repo's own binding name for it is IRS1116, with
+        Schedule B as IRS1116SB (dictionary/pdf/2025/IRS1116 and dictionary/pdf/2025/IRS1116SB for the field maps). THIS ELECTION ITSELF BINDS TO NOTHING IN MeF: it is not a
+        transmitted element. Section 901(a) is elected BY the act of claiming the credit on the
+        return — Form 1116 attached and Schedule 3 line 1 filled — so there is no election
+        checkbox, no statement and no attachment for it, and none is owed. Electing the DEDUCTION
+        is likewise expressed by the absence of Form 1116 plus the Schedule A line 6 entry
+        (IRS1040SA). So none of this knockout's four residues is a MeF binding gap; all four are
+        intake states.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/electsForeignTaxCreditUnderSection901">
+      <Name>Elects the IRC 901(a) foreign tax credit (complete-safe)</Name>
+      <Description>/writableElectsForeignTaxCreditUnderSection901 when answered, else false — the
+        IsComplete/Switch wrapper, the same shape as this module's
+        /notExcludingPossessionOrPuertoRicoIncome and as scheduleA
+        /electsClaimOfRightRepaymentDeduction. It depends on NOTHING but its own writable, so the
+        knockout that reads it introduces no cycle with the amounts that knockout gates.
+
+        FALSE IS THE PROTECTIVE DIRECTION HERE, and that is the whole reason the wrapper is safe.
+        This fact's only consumer is /knockoutForeignTaxRequiresForm1116, where it appears
+        NEGATED: an unanswered election leaves the guard STANDING, so a filer who has not chosen
+        is refused rather than filed on a route they never picked. The asymmetry is deliberate and
+        is the same one scheduleA /writableElectsClaimOfRightRepaymentDeduction records — answered
+        true, the return computes the elected route and files; unanswered or false, the refusal
+        that was there before this block is there after it.
+
+        /foreignTaxCreditAmount DOES NOT READ THIS WRAPPER, because the wrapper turns silence into
+        false. It reads the WRITABLE under an IsComplete guard: an ANSWERED false removes the
+        no-Form-1116 credit (the exception is a section 904(j) election that only lifts the section
+        904(a) limitation for a filer who claims the credit; the credit itself is the section 901(a)
+        choice), while an unanswered election keeps the no-Form-1116 filer's credit, because that
+        filer need not be asked.
+
+        EXPORTED because it is the signal an intake surface needs to know the question is live:
+        the dictionary cannot ask the filer anything, and an application screen deciding whether to
+        put the credit-or-deduction question in front of this filer has nothing else to read.
+        Same reasoning as /claimOfRightRepaymentExceedsThreshold's Export.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForeignTaxRequiresForm1116">
+      <Name>Knockout: a claimed foreign tax credit that does not meet the no-Form-1116 exception requires Form 1116 (out of scope)</Name>
+      <Description>The filer claims foreign
+        tax (/writableForeignTaxPaid answered and greater than $0) but the Schedule 3 line 1 Exception
+        is not available (/qualifiesForNoForm1116Exception false), so the taxpayer
+        must complete and attach Form 1116 to claim the foreign tax credit — which form1116.xml now
+        models directly (see the ARM 2/3 narrowing below). Without this refusal /foreignTaxCreditAmount would silently fall to 0 in this case, DENYING a credit the filer is owed (an over-statement of tax up to ~$700) with no
+        surfacing — the return would be filed with a too-high tax. Silently under-crediting an
+        unmodelled case is the World-#1 failure mode; this BLOCKS SUBMISSION so the state surfaces
+        instead.
+        Dual-wired: its own BlockSubmissionOnTrue plus membership in flow /flowIsKnockedOut (like every
+        sibling knockout). interpretation:provisional.
+
+        IT ENFORCES ALL FIVE CONDITIONS, NOT CONDITION 2 ALONE. The printed test is CONJUNCTIVE with FIVE conditions; on the amount alone the return that fails condition 1 (foreign source income that is not 1099-reported
+        interest and dividends — foreign wages, foreign rental, a K-1 with no K-3) or condition 3 (the
+        16-day holding / no-obligation rule) would be GRANTED the credit and filed clean. That is the taxpayer-favourable half of the same defect this knockout was authored to close.
+
+        THE DISPOSITION IS form8919's, AND THE CHOICE IS DELIBERATE.
+        form8919:/knockoutForm8919WagesWithoutReasonCode faces the identical printed structure ("You
+        must file Form 8919 if all of the following apply.", four conjuncts) and makes the unstated
+        conjunct a REFUSAL rather than a Description: "The filer either states the printed ground or
+        does not claim the wages." That refusal is adjudicated correct-refusal. The two facts agree. ONE DIFFERENCE IS RECORDED RATHER THAN GLOSSED:
+        form8919 could say "the whole committed corpus never reaches the test" because its trigger is
+        a complete-safe $0 line nobody answers. This trigger IS answered — by 6 unit scenarios, 14
+        node-test fixtures and one syndoc demo profile — so those fixtures state conditions 1 and 3
+        today, with every value unchanged. Stating a newly-required printed ground is not
+        weakening a test; it is what the printed test always required and nothing asked for.
+
+        THREE CONJUNCTS, AND THE MIDDLE ONE IS NEW AND LOAD-BEARING. (1) IsComplete(amount): a return
+        that never answers foreign tax is untouched, which is ~890 of the 896 committed scenarios.
+        (2) amount GreaterThan $0: the old predicate had no such term because "greater than the
+        threshold" implied it. Without it, a return that ANSWERS $0 foreign tax — a real state, the
+        intake writes it — would refuse for failing to attest conditions on a credit it is not
+        claiming.
+        (3) Not(/qualifiesForNoForm1116Exception), which is complete-safe FALSE, so this whole All is
+        Complete on every return and the knockout never goes Incomplete.
+
+        NOT RETIRED, AND THE ROW STAYS grandfathered. This is a WIDENING, not a discharge: the
+        original trigger (foreign tax over $300/$600) still refuses, still for the same printed
+        reason, and retiring it needs Form 1116 itself — the per-category §904 limitation, carryovers,
+        non-passive categories and the AMT FTC. THE DOCUMENT BLOCKER IS GONE:
+        https://www.irs.gov/pub/irs-pdf/f1116.pdf and https://www.irs.gov/pub/irs-pdf/i1116.pdf are vendored, so a
+        Form 1116 build no longer has an acquisition gap in front of it — it has a size. No fact in
+        this module cites them yet; they are vendored to discharge the blocker the module memory and
+        interest_memory both named, not consumed here. NARROWED, AND NOT RETIRED. The
+        paragraph above says retiring this needs Form 1116 itself. Form 1116 arrived: form1116.xml
+        carries 135 sweep-promoted facts computing the per-category section 904 limitation, the
+        Schedule B carryover table and line 35, and schedule3 /sched3Line1
+        carries /form1116Line35ForeignTaxCredit for a return that opened the form. So the credit
+        this guard was protecting was already computed and already wired — and this guard was
+        still refusing every filer it computes for. That is an OVER-REFUSAL of a population the
+        contract says "is owed money", and closing it is the whole of this narrowing.
+
+        THE BODY IS NOW AN Any OF THREE ARMS. ARM 1 is the guard as it always was, plus one new
+        conjunct Not(All(elected, opened)): a return files this credit when the filer has ELECTED
+        the section 901(a) credit over the section 164(a)(3) deduction
+        (/electsForeignTaxCreditUnderSection901) AND has OPENED Form 1116 (form1116
+        /form1116Answered, answered-ness on the RAW /form1116ForeignCountries collection).
+        Conditions 1 through 5 of the Schedule 3 line 1 Exception, the amount and the
+        greater-than-$0 term are untouched inside it.
+
+        ARMS 2 AND 3 each close a SILENT-FILE path that arm 1 alone cannot see because arm 1 is gated on
+        /writableForeignTaxPaid being ANSWERED.
+
+        ARM 2 - THE SECTION 901 CREDIT ROUTE IS LIVE AND THE ELECTION IS NOT MADE:
+        All(Not(exception), form1116 /form1116Answered, Not(elected)). Those first two conjuncts
+        are exactly the selector schedule3 /sched3Line1 uses to pick its arm 2, the arm that
+        carries form1116 /form1116Line35ForeignTaxCredit. A filer routed straight to the Form 1116
+        country table - which is the flow the section 901 election exists to unlock - never answers
+        /writableForeignTaxPaid at all, so arm 1's IsComplete conjunct is false, the guard was
+        false, and the section 901 credit filed with the election unanswered, or explicitly
+        answered FALSE for the deduction. That is the choice the statute gives the taxpayer being
+        made for them by a screen they were never shown.
+
+        ARM 3 - ENTERED FOREIGN TAX THE FORM DOES NOT CARRY:
+        All(IsComplete(amount), amount &gt; $0, Not(exception), opened, Not(line 8 total &gt; $0)).
+        The filer states a nonzero foreign tax on the Schedule 3 line 1 intake and then files a
+        Form 1116 whose Part II line 8 total is $0 - an empty country table, or one whose columns
+        are half answered. Their stated tax then reaches NO line on the return, which is verbatim
+        the silent-under-benefit class this guard keeps residue (c) refused for on the DEDUCTION
+        side; the narrowing had opened the same gap on the CREDIT side, with a green fixture
+        pinning it. It is now a refusal.
+
+        WHAT ARM 3 DELIBERATELY DOES NOT DO is compare the two amounts. A filer who enters $250 on
+        the Schedule 3 screen and $1,800 on Form 1116 FILES, and files $1,800: Form 1116 is the
+        authoritative computation, section 904 governs it, and refusing every divergence would
+        refuse a filer whose form is simply more complete than their first answer. Only the total
+        ABSENCE of a carried amount is refused. The general consistency gate between the two intakes is a named gap.
+
+        AND ARM 3 DOES NOT TOUCH form1116 /form1116Answered ITSELF, deliberately. That predicate's
+        own Description names a strengthening - "Complete AND at least one item" - and applying it
+        THERE would be wrong: /form1116Answered is also schedule3 /sched3Line1's arm-2 selector, so
+        strengthening it would push a legitimate carryover-only filer (Schedule B line 10, no
+        current-year country row) off arm 2 onto arm 3 of that Switch and zero a credit they are
+        owed. The consistency test belongs LOCALLY, in this guard, where it refuses rather than
+        silently rewrites.
+
+        EVERY COMMITTED FIXTURE IS STILL BYTE-IDENTICAL. Arms 2 and 3 both require
+        form1116 /form1116Answered, and no committed scenario answers /form1116ForeignCountries
+        (no interview screen creates it), so both arms are FALSE corpus-wide and the Any equals
+        arm 1, which equals the pre-narrowing body corpus-wide because the election is unanswered
+        everywhere.
+
+        FOUR RESIDUES REMAIN, AND EACH IS A DATA-COMPLETENESS OR CONTRADICTION STATE THE ENGINE
+        CANNOT RESOLVE — which is why this is a narrowing and not a retirement.
+        (a) THE ELECTION IS UNANSWERED. Section 901(a) allows the credit only if the taxpayer
+        chooses it, and the choice is the filer's; a return that never states it cannot be filed
+        on either route without the dictionary picking one. (b) THE DEDUCTION IS ELECTED AND FORM 1116 IS OPEN. The two intakes contradict: the
+        instructions say "if you take the credit for any eligible" "foreign taxes, you can’t take
+        any part of that year’s foreign" "taxes as a deduction", so a filer who has said "deduct"
+        and then filled in Form 1116 has given two incompatible answers and no computation can
+        decide which one is wrong. (c) FORM 1116 IS NOT OPEN. The filer claims foreign tax above the Exception, so the
+        printed instruction is "must complete and attach Form 1116 to" "do so", and the country
+        table this dictionary computes from does not exist. This covers BOTH the elected-credit
+        case and the elected-deduction case. The second of those deserves its own sentence, because it looks like a case that should be
+        freed and is not: /writableForeignTaxPaid is the CREDIT intake, and this dictionary does
+        NOT route that amount to Schedule A line 6 when the deduction is elected — the deduction
+        is its own separate self-report, scheduleA /writableScheduleALine6OtherTaxes. Freeing that
+        filer would file a return on which the foreign tax they entered reaches no line at all,
+        which is the silent-under-benefit class this guard exists to prevent. Routing it is a
+        SERVICE-side intake question (ask the amount once, write it to the elected route), not a
+        dictionary computation.
+        (d) FORM 1116 IS OPEN BUT CARRIES NO FOREIGN TAX while the filer has stated one. The
+        symmetric case of (c), on the credit side, and the reason arm 3 exists. The two intakes
+        disagree in the one way no computation can repair — the form says $0 and the filer says
+        $250 — and filing would lose the $250.
+
+        WHAT THE DICTIONARY DELIBERATELY DOES NOT ENFORCE, so a later reader does not read the
+        absence as an oversight: it does not test scheduleA /writableScheduleALine6OtherTaxes
+        against this election. Schedule A line 6 is a free-entry "Other taxes" line that also
+        holds items that are not foreign income taxes and whose type half is free text, so a guard
+        on "line 6 is nonzero AND the credit is elected" would refuse filers whose line 6 is a
+        different tax entirely. The mutual exclusion this dictionary CAN see is residue (b), and
+        it enforces exactly that much.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete>
+              <Dependency path="/writableForeignTaxPaid" />
+            </IsComplete>
+            <GreaterThan>
+              <Left>
+                <Dependency path="/writableForeignTaxPaid" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+            <Not>
+              <Dependency path="/qualifiesForNoForm1116Exception" />
+            </Not>
+            <Not>
+              <All>
+                <Dependency path="/electsForeignTaxCreditUnderSection901" />
+                <Dependency module="form1116" path="/form1116Answered" />
+              </All>
+            </Not>
+          </All>
+          <All>
+            <Not>
+              <Dependency path="/qualifiesForNoForm1116Exception" />
+            </Not>
+            <Dependency module="form1116" path="/form1116Answered" />
+            <Not>
+              <Dependency path="/electsForeignTaxCreditUnderSection901" />
+            </Not>
+          </All>
+          <All>
+            <IsComplete>
+              <Dependency path="/writableForeignTaxPaid" />
+            </IsComplete>
+            <GreaterThan>
+              <Left>
+                <Dependency path="/writableForeignTaxPaid" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+            <Not>
+              <Dependency path="/qualifiesForNoForm1116Exception" />
+            </Not>
+            <Dependency module="form1116" path="/form1116Answered" />
+            <Not>
+              <GreaterThan>
+                <Left>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency module="form1116" path="/form1116Line8Total" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <Dependency module="form1116" path="/form1116Line8Total" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/knockoutScheduleK3ForeignTaxesReachNoLine">
+      <Name>Knockout: direct foreign taxes on a received Schedule K-3 reach no line of the return</Name>
+      <Description>Refuses a return that received a Schedule K-3 reporting direct foreign taxes while neither credit route carries a positive amount: Form 1116 Part II line 8 is $0 and the Schedule 3 line 1 foreign-tax intake is unanswered or $0. The Form 1116 instructions route amounts claimed as a credit to Part II of each applicable Form 1116. A taxpayer may instead choose the Schedule A deduction: section 901(a) allows the credit only "If the taxpayer chooses to have the benefits of this subpart", and the instructions print the deduction as the alternative. A filer who has ANSWERED /writableElectsForeignTaxCreditUnderSection901 false has made that choice, so carrying the K-3 taxes on no credit line is lawful for them and this guard does not fire. An unanswered election still refuses. The guard does not attribute the Schedule A line 6 aggregate to the received K-3 taxes: whether the deducted amount reaches Schedule A is the filer's own line 6 entry, and other guards (the sibling credit-intake guard among them) still govern the same return. A half-entered Form 1116 country row does not establish that the K-3 tax reaches the credit calculation: its incomplete line 8 leaves this guard Complete true when the Schedule 3 intake is absent or zero.
+
+        Each of the four conjuncts is complete-safe. The K-3 total reads zero without received rows. The Form 1116 test first checks IsComplete(line 8) and only then compares it with zero. The Schedule 3 test and the election test likewise check IsComplete before reading their writables. A confirmed positive amount on either credit route releases this guard; other guards still govern election, eligibility, and completion of that route.
+
+        This is a completeness refusal, not a statutory requirement to elect a credit. The filer may choose a deduction under section 164(a)(3); an answered deduction election releases this guard (the fourth conjunct). The current K-3 intake does not route the elected amount to Schedule A, so the typed K-3-to-Schedule-A hand-off and its consistency checks remain successor work.
+
+        This guard tests absence, not equality. The K-3 total spans income categories while each Form 1116 has a separate limitation. A partial positive carry can still leave K-3 taxes unaccounted for; per-category reconciliation remains unfinished. Dual-wired through BlockSubmissionOnTrue and flow:/flowIsKnockedOut. interpretation:provisional.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency module="scheduleK3" path="/scheduleK3DirectForeignTaxesTotal" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency module="form1116" path="/form1116Line8Total" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency module="form1116" path="/form1116Line8Total" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableForeignTaxPaid" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/writableForeignTaxPaid" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+              </IsComplete>
+              <Not>
+                <Dependency path="/writableElectsForeignTaxCreditUnderSection901" />
+              </Not>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableMadeSection962Election">
+      <Name>Section 962 election made for the year (writable)</Name>
+      <Description>Whether the filer, a United States shareholder of a controlled foreign corporation, elects under section 962 for 2025 to be taxed at corporate rates on the amounts included in gross income under section 951(a) (Schedule 1 line 8n, and the section 951A inclusion on line 8o, which section 951A(f) treats the same way). The application asks it when either inclusion is answered above $0. The election replaces the tax on those amounts with the section 11 corporate tax, lets the filer claim the section 960 deemed-paid credit, which an individual claims on Form 1118 rather than Form 1116, and puts the tax, less that credit, on Form 1040 line 16 box 3 with the label "962" and an attached statement. Unanswered or No leaves the return unchanged. Yes refuses the return (/knockoutSection962ElectionNotSupported).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutSection962ElectionNotSupported">
+      <Name>Knockout: the filer makes a section 962 election</Name>
+      <Description>SCREEN: "You chose to be taxed at corporate rates on your controlled foreign corporation income (a section 962 election). This software can't figure that tax or prepare Form 1118." Refuses the return when /writableMadeSection962Election is answered Yes. The election taxes the section 951(a) amounts at the section 11 rates in place of the individual rates, prorates each section 11 bracket, allows the section 960 deemed-paid credit claimed on Form 1118, and reports the net on Form 1040 line 16 box 3 with an attached statement. None of that is computed here, and the individual-rate tax this return would otherwise compute on those amounts is not the tax the law imposes. Unanswered or No does not fire.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableMadeSection962Election" />
+          </IsComplete>
+          <Dependency path="/writableMadeSection962Election" />
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

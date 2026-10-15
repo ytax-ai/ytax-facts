@@ -1,0 +1,210 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm8834Applies">
+      <Name>Form8834 is being completed</Name>
+      <Description>Form8834 is being completed. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8834Applies">
+      <Name>Form8834 is active</Name>
+      <Description>Form8834 is active. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8834Applies" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8834Applies" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8834Line1">
+      <Name>Line 1: prior-year passive electric vehicle credits released by Form 8582-CR</Name>
+      <Description>Only the current-year release of a qualified electric vehicle credit for a vehicle placed in service before 2007. This is a Form 8582-CR source amount, not the credit allowed after this form's tax limit.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8834Line1">
+      <Name>Form 8834 line 1</Name>
+      <Description>Form 8834 line 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableForm8834Line1" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line2">
+      <Name>Form 8834 line 2</Name>
+      <Description>Form 8834 line 2. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/outFormRegularTaxBeforeCredits" module="outFormCreditLimits" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line3a">
+      <Name>Form 8834 line 3a</Name>
+      <Description>Form 8834 line 3a. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/sched3Line1" module="schedule3" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line3b">
+      <Name>Form 8834 line 3b</Name>
+      <Description>Form 8834 line 3b. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/outFormCreditsBefore8834" module="outFormCreditLimits" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line3c">
+      <Name>Form 8834 line 3c</Name>
+      <Description>Form 8834 line 3c. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8834Line3a" />
+          <Dependency path="/form8834Line3b" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line4">
+      <Name>Form 8834 line 4</Name>
+      <Description>Form 8834 line 4. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8834Line2" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8834Line3c" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line5">
+      <Name>Form 8834 line 5</Name>
+      <Description>Form 8834 line 5, the tentative minimum tax an individual copies from Form 6251 line 9: form6251 /amtLine9TentativeMinimumTaxAfterAmtftcFloored, line 7 less the line 8 AMT foreign tax credit, floored at zero. Line 7 less the credit is the section 55(b)(1) amount that section 26(c) makes the tentative minimum tax for this credit, whether or not the filer owes AMT. The floor keeps a negative line 9 (a foreign tax credit above line 7) from raising the line 6 limit above the net regular tax. The reasons for both are on the shared fact.</Description>
+      <Derived>
+        <Dependency path="/amtLine9TentativeMinimumTaxAfterAmtftcFloored" module="form6251" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line6">
+      <Name>Form 8834 line 6</Name>
+      <Description>Form 8834 line 6. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8834Line4" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8834Line5" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Line7">
+      <Name>Form 8834 line 7</Name>
+      <Description>Form 8834 line 7. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8834Line1" />
+          <Dependency path="/form8834Line6" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8834Credit">
+      <Name>Qualified electric vehicle credit allowed; Schedule 3 line 6i</Name>
+      <Description>Qualified electric vehicle credit allowed; Schedule 3 line 6i. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form8834Applies" />
+            </When>
+            <Then>
+              <Round>
+                <Dependency path="/form8834Line7" />
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8834UnusedCreditLost">
+      <Name>Unused Form 8834 credit that cannot be carried forward</Name>
+      <Description>Unused Form 8834 credit that cannot be carried forward. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8834Line1" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8834Line7" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

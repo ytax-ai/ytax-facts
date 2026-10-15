@@ -1,0 +1,545 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/writableSplitRefundAcrossAccounts">
+      <Name>Filer elects to split the direct-deposit refund across two or three accounts (Form 8888)</Name>
+      <Description>User response: the filer wants the refund on Form 1040 line 35a deposited into
+        more than one account, which is what attaching Form 8888 means. A FILER CHOICE, not an arithmetic: "Use Form 8888 if you want us to
+        directly deposit your refund (or part of it) to either two or three accounts at a bank or
+        other financial institution". Asked only after the filer has chosen direct deposit
+        (paymentMethod:/refundViaAch) and entered the first account (paymentMethod:/bankAccount);
+        the split's first row IS that account. Unanswered means no split: every consumer below
+        resolves Complete at its no-election default, and the Form 1040 lines 35a-35d posture is
+        byte-identical to the return before this module existed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableFirstAccountDepositAmount">
+      <Name>Form 8888 line 1a, amount to be deposited in the first account</Name>
+      <Description>Form 8888 line 1a, "Amount to be deposited in first account". The FIRST
+        account is paymentMethod:/bankAccount, the account already entered for Form 1040 lines
+        35b-35d (see /form8888FirstAccount); this is the portion of the refund that goes to it.
+        Floored at zero by the writable; the form's own floor is $1 per deposit ("Each deposit
+        must be at least $1"), which /form8888AnyDepositBelowMinimum enforces as a refusal rather
+        than a silent clamp.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts">
+      <Name>Form 8888 lines 2 and 3, the additional accounts the refund is split into</Name>
+      <Description>The accounts on Form 8888 lines 2 and 3, in order: the second and (if any)
+        third account the refund is split into. One item is a two-account split, two items a
+        three-account split; the form has no fourth row and is not for a single account, so
+        /form8888AllocationRowCountOutsideForm refuses zero items and three or more. The first
+        account is NOT in this collection: it is paymentMethod:/bankAccount, already held (see
+        the module header). An empty or absent
+        collection on a return that does not elect the split is the no-election return and every
+        consumer resolves Complete at its default on it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/writableAccount">
+      <Name>Form 8888 lines 2b-2d or 3b-3d, an additional account's routing number, type and account number</Name>
+      <Description>The routing number (line b), Checking or Savings (line c) and account number
+        (line d) of an additional account on Form 8888 line 2 or 3. The same validated
+        BankAccount type paymentMethod:/bankAccount uses, so the routing-number and
+        account-number rules ride on the type and are not re-stated here. The form's own
+        guidance for these lines: routing number nine digits, first two digits 01-12 or 21-32;
+        account number up to 17 characters; check exactly one type box.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <BankAccount />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/writableDepositAmount">
+      <Name>Form 8888 line 2a or 3a, amount to be deposited in this additional account</Name>
+      <Description>Form 8888 line 2a ("Amount to be deposited in second account") or line 3a
+        ("Amount to be deposited in third account") for this item. Floored at zero by the
+        writable; the form's $1-per-deposit floor is enforced by refusal
+        (/form8888AnyDepositBelowMinimum).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/depositAmountFloored">
+      <Name>Form 8888 additional deposit amount floored at zero</Name>
+      <Description>Non-negative reader for an additional-account deposit amount.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../writableDepositAmount" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888FirstAccountDepositAmountFloored">
+      <Name>Form 8888 first deposit amount floored at zero</Name>
+      <Description>Non-negative reader for the first-account deposit amount.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableFirstAccountDepositAmount" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/rowIncomplete">
+      <Name>This Form 8888 row is missing its account or its amount</Name>
+      <Description>True when this additional-account row has been opened but its account
+        (lines b-d) or its amount (line a) is unanswered. A half-answered row is exactly what the
+        form says will delay or reject the deposit ("You haven't given a valid account number or
+        routing transit number"), so it fails CLOSED through the allocation knockout rather than
+        being summed as $0.</Description>
+      <Derived>
+        <Not>
+          <All>
+            <IsComplete><Dependency path="../writableAccount" /></IsComplete>
+            <IsComplete><Dependency path="../writableDepositAmount" /></IsComplete>
+          </All>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/depositBelowMinimum">
+      <Name>This Form 8888 row's deposit is under the form's $1 floor</Name>
+      <Description>True when this row's amount is answered and below $1: "Each deposit must be
+        at least $1." False when unanswered (that is /rowIncomplete's job).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableDepositAmount" /></IsComplete></When>
+            <Then>
+              <LessThan>
+                <Left><Dependency path="../writableDepositAmount" /></Left>
+                <Right><Dollar>1</Dollar></Right>
+              </LessThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/accountIsChecking">
+      <Name>Form 8888 line 2c or 3c, the Checking box for this additional account</Name>
+      <Description>The Checking box on Form 8888 line 2c or 3c for this row: TRUE when the
+        account this row carries (../writableAccount) is a checking account. A PROJECTION, NOT NEW
+        INTAKE — the account type already ships on the BankAccount the filer entered once; a
+        printed checkbox needs a Boolean that NAMES the box, and that Boolean is what was missing.
+        The printed line is exclusive, so this fact and /accountIsSavings are the two sides of one
+        answer and are never both true. INCOMPLETE while this row's account is unanswered, which is
+        deliberate: such a row is already refused by /form8888AllocationIncomplete, and a
+        half-answered row must print nothing rather than print an unchecked box the filer never
+        chose. Discharges the line 2c and line 3c DECLARED GAPs named in
+        dictionary/pdf/2025/IRS8888/en/configuration.yml, which asked for
+        exactly this path. Vendored source
+        https://www.irs.gov/pub/irs-pdf/f8888.pdf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="../writableAccount/accountType" /></Left>
+          <Right><String>Checking</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccounts/*/accountIsSavings">
+      <Name>Form 8888 line 2c or 3c, the Savings box for this additional account</Name>
+      <Description>The Savings box on Form 8888 line 2c or 3c for this row: TRUE when the account
+        this row carries (../writableAccount) is a savings account. The twin of
+        /accountIsChecking and the same projection of one already-entered account type; the
+        printed line takes one box, not two. INCOMPLETE while this row's account is unanswered,
+        for the reason given on the twin. Discharges the line 2c and line 3c DECLARED GAPs named in
+        dictionary/pdf/2025/IRS8888/en/configuration.yml. Vendored source
+        https://www.irs.gov/pub/irs-pdf/f8888.pdf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="../writableAccount/accountType" /></Left>
+          <Right><String>Savings</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888SplitRefundElected">
+      <Name>The Form 8888 split is in effect: elected, a refund is due, and direct deposit was chosen</Name>
+      <Description>The election as it reaches the return: /writableSplitRefundAcrossAccounts
+        answered Yes AND a refund is actually due (taxCalculations:/dueRefund, Form 1040 line 35a
+        above zero) AND the filer chose direct deposit (paymentMethod:/refundViaAch). This is
+        what taxCalculations:/form8888Attached reads, and it is COMPLETE-SAFE FALSE: an
+        unanswered election is no election.
+
+        THE TWO MOOT CASES ARE MOOT, NOT REFUSED, and that is a deliberate mirror of the
+        return's existing posture. A Yes with no refund due has nothing to split, exactly as an
+        entered /bankAccount with no refund due sends nothing to lines 35b-35d. A Yes with a
+        mailed check chosen is the same shape as paymentMethod:/xmlRefundBankAccount, which
+        resolves to nothing when /refundViaAch is false whatever /bankAccount holds: the
+        earlier answer governs and the later one is unreachable on the printed form (the
+        December 2025 Form 8888 has no paper-check line). The application asks the split only after
+        direct deposit is chosen (INTAKE-GROUPS, group "Form 8888 refund split"), so neither
+        state is a screen a filer can reach in order.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableSplitRefundAcrossAccounts" /></IsComplete></When>
+            <Then>
+              <All>
+                <Dependency path="/writableSplitRefundAcrossAccounts" />
+                <Dependency module="taxCalculations" path="/dueRefund" />
+                <Dependency module="paymentMethod" path="/refundViaAch" />
+              </All>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888FirstAccount">
+      <Name>Form 8888 lines 1b-1d, the first account: the return's own direct-deposit account</Name>
+      <Description>The routing number, type and account number printed on Form 8888 lines
+        1b-1d, which are paymentMethod:/bankAccount whenever the split is in effect and nothing
+        otherwise. One quantity, one fact: the filer entered this account once for Form 1040
+        lines 35b-35d, and when Form 8888 is attached those 1040 lines go blank
+        (paymentMethod:/xmlRefundBankAccount) and the account appears here instead. Nothing
+        reads this yet: it is the successor IRS8888 export's and print template's first-row
+        source.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/form8888SplitRefundElected" /></When>
+            <Then><Dependency module="paymentMethod" path="/bankAccount" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888FirstAccountIsChecking">
+      <Name>Form 8888 line 1c, the Checking box for the first account</Name>
+      <Description>The Checking box on Form 8888 line 1c: TRUE when the first account
+        (/form8888FirstAccount, which IS paymentMethod:/bankAccount whenever the split is in
+        effect) is a checking account. A PROJECTION, NOT NEW INTAKE — the account type already
+        ships; the printed checkbox needed a Boolean naming the box. INCOMPLETE on every return
+        that does not elect the split, because /form8888FirstAccount itself resolves to nothing
+        there and this form is not printed at all
+        (dictionary/pdf/2025/IRS8888/en/configuration.yml gates the whole register on
+        includeWhen: /form8888Attached). DO NOT SUBSTITUTE paymentMethod:/refundAccountIsChecking:
+        it reads /xmlRefundBankAccount, which resolves to NOTHING once /form8888Attached is true,
+        so on exactly the population that files this form it is Incomplete and prints nothing --
+        that trap is recorded in the register itself. Discharges the line 1c DECLARED GAP named in
+        that register, which asked for exactly this path. Vendored source
+        https://www.irs.gov/pub/irs-pdf/f8888.pdf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/form8888FirstAccount/accountType" /></Left>
+          <Right><String>Checking</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888FirstAccountIsSavings">
+      <Name>Form 8888 line 1c, the Savings box for the first account</Name>
+      <Description>The Savings box on Form 8888 line 1c: TRUE when the first account
+        (/form8888FirstAccount) is a savings account. The twin of /form8888FirstAccountIsChecking,
+        the same projection of one already-entered account type, Incomplete on the same
+        no-election population and carrying the same do-not-substitute trap against
+        paymentMethod:/refundAccountIsSavings. Discharges the line 1c DECLARED GAP named in
+        dictionary/pdf/2025/IRS8888/en/configuration.yml. Vendored source
+        https://www.irs.gov/pub/irs-pdf/f8888.pdf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="/form8888FirstAccount/accountType" /></Left>
+          <Right><String>Savings</String></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AdditionalAccountCount">
+      <Name>Number of additional accounts entered on Form 8888 lines 2 and 3</Name>
+      <Description>The number of /form8888AdditionalAccounts items; 0 when the collection was
+        never created. The form holds at most two (lines 2 and 3) and a split needs at least
+        one.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8888AdditionalAccounts" /></IsComplete></When>
+            <Then><CollectionSize><Dependency path="/form8888AdditionalAccounts" /></CollectionSize></Then>
+          </Case>
+          <Case><When><True /></When><Then><Int>0</Int></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888Line5TotalAllocation">
+      <Name>Form 8888 line 5, total allocation of refund: lines 1a + 2a + 3a</Name>
+      <Description>Form 8888 line 5, "Add lines 1a, 2a, and 3a. The total must equal the refund
+        amount shown on your tax return." Line 1a is /writableFirstAccountDepositAmount; lines
+        2a and 3a are the amounts on /form8888AdditionalAccounts. $0 when the split is not in
+        effect or the collection was never created (complete-safe for the no-election return).
+        When the split IS in effect this fact is deliberately NOT complete-safe: an unanswered
+        line 1a or row amount leaves it Incomplete, and /form8888AllocationIncomplete refuses the
+        return rather than summing a $0 the filer never entered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form8888SplitRefundElected" />
+                <IsComplete><Dependency path="/form8888AdditionalAccounts" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/form8888FirstAccountDepositAmountFloored" />
+                <CollectionSum>
+                  <Dependency path="/form8888AdditionalAccounts/*/depositAmountFloored" />
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AllocationRowCountOutsideForm">
+      <Name>The split names fewer than two or more than three accounts</Name>
+      <Description>Arm (a) of the allocation knockout: the split is in effect but the additional
+        collection holds no items (a one-account "split", which the form says not to file: "If
+        you want your refund deposited to only one account, don't complete this form") or three
+        or more (the form has lines for three accounts in all).</Description>
+      <Derived>
+        <All>
+          <Dependency path="/form8888SplitRefundElected" />
+          <Any>
+            <LessThan>
+              <Left><Dependency path="/form8888AdditionalAccountCount" /></Left>
+              <Right><Int>1</Int></Right>
+            </LessThan>
+            <GreaterThan>
+              <Left><Dependency path="/form8888AdditionalAccountCount" /></Left>
+              <Right><Int>2</Int></Right>
+            </GreaterThan>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AllocationIncomplete">
+      <Name>The split is in effect but a line 1a, 2 or 3 entry is unanswered</Name>
+      <Description>Arm (b) of the allocation knockout: the split is in effect and line 1a is
+        unanswered, or any additional row is missing its account or its amount. Fails CLOSED:
+        the form rejects a deposit request without a valid account and routing number, and a
+        missing amount cannot foot.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/form8888SplitRefundElected" />
+          <Any>
+            <Not><IsComplete><Dependency path="/writableFirstAccountDepositAmount" /></IsComplete></Not>
+            <All>
+              <IsComplete><Dependency path="/form8888AdditionalAccounts" /></IsComplete>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8888AdditionalAccounts">
+                      <Dependency path="rowIncomplete" />
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AnyDepositBelowMinimum">
+      <Name>The split is in effect and a deposit is under the form's $1 floor</Name>
+      <Description>Arm (c) of the allocation knockout: "Each deposit must be at least $1." A $0
+        line 1a or row amount is an account listed with nothing to deposit, which the form does
+        not allow; the writables floor at $0 so the filer's entry is preserved and the contradiction
+        refused rather than clamped.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/form8888SplitRefundElected" />
+          <Any>
+            <All>
+              <IsComplete><Dependency path="/writableFirstAccountDepositAmount" /></IsComplete>
+              <LessThan>
+                <Left><Dependency path="/writableFirstAccountDepositAmount" /></Left>
+                <Right><Dollar>1</Dollar></Right>
+              </LessThan>
+            </All>
+            <All>
+              <IsComplete><Dependency path="/form8888AdditionalAccounts" /></IsComplete>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8888AdditionalAccounts">
+                      <Dependency path="depositBelowMinimum" />
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888AllocationDoesNotFoot">
+      <Name>Form 8888 line 5 does not equal Form 1040 line 35a</Name>
+      <Description>Arm (d) of the allocation knockout: the split is in effect, line 5 is
+        computable, and it differs from the refund the return actually pays out,
+        taxCalculations:/form1040Line35aRefundAfterEstimatedTaxPenalty (Form 1040 line 35a, after
+        the line 36 carry-forward and the line 38 penalty come out of line 34; that is "the
+        refund amount shown on your tax return", not the line 34 overpayment). Foots when equal in
+        cents.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/form8888SplitRefundElected" />
+          <IsComplete><Dependency path="/form8888Line5TotalAllocation" /></IsComplete>
+          <NotEqual>
+            <Left><Dependency path="/form8888Line5TotalAllocation" /></Left>
+            <Right><Dependency module="taxCalculations" path="/form1040Line35aRefundAfterEstimatedTaxPenalty" /></Right>
+          </NotEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8888AllocationDoesNotFootToRefund">
+      <Name>Knockout: the Form 8888 allocation is incomplete, outside the form, or does not foot to line 35a</Name>
+      <Description>Refuses a return whose elected split cannot be filed as entered: (a) fewer
+        than two or more than three accounts (/form8888AllocationRowCountOutsideForm); (b) an
+        unanswered line 1a or a row missing its account or amount (/form8888AllocationIncomplete);
+        (c) a deposit under $1 (/form8888AnyDepositBelowMinimum); (d) line 5 not equal to Form
+        1040 line 35a (/form8888AllocationDoesNotFoot). Complete-safe False on every return that
+        does not elect the split.
+
+        PERMANENT DATA-COMPLETENESS RESIDUE. Every arm is unanswered or self-contradictory
+        intake, and the form says what happens to such a filing: "If the total on line 5 is
+        different, your refund may be delayed"; a missing account "will be rejected, and your
+        refund may be delayed or deposited in the last valid account listed". This dictionary
+        does not file a return whose refund routing it knows to be wrong. The refusal evaporates
+        as the filer answers: with every row complete, every deposit at least $1, and line 5 equal
+        to line 35a, it is False. Dual-wired (BlockSubmissionOnTrue here plus membership in
+        flow:/flowIsKnockedOut).</Description>
+      <BlockSubmissionOnTrue />
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Dependency path="/form8888AllocationRowCountOutsideForm" />
+          <Dependency path="/form8888AllocationIncomplete" />
+          <Dependency path="/form8888AnyDepositBelowMinimum" />
+          <Dependency path="/form8888AllocationDoesNotFoot" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8888AttachedWithoutFilingCarrier">
+      <Name>Knockout: Form 8888 is attached but this dictionary has no Form 8888 export or print template yet</Name>
+      <Description>Refuses every return on which the split is in effect
+        (/form8888SplitRefundElected), until the filing carrier ships. WHY THIS EXISTS: when Form
+        8888 is attached the 2025 Form 1040 instructions leave lines 35b-35d blank (the either/or
+        at "Lines 35a Through 35d"), and paymentMethod:/xmlRefundBankAccount now honours that. The
+        accounts must therefore travel on Form 8888 itself, and this dictionary has no IRS8888 MeF
+        export and no dictionary/pdf/2025/IRS8888 template: a split-elected return would transmit
+        a checked line 35a box and NO account. Refuse rather than file a refund with nowhere to go
+        (World #1). The arithmetic and the allocation knockout are complete and tested, so the
+        successor is the carrier alone.
+
+        RETIRES when the IRS8888 export (lines 1a-1d, 2a-2d, 3a-3d, 5, reading /form8888FirstAccount,
+        /writableFirstAccountDepositAmount, /form8888AdditionalAccounts and /form8888Line5TotalAllocation)
+        and the print template exist; delete this fact and its flow membership in the same
+        commit. Dual-wired (BlockSubmissionOnTrue here plus membership in flow:/flowIsKnockedOut).</Description>
+      <BlockSubmissionOnTrue />
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/form8888SplitRefundElected" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8888MefScheduleAttached">
+      <Name>Trigger for the IRS8888 filing carrier: the Form 8888 split is in effect</Name>
+      <Description>Return-level carrier TRIGGER for the Form 8888 split. This Boolean mirrors the
+        already-built /form8888SplitRefundElected posture so the IRS8888 MeF binding and the print
+        carrier can consume one stable downstream fact: true only when the filer elected a split, a
+        refund is due, and direct deposit was chosen. The Form 8888 arithmetic, account intake, and
+        fail-closed allocation guards remain in this module.
+
+        THIS FACT DOES NOT MEAN A CARRIER EXISTS, AND SAYS SO HERE BECAUSE ITS OWN VALUE WOULD
+        OTHERWISE IMPLY IT. It is TRUE on exactly the population
+        /knockoutForm8888AttachedWithoutFilingCarrier refuses, and both are committed asserts on
+        tests/nodes/ty2025/form8888/f8888-two-account-split-foots-exactly and
+        f8888-three-account-split-foots-exactly so the contradiction is measured rather than
+        described, and cannot resolve silently.
+
+        WHY mef="true" IS NOT ON THIS FACT OR ON THE FIVE THE CONTRACT NAMES — A SOURCE BLOCK,
+        NOT A SCOPE ONE. Invariant 7's amendment removed the e-file/MeF clause outright, so e-file/MeF
+        grounds no refusal and no EXTERNAL verdict in this repo
+        (the owner's scope amendment). The actual blocker is invariant 3, no fabricated
+        citations: no IRS8888 MeF schema is vendored. The one MeF artifact under sources/ is the
+        IRS1040 rendering stylesheet sources/mef-irs1040-stylesheet--ty2025--2025-11.xml
+        (4,280 lines); it names FormData/Form8888Ind, the Form 1040 line 35a checkbox, and nothing
+        for the IRS8888 schedule, so element names for Form 8888 lines 1a-1d, 2a-2d, 3a-3d and 5
+        are unciteable today. That is the same bar the queued /xmlAchPaymentDate twin sits behind
+        (paymentMethod.xml). The remedy is source acquisition; no dictionary computation is owed. Until a carrier
+        ships, /knockoutForm8888AttachedWithoutFilingCarrier continues to refuse an elected
+        split.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/form8888SplitRefundElected" />
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

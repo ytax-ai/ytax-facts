@@ -1,0 +1,4218 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/eitc.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/claimedSpouseCombatPayWithoutMFJ">
+      <Name>Claimed Spouse Combat Pay without a Spouse</Name>
+      <Description>Filer selected a combat pay option referencing a spouse without having a spouse</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/combatPayElection" />
+          </IsComplete>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <Any>
+            <Equal>
+              <Left>
+                <Dependency path="/combatPayElection" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/combatPayOptions">useSpouseCombatPay</Enum>
+              </Right>
+            </Equal>
+            <Equal>
+              <Left>
+                <Dependency path="/combatPayElection" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/combatPayOptions">useBothCombatPay</Enum>
+              </Right>
+            </Equal>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/combatPayElection">
+      <Name>Combat pay election</Name>
+      <Description>Whether the taxpayer elects to include their nontaxable combat pay for EITC.
+
+        They may choose to elect
+        their own combat pay, their spouse's combat pay separately, or both of their combat pay should they each have
+        combat pay.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Enum optionsPath="/combatPayOptions" />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/earnedIncomeCredit">
+      <Name>Earned income credit (EITC)</Name>
+      <Description>Earned income credit (EITC) (line 27 1040)
+
+        We calculate the EITC up to four times -- EITC may be
+        calculated with:
+        1. No combat pay (for people without combat pay, and people who elect not to include their
+        combat pay)
+        2. With the primary filer's combat pay
+        3. With the secondary filer's combat pay
+        4. With both filer's
+        combined combat pay.
+
+        If a user qualifies for more than 1 of those options (most taxpayers do not have combat pay
+        and will therefore default into the "no combat pay" option), we guide the taxpayer towards electing the combat
+        pay option that will give them the most EITC.
+      </Description>
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/doesNotWantToClaimEitc" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/eitcQualified" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency module="formW2s" path="/someFilerHasCombatPay" />
+                      <Equal>
+                        <Left>
+                          <Dependency path="/combatPayElectionAndOrRecommendation" />
+                        </Left>
+                        <Right>
+                          <Enum optionsPath="/combatPayOptions">usePrimaryCombatPay</Enum>
+                        </Right>
+                      </Equal>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency module="formW2s" path="/someFilerHasCombatPay" />
+                      <Equal>
+                        <Left>
+                          <Dependency path="/combatPayElectionAndOrRecommendation" />
+                        </Left>
+                        <Right>
+                          <Enum optionsPath="/combatPayOptions">useSpouseCombatPay</Enum>
+                        </Right>
+                      </Equal>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency module="formW2s" path="/someFilerHasCombatPay" />
+                      <Equal>
+                        <Left>
+                          <Dependency path="/combatPayElectionAndOrRecommendation" />
+                        </Left>
+                        <Right>
+                          <Enum optionsPath="/combatPayOptions">useBothCombatPay</Enum>
+                        </Right>
+                      </Equal>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcAmountWithBothTPCombatPay" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency module="formW2s" path="/someFilerHasCombatPay" />
+                      <Equal>
+                        <Left>
+                          <Dependency path="/combatPayElectionAndOrRecommendation" />
+                        </Left>
+                        <Right>
+                          <Enum optionsPath="/combatPayOptions">usePrimaryNotSpouseCombatPay</Enum>
+                        </Right>
+                      </Equal>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency module="formW2s" path="/someFilerHasCombatPay" />
+                      <Equal>
+                        <Left>
+                          <Dependency path="/combatPayElectionAndOrRecommendation" />
+                        </Left>
+                        <Right>
+                          <Enum optionsPath="/combatPayOptions">useSpouseNotPrimaryCombatPay</Enum>
+                        </Right>
+                      </Equal>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcAmountWithoutCombatPay" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingEitc">
+      <Name>Is receiving EITC</Name>
+      <Description>Whether the TP is receiving EITC</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/earnedIncomeCredit" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxEitcFromAGI">
+      <Description>
+        The maximum amount of EITC that can be receieved based on the taxpayer's AGI.
+      </Description>
+
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/eitcMaxCredit" />
+          </Minuend>
+
+          <Subtrahends>
+            <Switch>
+              <Case>
+                <When>
+                  <GreaterThan>
+                    <Left>
+                      <Add>
+                        <Dependency path="/eitcPhaseOutThreshold" />
+                        
+                        <Dollar>25</Dollar>
+                      </Add>
+                    </Left>
+                    <Right>
+                      <Dependency path="/eitcRoundedAGI" />
+                    </Right>
+                  </GreaterThan>
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Multiply>
+                    <Dependency path="/eitcPhaseOutRate" />
+                    <Subtract>
+                      <Minuend>
+                        <LesserOf>
+                          <Dependency path="/eitcRoundedAGI" />
+                          <Divide>
+                            <Dividend>
+                              <Add>
+                                <Dependency path="/eitcPhaseoutAmountLowerBound" />
+                                <Dependency path="/eitcCompletedPhaseoutAmount" />
+                              </Add>
+                            </Dividend>
+                            <Divisors>
+                              <Int>2</Int>
+                            </Divisors>
+                          </Divide>
+                        </LesserOf>
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="/eitcPhaseOutThreshold" />
+                      </Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Then>
+              </Case>
+            </Switch>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcAmountWithoutCombatPay">
+      <Name>The amount of the Earned Income Tax Credit without combat pay</Name>
+      <Description>The section 32(a) earned income credit computed on this return's earned income with NO
+        section 32(c)(2)(B)(vi) combat pay election. It is the credit percentage of earned income up to the
+        earned income amount, reduced by the phaseout percentage of the excess of adjusted gross
+        income (or earned income, if greater) over the phaseout amount, floored at $0 and held to
+        the AGI-side limit /maxEitcFromAGI that section 32(a)(2)(B) imposes. The earned income leg
+        it reads is /eitcRoundedEarnedIncomeWithoutCombatPay. Every year-indexed figure it consumes — /eitcMaxCredit, /eitcPhaseInRate,
+        /eitcPhaseOutRate, /eitcPhaseOutThreshold, /eitcPhaseoutAmountLowerBound and
+        /eitcCompletedPhaseoutAmount — is carried on this module's own parameter facts and is
+        governed for TY2025 by Rev. Proc. 2024-40 §.06 Earned Income Credit; no indexed amount is
+        written here. The $24 and $25 literals in the body are section 32(f)(2) table mechanics,
+        not indexed figures: the credit is read off a table whose income brackets are $50 wide, so
+        a bracket's top is the rounded midpoint plus $24 and the phaseout is measured from the
+        bracket midpoint, the threshold plus $25.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Round>
+            <LesserOf>
+              <Dependency path="/maxEitcFromAGI" />
+              <Subtract>
+                <Minuend>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThanOrEqual>
+                          <Left>
+                            <Multiply>
+                              <Dependency path="/eitcPhaseInRate" />
+                              <Add>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithoutCombatPay" />
+                                
+                                <Dollar>24</Dollar>
+                              </Add>
+                            </Multiply>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcMaxCredit" />
+                          </Right>
+                        </GreaterThanOrEqual>
+                      </When>
+                      <Then>
+                        <Dependency path="/eitcMaxCredit" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <LesserOf>
+                          <Dependency path="/eitcMaxCredit" />
+                          <Multiply>
+                            <Dependency path="/eitcPhaseInRate" />
+                            <Dependency path="/eitcRoundedEarnedIncomeWithoutCombatPay" />
+                          </Multiply>
+                        </LesserOf>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Minuend>
+
+                <Subtrahends>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThan>
+                          <Left>
+                            <Add>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                              
+                              <Dollar>25</Dollar>
+                            </Add>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcRoundedEarnedIncomeWithoutCombatPay" />
+                          </Right>
+                        </GreaterThan>
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Multiply>
+                          <Dependency path="/eitcPhaseOutRate" />
+                          <Subtract>
+                            <Minuend>
+                              <LesserOf>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithoutCombatPay" />
+                                <Divide>
+                                  <Dividend>
+                                    <Add>
+                                      <Dependency path="/eitcPhaseoutAmountLowerBound" />
+                                      <Dependency path="/eitcCompletedPhaseoutAmount" />
+                                    </Add>
+                                  </Dividend>
+                                  <Divisors>
+                                    <Int>2</Int>
+                                  </Divisors>
+                                </Divide>
+                              </LesserOf>
+                            </Minuend>
+                            <Subtrahends>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                            </Subtrahends>
+                          </Subtract>
+                        </Multiply>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Subtrahends>
+              </Subtract>
+            </LesserOf>
+          </Round>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableInmatePenalInstitutionCompensation">
+      <Name>Compensation received for services performed while an inmate in a penal institution</Name>
+      <Description>The amount the taxpayer received for services performed while an inmate in a
+        penal institution. §32(c)(2)(B)(iv) excludes it from "earned income" for the EIC; it is
+        NOT excluded from AGI or gross income, and its printed home is Schedule 1 line 8u.
+        OPTIONAL (three-state): unanswered means $0, the pre-existing behavior for every return
+        that doesn't attest this income.
+
+        THE GENERAL QUESTION, AND THE ROUTER CARRIES THE SCOPING. This is the
+        ONLY place the dictionary collects this dollar figure, and both consumers read it: the
+        Schedule 1 line 8u placement income:/schedule1Line8uIncarceratedWages and the EIC
+        exclusion /inmatePenalInstitutionCompensationInEarnedIncome. Which one gets it is decided
+        by income:/writableIncarceratedWagesOutsideReportedIncome, so this question must be asked
+        in general terms — a filer who correctly kept the amount off line 1a still has to enter
+        it here, or it reaches no line at all.
+
+        THE NAME IS GENERAL ON PURPOSE, not tied to either consumer's placement: the placement
+        itself is decided downstream by income:/writableIncarceratedWagesOutsideReportedIncome, so
+        a Name naming one placement would misdescribe the return that takes the other branch. See
+        /inmatePenalInstitutionCompensation for the printed chain and
+        /inmatePenalInstitutionCompensationInEarnedIncome for the gate.</Description>
+      
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/inmatePenalInstitutionCompensation">
+      <Name>Inmate penal-institution compensation (complete-safe)</Name>
+      <Description>Round(/writableInmatePenalInstitutionCompensation when answered, else 0) — the
+        IsComplete pattern (as /nonrecapturedSection1231Loss) inside the the rounding adjudication rounding boundary.
+        Firewalls /eitcEarnedIncomeBase from the writable's own completeness: a bare Dependency on
+        an unanswered writable propagates that writable's completeness upward through
+        Add/Subtract/GreaterOf, which would turn /eitcEarnedIncomeBase (and everything downstream
+        of it) from Complete to Placeholder for every return that doesn't attest this income — a
+        real regression, not merely a value change. This Switch's catch-all branch supplies a
+        literal $0, which is unconditionally Complete, so /eitcEarnedIncomeBase stays Complete
+        exactly as before, and Round of a Complete value is Complete.
+
+        The rounding adjudication: the Round is the printed-line boundary, not a convenience. This exclusion HAS a
+        printed line of its own, Schedule 1 line 8u ("Wages earned while incarcerated. Enter the
+        amount that you received for services performed while an inmate in a penal institution"),
+        and a schedule line sits squarely inside the page 23 election's own scope ("You can round
+        off cents to whole dollars on your return and schedules ... you must round all amounts"),
+        which this dictionary took globally. So the attested figure is whole where it is printed
+        and the cents stop there, before the Pub. 596 $50-row StepwiseMultiply in
+        /eitcRoundedEarnedIncomeWithoutCombatPay and its three combat-pay siblings ever see them.
+        Before the rounding adjudication this leg was a raw Dollar writable subtracted with cents intact, and the combat-pay rounding settlement's
+        premise that combat pay would be the first cents to reach that lookup was false because of
+        it. Same settlement as the combat-pay rounding settlement, one layer down: the cents stop at the printed line.
+
+        WHAT THIS FACT IS, AFTER THE LINE 8u BUILD. It is the ATTESTED AMOUNT — whole, complete-safe,
+        and neutral as to where the dollars landed. It is no longer itself the subtrahend: the EIC
+        exclusion is /inmatePenalInstitutionCompensationInEarnedIncome, which reads this fact
+        through the income-side router, and the Schedule 1 line 8u placement
+        income:/schedule1Line8uIncarceratedWages reads it through the other arm of that same
+        router. The two consumers partition this value; their sum is always exactly this value.
+        The Round below stays HERE, at the one place both consumers inherit it from, so the the rounding adjudication
+        settlement is unchanged in substance and in every committed number.
+
+        The placement adjudication: THE SUBTRACTION WAS UNCONDITIONAL, AND THE LINE 8u BUILD MADE IT CONDITIONAL, by the route the placement adjudication itself specified. The placement adjudication asked whether this
+        leg should be gated on where the amount was reported, since the printed instruction keeps
+        inmate wages OUT of line 1z. The placement adjudication held the premise CORRECT and the conclusion
+        premature: gating alone would have made the EITC right on a return whose TOTAL INCOME was
+        then wrong by the same amount, because no 8u surface existed for the amount to land on.
+        the line 8u build built that surface and applied the gate in the one commit the coupling clause
+        demanded, so the objection is discharged rather than overruled. The paragraphs below are
+        preserved as the derivation that got there; where they say a routing surface does not
+        exist, read "did not exist before the line 8u build". The workfare half is unaffected and its own
+        reasons stay on /subsidizedWorkfareCompensation.
+
+        THE PRINTED CHAIN, RE-DERIVED. The EIC Step 5 earned-income worksheet prints exactly one
+        subtraction, and its subtrahend is the one amount whose own Schedule 1 line says the amount
+        is INSIDE line 1z: line 8s, "Nontaxable amount of Medicaid waiver payments INCLUDED ON FORM
+        1040, LINE 1a OR 1d" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, pages 23, 92, PDF pages 92 and 23). Line 8u
+        is the opposite shape — "Wages earned while incarcerated. ENTER THE AMOUNT THAT YOU RECEIVED
+        for services performed while an inmate in a penal institution" (6675-6685) — a PLACEMENT
+        line, not a back-out line, which is exactly why the line-1a CAUTION can say "Do not report
+        these wages on line 1a" (1378-1388). The worksheet needs no inmate subtraction because line
+        8u has already routed the amount out of 1z. That contrast between 8s and 8u is the whole
+        discriminator, and it answers the placement adjudication's framing question directly: 8u is NOT an "amount
+        included on 1a in error" reporting line; 8s is the line of that kind, and it is the one the
+        worksheet subtracts.
+
+        THAT ABSENCE IS A READING OF THE WHOLE BLOCK, NOT A QUOTATION, and is recorded as such
+        rather than dressed as a cite. The verifiable claim is the ENUMERATION of the Step 5
+        worksheet at https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 42 (PDF page 42): line 1 "Enter the
+        amount from Form 1040 or 1040-SR, line 1z"; line 2 the Schedule 1 line 8s Medicaid waiver
+        amount; line 3 "Subtract line 2 from line 1"; line 4 elected nontaxable combat pay; line 5
+        "Add lines 3 and 4. This is your earned income". Five lines, no inmate line, no workfare
+        line. A reader checks the enumeration, not a span.
+
+        BUT THE PRINTED CHAIN REACHED THAT RESULT WITH A ROUTING SURFACE THIS DICTIONARY DID NOT
+        HAVE, and that is what decides the issue. There was no
+        Schedule 1 line 8u fact anywhere in dictionary/ty2025 (a grep for "8u" and "incarcerat"
+        across the shipping modules returned this file and nothing else);
+        income:/schedule1TotalOtherIncome carried legs for lines 8b, 8d, 8f, 8g, 8h and 8i and no
+        8u; and line 1h, income:/otherEarnedIncome, is fed solely by pre-minimum-retirement-age
+        disability pensions, with no free-form writable behind it. line 1h is no longer fed SOLELY by disability pensions - it now also carries
+        the IRC 402(g) excess-elective-deferral inclusion, per filer. That does not disturb this
+        fact's reasoning: the new leg is still DERIVED with no free-form writable behind it, so
+        inmate compensation remains unrepresentable on line 1h and the unconditional subtraction
+        below is unchanged. Every route by which inmate
+        compensation could enter this graph — a Form W-2 box 1 through formW2s to line 1a, or a
+        Form 1099 through Schedule C to the Schedule SE line-3 chain — landed it INSIDE the minuend
+        this fact was subtracted from. So the compliant filer's return was NOT REPRESENTABLE here,
+        the population the placement adjudication names as harmed could not be built, and the unconditional subtraction
+        was correct for every return that could be.
+
+        AND A BARE ATTESTATION GATE WOULD HAVE BEEN WORSE THAN THE GAP, which is the load-bearing
+        half and the reason the line 8u build had to be a two-halves-in-one-commit unit rather than a gate.
+        The placement adjudication's design 2 ON ITS OWN would make the EITC right on a return whose TOTAL INCOME is
+        wrong by the same amount: with no 8u leg the attested figure reaches no income line at all.
+        A half-fix that corrects one number, leaves the other wrong, and LOOKS adjudicated is the
+        worse outcome, and it is the outcome design 2 alone buys. the line 8u build pairs the gate with the
+        placement, so neither number is left wrong, and that is pinned rather than argued per the
+        the combat-pay rounding settlement standard: tests/nodes/ty2025/income/l8u-incarcerated-wages-routed-to-line-8u asserts
+        /totalIncome 26000 and /eitcEarnedIncomeBase 20000 on an attested 6,000, and its unrouted
+        twin l8u-incarcerated-wages-included-in-reported-wages asserts 20000 and 14000 on the same
+        figure.
+
+        THE 8u SURFACE IS BUILT (the line 8u build).
+        income:/schedule1Line8uIncarceratedWages now SHIPS; its coupling clause named this fact and
+        obliged the filling unit to re-decide the subtraction in the same commit, and the line 8u build did, by
+        the second of the two options that clause offered. The two assert rows above stay GREEN and
+        unchanged in tests/nodes/ty2025/eitc/inmate-wages-excluded-from-earned-income, because that
+        case leaves income:/writableIncarceratedWagesOutsideReportedIncome unanswered — the
+        preserving arm — so it is still the population whose inmate wages are inside line 1z. California TY2025 reads this fact through its stateSystems export (FTB 3514 CA earned income exclusion).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableInmatePenalInstitutionCompensation" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableInmatePenalInstitutionCompensation" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/inmatePenalInstitutionCompensationInEarnedIncome">
+      <Name>Inmate penal-institution compensation that is INSIDE the reported earned income — the §32(c)(2)(B)(iv) subtrahend</Name>
+      <Description>The §32(c)(2)(B)(iv) exclusion actually subtracted at /eitcEarnedIncomeBase:
+        /inmatePenalInstitutionCompensation when the attested amount is inside the wages or
+        self-employment income this return reports, and $0 when it is not. The discriminator is
+        income:/incarceratedWagesOutsideReportedIncome, the complete-safe router the line 8u build added
+       ; its FALSE/unanswered arm is the pre-existing behaviour, so this fact equals
+        /inmatePenalInstitutionCompensation on every return authored before the line 8u build and on every
+        return that never answers the router.
+
+        THIS IS THE OTHER HALF OF A PARTITION, NOT AN EXTRA GATE. The same attested dollars go to
+        exactly one of two places, decided by one boolean:
+
+            income:/schedule1Line8uIncarceratedWages
+              + /inmatePenalInstitutionCompensationInEarnedIncome
+              == /inmatePenalInstitutionCompensation
+
+        Subtracting here is right precisely when the amount is inside the minuend
+        (income:/employerIncomeSubtotal + scheduleSE:/selfEmploymentEarnedIncome), and $0 is right
+        precisely when the amount went to Schedule 1 line 8u instead, because line 8u feeds
+        Form 1040 line 8 and line 8 is not in that minuend. Neither arm double-counts and neither
+        double-excludes; that is what the placement adjudication asked for and what the contract's coupling clause
+        obliged the 8u build to deliver in the same commit.
+
+        WHY THE GATE IS HERE AND NOT AT /eitcEarnedIncomeBase. That fact carries the the rounding adjudication seam
+        finding that it must hold NO Round and no re-shaping of its own — all four operands arrive
+        already whole. Putting the routing Switch here keeps the seam a plain Subtract, keeps the
+        whole-minus-whole argument intact, and leaves the workfare leg untouched: §32(c)(2)(B)(v)
+        reaches only an amount "described in subparagraph (A)", i.e. one that IS includible in
+        gross income, so the workfare subtrahend has no analogous routing question and
+        /subsidizedWorkfareCompensation is still subtracted directly.
+
+        direction: the $0 arm fires ONLY when the filer has affirmatively said the amount is
+        outside the reported wage/self-employment income, in which case $0 is the CORRECT
+        subtrahend rather than a gap leg — subtracting anything there would UNDER-state earned
+        income and under-state or deny the EIC, the taxpayer-unfavourable double-exclusion the placement adjudication
+        named. If the router is answered wrongly TRUE by a filer whose wages ARE inside line 1z,
+        earned income is OVER-stated (taxpayer-favourable on the credit) while total income is
+        over-stated too; that residual is recorded in full on
+        income:/schedule1Line8uIncarceratedWages.</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="income" path="/incarceratedWagesOutsideReportedIncome" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/inmatePenalInstitutionCompensation" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSubsidizedWorkfareCompensation">
+      <Name>Subsidized workfare compensation (TANF work activities) — the TAXABLE part, included in the wages or self-employment income already reported on this return</Name>
+      <Description>The amount, already included above in wages or self-employment earned
+        income, that the taxpayer received for services performed in work activities described
+        in section 407(d)(4) or (7) of the Social Security Act, to which the taxpayer was
+        assigned under a State TANF program under part A of title IV of that Act, to the
+        extent the payment was subsidized under that State program. §32(c)(2)(B)(v) excludes
+        it from "earned income" for the EIC. OPTIONAL (three-state): unanswered means $0 (no
+        exclusion), the pre-existing behavior.
+
+        The placement adjudication sub-point 2, THE FACE CORRECTION, and here the statute writes the scoping itself.
+        §32(c)(2)(B)(v) excludes "no amount DESCRIBED IN SUBPARAGRAPH (A)", and subparagraph (A)
+        is "(i) wages, salaries, tips, and other employee compensation, BUT ONLY IF SUCH AMOUNTS
+        ARE INCLUDIBLE IN GROSS INCOME for the taxable year, plus (ii) the amount of the
+        taxpayer's net earnings from self-employment" (26 U.S.C. 32, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section32&amp;num=0&amp;edition=2024). So
+        the statutory operand is either an amount includible in gross income — hence on a wage
+        line, hence inside Form 1040 line 1z — or net self-employment earnings. It is in-base by
+        construction, which is why the word TAXABLE now leads the Name: a NONTAXABLE workfare
+        payment is not what this fact asks for, is not "described in subparagraph (A)", and is
+        never in line 1z to be subtracted from. See /subsidizedWorkfareCompensation for the
+        Pub. 596 reconciliation that disposes of the placement adjudication's second sub-point.</Description>
+      
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/subsidizedWorkfareCompensation">
+      <Name>Subsidized workfare compensation (complete-safe)</Name>
+      <Description>Round(/writableSubsidizedWorkfareCompensation when answered, else 0) — the
+        IsComplete pattern (as /nonrecapturedSection1231Loss) inside the the rounding adjudication rounding boundary.
+        Firewalls /eitcEarnedIncomeBase from the writable's own completeness — see
+        /inmatePenalInstitutionCompensation's description for why a bare Dependency on the raw
+        writable would be wrong here.
+
+        The rounding adjudication: the Round is the WEAKER of the two legs and is labelled as such. Unlike the
+        inmate exclusion, this one has NO printed line of its own anywhere in Pub. 596 or the Form
+        1040 instructions — the printed text gives the exclusion (Pub. 596 "Workfare payments")
+        and no placement at all. It rounds at the leg because that is the only shape the printed
+        chain models: every printed subtraction into EIC Step 5 earned income draws its subtrahend
+        from a printed line, including the one subtraction the Step 5 worksheet itself prints
+        (line 2, the Medicaid waiver amounts "excluded from income on Schedule 1, line 8s"), which
+        is also the printed chain's own model for subtracting a NONTAXABLE amount from earned
+        income. Read the full adjudication, the rejected alternatives and the direction note on
+        /inmatePenalInstitutionCompensation.
+
+        The placement adjudication sub-point 2: REFUTED OUTRIGHT, and on cleaner ground than
+        its sibling leg. The rounding adjudication left the tension that §32(c)(2)(B)(v)'s "described in subparagraph
+        (A)" wording requires an amount includible in gross income while Pub. 596's gloss calls
+        these payments nontaxable, so that a truly nontaxable amount is never inside line 1z and
+        subtracting it would double exclude. The two texts are not competing readings of one
+        amount. They govern DISJOINT POPULATIONS, and the statute writes the inclusion test into
+        the operand itself.
+
+        THE STATUTE. §32(c)(2)(B)(v) excludes "no amount described in subparagraph (A)" received
+        for the section 407(d)(4)/(7) work activities, and subparagraph (A) is "(i) wages, salaries,
+        tips, and other employee compensation, but only if such amounts are includible in gross
+        income for the taxable year, plus (ii) the amount of the taxpayer's net earnings from
+        self-employment for the taxable year" (26 U.S.C. 32, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section32&amp;num=0&amp;edition=2024). Every amount
+        the exclusion can reach is therefore either includible in gross income — hence on a wage
+        line, hence inside Form 1040 line 1z — or net self-employment earnings, hence inside the
+        Schedule SE line-3 chain. IN-BASE BY CONSTRUCTION. There is no gate to write, because
+        Congress already wrote it: an amount outside the base is not "described in subparagraph (A)"
+        and this exclusion never reaches it.
+
+        THE PUB. 596 GLOSS. "Workfare payments. NONTAXABLE workfare payments aren't earned income
+        for the EIC" (https://www.irs.gov/pub/irs-pdf/p596.pdf, page 9, PDF page 9) is a subhead inside the
+        section headed "Income That Is Not Earned Income" (538-540), whose operative instruction is
+        "Don't INCLUDE any of these items in your earned income" (477-479 — the two-column
+        extraction splits the sentence, "Don't in-" on 477 and the rest on 479). That is an
+        inclusion rule,
+        never a subtraction rule, over the population that is nontaxable and therefore never in line
+        1z at all — the same rule the pub states generally at 451-455, "Employee pay is earned
+        income only if it is taxable. Nontaxable employee pay ... isn't earned income." Nothing to
+        subtract for that population; nothing conditional about the taxable subsidized one this
+        fact asks for. Two mechanisms, two populations, no contradiction, and the writable's Name
+        now leads with TAXABLE so an intake surface cannot collect the wrong one.
+
+        SO THE LEG IS UNCHANGED and the rounding adjudication's second tension is discharged rather than re-parked. THIS
+        one is subtracted DIRECTLY and unconditionally at /eitcEarnedIncomeBase, with no routing
+        wrapper, because the STATUTE'S OWN WORDS put the inclusion test inside the operand.
+
+        THE TWO LEGS ARE NOT SYMMETRIC, and each verdict is recorded on its own fact rather than
+        once for both. Absent a routing surface, both would land the same way for different
+        reasons: this one on the statute, the inmate one on a REPRESENTABILITY finding about this
+        dictionary — there was no Schedule 1 line 8u surface for an inmate amount to sit outside
+        line 1z on. Now that surface exists, so the inmate leg is GATED behind a router
+        (/inmatePenalInstitutionCompensationInEarnedIncome, reading
+        income:/incarceratedWagesOutsideReportedIncome) and this one is not. The asymmetry is the
+        point: a workfare amount that IS "described in subparagraph (A)" is includible in gross
+        income by definition, so it has no line-8u-shaped escape route and needs no router. If a
+        future unit ever finds one, it belongs here and not on the sibling.</Description>
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableSubsidizedWorkfareCompensation" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableSubsidizedWorkfareCompensation" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableIncludeMedicaidWaiverPaymentsInEitcEarnedIncome">
+      <Name>Single-filer election to include nontaxable Medicaid waiver payments in EIC earned income</Name>
+      <Description>For a return that is not married filing jointly, whether the filer elects to
+        include the nontaxable Medicaid waiver amount reported on Schedule 1 line 8s in EIC earned
+        income. MFJ returns use separate primary- and secondary-filer elections below. The IRS
+        worksheet defaults to exclusion unless the filer chooses inclusion, so unanswered is No.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writablePrimaryFilerIncludeMedicaidWaiverPaymentsInEitcEarnedIncome">
+      <Name>Primary filer's election to include nontaxable Medicaid waiver payments in EIC earned income</Name>
+      <Description>On an MFJ return, whether the primary filer elects to keep their own nontaxable
+        Medicaid waiver amount in EIC earned income. An unanswered choice means No, the Step 5
+        worksheet default. Asked when the primary filer's Schedule 1 line 8s amount is nonzero.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerIncludeMedicaidWaiverPaymentsInEitcEarnedIncome">
+      <Name>Secondary filer's election to include nontaxable Medicaid waiver payments in EIC earned income</Name>
+      <Description>On an MFJ return, whether the secondary filer elects to keep their own nontaxable
+        Medicaid waiver amount in EIC earned income. An unanswered choice means No, the Step 5
+        worksheet default. Asked when the secondary filer's Schedule 1 line 8s amount is nonzero.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/includeMedicaidWaiverPaymentsInEitcEarnedIncome">
+      <Name>Single-filer Medicaid waiver earned-income election, complete-safe</Name>
+      <Description>= /writableIncludeMedicaidWaiverPaymentsInEitcEarnedIncome when answered, else
+        FALSE. The IsComplete/Switch guard keeps EIC earned income Complete when the optional
+        non-MFJ election is unanswered. False matches Step 5's default exclusion.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableIncludeMedicaidWaiverPaymentsInEitcEarnedIncome" /></IsComplete></When>
+            <Then><Dependency path="/writableIncludeMedicaidWaiverPaymentsInEitcEarnedIncome" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/includePrimaryFilerMedicaidWaiverPaymentsInEitcEarnedIncome">
+      <Name>Primary filer's Medicaid waiver earned-income election, complete-safe</Name>
+      <Description>On an MFJ return, the primary filer's answered election, or FALSE when unanswered;
+        on a non-MFJ return, the complete-safe single-filer election. False when unanswered is the
+        printed Step 5 default.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><IsComplete><Dependency path="/writablePrimaryFilerIncludeMedicaidWaiverPaymentsInEitcEarnedIncome" /></IsComplete></When>
+                  <Then><Dependency path="/writablePrimaryFilerIncludeMedicaidWaiverPaymentsInEitcEarnedIncome" /></Then>
+                </Case>
+                <Case><When><True /></When><Then><False /></Then></Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dependency path="/includeMedicaidWaiverPaymentsInEitcEarnedIncome" /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/includeSecondaryFilerMedicaidWaiverPaymentsInEitcEarnedIncome">
+      <Name>Secondary filer's Medicaid waiver earned-income election, complete-safe</Name>
+      <Description>The secondary filer's answered election on an MFJ return, or FALSE when
+        unanswered. It is FALSE for non-MFJ returns, which have no secondary-filer choice.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><IsComplete><Dependency path="/writableSecondaryFilerIncludeMedicaidWaiverPaymentsInEitcEarnedIncome" /></IsComplete></When>
+                  <Then><Dependency path="/writableSecondaryFilerIncludeMedicaidWaiverPaymentsInEitcEarnedIncome" /></Then>
+                </Case>
+                <Case><When><True /></When><Then><False /></Then></Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPrimaryFilerW2s">
+      <Description>Primary filer's W-2 rows for EITC complete-safe projections</Description>
+      <Derived>
+        <Filter path="/formW2s">
+          <Dependency path="belongsToPrimaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPrimaryCombatPayCompleteSafe">
+      <Description>Primary combat pay, complete-safe collection projection</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/formW2s" /></IsComplete></When>
+            <Then><Round><CollectionSum><Dependency path="/eitcPrimaryFilerW2s/*/combatPayUnrounded" /></CollectionSum></Round></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPrimaryMedicaidWaiverAmountCompleteSafe">
+      <Description>Primary Schedule 1 line 8s Medicaid waiver amount, complete-safe collection projection</Description>
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/writablePrimaryFilerSchedule1Line8sNontaxableMedicaidWaiverPayments" /></IsComplete></When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writablePrimaryFilerSchedule1Line8sNontaxableMedicaidWaiverPayments" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/formW2s" /></IsComplete></When>
+              <Then><CollectionSum><Dependency path="/eitcPrimaryFilerW2s/*/nonTaxableMedicaidWaiverPaymentsOrZero" /></CollectionSum></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPrimaryAge25OrOlderCompleteSafe">
+      <Description>Primary filer's EITC age-25 predicate, complete-safe</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/filers" /></IsComplete></When>
+            <Then><GreaterThan><Left><CollectionSize><Filter path="/filers"><All><Dependency path="isPrimaryFiler" /><IsComplete><Dependency path="age25OrOlderForEitc" /></IsComplete><Dependency path="age25OrOlderForEitc" /></All></Filter></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPrimaryAge64OrYoungerCompleteSafe">
+      <Description>Primary filer's EITC age-64 predicate, complete-safe</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/filers" /></IsComplete></When>
+            <Then><GreaterThan><Left><CollectionSize><Filter path="/filers"><All><Dependency path="isPrimaryFiler" /><IsComplete><Dependency path="age64OrYoungerForEitc" /></IsComplete><Dependency path="age64OrYoungerForEitc" /></All></Filter></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcMedicaidWaiverEarnedIncomeSubtrahend">
+      <Name>EIC Worksheet B Step 5 line 2 — each filer's Medicaid waiver amount not elected into EIC income</Name>
+      <Description>The whole-dollar Step 5 line 2 amount is the sum of each filer's own positive
+        nontaxable Medicaid waiver amount when that filer does not elect to include it in EIC earned
+        income. An unanswered filer election defaults to exclusion. Thus on MFJ, one spouse's choice
+        cannot include or exclude the other's amount; for non-MFJ returns the primary/single-filer
+        election preserves the shipping behavior. The amount facts also feed each filer's line 1d
+        and line 1z base; this subtrahend removes the chosen-out amount from the EIC worksheet base.
+        Both amount intakes unanswered gives Complete $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Switch>
+              <Case>
+                <When><Dependency path="/includePrimaryFilerMedicaidWaiverPaymentsInEitcEarnedIncome" /></When>
+                <Then><Dollar>0</Dollar></Then>
+              </Case>
+              <Case>
+                <When><True /></When>
+                <Then>
+                  <Switch>
+                    <Case>
+                      <When><IsComplete><Dependency path="/eitcPrimaryMedicaidWaiverAmountCompleteSafe" /></IsComplete></When>
+                      <Then><Dependency path="/eitcPrimaryMedicaidWaiverAmountCompleteSafe" /></Then>
+                    </Case>
+                    <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+                  </Switch>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></When>
+                <Then>
+                  <Switch>
+                    <Case>
+                      <When><Dependency path="/includeSecondaryFilerMedicaidWaiverPaymentsInEitcEarnedIncome" /></When>
+                      <Then><Dollar>0</Dollar></Then>
+                    </Case>
+                    <Case>
+                      <When><True /></When>
+                      <Then>
+                        <Switch>
+                          <Case>
+                            <When><IsComplete><Dependency module="income" path="/secondaryFilerSchedule1Line8sNontaxableMedicaidWaiverPaymentsOrZero" /></IsComplete></When>
+                            <Then><Dependency module="income" path="/secondaryFilerSchedule1Line8sNontaxableMedicaidWaiverPaymentsOrZero" /></Then>
+                          </Case>
+                          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+                        </Switch>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Then>
+              </Case>
+              <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+            </Switch>
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcEarnedIncomeBase">
+      <Name>EITC earned income base (wages plus self-employment)</Name>
+      <Description>Earned income for the EITC: W-2-type earned income (employerIncomeSubtotal)
+        plus net self-employment earned income (Schedule C net profit minus the deductible half
+        of SE tax), minus the §32(c)(2)(B)(iv)/(v) inmate-compensation and subsidized-workfare
+        exclusions (read through their complete-safe wrappers,
+        /inmatePenalInstitutionCompensationInEarnedIncome — since the line 8u build, the ROUTED wrapper — and
+        /subsidizedWorkfareCompensation), floored at 0. Combat-pay variants add nontaxable
+        combat pay on top of this. Not a wages-only base; the
+        exclusion subtraction is additive — both complete-safe wrappers default to $0, so every
+        return that doesn't attest this income computes byte-identical to before, AND stays
+        Complete (not merely $0) exactly as before, because the wrappers firewall the raw
+        writables' completeness rather than exposing it here.
+
+        THE SEAM IS WHOLE BY CONSTRUCTION, AND CARRIES NO ROUND OF ITS OWN. All four
+        operands are already whole where their own printed lines are: income:/employerIncomeSubtotal
+        Rounds at Form 1040 line 1z, scheduleSE:/selfEmploymentEarnedIncome Rounds at the Schedule SE
+        line 3 chain, and since the rounding adjudication both exclusion wrappers Round at their own printed images. A
+        whole minuend less whole subtrahends is whole, and GreaterOf(whole, 0) is whole, so every
+        one of this fact's five readers gets a whole-dollar figure: the Pub. 596 $50-row
+        StepwiseMultiply in /eitcRoundedEarnedIncomeWithoutCombatPay, the three combat-pay arms
+        /earnedIncomePlus{Primary,Spouse,BothTP}CombatPay (each adding an already-whole line-1i
+        figure per the combat-pay rounding settlement), and the /belowEitcEarnedIncomeLimit comparison. Adding a Round here as
+        well would not be belt-and-braces: it would ship the rounding adjudication's REJECTED design 2, whose value
+        differs from this one whenever the two exclusions' cents cross a half dollar in aggregate.
+        The reading, its two honest limits and the rejected alternatives live on
+        /inmatePenalInstitutionCompensation.
+
+        THE TWO SUBTRAHENDS ARE NOT ALIKE (the placement adjudication, closed by the line 8u build), and both of the rounding adjudication's honest limits are discharged rather
+        than carried. The WORKFARE leg needs no inclusion gate and still has none: its operand is
+        in-base by the statute's own words (§32(c)(2)(B)(v) reaches only an amount "described in
+        subparagraph (A)", which is includible-in-gross-income employee compensation or net
+        self-employment earnings). The INMATE leg USED to need none for a weaker reason — this
+        dictionary had no Schedule 1 line 8u routing for the amount to sit outside of, so every
+        intake that could carry inmate compensation fed one of this Subtract's two minuend terms.
+        the line 8u build built that routing (income:/schedule1Line8uIncarceratedWages) and so had to build the
+        gate with it, which is exactly what the contract's coupling clause obliged: this
+        Subtract now takes /inmatePenalInstitutionCompensationInEarnedIncome, which is the attested
+        amount when it is inside this minuend and $0 when it went to Form 1040 line 8 instead. The
+        verdicts and their spans stay on the wrapper facts, one each, because the two legs are now
+        settled for genuinely different reasons.
+
+        THIS SEAM'S OWN SHAPE IS UNCHANGED — still a bare Subtract of whole subtrahends from a
+        whole minuend, still no Round. The routing Switch lives one level down, on the wrapper,
+        precisely so the the rounding adjudication argument above survives the change.
+
+        EIC WORKSHEET B PART 3 — A THIRD MINUEND TERM, and it
+        is the companion half of a change made in another module, not an addition on its own account.
+        Statutory employee box 1 wages now leave Form 1040 line 1a (formW2s:/wages) and line 1z
+        (income:/{primary,secondary}FilerEmployerIncomeSubtotalBase) because the printed instruction
+        enters them on Schedule C line 1 instead. Worksheet B is the EIC's own answer to that:
+        Part 2 says "Don't include on these lines any statutory employee income", and Part 3 line 3
+        then says "Enter the amount from Schedule C, line 1, that you are filing as a statutory
+        employee", which line 4b combines with lines 1e, 2c and 4a into total earned income. So the
+        amount is an ADDEND on top of the Step 5 figure, and without this term a statutory employee's
+        box 1 would reach this base through no term at all once the line 1z subtraction is in — a
+        credit denied on income IRC 32(c)(2)(A)(i) counts as earned. That false denial is the defect
+        this leg exists to prevent, and it is pinned by
+        tests/nodes/ty2025/eitc/statutory-employee-wages-stay-in-eic-earned-income.
+
+        THE PART 2 HALF LANDED the same day (scheduleSE reads the gated per-filer Schedule C totals), so this base computes Worksheet B end to end on a statutory return. </Description>
+
+      <Export stateSystems="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Dependency module="income" path="/employerIncomeSubtotalWithoutCommunityPropertyAllocation" />
+                <Dependency module="scheduleSE" path="/selfEmploymentEarnedIncome" />
+                <Round>
+                  <Dependency module="income" path="/statutoryEmployeeWagesInEarnedIncome" />
+                </Round>
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/inmatePenalInstitutionCompensationInEarnedIncome" />
+              <Dependency path="/subsidizedWorkfareCompensation" />
+              <Dependency path="/eitcMedicaidWaiverEarnedIncomeSubtrahend" />
+              <Dependency path="/eitcClergyDualReportedIncomeSubtrahend" />
+              <Dependency path="/eitcForeignGovernmentWagesDualReportedSubtrahend" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcRoundedEarnedIncomeWithoutCombatPay">
+      <Name>Rounded earned income for EITC without combat pay</Name>
+      <Description>In order to match the EITC table from Publication 596, we must round the income to match the rows,
+        which use increments of $50, calculating the amount of the credit for the midpoint of row (i.e. $25, $75, $125,
+        etc.).</Description>
+      <Derived>
+        <Add>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <Dependency path="/eitcEarnedIncomeBase" />
+            </Multiplicand>
+            <Rate>
+              <Rational>50/50</Rational>
+            </Rate>
+          </StepwiseMultiply>
+          
+          <Dollar>25</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcAmountWithPrimaryCombatPay">
+      <Name>The amount of the Earned Income Tax Credit with primary filer combat pay</Name>
+      <Description>The section 32(a) earned income credit computed as if the primary filer's nontaxable combat
+        pay — and only the primary filer's — were elected into earned income under section
+        32(c)(2)(B)(vi). It is the credit percentage of earned income up to the
+        earned income amount, reduced by the phaseout percentage of the excess of adjusted gross
+        income (or earned income, if greater) over the phaseout amount, floored at $0 and held to
+        the AGI-side limit /maxEitcFromAGI that section 32(a)(2)(B) imposes. The earned income leg
+        it reads is /eitcRoundedEarnedIncomeWithPrimaryCombatPay. Every year-indexed figure it consumes — /eitcMaxCredit, /eitcPhaseInRate,
+        /eitcPhaseOutRate, /eitcPhaseOutThreshold, /eitcPhaseoutAmountLowerBound and
+        /eitcCompletedPhaseoutAmount — is carried on this module's own parameter facts and is
+        governed for TY2025 by Rev. Proc. 2024-40 §.06 Earned Income Credit; no indexed amount is
+        written here. The $24 and $25 literals in the body are section 32(f)(2) table mechanics,
+        not indexed figures: the credit is read off a table whose income brackets are $50 wide, so
+        a bracket's top is the rounded midpoint plus $24 and the phaseout is measured from the
+        bracket midpoint, the threshold plus $25.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Round>
+            <LesserOf>
+              <Dependency path="/maxEitcFromAGI" />
+              <Subtract>
+                <Minuend>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThanOrEqual>
+                          <Left>
+                            <Multiply>
+                              <Dependency path="/eitcPhaseInRate" />
+                              <Add>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithPrimaryCombatPay" />
+                                
+                                <Dollar>24</Dollar>
+                              </Add>
+                            </Multiply>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcMaxCredit" />
+                          </Right>
+                        </GreaterThanOrEqual>
+                      </When>
+                      <Then>
+                        <Dependency path="/eitcMaxCredit" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <LesserOf>
+                          <Dependency path="/eitcMaxCredit" />
+                          <Multiply>
+                            <Dependency path="/eitcPhaseInRate" />
+                            <Dependency path="/eitcRoundedEarnedIncomeWithPrimaryCombatPay" />
+                          </Multiply>
+                        </LesserOf>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Minuend>
+
+                <Subtrahends>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThan>
+                          <Left>
+                            <Add>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                              
+                              <Dollar>25</Dollar>
+                            </Add>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcRoundedEarnedIncomeWithPrimaryCombatPay" />
+                          </Right>
+                        </GreaterThan>
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Multiply>
+                          <Dependency path="/eitcPhaseOutRate" />
+                          <Subtract>
+                            <Minuend>
+                              <LesserOf>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithPrimaryCombatPay" />
+                                <Divide>
+                                  <Dividend>
+                                    <Add>
+                                      <Dependency path="/eitcPhaseoutAmountLowerBound" />
+                                      <Dependency path="/eitcCompletedPhaseoutAmount" />
+                                    </Add>
+                                  </Dividend>
+                                  <Divisors>
+                                    <Int>2</Int>
+                                  </Divisors>
+                                </Divide>
+                              </LesserOf>
+                            </Minuend>
+                            <Subtrahends>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                            </Subtrahends>
+                          </Subtract>
+                        </Multiply>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Subtrahends>
+              </Subtract>
+            </LesserOf>
+          </Round>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomePlusPrimaryCombatPay">
+      <Name>Earned income plus primary combat pay</Name>
+      <Export stateSystems="true" />
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/eitcPrimaryCombatPayCompleteSafe" /></IsComplete></When>
+              <Then><Dependency path="/eitcPrimaryCombatPayCompleteSafe" /></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+          <Dependency path="/eitcEarnedIncomeBase" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcRoundedEarnedIncomeWithPrimaryCombatPay">
+      <Name>Rounded earned income for EITC with a primary filer's combat pay</Name>
+      <Description>In order to match the EITC table from Publication 596, we must round the income to match the rows,
+        which use increments of $50, calculating the amount of the credit for the midpoint of row (i.e. $25, $75, $125,
+        etc.).</Description>
+      <Derived>
+        <Add>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <Dependency path="/earnedIncomePlusPrimaryCombatPay" />
+            </Multiplicand>
+            <Rate>
+              <Rational>50/50</Rational>
+            </Rate>
+          </StepwiseMultiply>
+          
+          <Dollar>25</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcAmountWithSecondaryCombatPay">
+      <Name>The amount of the Earned Income Tax Credit with secondary filer combat pay</Name>
+      <Description>The section 32(a) earned income credit computed as if the secondary filer's nontaxable combat
+        pay — and only the secondary filer's — were elected into earned income under section
+        32(c)(2)(B)(vi) on a section 32(d)(1) joint return. It is the credit percentage of earned income up to the
+        earned income amount, reduced by the phaseout percentage of the excess of adjusted gross
+        income (or earned income, if greater) over the phaseout amount, floored at $0 and held to
+        the AGI-side limit /maxEitcFromAGI that section 32(a)(2)(B) imposes. The earned income leg
+        it reads is /eitcRoundedEarnedIncomeWithSecondaryCombatPay. Every year-indexed figure it consumes — /eitcMaxCredit, /eitcPhaseInRate,
+        /eitcPhaseOutRate, /eitcPhaseOutThreshold, /eitcPhaseoutAmountLowerBound and
+        /eitcCompletedPhaseoutAmount — is carried on this module's own parameter facts and is
+        governed for TY2025 by Rev. Proc. 2024-40 §.06 Earned Income Credit; no indexed amount is
+        written here. The $24 and $25 literals in the body are section 32(f)(2) table mechanics,
+        not indexed figures: the credit is read off a table whose income brackets are $50 wide, so
+        a bracket's top is the rounded midpoint plus $24 and the phaseout is measured from the
+        bracket midpoint, the threshold plus $25.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Round>
+            <LesserOf>
+              <Dependency path="/maxEitcFromAGI" />
+              <Subtract>
+                <Minuend>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThanOrEqual>
+                          <Left>
+                            <Multiply>
+                              <Dependency path="/eitcPhaseInRate" />
+                              <Add>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithSecondaryCombatPay" />
+                                
+                                <Dollar>24</Dollar>
+                              </Add>
+                            </Multiply>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcMaxCredit" />
+                          </Right>
+                        </GreaterThanOrEqual>
+                      </When>
+                      <Then>
+                        <Dependency path="/eitcMaxCredit" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <LesserOf>
+                          <Dependency path="/eitcMaxCredit" />
+                          <Multiply>
+                            <Dependency path="/eitcPhaseInRate" />
+                            <Dependency path="/eitcRoundedEarnedIncomeWithSecondaryCombatPay" />
+                          </Multiply>
+                        </LesserOf>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Minuend>
+
+                <Subtrahends>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThan>
+                          <Left>
+                            <Add>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                              
+                              <Dollar>25</Dollar>
+                            </Add>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcRoundedEarnedIncomeWithSecondaryCombatPay" />
+                          </Right>
+                        </GreaterThan>
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Multiply>
+                          <Dependency path="/eitcPhaseOutRate" />
+                          <Subtract>
+                            <Minuend>
+                              <LesserOf>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithSecondaryCombatPay" />
+                                <Divide>
+                                  <Dividend>
+                                    <Add>
+                                      <Dependency path="/eitcPhaseoutAmountLowerBound" />
+                                      <Dependency path="/eitcCompletedPhaseoutAmount" />
+                                    </Add>
+                                  </Dividend>
+                                  <Divisors>
+                                    <Int>2</Int>
+                                  </Divisors>
+                                </Divide>
+                              </LesserOf>
+                            </Minuend>
+                            <Subtrahends>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                            </Subtrahends>
+                          </Subtract>
+                        </Multiply>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Subtrahends>
+              </Subtract>
+            </LesserOf>
+          </Round>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomePlusSpouseCombatPay">
+      <Name>Earned income plus spouse combat pay</Name>
+      <Export stateSystems="true" />
+      <Derived>
+        <Add>
+          <Dependency module="formW2s" path="/MFJSpouseCombatPay" />
+          <Dependency path="/eitcEarnedIncomeBase" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcRoundedEarnedIncomeWithSecondaryCombatPay">
+      <Name>Rounded earned income for EITC with an MFJ spouse's combat pay</Name>
+      <Description>In order to match the EITC table from Publication 596, we must round the income to match the rows,
+        which use increments of $50, calculating the amount of the credit for the midpoint of row (i.e. $25, $75, $125,
+        etc.).</Description>
+      <Derived>
+        <Add>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <Dependency path="/earnedIncomePlusSpouseCombatPay" />
+            </Multiplicand>
+            <Rate>
+              <Rational>50/50</Rational>
+            </Rate>
+          </StepwiseMultiply>
+          
+          <Dollar>25</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcAmountWithBothTPCombatPay">
+      <Name>The amount of the Earned Income Tax Credit with both filers' combat pay</Name>
+      <Description>The section 32(a) earned income credit computed as if BOTH filers' nontaxable combat pay were
+        elected into earned income under section 32(c)(2)(B)(vi) on a section 32(d)(1) joint
+        return. It is the credit percentage of earned income up to the
+        earned income amount, reduced by the phaseout percentage of the excess of adjusted gross
+        income (or earned income, if greater) over the phaseout amount, floored at $0 and held to
+        the AGI-side limit /maxEitcFromAGI that section 32(a)(2)(B) imposes. The earned income leg
+        it reads is /eitcRoundedEarnedIncomeWithBothTPCombatPay. Every year-indexed figure it consumes — /eitcMaxCredit, /eitcPhaseInRate,
+        /eitcPhaseOutRate, /eitcPhaseOutThreshold, /eitcPhaseoutAmountLowerBound and
+        /eitcCompletedPhaseoutAmount — is carried on this module's own parameter facts and is
+        governed for TY2025 by Rev. Proc. 2024-40 §.06 Earned Income Credit; no indexed amount is
+        written here. The $24 and $25 literals in the body are section 32(f)(2) table mechanics,
+        not indexed figures: the credit is read off a table whose income brackets are $50 wide, so
+        a bracket's top is the rounded midpoint plus $24 and the phaseout is measured from the
+        bracket midpoint, the threshold plus $25.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Round>
+            <LesserOf>
+              <Dependency path="/maxEitcFromAGI" />
+              <Subtract>
+                <Minuend>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThanOrEqual>
+                          <Left>
+                            <Multiply>
+                              <Dependency path="/eitcPhaseInRate" />
+                              <Add>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithBothTPCombatPay" />
+                                
+                                <Dollar>24</Dollar>
+                              </Add>
+                            </Multiply>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcMaxCredit" />
+                          </Right>
+                        </GreaterThanOrEqual>
+                      </When>
+                      <Then>
+                        <Dependency path="/eitcMaxCredit" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <LesserOf>
+                          <Dependency path="/eitcMaxCredit" />
+                          <Multiply>
+                            <Dependency path="/eitcPhaseInRate" />
+                            <Dependency path="/eitcRoundedEarnedIncomeWithBothTPCombatPay" />
+                          </Multiply>
+                        </LesserOf>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Minuend>
+
+                <Subtrahends>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <GreaterThan>
+                          <Left>
+                            <Add>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                              
+                              <Dollar>25</Dollar>
+                            </Add>
+                          </Left>
+                          <Right>
+                            <Dependency path="/eitcRoundedEarnedIncomeWithBothTPCombatPay" />
+                          </Right>
+                        </GreaterThan>
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Multiply>
+                          <Dependency path="/eitcPhaseOutRate" />
+                          <Subtract>
+                            <Minuend>
+                              <LesserOf>
+                                <Dependency path="/eitcRoundedEarnedIncomeWithBothTPCombatPay" />
+                                <Divide>
+                                  <Dividend>
+                                    <Add>
+                                      <Dependency path="/eitcPhaseoutAmountLowerBound" />
+                                      <Dependency path="/eitcCompletedPhaseoutAmount" />
+                                    </Add>
+                                  </Dividend>
+                                  <Divisors>
+                                    <Int>2</Int>
+                                  </Divisors>
+                                </Divide>
+                              </LesserOf>
+                            </Minuend>
+                            <Subtrahends>
+                              <Dependency path="/eitcPhaseOutThreshold" />
+                            </Subtrahends>
+                          </Subtract>
+                        </Multiply>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Subtrahends>
+              </Subtract>
+            </LesserOf>
+          </Round>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomePlusBothTPCombatPay">
+      <Name>Earned income plus primary and spouse combat pay</Name>
+      <Description>EIC Step 5 worksheet line 5 under the useBothCombatPay election: worksheet
+        line 3 (the line-1z earned income base) plus worksheet line 4 (the combat pay entered on
+        Form 1040 line 1i).
+
+        the combat-pay rounding settlement: line 4 reads Round(formW2s:/bothFilersCombatPay), the JOINT total rounded once, and
+        NOT the sum of the two whole-dollar per-filer facts. The worksheet's own text binds line 4
+        to line 1i ("Also enter the amount of your nontaxable combat pay on line 1i of Form 1040 or
+        1040-SR"), and line 1i under this election is Round(primary + spouse); adding
+        Round(primary) + Round(spouse) here would round twice across one line boundary and can land
+        a dollar above the printed line. The sibling arms /earnedIncomePlusPrimaryCombatPay and
+        /earnedIncomePlusSpouseCombatPay need no Round of their own: each reads a per-filer fact
+        that is already the line-1i figure for its election. The full reading, including why the
+        table lookup stays whole-dollar and what that reading does NOT settle, is recorded on
+        formW2s:/primaryFilerCombatPay.</Description>
+      <Export stateSystems="true" />
+      <Derived>
+        <Add>
+          <Round>
+            <Dependency module="formW2s" path="/bothFilersCombatPay" />
+          </Round>
+          <Dependency path="/eitcEarnedIncomeBase" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcRoundedEarnedIncomeWithBothTPCombatPay">
+      <Name>Rounded earned income for EITC with an MFJ spouse's combat pay</Name>
+      <Description>In order to match the EITC table from Publication 596, we must round the income to match the rows,
+        which use increments of $50, calculating the amount of the credit for the midpoint of row (i.e. $25, $75, $125,
+        etc.).</Description>
+      <Derived>
+        <Add>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <Dependency path="/earnedIncomePlusBothTPCombatPay" />
+            </Multiplicand>
+            <Rate>
+              <Rational>50/50</Rational>
+            </Rate>
+          </StepwiseMultiply>
+          
+          <Dollar>25</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcRoundedAGI">
+      <Name>Rounded AGI for EITC</Name>
+      <Description>In order to match the EITC table from Publication 596, we must round the income to match the rows,
+        which use increments of $50, calculating the amount of the credit for the midpoint of row (i.e. $25, $75, $125,
+        etc.).</Description>
+      <Derived>
+        <Add>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <Dependency module="taxCalculations" path="/agi" />
+            </Multiplicand>
+            <Rate>
+              <Rational>50/50</Rational>
+            </Rate>
+          </StepwiseMultiply>
+          
+          <Dollar>25</Dollar>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcMaxCredit">
+      <Name>EITC maximum credit amount</Name>
+      <Description>The maximum amount of EITC a taxpayer can recieve, depending on the number of qualifying children.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/maxEitcWith0QualifyingChildren" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/maxEitcWith1QualifyingChild" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/maxEitcWith2QualifyingChildren" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/maxEitcWith3OrMoreQualifyingChildren" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInEndsFor0QualifyingChildren">
+      <Name>Maximum phase in amount with 0 children</Name>
+      <Description>The earned income amount which provides the max EITC with 0 qualifying children
+        Rev Proc .06 Earned
+        Income Credit §32(b)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>8490</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInEndsFor1QualifyingChild">
+      <Name>Maximum phase in amount with 1 child</Name>
+      <Description>The earned income amount which provides the max EITC with 1 qualifying child
+        Rev Proc .06 Earned
+        Income Credit §32(b)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>12730</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInEndsFor2OrMoreQualifyingChildren">
+      <Name>Maximum phase in amount with 2 or more children</Name>
+      <Description>The earned income amount which provides the max EITC with 2 or more qualifying children
+        Rev Proc .06
+        Earned Income Credit §32(b)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>17880</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxEitcWith0QualifyingChildren">
+      <Name>Maximum EITC amount with 0 children</Name>
+      <Description>The maximum earned income tax credit with 0 qualifying children</Description>
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/phaseInRatesFor0Qc" />
+            <Dependency path="/phaseInEndsFor0QualifyingChildren" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxEitcWith1QualifyingChild">
+      <Name>Maximum EITC amount with 1 child</Name>
+      <Description>The maximum earned income tax credit with 1 qualifying child</Description>
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/phaseInRatesFor1Qc" />
+            <Dependency path="/phaseInEndsFor1QualifyingChild" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxEitcWith2QualifyingChildren">
+      <Name>Maximum EITC amount with 2 children</Name>
+      <Description>The maximum earned income tax credit with 2 qualifying children</Description>
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/phaseInRatesFor2Qc" />
+            <Dependency path="/phaseInEndsFor2OrMoreQualifyingChildren" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxEitcWith3OrMoreQualifyingChildren">
+      <Name>Maximum EITC amount with 3 or more children</Name>
+      <Description>The maximum earned income tax credit with 3 or more qualifying children</Description>
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/phaseInRatesFor3OrMoreQc" />
+            <Dependency path="/phaseInEndsFor2OrMoreQualifyingChildren" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/roundedMaxEitcWith0QualifyingChildren">
+      <Name>Rounded maximum EITC amount with 0 children</Name>
+      <Description>The rounded version of maxEitcWith0QualifyingChildren</Description>
+
+      <Derived>
+        <Round>
+          <Dependency path="/maxEitcWith0QualifyingChildren" />
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/roundedMaxEitcWith1QualifyingChild">
+      <Name>Rounded maximum EITC amount with 1 child</Name>
+      <Description>The rounded version of maxEitcWith1QualifyingChild</Description>
+
+      <Derived>
+        <Round>
+          <Dependency path="/maxEitcWith1QualifyingChild" />
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/roundedMaxEitcWith2QualifyingChildren">
+      <Name>Rounded maximum EITC amount with 2 children</Name>
+      <Description>The rounded version of maxEitcWith2QualifyingChildren</Description>
+
+      <Derived>
+        <Round>
+          <Dependency path="/maxEitcWith2QualifyingChildren" />
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/roundedMaxEitcWith3OrMoreQualifyingChildren">
+      <Name>Rounded maximum EITC amount with 3 ore more children</Name>
+      <Description>The rounded version of maxEitcWith3OrMoreQualifyingChildren</Description>
+
+      <Derived>
+        <Round>
+          <Dependency path="/maxEitcWith3OrMoreQualifyingChildren" />
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInRatesFor0Qc">
+      <Name>Phase in rate for 0 qualifying children</Name>
+
+      <Derived>
+        <Rational>765/10000</Rational>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInRatesFor1Qc">
+      <Name>Phase in rate for 1 qualifying child</Name>
+
+      <Derived>
+        <Rational>34/100</Rational>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInRatesFor2Qc">
+      <Name>Phase in rate for 2 qualifying children</Name>
+
+      <Derived>
+        <Rational>40/100</Rational>
+      </Derived>
+    </Fact>
+
+    <Fact path="/phaseInRatesFor3OrMoreQc">
+      <Name>Phase in rate for 3 or more qualifying children</Name>
+
+      <Derived>
+        <Rational>45/100</Rational>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPhaseInRate">
+      <Name>EITC phase in rate</Name>
+      <Description>The rate at which EITC phases in with income.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/phaseInRatesFor0Qc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/phaseInRatesFor1Qc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/phaseInRatesFor2Qc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/phaseInRatesFor3OrMoreQc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPhaseOutRate">
+      <Name>EITC phase out rate</Name>
+      <Description>The rate at which EITC phases out as income exceeds the threshold amount.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>765/10000</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>1598/10000</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="/numEitcDependentsCollectionForCalculation" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Rational>2106/10000</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPhaseOutThreshold">
+      <Name>EITC phaseout amount threshold</Name>
+      <Description>The amount of income above which the amount of EITC begins to be reduced.
+        Rev Proc .06 Earned Income
+        Credit §32(b)
+      </Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+                <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+                <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              </Any>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>10620</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <GreaterThanOrEqual>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>1</Int>
+                      </Right>
+                    </GreaterThanOrEqual>
+                  </When>
+                  <Then>
+                    <Dollar>23350</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>17730</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <GreaterThanOrEqual>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>1</Int>
+                      </Right>
+                    </GreaterThanOrEqual>
+                  </When>
+                  <Then>
+                    <Dollar>30470</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4797Line10PassiveOrdinaryGain">
+      <Name>Form 4797 line 10 ordinary gain or (loss) from a passive activity</Name>
+      <Description>Pub 596 Worksheet 1 lines 11-12: the portion of Form 4797 line 10 ("Ordinary
+        gains and losses not included on lines 11 through 16") that is from a PASSIVE activity —
+        signed (a positive entry is a gain, a negative entry is a loss). This is a NARROW slice of
+        line 10 (most line-10 items are non-passive business property, which this fact does not
+        address); the taxpayer attests only the passive-activity portion here. Combined with
+        scheduleE:/overallPassiveNet BEFORE the WS-1 line 13 floor (not floored separately) — see
+        /belowEitcInvestmentIncomeLimit. OPTIONAL: unanswered means $0, the pre-existing behavior
+        for every return that doesn't attest a Form 4797 line 10 passive amount.</Description>
+      
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4797Line10PassiveOrdinaryGain">
+      <Name>Form 4797 line 10 passive ordinary gain or (loss) (complete-safe)</Name>
+      <Description>/writableForm4797Line10PassiveOrdinaryGain when answered, else 0 (the
+        IsComplete pattern, as /nonrecapturedSection1231Loss). Firewalls
+        /belowEitcInvestmentIncomeLimit from the writable's own completeness: a bare Dependency
+        on an unanswered writable propagates that writable's completeness upward through
+        Add/GreaterOf, which would turn /belowEitcInvestmentIncomeLimit from Complete to
+        Placeholder for every return that doesn't attest this amount — a real regression, not
+        merely a value change. This Switch's catch-all branch supplies a literal $0, which is
+        unconditionally Complete.</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4797Line10PassiveOrdinaryGain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm4797Line10PassiveOrdinaryGain" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcInvestmentIncome">
+      <Name>EITC investment income</Name>
+      <Description>Publication 596 Worksheet 1 line 14, the earned income credit's investment income: the total of worksheet lines 1, 2, 3, 4, 7, 10 and 13 (https://www.irs.gov/pub/irs-pdf/p596.pdf, page 7). /belowEitcInvestmentIncomeLimit compares it with the line 15 limit.
+        LINE 1 is taxable interest (Form 1040 line 2b). LINE 2 is one printed line with two sources, "Enter any amount from Form 1040 or 1040-SR, line 2a, plus any amount on Form 8814, line 1b" (line 362): interest:/taxExemptInterest plus form8814:/form8814TotalTaxExemptInterest, nested in one sub-Add so the printed line stays one line. The Form 8814 addend is the WHOLE of line 1b; the worksheet applies no private-activity-bond portioning, which belongs to Form 6251 line 2g and reads a different form8814 fact (/form8814PrivateActivityBondInterest). Reading the portion here would under-state investment income and over-allow the credit. LINE 3 is ordinary dividends (Form 1040 line 3b).
+        LINE 4 reads "Enter the amount from Schedule 1 (Form 1040), line 8z, that is from Form 8814 if you are filing that form to report your child's interest and dividend income on your return" (lines 364-367). That amount is form8814:/form8814Pub596Worksheet2Line10Total: the child's ordinary inclusion over the $2,700 base amount (form8814:/form8814TotalLine12OtherIncome, the figure income:/schedule1TotalOtherIncome carries into line 8z), summed over the attached Forms 8814, less the Alaska Permanent Fund part Worksheet 2 takes out when a child received an Alaska Permanent Fund dividend (the worksheet's parenthetical, "If your child received an Alaska Permanent Fund dividend, use Worksheet 2 in this chapter to figure the amount to enter on this line"). With no Alaska Permanent Fund amount answered it equals line 12. A nonzero line 12 raises investment income and can deny the credit on its own merits. The child's line 9 qualified dividends reach this worksheet through line 3 (income:/ordinaryDividends, Form 1040 line 3b) and line 10 through line 5 (income:/capitalGainsOrLosses, line 7a), so neither is wired again and nothing is counted twice.
+        LINE 7 is Form 1040 line 7a (a loss enters as zero) less the Form 4797 gain on line 6 (form4797:/section1231LtcgPortion), floored at zero (lines 369-375). LINE 10 is royalty income and personal-property rental income less their expenses, floored once (lines 377-385): scheduleE:/royaltyNetIncome (Schedule E line 23b royalties already net of their line 20 expenses) plus income:/schedule1Line8lIncomeOrZero less income:/schedule1Line24bRentalOfPersonalPropertyExpensesOrZero. LINE 13 combines the passive-activity income of line 11 and the passive-activity losses of line 12, floored once (lines 386-394): scheduleE:/overallPassiveNet (the Schedule E passive activities, including line 40) plus /form4797Line10PassiveOrdinaryGain (a Form 4797 line 10 passive ordinary gain or loss).
+        Example (line 12 $10,799, Alaska Permanent Fund part $800, line 4 $9,999; with $1,200 of parent
+        interest the total is $11,199 and the credit is allowed, where the whole of line 12 gave
+        $11,999 and denied it). Boundary pair:
+        $10,749 + $1,200 = $11,949, allowed; $10,799 + $1,200 = $11,999, denied.</Description>
+      
+      <Export stateSystems="true" />
+      <Derived>
+        <Add>
+          <Dependency module="interest" path="/interestIncome" />
+          <Add>
+            <Dependency module="interest" path="/taxExemptInterest" />
+            <Dependency module="form8814" path="/form8814TotalTaxExemptInterest" />
+          </Add>
+          <Dependency module="income" path="/ordinaryDividends" />
+          <Dependency module="form8814" path="/form8814Pub596Worksheet2Line10Total" />
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <GreaterOf>
+                  <Dependency module="income" path="/capitalGainsOrLosses" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Minuend>
+              <Subtrahends>
+                <Dependency module="form4797" path="/section1231LtcgPortion" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+          <GreaterOf>
+            <Add>
+              <Dependency module="scheduleE" path="/royaltyNetIncome" />
+              <Subtract>
+                <Minuend>
+                  <Dependency module="income" path="/schedule1Line8lIncomeOrZero" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency module="income" path="/schedule1Line24bRentalOfPersonalPropertyExpensesOrZero" />
+                </Subtrahends>
+              </Subtract>
+            </Add>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+          <GreaterOf>
+            <Add>
+              <Dependency module="scheduleE" path="/overallPassiveNet" />
+              <Dependency path="/form4797Line10PassiveOrdinaryGain" />
+            </Add>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/belowEitcInvestmentIncomeLimit">
+      <Name>Below EITC Investment Income Limit</Name>
+      <Description>Whether the taxpayer's EIC "investment income" (Form 1040 Step 2) is at or below the
+        $11,950 limit (§32(i); Rev. Proc. 2024-40 §.06). Computes Pub 596 (2025) Worksheet 1
+        line 14 = interest (L1, 1040 line 2b) + tax-exempt interest (L2, line 2a) + ordinary dividends
+        (L3, line 3b) + L7 (capital-gain net income LESS the Form 4797 §1231 gain — WS-1 lines 5−6,
+        floored) + L10 (net royalty income, floored) + L13 (net passive-activity income, floored). This
+        ADDS Form 1040 Step 2 Q3/Q4, previously unimplemented (the gate was only Q1+Q2 = interest +
+        dividends + gross capital gain). The §1231 subtraction (L7) discharges the EIC-wrongly-DENIED
+        divergence; the royalty + passive terms (L10, L13) discharge the EIC-wrongly-ALLOWED
+        (refundable-credit-paid-in-error) divergence. Identical to the plain sum for a filer with
+        no §1231 gain / royalty / net passive income (L6=0 ⇒ L7=L5; L10=L13=0). L2 (Form 8814 line
+        1b tax-exempt interest) and L4 (Form 8814 line 12 other income over $2,700) are both directly
+        computed: /eitcInvestmentIncome sums each over every elected child and adds it into this
+        fact, so a Form 8814 election RAISES investment income and can deny the credit on its own
+        merits rather than being refused or silently zeroed. The personal-property-rental and
+        farm-rental terms remain not-modelled 0-stubs — a disclosed intake gap, not a refusal.
+        L13 now ALSO combines a Form 4797 line 10 passive
+        ordinary gain/loss (/form4797Line10PassiveOrdinaryGain, the complete-safe wrapper over
+        /writableForm4797Line10PassiveOrdinaryGain) with /overallPassiveNet BEFORE the floor, per
+        WS-1's own line-13 instruction to combine lines 11 and 12 (the gains and losses) and floor
+        once — not floor each term separately, which would wrongly deny the EIC to a filer whose
+        passive GAIN from one activity is offset by a passive LOSS from another.
+        interpretation:provisional.</Description>
+      
+
+      <Export stateSystems="true" />
+      <Derived>
+        <LessThanOrEqual>
+          <Left>
+            <Dependency path="/eitcInvestmentIncome" />
+          </Left>
+          <Right>
+            <Dollar>11950</Dollar>
+          </Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcQcOfAnother">
+      <Name>EITC QC Of Another</Name>
+      <Description>Whether the TP or their spouse, if applicable, could be someone else's QC for EITC. California TY2025 reads this fact through its stateSystems export (FTB 3514 qualifying-child-of-another test).</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcQcOfAnotherRequiredToFile">
+      <Name>EITC QC Of Another Required to file</Name>
+      <Description>Whether the person who can claim TP or SP as a QC for EITC is required tofile</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcQcOfAnotherIsFiling">
+      <Name>EITC QC Of Another is filing</Name>
+      <Description>Whether the person who can claim TP or SP as a QC for EITC is filing</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcQcOfAnotherIsFilingRefundOnly">
+      <Name>EITC QC Of Another is filing</Name>
+      <Description>Whether the person who can claim TP or SP as a QC for EITC is filing for a refund only</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/flowShowNotEitcQc">
+      <Name>Flow whether to show eitc qc summary</Name>
+      <Description>Whether to show that the TP is eligible for EITC despite being QC of another.</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/eitcQcTest" />
+          <Dependency path="/eitcQcOfAnother" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcQcTest">
+      <Name>EITC QC Test</Name>
+      <Description>Whether the TP qualifies for EITC when accounting for the possibility that they could be the QC of
+        another TP.</Description>
+
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path="/eitcQcOfAnother" />
+          </Not>
+          <All>
+            <Dependency path="/eitcQcOfAnother" />
+            <Not>
+              <Dependency path="/eitcQcOfAnotherRequiredToFile" />
+            </Not>
+            <Any>
+              <Not>
+                <Dependency path="/eitcQcOfAnotherIsFiling" />
+              </Not>
+              <All>
+                <Dependency path="/eitcQcOfAnotherIsFiling" />
+                <Dependency path="/eitcQcOfAnotherIsFilingRefundOnly" />
+              </All>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/failsEitcQcTest">
+      <Name>Fails EITC QC Test</Name>
+      <Description>Whether the TP does not qualify for EITC when accounting for the possibility that they could be the
+        QC of another TP. Used in Schedule 8862 to answer Part II line 4</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Not>
+          <Dependency path="/eitcQcTest" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8862Line4Yes">
+      <Name>Form 8862 Line 4 Yes checkbox</Name>
+      <Description>Whether the PDF checkbox should be checked.</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/failsEitcQcTest" />
+          <Dependency path="/eitc8862Required" />
+          <Dependency path="/eitc8862PartIIContinuesPastLine3" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8862Line4No">
+      <Name>Form 8862 Line 4 No checkbox</Name>
+      <Description>Whether the PDF checkbox should be checked.</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/eitcQcTest" />
+          <Dependency path="/eitc8862Required" />
+          <Dependency path="/eitc8862PartIIContinuesPastLine3" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcHadImproperClaims">
+      <Name>EITC Had Improper Claims</Name>
+      <Description>Whether the TP (or their spouse, if applicable) has had their EITC reduced or disallowed for any
+        reason other than a math error. California TY2025 reads this fact through its stateSystems export (FTB 3514).</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcImproperClaimsDueToQc">
+      <Name>EITC Improper Claims Due to QC</Name>
+      <Description>Whether the EITC was reduced or disallowed due to a child not being qualifying</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/eitcImproperClaimTakenSinceDisallowal">
+      <Name>EITC allowed again after Form 8862 and not reduced or disallowed since</Name>
+      <Description>Form 8862 Exception 1(1), asked as ONE attestation holding both of its printed conditions. Question: "After your earned income credit was reduced or disallowed, did you (or your spouse, if filing jointly) file Form 8862 for a later year, have the credit ALLOWED for that year, AND has the credit not been reduced or disallowed again since then for any reason other than a math or clerical error?" Answer yes only when all of that is true. Having merely claimed the credit again is not enough: a filer whose credit was allowed after Form 8862 and then reduced or disallowed again must answer no, and Form 8862 is then required again.
+        Asked when /flowHasImproperClaimsAndAskAboutLastClaimedCredit is true. Yes lifts the Form 8862 requirement (/eitc8862Required) and the section 32(k)(2) bar (/eitcNoticeTest).</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcReceivedImproperClaimsNotice">
+      <Name>Received Eitc improper Claims notice</Name>
+      <Description>Whether the TP received a letter from the IRS telling them they're not allowed to take EITC for a
+        number of years</Description>
+      <Writable>
+        <Enum optionsPath="/improperClaimsNoticeOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitcNoticeTest">
+      <Name>EITC Notice Test</Name>
+      <Description>Whether the TP is qualified for the EITC w.r.t having received an improper claims notice in the past</Description>
+
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path="/eitcHadImproperClaims" />
+          </Not>
+          <All>
+            <Dependency path="/hasImproperClaimsAndNoQc" />
+            <Dependency path="/eitcImproperClaimsDueToQc" />
+          </All>
+          <All>
+            <Dependency path="/flowHasImproperClaimsAndAskAboutLastClaimedCredit" />
+            <Dependency path="/eitcImproperClaimTakenSinceDisallowal" />
+          </All>
+          <All>
+            <Dependency path="/eitcHadImproperClaims" />
+            <Equal>
+              <Left>
+                <Dependency path="/eitcReceivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">zeroYears</Enum>
+              </Right>
+            </Equal>
+          </All>
+          <All>
+            <Dependency path="/eitcHadImproperClaims" />
+            <Dependency path="/eitcImproperClaimsNoticeExpired" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitc8862Required">
+      <Name>EITC 8862 Required</Name>
+      <Description>Whether the TP is required to file form 8862 to receive the EITC, per the IRC 32(k)
+        recertification test: the taxpayer's EITC was previously disallowed through the deficiency
+        procedures and has not been retaken since, and either the improper-claims ban is zero years
+        or an answered ban has already expired, on a return that is otherwise receiving the EITC.</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/flowHasImproperClaimsAndAskAboutLastClaimedCredit" />
+          <Not>
+            <Dependency path="/eitcImproperClaimTakenSinceDisallowal" />
+          </Not>
+          <Any>
+            <Equal>
+              <Left>
+                <Dependency path="/eitcReceivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">zeroYears</Enum>
+              </Right>
+            </Equal>
+            <All>
+              <IsComplete>
+                <Dependency path="/eitcReceivedImproperClaimsNotice" />
+              </IsComplete>
+              <Dependency path="/eitcImproperClaimsNoticeExpired" />
+            </All>
+          </Any>
+          <Dependency path="/isReceivingEitc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8862RequiredAndHasQualifyingChildren">
+      <Name>Form 8862 required and has EITC qualifying children</Name>
+      <Description>Form 8862 is required and TP has EITC qualifying children</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <All>
+          <Dependency module="eitc" path="/eitc8862Required" />
+          <Dependency path="/eitc8862PartIIContinuesPastLine3" />
+          <Dependency path="/maybeEligibleForEitcWithQc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8862RequiredAndHasNoQualifyingChildren">
+      <Name>Form 8862 required and has no EITC qualifying children</Name>
+      <Description>Form 8862 is required and TP does not have EITC qualifying children</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/eitc8862Required" />
+          <Dependency path="/eitc8862PartIIContinuesPastLine3" />
+          <Equal>
+            <Left>
+              <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8862RequiredAndHasNoQualifyingChildrenAndIsFilingMFJ">
+      <Name>Form 8862 required and has no EITC qualifying children</Name>
+      <Description>Form 8862 is required and TP does not have EITC qualifying children</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/form8862RequiredAndHasNoQualifyingChildren" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeForm8862">
+      <Name>PDF should include Form 8862</Name>
+      <Description>Whether the tax return PDF should include Form 8862, Information To CLaim Certain Credits After
+        Disallowance: true when any of the earned income credit, the child tax credit / credit for
+        other dependents / additional child tax credit, or the American opportunity credit requires it.</Description>
+
+      <Derived>
+        <Any>
+          <Dependency path="/eitc8862Required" />
+          <Dependency module="ctcOdc" path="/ctc8862Required" />
+          <All>
+            <IsComplete>
+              <Dependency module="form8863" path="/aotc8862Required" />
+            </IsComplete>
+            <Dependency module="form8863" path="/aotc8862Required" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcQualified">
+      <Name>Whether the TP is eligible for the EITC</Name>
+      <Description>Whether the TP passes various tests to be eligible for the Earned Income Tax Credit (EITC) in
+        finality, after the EITC sections of the flow</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/maybeEligibleForEitc" />
+          <Dependency path="/eitcQcTest" />
+          <Dependency path="/eitcNoticeTest" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForEitc">
+      <Name>Whether the TP may be eligible for the EITC</Name>
+      <Description>Whether the TP passes various tests to be eligible for the Earned Income Tax Credit (EITC) prior to
+        the EITC section of the flow. After this, we still need to test
+        1. If the TP is the QC of another TP
+        2. If they
+        have been disqualified from taking EITC by the IRS</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/maybeEligibleForEitcBase" />
+          <Not>
+            <Dependency path="/noEitcDueToSeparateFilingFromSpouse" />
+          </Not>
+          <Any>
+            <Dependency path="/maybeEligibleForEitcWithQc" />
+            <Dependency path="/maybeEligibleForEitcWithoutQc" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForEitcWithQc">
+      <Name>Whether the TP may be eligible for the EITC</Name>
+      <Description>Whether the TP passes various tests to be eligible for the Earned Income Tax Credit (EITC)</Description>
+
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/noEitcDueToSeparateFilingFromSpouse">
+      <Description>
+        Used for display in the flow. The TP doesn't have EITC because they are filing separately from their
+        spouse (either MFS or HOH) and have no qualifying children or they did not meet the special rule for spearated
+        spouses
+      </Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/filingStatus" module="filingStatus" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/specialRuleForSeparatedSpouses" module="filers" />
+          </IsComplete>
+
+          <Dependency module="filers" path="/isMarried" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <Any>
+            <Not>
+              <Dependency module="filers" path="/specialRuleForSeparatedSpouses" />
+            </Not>
+            <Equal>
+              <Left>
+                <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+              </Left>
+              <Right>
+                <Int>0</Int>
+              </Right>
+            </Equal>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableMainHomeInUsOverHalfYear">
+      <Name>Main home was in the U.S. for more than half the year (Form 1040 page 1 checkbox)</Name>
+      <Description>The Form 1040 page-1 attestation: "Check here if your main home, and your
+        spouse's if filing a joint return, was in the U.S. for more than half of 2025"
+        (https://www.irs.gov/pub/irs-pdf/f1040.pdf, page 1). One Boolean for the return, matching the
+        single printed checkbox, which already covers both spouses.
+
+        IT IS AN ELIGIBILITY CONDITION FOR THE CHILDLESS EITC, not a decoration. Publication 596
+        Rule 14 — "You Must Have Lived in the United States More Than Half of the Year ... Your home
+        (and your spouse's if filing a joint return) must have been in the United States for more
+        than half the year" (https://www.irs.gov/pub/irs-pdf/p596.pdf, page 19) — and the
+        publication's own eligibility checklist puts it on the no-qualifying-child path: "If you
+        don't have a qualifying child ... skip questions 8 and 9 and answer 10-12", question 12
+        being this test citing Rule 14 (lines 1550-1561).
+
+        "UNITED STATES" HERE EXCLUDES THE TERRITORIES, and that is printed too: "United States. This
+        means the 50 states and the District of Columbia. It doesn't include Puerto Rico or U.S.
+        territories such as Guam" (lines 1217-1220). That sentence is why Publication 1321 can say
+        flatly that a bona fide resident of Puerto Rico cannot claim the EITC — it is a CONSEQUENCE
+        of this rule and of "employee pay is earned income only if it is taxable", not a separate
+        statutory bar. Neither Publication 596 nor IRC section 32 contains one.
+
+        UNANSWERED IS TREATED AS IN THE U.S., which is exactly today's behaviour and is why this
+        change moves no committed return. THE DIRECTION OF THAT TAIL IS TAXPAYER-FAVOURABLE and is
+        stated rather than buried: a filer whose main home was NOT in the U.S. and who is never
+        asked keeps a credit Rule 14 denies. The alternative tail — unanswered means NOT in the U.S.
+        — would deny the childless EITC to every return in the corpus, which is both wrong and a
+        far larger error than the one being fixed.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad">
+      <Name>Main home in the U.S. for more than half of 2025, counting time stationed abroad on
+        extended active duty (IRC 32(c)(4))</Name>
+      <Description>User response: counting the time the filer, or the filer's spouse if filing
+        jointly, was stationed outside the United States on extended active duty with the U.S.
+        Armed Forces as time in the United States, was the main home in the United States for more
+        than half of 2025?
+
+        WHY THE QUESTION COUNTS TIME AND DOES NOT ASK STATUS. IRC 32(c)(4) treats the member's
+        principal place of abode as in the United States "during any period" the member is
+        stationed abroad on extended active duty. It adds that period to the time at home; it does
+        not satisfy the more-than-half-year test by itself. A member stationed abroad for one month
+        who lived abroad as a civilian for the rest of the year has not met the test, and a
+        question asking only whether the filer was ever stationed abroad would pass that filer.
+
+        QUESTION TEXT, as it should be asked: "Counting the time you (or your spouse, if filing
+        jointly) were stationed outside the U.S. on extended active duty as time in the U.S., was
+        your main home in the U.S. for more than half of 2025?"
+
+        HELP TEXT: "If you or your spouse were stationed outside the United States on extended
+        active duty with the U.S. Armed Forces, the law treats your home as in the United States for
+        the time you were stationed abroad. Add that time to the time your main home was in the
+        United States. Extended active duty means a call or order to duty for more than 90 days or
+        for an indefinite period."
+
+        ASKED WHEN: the filer answered No to /writableMainHomeInUsOverHalfYear, or a qualifying
+        child lived with the filer in the United States for less than half the year, and the filer
+        or the spouse was stationed outside the United States on extended active duty at some time
+        in 2025. A filer who already answered the main-home question Yes needs no exception.
+
+        UNANSWERED POSTURE: treated as No, the adverse direction: the ordinary answers decide, as
+        they do for a filer never stationed abroad.
+
+        VALIDATION: Boolean. Yes/No radio, no default selection.
+
+        WHAT THE ANSWER FEEDS: /mainHomeInUsOverHalfYear (the childless-credit test, IRC
+        32(c)(1)(A)(ii)(I)) and familyAndHousehold:/familyAndHousehold/*/livedWithTpInUsMostOfYear
+        (the qualifying-child test, IRC 32(c)(3)(C)), through the complete-safe
+        /mainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/mainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad">
+      <Name>IRC 32(c)(4) military residency attestation, complete-safe</Name>
+      <Description>= /writableMainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad when
+        answered, else FALSE. The IsComplete/Switch guard idiom, so an unanswered attestation keeps
+        /mainHomeInUsOverHalfYear Complete and changes no return that never sees the screen.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableMainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableMainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mainHomeInUsOverHalfYear">
+      <Name>Rule 14 satisfied — main home in the U.S. more than half the year, complete-safe</Name>
+      <Description>= /writableMainHomeInUsOverHalfYear when answered, else TRUE — OR the §32(c)(4)
+        military residency attestation (/mainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad),
+        which asks the same question with the time stationed abroad on extended active duty
+        counted as time in the United States. The IsComplete/Switch
+        guard idiom on the checkbox arm. True-when-unanswered preserves today's behaviour exactly on
+        every return that answers neither fact, so this is additive; the direction of that tail is
+        on the writable above.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableMainHomeInUsOverHalfYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Any>
+                <Dependency path="/writableMainHomeInUsOverHalfYear" />
+                <Dependency path="/mainHomeInUsOverHalfYearCountingExtendedActiveDutyAbroad" />
+              </Any>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForEitcWithoutQc">
+      <Name>Whether the TP may be eligible for the EITC</Name>
+      <Description>Whether the TP passes various tests to be eligible for the Earned Income Tax Credit (EITC)</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/mainHomeInUsOverHalfYear" />
+          <Equal>
+            <Left>
+              <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </Equal>
+          <Any>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <Not>
+              <Dependency module="filers" path="/isMarried" />
+            </Not>
+          </Any>
+          <Not>
+            <Dependency module="filers" path="/treatFilersAsDependents" />
+          </Not>
+          <Dependency path="/filersAgeTestForEitcWithNoQC" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasImproperClaimsAndNoQc">
+      <Name>Has improper claims and no qc</Name>
+      <Description>Whether the TP has had improper EITC claims and has no qualifying children</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/eitcHadImproperClaims" />
+          <Dependency path="/hasZeroEitcQualifyingChildren" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowHasImproperClaimsAndAskAboutLastClaimedCredit">
+      <Name>Show EITC credits taken since disallowal question</Name>
+      <Description>Checks whether the TP has taken improper claims and has qualifying children to determine if they
+        should be asked about the last time they have taken the earned income tax credit</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Dependency path="/hasImproperClaimsAndNoQc" />
+            <Not>
+              <Dependency path="/eitcImproperClaimsDueToQc" />
+            </Not>
+          </All>
+          <All>
+            <Dependency path="/eitcHadImproperClaims" />
+            <Dependency path="/maybeEligibleForEitcWithQc" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filersAgeTestForEitcWithNoQC">
+      <Name>TP(s) age test for EITC with no QC</Name>
+      <Description>TP(s) age test for EITC with no qualifying children</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <All>
+                <Any>
+                  <All>
+                    <Dependency path="/eitcPrimaryAge25OrOlderCompleteSafe" />
+                    <Dependency path="/eitcPrimaryAge64OrYoungerCompleteSafe" />
+                  </All>
+                  <All>
+                    <Dependency module="filers" path="/secondaryFiler/age25OrOlderForEitc" />
+                    <Dependency module="filers" path="/secondaryFiler/age64OrYoungerForEitc" />
+                  </All>
+                </Any>
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <All>
+                <Dependency path="/eitcPrimaryAge25OrOlderCompleteSafe" />
+                <Dependency path="/eitcPrimaryAge64OrYoungerCompleteSafe" />
+              </All>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForEitcBase">
+      <Name>Whether the TP may be eligible for the EITC Base</Name>
+      <Description>Base rules that define whhether the TP passes various tests to be eligible for the Earned Income Tax
+        Credit (EITC) before running child-specific tests.
+
+        THE SECTION 32(c)(1)(C) FORM 2555 DISQUALIFICATION. IRC 32(c)(1)(C), "Exception for individual
+        claiming benefits under section 911": "The term 'eligible individual' does not include any
+        individual who claims the benefits of section 911 (relating to citizens or residents living
+        abroad) for the taxable year" (26 U.S.C. 32, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section32&amp;num=0&amp;edition=2024). The Form 1040
+        instructions put the same rule as step 3 of the EIC eligibility flowchart: "3. Are you
+        filing Form 2555 (relating to foreign earned income)? ... Yes. STOP You can't take the
+        credit" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 40, a two-column layout in which
+        the word "credit." falls on line 2614).
+
+        IT IS A TOTAL DISQUALIFICATION, NOT AN INCOME ADJUSTMENT, which is why it is one more
+        conjunct here rather than a worksheet line: the filer is not an eligible individual at all,
+        no amount enters and no limit moves. That is also why the term reads the FACT of filing and
+        not an exclusion amount — the statute has no dollar threshold anywhere in it, so an
+        amount edge would imply a test Congress did not write.
+
+        IT READS THE SHARED GATE, NOT AN EITC-LOCAL BOOLEAN. form2555
+        /filesForm2555ForeignEarnedIncomeExclusion is the one place a return can assert "I file
+        Form 2555"; six modules converge on it. A single-module EITC writable would have made that
+        assertion representable while seven other modules' MAGI and eligibility computations stayed
+        silently wrong for the same return.
+
+        ADDITIVE ON THE WHOLE COMMITTED CORPUS, and the trio below is what proves it rather than
+        asserts it. The gate resolves COMPLETE FALSE when the attestation is unanswered (its
+        IsComplete/Switch guard), which every committed scenario is, so Not(gate) is TRUE and this
+        All() resolves exactly as it would without this conjunct. Complete-false and not Incomplete is the
+        load-bearing half: an Incomplete term inside this All() would take EITC eligibility
+        Incomplete for every return in the dictionary. Examples: unanswered, this fact stays
+        TRUE and the credit stays $2; on an identical return with the attestation YES, this fact
+        goes FALSE and Form 1040 line 27 goes to zero; answered NO, the credit is allowed.
+
+        WORLD-1 DIRECTION: taxpayer-UNFAVOURABLE for the population it opens, because it denies a
+        credit. That direction is the statute's, and the alternative is worse — a Form 2555 filer
+        who keeps the EITC because the software never asked. The population is not reachable
+        today in any case: form2555 /knockoutFilesForm2555 refuses any return that answers the
+        attestation yes, and this change is one of the three whose joint completion retires that
+        refusal (with preferentialRateTax /foreignEarnedIncomeTaxWorksheetTax and form8960
+        /niitMagiForeignEarnedIncomeAddback).
+
+        THE SECTION 32(e) FULL-YEAR RULE. IRC 32(e) allows no credit for a taxable year of less than
+        12 months, except a year closed by the taxpayer's death. The only other short year an
+        individual return here can carry is a section 443(a)(1) change of annual accounting period,
+        which standardDeduction /filesShortPeriodReturnForAccountingPeriodChange attests; a return
+        that answers it yes is not eligible. That reading is complete-safe FALSE when the question is
+        unanswered, so every return that does not answer it is unaffected. Answered yes, the credit is denied; answered no, it is kept.</Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+          </Not>
+          <Not>
+            <Dependency module="standardDeduction" path="/filesShortPeriodReturnForAccountingPeriodChange" />
+          </Not>
+          <Dependency path="/hasEarnedIncome" />
+          <Dependency path="/belowEitcEarnedIncomeLimit" />
+          <Dependency path="/belowEitcAgiLimit" />
+          <Dependency path="/belowEitcInvestmentIncomeLimit" />
+          <Dependency module="filers" path="/filersCouldQualifyForEitc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasZeroEitcQualifyingChildren">
+      <Name>Has zero EITC Qualifying Children</Name>
+      <Description>Whether the TP(s) has zero EITC qualifying children</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcQCsNeedAdditionalInfo">
+      <Name>Whether the unclaimed and/or deceased EITC QCs need more information.</Name>
+      <Description>Whether the TP has unclaimed and/or deceased EITC QCs.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Add>
+              <CollectionSize>
+                <Dependency module="familyAndHousehold" path="/unclaimedEITCQcsCollection" />
+              </CollectionSize>
+              <CollectionSize>
+                <Dependency module="familyAndHousehold" path="/deceasedEitcEligibleQcCollection" />
+              </CollectionSize>
+            </Add>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasMoreThanZeroEitcQualifyingChildren">
+      <Name>Number of EITC Qualifying Children is greater than zero.</Name>
+      <Description>The number of dependents who qualify as QCs for EITC is greater than zero.</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eitcQualifyingChild" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/hasEarnedIncome">
+      <Name>Has Earned Income</Name>
+      <Description>Whether the TP had earned income.
+
+        ⚠ RE-POINTED (the possession-exclusion condition (B)) WITHOUT A VALUE CHANGE ANYWHERE. It read
+        income:/earnedIncomeWithAllCombatPay, which is now the SCHEDULE 8812 LINE 18a figure and
+        applies section 24(d)(1)(B)(i)'s "taken into account in computing taxable income" filter to
+        the self-employment addend. This is an EITC gate, and section 32's own chain runs
+        32(c)(2)(A)(ii) to section 1402(a), whose paragraphs (6) and (9) compute net earnings
+        WITHOUT regard to sections 933 and 931 - so the excluded profit stays IN for this test. It
+        now reads income:/earnedIncomeWithAllCombatPayIncludingExcludedTerritory, which is the
+        former body of the path it left, extracted unchanged.
+        DIRECTION IF THE RE-POINT HAD BEEN OMITTED: a section 931/933 filer whose whole business
+        income is excluded would fail this gate and lose the EITC on a Schedule 8812 authority that
+        is not about the EITC - taxpayer-ADVERSE, and wrong. The two facts are equal on every
+        committed return, so nothing moves today.</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency module="income" path="/earnedIncomeWithAllCombatPayIncludingExcludedTerritory" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcMfjLimitWithThreeOrMoreChildren">
+      <Name>EITC (MFJ) limit with 3 or more children</Name>
+      <Description>EITC limit with 3 or more children when filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>68675</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcSelfLimitWithThreeOrMoreChildren">
+      <Name>EITC (self) limit with 3 or more children</Name>
+      <Description>EITC limit with 3 or more children when not filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>61555</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcMfjLimitWithTwoChildren">
+      <Name>EITC (MFJ) limit with 2 children</Name>
+      <Description>EITC limit with 2 children when filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>64430</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcSelfLimitWithTwoChildren">
+      <Name>EITC (self) limit with 2 children</Name>
+      <Description>EITC limit with 2 children when not filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>57310</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcMfjLimitWithOneChild">
+      <Name>EITC (MFJ) limit with 1 child</Name>
+      <Description>EITC limit with 1 child when filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>57554</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcSelfLimitWithOneChild">
+      <Name>EITC (self) limit with 1 child</Name>
+      <Description>EITC limit with 1 child when not filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>50434</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcMfjLimitWithZeroChildren">
+      <Name>EITC (MFJ) limit with 0 children</Name>
+      <Description>EITC limit with 0 children when filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>26214</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcSelfLimitWithZeroChildren">
+      <Name>EITC (self) limit with 0 children</Name>
+      <Description>EITC limit with 0 children when not filing as MFJ
+        Rev Proc .06 Earned Income Credit §32(b)
+      </Description>
+      
+      <Derived>
+        <Dollar>19104</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcCompletedPhaseoutAmount">
+      <Name>EITC Completed Phaseout Amount</Name>
+      <Description>The amount of income at which EITC is completely phased out.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThanOrEqual>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>3</Int>
+                      </Right>
+                    </GreaterThanOrEqual>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcMfjLimitWithThreeOrMoreChildren" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>2</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcMfjLimitWithTwoChildren" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>1</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcMfjLimitWithOneChild" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcMfjLimitWithZeroChildren" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThanOrEqual>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>3</Int>
+                      </Right>
+                    </GreaterThanOrEqual>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcSelfLimitWithThreeOrMoreChildren" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>2</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcSelfLimitWithTwoChildren" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>1</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcSelfLimitWithOneChild" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency module="familyAndHousehold"
+                          path="/numEitcDependentsCollectionForCalculation" />
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="/eitcSelfLimitWithZeroChildren" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcPhaseoutAmountLowerBound">
+      <Name>Lower bound phase-out amount</Name>
+      <Description>The lower bound of the midpoint range that is associated with the complete phase-out amount</Description>
+
+      <Derived>
+        <StepwiseMultiply>
+          <Multiplicand>
+            <Dependency path="/eitcCompletedPhaseoutAmount" />
+          </Multiplicand>
+          <Rate>
+            <Rational>50/50</Rational>
+          </Rate>
+        </StepwiseMultiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/belowEitcEarnedIncomeLimit">
+      <Name>Below EITC Earned Income Limit</Name>
+      <Description>Whether the TP's Earned Income is low enough for the EITC. We always test this without combat pay,
+        since it will be the lesser of the two amounts. Later, we have to calculate if combat pay is more or less
+        advantageous.</Description>
+
+      <Derived>
+        <LessThan>
+          <Left>
+            <Dependency path="/eitcEarnedIncomeBase" />
+          </Left>
+          <Right>
+            <Dependency path="/eitcCompletedPhaseoutAmount" />
+          </Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/belowEitcAgiLimit">
+      <Name>Below EITC AGI Limit</Name>
+      <Description>Whether the TP's AGI is low enough for the EITC</Description>
+
+      <Derived>
+        <LessThan>
+          <Left>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Left>
+          <Right>
+            <Dependency path="/eitcCompletedPhaseoutAmount" />
+          </Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hadEitcImproperClaimsBan">
+      <Name>EITC had an improper claims ban</Name>
+      <Description>Whether the flow should ask a person if their CTC improper claims notice has expired</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/eitcImproperClaimTakenSinceDisallowal" />
+          </Not>
+          <Any>
+            <Equal>
+              <Left>
+                <Dependency path="/eitcReceivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">twoYears</Enum>
+              </Right>
+            </Equal>
+            <Equal>
+              <Left>
+                <Dependency path="/eitcReceivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">tenYears</Enum>
+              </Right>
+            </Equal>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcImproperClaimsNoticeExpired">
+      <Name>EITC Improper Claims Notice Expired</Name>
+      <Description>Whether the improper claims notice that the TP previously received is far enough in the past to be
+        expired. E.g. They could not file for 2 years, and it has been at least 2 years</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/pdfIncludeScheduleEic">
+      <Name>PDF should include Schedule EIC</Name>
+      <Description>Whether the tax return PDF should include Schedule EIC.</Description>
+
+      <Derived>
+        <All>
+          <NotEqual>
+            <Left>
+              <Dependency path="/earnedIncomeCredit" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </NotEqual>
+          <GreaterThan>
+            <Left>
+              <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/receivingEitcWhileSeparatedCheckbox">
+      <Description>
+        The TP is receiving EITC while they are married and filing separately from their sposue (either HOH
+        or MFS)
+        and there is a checkbox we must set in the pdf, and a field to send to MeF.
+      </Description>
+      <Export mef="true" />
+
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/isMarried" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <Dependency path="/isReceivingEitc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEITCAmountWithPrimaryCombatPayGreaterThanWithoutCombatPay">
+      <Name>Is the EITC amount with Primary combat pay greater than without combat pay</Name>
+      <Description>Whether or not the EITC amount with Primary combat pay is greater then without combat pay</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="formW2s" path="/onlyPrimaryFilerHasCombatPay" />
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+            </Left>
+            <Right>
+              <Dependency path="/eitcAmountWithoutCombatPay" />
+            </Right>
+          </GreaterThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEITCAmountWithSecondaryCombatPayGreaterThanWithoutCombatPay">
+      <Name>Is the EITC amount with secondary combat pay greater than without combat pay</Name>
+      <Description>Whether or not the EITC amount with secondary combat pay is greater then without combat pay</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="formW2s" path="/onlyMFJSpouseHasCombatPay" />
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+            </Left>
+            <Right>
+              <Dependency path="/eitcAmountWithoutCombatPay" />
+            </Right>
+          </GreaterThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEITCAmountWithBothCombatPayMaximum">
+      <Name>Is the EITC amount with both combat pay is maximum</Name>
+      <Description>Whether or not the EITC amount with both combat pays is greater primary, secondary, and without
+        combat pay</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="formW2s" path="/bothFilersHasCombatPay" />
+          <Equal>
+            <Left>
+              <GreaterOf>
+                <Dependency path="/eitcAmountWithBothTPCombatPay" />
+                <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+                <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+                <Dependency path="/eitcAmountWithoutCombatPay" />
+              </GreaterOf>
+            </Left>
+            <Right>
+              <Dependency path="/eitcAmountWithBothTPCombatPay" />
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEITCAmountWithPrimaryCombatPayMaximum">
+      <Name>Is the EITC amount with primary combat pay is maximum</Name>
+      <Description>Whether or not the EITC amount with primary combat pay is greater secondary, both and without combat
+        pay</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="formW2s" path="/bothFilersHasCombatPay" />
+          <Equal>
+            <Left>
+              <GreaterOf>
+                <Dependency path="/eitcAmountWithBothTPCombatPay" />
+                <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+                <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+                <Dependency path="/eitcAmountWithoutCombatPay" />
+              </GreaterOf>
+            </Left>
+            <Right>
+              <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEITCAmountWithSecondaryCombatPayMaximum">
+      <Name>Is the EITC amount with Secondary combat pay is maximum</Name>
+      <Description>Whether or not the EITC amount with Secondary combat pay is greater secondary, both and without
+        combat
+        pay</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="formW2s" path="/bothFilersHasCombatPay" />
+          <Equal>
+            <Left>
+              <GreaterOf>
+                <Dependency path="/eitcAmountWithBothTPCombatPay" />
+                <Dependency path="/eitcAmountWithPrimaryCombatPay" />
+                <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+                <Dependency path="/eitcAmountWithoutCombatPay" />
+              </GreaterOf>
+            </Left>
+            <Right>
+              <Dependency path="/eitcAmountWithSecondaryCombatPay" />
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/combatPayRecommendation">
+      <Name>Is the EITC amount with primary combat pay greater than without combat pay</Name>
+      <Description>Whether or not the EITC amount with primary combat pay is greater then without combat pay</Description>
+
+      <Derived>
+        <Switch>
+
+          <Case>
+            <When>
+              <Dependency path="/isEITCAmountWithPrimaryCombatPayGreaterThanWithoutCombatPay" />
+            </When>
+            <Then>
+              <Enum optionsPath="/combatPayOptions">usePrimaryCombatPay</Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Dependency path="/isEITCAmountWithSecondaryCombatPayGreaterThanWithoutCombatPay" />
+            </When>
+            <Then>
+              <Enum optionsPath="/combatPayOptions">useSpouseCombatPay</Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Dependency path="/isEITCAmountWithBothCombatPayMaximum" />
+            </When>
+            <Then>
+              <Enum optionsPath="/combatPayOptions">useBothCombatPay</Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Dependency path="/isEITCAmountWithPrimaryCombatPayMaximum" />
+            </When>
+            <Then>
+              <Enum optionsPath="/combatPayOptions">usePrimaryNotSpouseCombatPay</Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Dependency path="/isEITCAmountWithSecondaryCombatPayMaximum" />
+            </When>
+            <Then>
+              <Enum optionsPath="/combatPayOptions">useSpouseNotPrimaryCombatPay</Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Enum optionsPath="/combatPayOptions">noCombatPay</Enum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isCombatPayRecommendationUsePrimary">
+      <Name>Is the combat pay election usePrimaryCombatPay</Name>
+      <Description>Is the combat pay election useSpouseCombatPay</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/combatPayRecommendation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/combatPayOptions">usePrimaryCombatPay</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isCombatPayRecommendationUseSpouse">
+      <Name>Is the combat pay election useSpouseCombatPay</Name>
+      <Description>Is the combat pay election useSpouseCombatPay</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/combatPayRecommendation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/combatPayOptions">useSpouseCombatPay</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isCombatPayRecommendationUseBoth">
+      <Name>Is the combat pay election useBothCombatPay</Name>
+      <Description>Is the combat pay election useBothCombatPay</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/combatPayRecommendation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/combatPayOptions">useBothCombatPay</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isCombatPayRecommendationNoCombatPay">
+      <Name>Is the combat pay election noCombatPay</Name>
+      <Description>Is the combat pay election noCombatPay</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/combatPayRecommendation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/combatPayOptions">noCombatPay</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isCombatPayRecommendationUsePrimaryNotSpouse">
+      <Name>Is the combat pay election usePrimaryNotSpouse</Name>
+      <Description>Is the combat pay election usePrimaryNotSpouse</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/combatPayRecommendation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/combatPayOptions">usePrimaryNotSpouseCombatPay</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isCombatPayRecommendationUseSpouseNotPrimary">
+      <Name>Is the combat pay election useSpouseNotPrimary</Name>
+      <Description>Is the combat pay election useSpouseNotPrimary</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/combatPayRecommendation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/combatPayOptions">useSpouseNotPrimaryCombatPay</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/combatPayElectionAndOrRecommendation">
+      <Name>Combat pay election and/or recommendation</Name>
+      <Description>Sets this fact to recommendation only if there is no election</Description>
+
+      <Export stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/combatPayElection" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/combatPayElection" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/combatPayRecommendation" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasManyEitcQualifyingChildren">
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency module="familyAndHousehold" path="/numEitcQualifyingChildren" />
+          </Left>
+          <Right>
+            <Int> 1 </Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/doesNotWantToClaimEitc">
+      <Name>The filer elected not to claim the earned income credit, complete safe</Name>
+      <Description>The complete safe reading of /writableDoesNotWantToClaimEitc, the Form 1040 line 27c election: true when the filer checked the box, and FALSE both when they answered no and when the question was never asked. The intake is a bare Boolean Writable, so a raw Dependency on it inside the /earnedIncomeCredit Switch would blank the credit - and everything downstream of it - on every return that never reached the question. FALSE IS THE ONLY SAFE DEFAULT HERE: it leaves the credit standing, so no filer can lose the EIC by silence, and the only way to reach the $0 arm is to have said so.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableDoesNotWantToClaimEitc" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableDoesNotWantToClaimEitc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableDoesNotWantToClaimEitc">
+      <Name>Filer does not want to claim the earned income credit (Form 1040 line 27c)</Name>
+      <Description>Whether the filer elects not to claim the earned income credit, or has been instructed to check the box by the line 27a instructions. That is what the Form 1040 line 27c checkbox reports. It zeroes the credit through the complete-safe /doesNotWantToClaimEitc and the first arm of /earnedIncomeCredit; without it the box would print and the filer would still receive the EIC.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableIsClergyFilingScheduleSE">
+      <Name>Clergy filing Schedule SE (Form 1040 line 27b)</Name>
+      <Description>Whether the filer is a minister, a member of a religious order who has not taken a vow of poverty, or a Christian Science practitioner who is filing Schedule SE whose line 2 includes an amount also reported on Form 1040 line 1z. That is what the Form 1040 line 27b checkbox reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableClergyDualReportedScheduleSeIncome">
+      <Name>Clergy dual-reported Schedule SE income (EIC Step 5/Worksheet B line 1 subtraction)</Name>
+      <Description>How much of the amount on Form 1040 line 1z was ALSO reported on Schedule SE,
+        Part I, line 2? A minister, member of a religious order (no vow of poverty), or Christian
+        Science practitioner paid as a W-2 employee for ministerial services is still treated as
+        self-employed for self-employment tax on those SAME earnings (IRC 1402(c)), so the identical
+        dollar amount can sit in BOTH Form 1040 line 1z (wages) and Schedule SE line 2 (net
+        earnings from self-employment). Counting it in EIC earned income twice would overstate the
+        credit's earned-income base; the IRS instructions require backing the overlap OUT of the
+        wage side before it reaches the worksheet.
+
+        ASKED WHEN: /writableIsClergyFilingScheduleSE is true (i.e. Form 1040 line 27b is checked) —
+        follow-up to that box, not a screen shown to every filer.
+
+        UNANSWERED POSTURE: REFUSED, not defaulted. The filer has already told the IRS (by checking
+        line 27b) that an overlap exists; the amount is a fact only the filer holds (this dictionary
+        has no independent way to compute how much of a minister's W-2 wages Schedule SE line 2 also
+        counts), so an unanswered amount here leaves /eitcClergyDualReportedIncomeSubtrahend, and
+        therefore /eitcEarnedIncomeBase and everything the EITC computes from it, Incomplete rather
+        than silently treating the overlap as $0 (which would leave the double-count in place and
+        contradict the box the filer just checked): no silent favourable default on a claiming
+        return.
+
+        VALIDATION: Dollar, non-negative (Min $0). No stated upper bound in the instructions, but the
+        amount cannot exceed either Form 1040 line 1z or Schedule SE line 2 in practice; this
+        dictionary does not cross-check the two (the same posture as the sibling Medicaid-waiver and
+        inmate/workfare subtrahends, whose own Descriptions carry the same disclosed limit) and
+        relies on the final GreaterOf(...,0) floor at /eitcEarnedIncomeBase to keep earned income
+        non-negative on a data-entry error.
+
+        WHAT THE ANSWER FEEDS: /eitcClergyDualReportedIncomeSubtrahend, which
+        /eitcEarnedIncomeBase reads as a sixth subtrahend from the wage-side minuend term.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+        <Fact path="/eitcForeignGovernmentWagesDualReportedSubtrahend">
+      <Name>EIC earned income: foreign-government wages reported on both Form 1040 line 1h and Schedule SE line 2</Name>
+      <Description>The amount of a U.S. citizen's wages from a foreign government or international
+        organization (IRC 1402(c)(2)(C), no Form W-2) that is on Form 1040 line 1h AND on Schedule SE
+        line 2, for each filer the lesser of the two, rounded to the dollar as both printed lines are.
+        /eitcEarnedIncomeBase subtracts it so the same wages count once in EIC earned income: IRC
+        32(c)(2)(A) adds employee compensation and net earnings from self-employment, two categories
+        of amounts, and a single amount that falls in both is still one amount of earned income. The
+        subtraction follows the only printed treatment of dual-reported earned income, the EIC Clergy
+        and Church employees instructions, which take the amount out of the Step 5 line 1 wage figure
+        and keep it in the self-employment figure.
+
+        THE SPOUSE'S TERM follows the first addend of /eitcEarnedIncomeBase: on a community property
+        allocation return that addend is the primary filer's alone, so only the primary filer's
+        overlap is subtracted there.
+
+        Complete-safe: $0 on every return with no such wages. Incomplete only where Schedule SE's own
+        location question is unanswered on a return that entered the wages, which is already a
+        refusal upstream.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Round>
+            <LesserOf>
+              <Dependency module="income" path="/primaryFilerForeignGovernmentWagesOnLine1h" />
+              <Dependency module="scheduleSE" path="/primaryFilerScheduleSeForeignGovernmentEmployeeIncomeIncluded" />
+            </LesserOf>
+          </Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                  </IsComplete>
+                  <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Round>
+                  <LesserOf>
+                    <Dependency module="income" path="/secondaryFilerForeignGovernmentWagesOnLine1h" />
+                    <Dependency module="scheduleSE" path="/secondaryFilerScheduleSeForeignGovernmentEmployeeIncomeIncluded" />
+                  </LesserOf>
+                </Round>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitcClergyDualReportedIncomeSubtrahend">
+      <Name>EIC Step 5 line 1 clergy subtraction — the amount also reported on Schedule SE line 2</Name>
+      <Description>The clergy dual-reporting subtrahend /eitcEarnedIncomeBase reads: $0 when this
+        return owes no self-employment tax at all (the clergy overlap is structurally impossible —
+        MOOT, checked first so the vast majority of filers who never see the line 27b screen are
+        never asked about it and never blocked by it), $0 when /writableIsClergyFilingScheduleSE
+        reads Complete false (decisively unchecked — the ordinary case for an SE-owing filer who is
+        not clergy), and the attested, whole-dollar amount
+        (/writableClergyDualReportedScheduleSeIncome) when the box reads Complete true AND the
+        amount is answered. NO FOURTH ARM: on an SE-owing return the box is a REQUIRED question,
+        not an optional one defaulted to false when silent — a filer who has checked line 27b has
+        told the IRS an overlap exists, and one who has NOT yet answered it, on a return that DOES
+        owe self-employment tax, is a claiming return with an open condition of allowance. BOTH an
+        unanswered checkbox on an SE-owing return AND a checked-TRUE box with an unanswered dollar
+        amount fall off the end of this Switch and resolve Incomplete — the same no-default idiom
+        form4797:/formK1s/*/section1231GainForForm4797 already uses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleSE" path="/isSubjectToSelfEmploymentTax" />
+                </IsComplete>
+                <Not>
+                  <Dependency module="scheduleSE" path="/isSubjectToSelfEmploymentTax" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableIsClergyFilingScheduleSE" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/writableIsClergyFilingScheduleSE" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableIsClergyFilingScheduleSE" />
+                </IsComplete>
+                <Dependency path="/writableIsClergyFilingScheduleSE" />
+                <IsComplete>
+                  <Dependency path="/writableClergyDualReportedScheduleSeIncome" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <GreaterOf>
+                  <Dependency path="/writableClergyDualReportedScheduleSeIncome" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/eitcDisallowedOnlyDueToMisreportedIncome">
+      <Name>EITC disallowance was only for misreported income</Name>
+      <Description>Whether the only reason the taxpayer's earned income credit was reduced or disallowed in the earlier year was that they incorrectly reported their earned income or their investment income. Form 8862 Part II line 3 asks this, and a Yes there ends Part II: the rest of the part is not completed and the form is attached as it stands.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/eitc8862PartIIContinuesPastLine3">
+      <Name>Form 8862 Part II continues past line 3</Name>
+      <Description>FALSE when the filer answered Form 8862 Part II line 3 Yes (the only reason the earned income credit was reduced or disallowed was misreported earned or investment income), TRUE otherwise, including when line 3 is unanswered. The printed caution under line 3 says a Yes ends Part II: "do not complete the rest of Part II. Attach this form to your tax return to claim the EIC." So the line 4 boxes and the Section A / Section B selectors (and everything they open: the day counts, the child rows) are gated on this fact. Complete-safe: an unanswered line 3 leaves Part II exactly as it was. No credit amount reads it; the credit reads /eitcQualified.</Description>
+      <Derived>
+        <Not>
+          <All>
+            <IsComplete>
+              <Dependency path="/eitcDisallowedOnlyDueToMisreportedIncome" />
+            </IsComplete>
+            <Dependency path="/eitcDisallowedOnlyDueToMisreportedIncome" />
+          </All>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8862Line3Yes">
+      <Name>Form 8862 Line 3 Yes checkbox</Name>
+      <Description>Whether the PDF checkbox should be checked. Form 8862 Part II line 3 is printed only when the earned income credit is the credit being recertified, so the box is checked when Form 8862 is required for the EIC and the taxpayer says the earlier reduction or disallowance was only about misreported earned or investment income.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/eitcDisallowedOnlyDueToMisreportedIncome" />
+          <Dependency path="/eitc8862Required" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8862Line3No">
+      <Name>Form 8862 Line 3 No checkbox</Name>
+      <Description>Whether the PDF checkbox should be checked. The "No" box of Form 8862 Part II line 3, the twin of /pdf8862Line3Yes under the same gate: checked when Form 8862 is required for the earned income credit and the taxpayer says the earlier reduction or disallowance was NOT only about misreported earned or investment income ("Otherwise, check No"). A Yes answer leaves this box unchecked, so the two boxes are never both checked. Like the Yes box, it resolves Incomplete while line 3 is unanswered on a return that needs Form 8862.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/eitcDisallowedOnlyDueToMisreportedIncome" />
+          </Not>
+          <Dependency path="/eitc8862Required" />
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/familyAndHousehold/*/scheduleEicLine6MonthsLived">
+      <Name>Schedule EIC line 6 months the child lived with the taxpayer in the United States, as the printed numeral</Name>
+      <Description>Schedule EIC LINE 6, printed in full as "Number of months child lived with you in the United States during 2025". The graph stores the answer as a bucket Enum over /monthsLivedWithTPInUSOptions (twelve, eleven, ten, nine, eight, seven, six); the printed box wants a numeral, so this fact maps each option to the string the form prints. SIX MAPS TO 7, NOT 6, and that is the printed rule rather than a rounding: "If the child lived with you for more than half of 2025 but less than 7 months, enter 7." The six bucket IS that case, because a child who lived with the taxpayer for six months or fewer and still qualifies did so for more than half the year. The seven case also prints 7. PORTED, NOT INVENTED: these are the seven cases upstream IRS Direct File filled in the filler as customMaps.transformMonthsLived, recorded in the FIELD-DRIFT header of dictionary/pdf/2025/IRS1040EIC/en/configuration.yml. Building it in the dictionary rather than as a `~` transform keeps the printed numeral in the fact graph where it can be tested.
+
+        THE PRINTED LINE'S SECOND OVERRIDE, enter 12 for a child born or died in 2025 whose home
+        was the taxpayer's home for more than half the time they were alive during 2025, is honoured
+        FIRST, ahead of the month-bucket mapping: familyAndHousehold:../bornOrDiedResidencyException
+        is that exact test (born or died in the tax year AND the taxpayer's home was the child's home
+        for more than half the time they were alive), and it can be true when the bucket Enum was
+        never answered at all, because a child born late in the year cannot truthfully choose any of
+        the six-through-twelve options the bucket offers. The default arm prints the empty string on an
+        unanswered bucket. THE PRINTED LINE'S THIRD OVERRIDE, and it is honoured AHEAD of both: a kidnapped
+        qualifying child meeting the IRC 152(f)(6) requirements enters "KC" instead of a number.
+        familyAndHousehold:../kidnappedChildResidencyException is that test, and it is read here
+        through All(IsComplete(x), x) because it is deliberately not complete-safe - on a return
+        that claims the exception and leaves a condition of allowance blank it resolves Incomplete,
+        and such a return is stopped by flow:/flowIncomplete before anything prints.
+
+        PRINT ONLY: nothing computes from this
+        fact, and the EIC itself reads the residency test, not this numeral. THE MeF ELEMENT for a
+        "KC" line 6 entry is not in this repo's sources, so nothing is claimed about the electronic
+        shape; this fact is Export downstreamFacts, not mef, and the paper binding in
+        dictionary/pdf/2025/IRS1040EIC/en/configuration.yml already carries it unchanged.
+        interpretation:provisional.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="familyAndHousehold" path="../kidnappedChildResidencyException" />
+                </IsComplete>
+                <Dependency module="familyAndHousehold" path="../kidnappedChildResidencyException" />
+              </All>
+            </When>
+            <Then>
+              <String>KC</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="familyAndHousehold" path="../bornOrDiedResidencyException" />
+            </When>
+            <Then>
+              <String>12</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">twelve</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>12</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">eleven</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>11</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">ten</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>10</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">nine</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>9</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">eight</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>8</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">seven</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>7</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../monthsLivedWithTPInUS" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/monthsLivedWithTPInUSOptions">six</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>7</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/familyAndHousehold/*/notScheduleEicLine4bYes">
+      <Name>Schedule EIC line 4b answer is not Yes</Name>
+      <Description>The negation of this person's Schedule EIC line 4b Yes checkbox. Named as the module's No twin convention rather than a second attestation: the underlying answer stays the single permanentTotalDisability intake. It exists so the printed No box can be built as the pair of line 4a, which already ships both twins.</Description>
+      <Derived>
+        <Not>
+          <Dependency path="../scheduleEicLine4bYes" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/scheduleEicLine4bNo">
+      <Name>Schedule EIC Line 4b No checkbox</Name>
+      <Description>Whether to mark the printed Schedule EIC line 4b No box for this EIC qualifying child, the box that reads "The child is not a qualifying child." True when the filer reached line 4b at all, meaning line 4a was answered No, and the line 4b answer is not Yes. Mirrors the shipping line 4a pair, so the box stays blank for a child who skipped lines 4a and 4b.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../scheduleEicLine4aNo" />
+          <Dependency path="../notScheduleEicLine4bYes" />
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

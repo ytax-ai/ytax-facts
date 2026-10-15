@@ -1,0 +1,917 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/form8815ReturnFilesThisForm">
+      <Name>Return files Form 8815</Name>
+      <Description>True when the modeled section 135 exclusion of qualified savings bond interest is positive. An unanswered exclusion remains incomplete internally and does not cause a blank Form 8815 to print.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8815ExcludableSavingsBondInterest" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Dependency path="/form8815ExcludableSavingsBondInterest" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseout">
+      <Name>Potentially excludable interest before the section 135 MAGI phaseout</Name>
+      <Description>Schedule B (Form 1040) line 3, printed "Excludable interest on series EE and I U.S. savings bonds issued after 1989. Attach Form 8815". The smaller of the ratably allocated amount and the interest itself: IRC 135(a) excludes the interest, and IRC 135(b)(1) caps that exclusion at the applicable fraction of it, so when expenses equal or exceed proceeds the whole interest is excluded and when they fall short only the fraction is. Zero for a married individual filing separately: IRC 135(d)(3) makes the whole section apply only if a married taxpayer and spouse file a joint return, so a separate return excludes nothing whatever the Form 8815 intakes say. That zero is printed only once the filer has entered the interest included in the redeemed proceeds; a separate return that never opens Form 8815 leaves the line blank, exactly as every other return that does not claim the exclusion does. Refused when the interest and proceeds intakes are both answered but the interest exceeds the proceeds: interest is a component of the total redemption proceeds (principal plus interest), so an interest entry larger than the proceeds entry means one of the two lines is wrong and this dictionary cannot tell which, exactly as Form 8815 line 6 cannot exceed line 5 on a correctly completed form. Otherwise incomplete until the three Form 8815 intakes are answered, so Schedule B line 3 prints blank on every return that does not claim the exclusion. THE SECTION 135(b)(2) MODIFIED-AGI PHASE-OUT IS NOT APPLIED HERE: this fact is the pre-phase-out figure, so the section 135(b)(2) phase-out IS APPLIED, downstream of this fact: /form8815ModifiedAdjustedGrossIncome (Form 8815 line 9) feeds /form8815Line12PhaseoutThousandths (line 12), /form8815MagiPhaseoutReduction (line 13) rounds this fact times that fraction, and /form8815ExcludableSavingsBondInterest (line 14, Schedule B line 3) is this fact less that reduction. This fact remains the pre-phase-out line 8, exactly as its Name says.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableForm8815BondInterestIncluded" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                </IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableForm8815AggregateBondProceeds" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency path="/writableForm8815BondInterestIncluded" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableForm8815BondInterestIncluded" />
+                    </Left>
+                    <Right>
+                      <Dependency path="/writableForm8815AggregateBondProceeds" />
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Round>
+                <LesserOf>
+                  <Dependency path="/form8815ProratedExcludableInterest" />
+                  <Dependency path="/form8815BondInterestIncludedAtLeastZero" />
+                </LesserOf>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseoutOrZero">
+      <Name>Potentially excludable savings-bond interest before MAGI phaseout, zero when line 8 is incomplete</Name>
+      <Description>Complete-safe wrapper for Form 8815 line 8. It returns the phaseout-independent line-8 amount when that printed line is complete, and $0 otherwise. Internal MAGI and coordination checks use this only where they must remain complete before a Form 8815 claim is entered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseout" /></IsComplete></When>
+            <Then><Dependency path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseout" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815ModifiedAdjustedGrossIncome">
+      <Name>Modified adjusted gross income for Form 8815 line 9</Name>
+      <Description>Form 8815 line 9 MAGI: AGI computed without the section 135 exclusion, plus the section 911 foreign earned income and housing exclusions, section 931 American Samoa exclusion, section 933 Puerto Rico exclusion, section 137 excluded adoption benefits, and the student-loan interest deduction. The IRA MAGI base carries the section 911/135/137 addbacks and omits both IRA and student-loan deductions; subtract its actual section 219 deductions to restore AGI, replace its taxable social security term (figured before any IRA deduction) with the final Form 1040 line 6b, since this MAGI is determined after sections 86 and 219, then add the two possession exclusions. Its interest input is computed before Form 8815 line 3, so this MAGI does not read its own phaseout result.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/magiForIraDeduction" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="iraDeduction" path="/primaryFilerTraditionalIraDeduction" />
+              <Dependency module="iraDeduction" path="/secondaryFilerTraditionalIraDeduction" />
+              <Dependency module="iraDeduction" path="/primaryFilerSection219f6DeductionTaken" />
+              <Dependency module="iraDeduction" path="/secondaryFilerSection219f6DeductionTaken" />
+              <Dependency module="socialSecurity" path="/plainSsbwTaxableSocialSecurityBenefits" />
+            </Subtrahends>
+          </Subtract>
+          <Dependency module="socialSecurity" path="/taxableSocialSecurityBenefits" />
+          <Dependency module="ctcOdc" path="/possessionIncomeExclusion931" />
+          <Dependency module="ctcOdc" path="/puertoRicoIncomeExclusion933" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815Line12PhaseoutThousandths">
+      <Name>Form 8815 line 12 MAGI phaseout fraction, capped at one, as thousandths</Name>
+      <Description>Form 8815 line 12: excess of line 9 MAGI over the line 10 threshold divided by $15,000 for single, head of household, and qualifying surviving spouse filers, or $30,000 for joint filers. The numerator is capped at the range, so line 13 cannot reduce more than all of line 8. The TY2025 thresholds and ranges are parameterized in authority/ty2025/parameters.tsv. ENCODED AS THOUSANDTHS, the integer 0 to 1,000 that the printed three-place decimal is, for the reason given on /form8815Line7RatioThousandths: this runtime's Dollar arithmetic keeps two decimal places, and the printed line demands at least three. Renamed from /form8815MagiPhaseoutFraction, which carried the same quantity as a bare two-place decimal; no fact outside this module read it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Int>1000</Int>
+                      <LesserOf>
+                        <GreaterOf>
+                          <Subtract>
+                            <Minuend><Dependency path="/form8815ModifiedAdjustedGrossIncome" /></Minuend>
+                            <Subtrahends><Dollar>149250</Dollar> </Subtrahends>
+                          </Subtract>
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                        <Dollar>30000</Dollar>
+                      </LesserOf>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors><Dollar>30000</Dollar> </Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+                <Not><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></Not>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Int>1000</Int>
+                      <LesserOf>
+                        <GreaterOf>
+                          <Subtract>
+                            <Minuend><Dependency path="/form8815ModifiedAdjustedGrossIncome" /></Minuend>
+                            <Subtrahends><Dollar>99500</Dollar> </Subtrahends>
+                          </Subtract>
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                        <Dollar>15000</Dollar>
+                      </LesserOf>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors><Dollar>15000</Dollar> </Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815MagiPhaseoutReduction">
+      <Name>Form 8815 line 13 MAGI phaseout reduction</Name>
+      <Description>Whole-dollar Form 8815 line 13: round line 8 times the capped line-12 phaseout fraction once. The fraction is carried as thousandths, so the multiplication happens BEFORE the division by 1,000 — dividing first would round the fraction back to the two decimal places this runtime's Dollar arithmetic keeps, one short of the three the printed line 12 demands.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Divide>
+            <Dividend>
+              <Multiply>
+                <Dependency path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseout" />
+                <Dependency path="/form8815Line12PhaseoutThousandths" />
+              </Multiply>
+            </Dividend>
+            <Divisors><Int>1000</Int></Divisors>
+          </Divide>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815ExcludableSavingsBondInterest">
+      <Name>Excludable interest on series EE and I U.S. savings bonds issued after 1989</Name>
+      <Description>Form 8815 line 14 and Schedule B line 3, after the section 135(b)(2) MAGI phaseout: line 8 less the rounded line 13 reduction. The existing MFS bar and line-6≤line-5 refusal remain in the phaseout-independent line-8 fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8815BondInterestIncluded" /></IsComplete>
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFS" /></IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseout" /></IsComplete></When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8815ExcludableSavingsBondInterestBeforeMagiPhaseout" /></Minuend>
+                <Subtrahends><Dependency path="/form8815MagiPhaseoutReduction" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815ExcludableSavingsBondInterestOrZero">
+      <Name>Excludable savings bond interest, zero when the exclusion is not claimed</Name>
+      <Description>The complete safe wrapper of /form8815ExcludableSavingsBondInterest, zero on every return that answers no Form 8815 intake. It exists so the interest module can subtract the exclusion without any existing total losing completeness: Schedule B line 4 is "Subtract line 3 from line 2", and line 2 feeds interest /interestIncome, which is Complete on every return today. California TY2025 reads this fact through its stateSystems export (Schedule CA (540) line 2b column B).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8815ExcludableSavingsBondInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/form8815ExcludableSavingsBondInterest" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815QualifiedHigherEducationExpensesNetOfEducationCredits">
+      <Name>Qualified higher education expenses, reduced by expenses taken into account for the American Opportunity and Lifetime Learning Credits</Name>
+      <Description>IRC 135(d)(2)(A) reduces qualified higher education expenses, before the section 135(b)(1) applicable fraction is applied, by "the amount of such expenses which are taken into account in determining the credit allowed to the taxpayer or any other person under section 25A" — the American Opportunity and Lifetime Learning Credits. The same tuition dollars cannot fund both a section 25A credit and a section 135 exclusion. form8863:/writableAotcQualifiedExpenses (Part III line 27; its $4,000 Max limit is validation on the entry screen, not a clamp on this read path, so an entry above $4,000 is subtracted here in full even though the American Opportunity formula itself never takes more than $4,000 into account) and form8863:/llcQualifiedExpensesUpToCap (Part II line 11, the $10,000-capped amount the Lifetime Learning formula takes into account) are this dictionary's only other consumers of tuition-paid dollars; their sum is subtracted from the Form 8815 line 1 expense intake, floored at zero so a credit claim larger than the Form 8815 expenses cannot make the numerator negative. Either credit amount unanswered is treated as zero, since an unclaimed credit takes nothing into account. The statute reduces only by expenses taken into account in determining the credit ALLOWED, so the American Opportunity term is gated on form8863:/aotcStudentEligibleForAotc, the Form 8863 Part III eligibility questions and, where the recertification is required, Form 8862 Part IV: a student those printed Stop instructions disqualify is allowed no credit, so the expenses entered beside them are taken into account for nothing and are not subtracted here. WHAT THIS COORDINATION STILL OVER-REDUCES: a filer who clears the eligibility gate but whose section 25A credit is reduced to zero by the section 25A(d) modified adjusted gross income phase-out is allowed no credit either, yet the expenses are still subtracted here, understating the exclusion by the section 135(b)(1) fraction of them. The phase-out result cannot be read from this module: form8863:/aotcCreditAfterPhaseout depends on form8863:/form8863Magi, which reaches taxCalculations:/agi and from there interest:/interestIncome, which is itself net of this form's exclusion, so reading the allowed credit here would close a cycle. The Lifetime Learning term carries the same gap and has no gate at all: Form 8863 asks no Part III style eligibility question for that credit, so no cycle-free eligibility fact exists to gate the Part II line 11 term, and everything that bars the credit is either the same phase-out or the married-filing-separately bar the section 135(d)(3) case in /form8815ExcludableSavingsBondInterest already answers with zero. The section 135(d)(2)(B) coordination with section 529(c)(3)(B) and section 530(d)(2) — qualified tuition program and Coverdell distributions applied to the same expenses — is not modeled: this dictionary carries no Form 1099-Q or QTP/ESA intake, so that leg is left to the filer's own attestation on the Form 8815 expense entry, the same attestation boundary the section 135(d)(1) scholarship netting already carries. (The per-document Form 1099-Q intake exists at /form1099Qs in this module; nothing here reads it, so the leg above is still the filer's attestation, and the taxability of a qualified tuition program or Coverdell distribution is still not owned by this module.)</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/writableForm8815QualifiedHigherEducationExpenses" />
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <IsComplete>
+                        <Dependency module="form8863" path="/writableAotcQualifiedExpenses" />
+                      </IsComplete>
+                      <Dependency module="form8863" path="/aotcStudentEligibleForAotc" />
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency module="form8863" path="/writableAotcQualifiedExpenses" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency module="form8863" path="/llcQualifiedExpensesUpToCap" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency module="form8863" path="/llcQualifiedExpensesUpToCap" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815ProratedExcludableInterest">
+      <Name>Savings bond interest times the section 135(b)(1) applicable fraction</Name>
+      <Description>The IRC 135(b)(1) limitation, computed rather than attested, because the statute states the arithmetic on its face: when the aggregate proceeds redeemed exceed the qualified higher education expenses paid, the amount excludable may not exceed the applicable fraction of what would otherwise be excludable, and the applicable fraction is expenses over proceeds. This fact is printed Form 8815 line 8, line 6 multiplied by line 7: the interest ratably allocated on that fraction, and zero when no proceeds are answered. The expenses in the numerator are /form8815QualifiedHigherEducationExpensesNetOfEducationCredits, the IRC 135(d)(2)(A) section-25A coordination, not the raw filer entry — the statute reduces qualified higher education expenses before this fraction is applied. THE FRACTION IS NOW /form8815Line7RatioThousandths, the printed three-place line 7, and the multiplication happens before the division by 1,000; the fraction used to be computed inline as a bare Dollar-by-Dollar divide, which this runtime rounds to two decimal places, one short of what the printed line demands, and the product came out $3 low on 1,000 of interest at a one-third ratio. Because line 7 now carries the printed cap at 1.000, this fact no longer overshoots the interest when expenses equal or exceed proceeds; the downstream cap in /form8815ExcludableSavingsBondInterestBeforeMagiPhaseout is kept, because it is also what bounds the rounding at the last cent.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                <Dependency path="/writableForm8815AggregateBondProceeds" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                  <Dependency path="/writableForm8815AggregateBondProceeds" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="/form8815BondInterestIncludedAtLeastZero" />
+                      <Dependency path="/form8815Line7RatioThousandths" />
+                    </Multiply>
+                  </Dividend>
+                  <Divisors><Int>1000</Int></Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8815AggregateBondProceeds">
+      <Name>Aggregate proceeds of qualified U.S. savings bonds redeemed this year (writable)</Name>
+      <Description>Form 8815 line 5 as this dictionary needs it: the total proceeds, principal plus interest, of the series EE and I United States savings bonds the filer redeemed during the taxable year that meet the IRC 135(c)(1) definition of a qualified United States savings bond, which is issued after 1989, to an individual who had attained age 24 before issuance, and at discount. This dictionary tests none of those three conditions, so the figure is attested by the filer. It is the denominator of the IRC 135(b)(1)(B) applicable fraction. Nonnegative, because the line asks for redemption proceeds.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8815BondInterestIncluded">
+      <Name>Interest included in this year's qualified savings bond proceeds (writable)</Name>
+      <Description>Form 8815 line 6: the interest included in the line 5 proceeds of the qualified savings bonds cashed this year, as the Form 8815 Line 6 Worksheet figures it: the proceeds less 50 percent of the face value of paper series EE bonds and the face value of electronic series EE and all series I bonds, less any interest from those bonds already reported as income in earlier years (worksheet line 8), or the Form 8818 line 8 amount when none was reported earlier. Interest reported in an earlier year is not includible by reason of this year's redemption, so it is never excluded here. The face values and earlier reports are not carried by any fact, so the figure is the filer's own entry. It is the base the applicable fraction of IRC 135(b)(1) is applied to, and the ceiling on the exclusion. Nonnegative, because the line asks for interest received.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8815BondInterestIncludedAtLeastZero">
+      <Name>Form 8815 bond interest included, floored at zero</Name>
+      <Description>The computational form of Form 8815 line 6. Interest included in qualified bond proceeds is declared nonnegative, and a negative persisted or migrated value cannot reduce the applicable-fraction product or produce a negative exclusion. The explicit floor is in the graph because the writable Limit validates intake but is not enforced on resolution. An unanswered intake remains Incomplete, preserving the form's claim-gated blank path.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8815BondInterestIncluded" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8815BondInterestIncluded" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8815QualifiedHigherEducationExpenses">
+      <Name>Qualified higher education expenses paid this year, less nontaxable benefits (writable)</Name>
+      <Description>The qualified higher education expenses the filer paid during the taxable year for the taxpayer, the spouse or a dependent listed on Form 8815 line 1, less the nontaxable educational benefits Form 8815 line 3 subtracts: the printed line 2 less line 3, BEFORE the Form 8863 step. Leave IN the expenses used to figure an American opportunity or lifetime learning credit on this return's Form 8863; the return removes those once itself (IRC 135(d)(2)(A)), so taking them out here as well would count them twice. Take OUT expenses paid by nontaxable benefits paid directly to or by the school, expenses used to figure the nontaxable part of a Coverdell ESA or qualified tuition program distribution, and expenses used for an education credit on another person's return. IRC 135(c)(2) defines the expenses and IRC 135(d)(1) and (d)(2) require the reductions; the enrollment test and the benefit netting are the filer's own figures. Nonnegative, because the line asks for expenses paid.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+
+
+    <Fact path="/form8815Students">
+      <Name>Persons enrolled at an eligible educational institution for Form 8815 line 1</Name>
+      <Description>Form 8815 line 1: the person, the spouse or the dependent who was enrolled at or attended an eligible educational institution, or for whom the filer contributed to a Coverdell education savings account or a qualified tuition program, and the institution or program that person attended. One item is one printed line 1 row. The printed table holds three rows; a filer with more attaches the statement the form calls for, which this dictionary does not render. This collection is print identity only: no arithmetic reads it, and the expense, proceeds and interest figures are entered as their own return-level amounts, so an empty or absent collection changes no number on the return.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8815NeedsAdditionalStudentsStatement">
+      <Name>Form 8815 needs an additional-students statement</Name>
+      <Description>True when more than three persons are entered in /form8815Students. Form 8815 line 1 prints three student rows and instructs a filer who needs more space to attach a statement. This is a filing-surface signal only: it never changes a tax amount and never refuses the return. False on an unanswered or empty collection.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/form8815Students" /></IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left><CollectionSize><Dependency path="/form8815Students" /></CollectionSize></Left>
+                <Right><Int>3</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815Students/*/writablePersonName">
+      <Name>Form 8815 line 1 column (a), name of the enrolled person</Name>
+      <Description>Form 8815 line 1 column (a) for this row: the name of the person who was enrolled at or attended the eligible educational institution, or for whom a Coverdell education savings account or qualified tuition program contribution was made. The printed instruction requires that person to be the filer, the spouse, or a dependent claimed on the return; this dictionary does not test that relationship against the dependent collection, so the entry is the filer's own. Print identity only; no arithmetic reads it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8815Students/*/writableInstitutionName">
+      <Name>Form 8815 line 1 column (b), name of the eligible educational institution</Name>
+      <Description>Form 8815 line 1 column (b) for this row, the name half: the eligible educational institution the person attended. The printed instruction also uses this column for a Coverdell education savings account, entered as Coverdell ESA with the financial institution holding the account, and for a qualified tuition program, entered as QTP with the program. Print identity only; no arithmetic reads it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8815Students/*/writableInstitutionAddress">
+      <Name>Form 8815 line 1 column (b), address of the eligible educational institution</Name>
+      <Description>Form 8815 line 1 column (b) for this row, the address half: the address of the institution, the financial institution holding the Coverdell education savings account, or the qualified tuition program. A String and not an Address, because the printed column is one free-text cell that carries a name and an address together and this dictionary has no way to print a structured Address into it. Print identity only; no arithmetic reads it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8815Line3EducationalBenefits">
+      <Name>Nontaxable educational benefits received this year (writable)</Name>
+      <Description>Form 8815 line 3: the total nontaxable educational benefits received for the year for the persons listed on line 1 that are included in the line 2 expense figure. Scholarship and fellowship grants excludable under IRC 117, veterans educational assistance, employer-provided educational assistance not in Form W-2 box 1, and payments, waivers or reimbursements under a qualified tuition program are what the printed instruction names. THIS AMOUNT IS NOT SUBTRACTED AGAIN ANYWHERE: /writableForm8815QualifiedHigherEducationExpenses is already the figure net of these benefits, which is printed line 4, so this entry exists to reconstruct the gross line 2 the filer would have written above it. An unanswered entry prints nothing on line 3 and leaves line 2 equal to line 4, which is the arithmetic of a return with no nontaxable benefits. Nonnegative, because the line asks for benefits received.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8815PrintLine3">
+      <Name>Form 8815 line 3 as printed</Name>
+      <Description>The line 3 benefit figure as the printed form carries it: the filer's entry floored at zero, and zero when nothing is entered. The floor is in this body and not on the Writable because a Limit is validation on the entry screen and is not enforced when the graph resolves, so a negative answer would otherwise raise line 2 above the gross expenses actually paid.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8815Line3EducationalBenefits" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8815Line3EducationalBenefits" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815PrintLine2">
+      <Name>Form 8815 line 2 as printed, qualified higher education expenses before the benefit subtraction</Name>
+      <Description>Form 8815 line 2 reconstructed: the line 4 net figure plus the line 3 benefits, so that the printed page 1 foots as the filer would have written it. It is NOT an input to any tax figure — line 4 is, and line 4 is /form8815QualifiedHigherEducationExpensesNetOfEducationCredits, which the filer enters directly. The two reductions the printed line 2 instruction makes reach the same total by either order: the instruction says not to include on line 2 expenses used to figure an education credit on Form 8863, and this dictionary subtracts the same section 25A expenses after the benefit netting, so gross less credits less benefits and gross less benefits less credits are the same number and line 4 is right either way.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8815QualifiedHigherEducationExpensesNetOfEducationCredits" />
+          <Dependency path="/form8815PrintLine3" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815Line7RatioThousandths">
+      <Name>Form 8815 line 7, the IRC 135(b)(1) applicable fraction, as thousandths</Name>
+      <Description>Form 8815 line 7: one when line 4 is equal to or more than line 5, and line 4 divided by line 5 otherwise, "Enter the result as a decimal (rounded to at least three places)". ENCODED AS THOUSANDTHS, the integer 0 to 1,000 that the printed three-place decimal is, so a printed 0.333 is carried as 333. The encoding is load bearing and not a display choice: this runtime's Dollar arithmetic keeps two decimal places, so a bare Dollar-by-Dollar divide rounds the fraction to hundredths, one place SHORT of the minimum the printed line demands, and the exclusion comes out wrong on every ratio that does not terminate by the second place (1,000 of expenses over 3,000 of proceeds gave 330 of a 1,000 interest where the form gives 333). The same encoding already ships for Form 8814 lines 7 and 8 and Form 2555 line 35. THE CAP AT ONE IS THE PRINTED RULE, not a safety clamp: line 7 says to enter 1.000 when line 4 is equal to or more than line 5, so the fraction never exceeds one and line 8 never exceeds line 6 by way of this fraction. Zero when no proceeds are answered or the proceeds are zero, which is the behaviour the line 8 fact has always had on a return that claims nothing; the answered-but-contradictory case, interest larger than proceeds, is refused upstream in /form8815ExcludableSavingsBondInterestBeforeMagiPhaseout and never reaches this fraction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableForm8815AggregateBondProceeds" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/writableForm8815AggregateBondProceeds" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Round>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Int>1000</Int>
+                        <Dependency path="/form8815QualifiedHigherEducationExpensesNetOfEducationCredits" />
+                      </Multiply>
+                    </Dividend>
+                    <Divisors>
+                      <GreaterOf>
+                        <Dependency path="/writableForm8815AggregateBondProceeds" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Divisors>
+                  </Divide>
+                </Round>
+                <Dollar>1000</Dollar>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815PrintLine10">
+      <Name>Form 8815 line 10, the MAGI phaseout threshold</Name>
+      <Description>Form 8815 line 10 as printed: $149,250 for a joint return and $99,500 for every other filing status the exclusion is available to. It is the same threshold the line 12 fraction subtracts, surfaced as its own fact so the printed line carries a number rather than a gap. Zero is never a correct entry here, so an unanswered filing status leaves this line Incomplete rather than defaulting to either threshold; the register prints this form only behind a computed positive exclusion, which cannot resolve before filing status is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              </All>
+            </When>
+            <Then><Dollar>149250</Dollar> </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+                <Not><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>99500</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8815PrintLine11">
+      <Name>Form 8815 line 11, modified adjusted gross income over the threshold</Name>
+      <Description>Form 8815 line 11 as printed: line 9 less line 10. The printed line says that when the result is zero or less the filer skips line 12 and enters zero on line 13, so the amount is NOT floored here — a negative line 11 is what the printed page shows and what tells the reader the phaseout does not apply. The floor lives in the line 12 fraction, which already takes the greater of the excess and zero, so a negative line 11 reduces nothing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/form8815ModifiedAdjustedGrossIncome" /></Minuend>
+          <Subtrahends><Dependency path="/form8815PrintLine10" /></Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form1099Qs">
+      <Name>Forms 1099-Q</Name>
+      <Description>Source documents received on Form 1099-Q, Payments From Qualified Education Programs, one item per document (one QTP or Coverdell ESA payer's or trustee's statement of one distribution account). This information-return collection records the document; nothing federal reads it yet, and its items are exported for the state returns and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/filer">
+      <Name>1099-Q document owner</Name>
+      <Description>The filer on whose side of this return the Form 1099-Q is reported: the recipient, when the recipient is the primary or secondary filer; otherwise the filer on whose return the dependent recipient's distribution is considered. It is NOT the recipient's identity, which is ../writableRecipientTin and ../writableRecipientName as printed. An unanswered owner is Incomplete; no primary-filer default is assumed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><CollectionItem collection="/filers" /></Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/belongsToPrimaryFiler">
+      <Name>Form 1099-Q belongs to primary filer</Name>
+      <Description>Whether this Form 1099-Q belongs to the primary filer's side of the return (see ../filer). Completeness-first and MFJ716-shaped at birth: IsComplete(../filer) and IsComplete(filers:/primaryFiler) are conjuncts, so an unanswered owner, or a single-filer return asked about the secondary filer, resolves complete-safe FALSE instead of Incomplete forever. No computation reads it yet; it is exported for the successor that attributes a distribution.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="/primaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Equal>
+              <Left><Dependency path="../filer" /></Left>
+              <Right><Dependency module="filers" path="/primaryFiler" /></Right>
+            </Equal></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/belongsToSecondaryFiler">
+      <Name>Form 1099-Q belongs to secondary filer</Name>
+      <Description>Whether this Form 1099-Q belongs to the secondary filer's side of the return (see ../filer). Completeness-first and MFJ716-shaped at birth: IsComplete(../filer) and IsComplete(filers:/secondaryFiler) are conjuncts, so an unanswered owner, or a single-filer return asked about the secondary filer, resolves complete-safe FALSE instead of Incomplete forever. No computation reads it yet; it is exported for the successor that attributes a distribution.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="/secondaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Equal>
+              <Left><Dependency path="../filer" /></Left>
+              <Right><Dependency module="filers" path="/secondaryFiler" /></Right>
+            </Equal></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableCalendarYear">
+      <Name>Form 1099-Q calendar year</Name>
+      <Description>The "For calendar year" entry in the title block, as a four-digit year (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+        <Limit type="Match">
+          <String><![CDATA[[0-9]{4}]]></String>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableVoid">
+      <Name>Form 1099-Q VOID box</Name>
+      <Description>The VOID checkbox in the header of Copy A (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, page 1); the recipient's Copy B does not carry it. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableCorrected">
+      <Name>Form 1099-Q CORRECTED box</Name>
+      <Description>The CORRECTED checkbox: "CORRECTED" on Copy A, "CORRECTED (if checked)" on the recipient's Copy B (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Checked means the amounts replace an earlier statement's. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writablePayerTrusteeNameAddress">
+      <Name>Form 1099-Q PAYER'S/TRUSTEE'S name, address and telephone</Name>
+      <Description>The PAYER'S/TRUSTEE'S block: name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no., printed as ONE cell and taken as one writable (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writablePayerTrusteeTin">
+      <Name>Form 1099-Q PAYER'S/TRUSTEE'S TIN</Name>
+      <Description>The "PAYER'S/TRUSTEE'S TIN" box (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableRecipientTin">
+      <Name>Form 1099-Q RECIPIENT'S TIN</Name>
+      <Description>The "RECIPIENT'S TIN" box (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). A TIN WRITABLE, not derived: the recipient is frequently a dependent student rather than a filer by construction, and ../filer names the filer side of the return, not the recipient (INPUT-FORMS section c identity rule). The recipient's copy may show only the last four digits (Instructions for Recipient, same file lines 71-73, LEFT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableRecipientName">
+      <Name>Form 1099-Q RECIPIENT'S name</Name>
+      <Description>The "RECIPIENT'S name" box, as printed (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableRecipientStreetAddress">
+      <Name>Form 1099-Q recipient's street address</Name>
+      <Description>The recipient's "Street address (including apt. no.)" box, as printed (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableRecipientCityStateZip">
+      <Name>Form 1099-Q recipient's city, state and ZIP</Name>
+      <Description>The recipient's "City or town, state or province, country, and ZIP or foreign postal code" box, one cell (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableAccountNumber">
+      <Name>Form 1099-Q account number</Name>
+      <Description>The "Account number (see instructions)" box (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2): an account or other unique number the payer assigned (Instructions for Recipient, same file lines 75-76, LEFT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableGrossDistribution">
+      <Name>Form 1099-Q box 1 gross distribution</Name>
+      <Description>Form 1099-Q box 1, "Gross distribution" (including in-kind) from a QTP or a Coverdell ESA this year; the total of boxes 2 and 3 (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 77-79, LEFT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableEarnings">
+      <Name>Form 1099-Q box 2 earnings</Name>
+      <Description>Form 1099-Q box 2, "Earnings": the earnings part of box 1 (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 86-93, LEFT column). For a Coverdell ESA the payer may leave boxes 2 and 3 blank and report the account's fair market value in box 7 instead (same file lines 80-84, LEFT column). Min 0: neither the form nor Pub. 970 prints a negative earnings figure, and a Coverdell loss is not deductible (https://www.irs.gov/pub/irs-pdf/p970.pdf, page 46). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableBasis">
+      <Name>Form 1099-Q box 3 basis</Name>
+      <Description>Form 1099-Q box 3, "Basis": the recipient's basis in the box 1 distribution (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file line 72, RIGHT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableTypeOfTransferTrusteeToTrustee">
+      <Name>Form 1099-Q box 4a type of transfer trustee-to-trustee</Name>
+      <Description>Form 1099-Q box 4, "Type of transfer:" option a, "Trustee-to-trustee" - its own checkbox (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 74-77, RIGHT column). One Boolean per printed checkbox; the recipient transcribes what was printed, including neither or both. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableTypeOfTransferQtpToRothIra">
+      <Name>Form 1099-Q box 4b type of transfer QTP to Roth IRA</Name>
+      <Description>Form 1099-Q box 4, option b, "QTP to Roth IRA" - its own checkbox (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 74-77, RIGHT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableDistributionIsFromPrivateQtp">
+      <Name>Form 1099-Q box 5a distribution is from a private QTP</Name>
+      <Description>Form 1099-Q box 5, "Distribution is from:" option a, "Private QTP" - its own checkbox (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 78-79, RIGHT column). One Boolean per printed checkbox, never one Enum. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableDistributionIsFromStateQtp">
+      <Name>Form 1099-Q box 5b distribution is from a state QTP</Name>
+      <Description>Form 1099-Q box 5, option b, "State QTP" - its own checkbox (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 78-79, RIGHT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableDistributionIsFromCoverdellEsa">
+      <Name>Form 1099-Q box 5c distribution is from a Coverdell ESA</Name>
+      <Description>Form 1099-Q box 5, option c, "Coverdell ESA" - its own checkbox (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 78-79, RIGHT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableRecipientIsNotTheDesignatedBeneficiary">
+      <Name>Form 1099-Q box 6 recipient is not the designated beneficiary</Name>
+      <Description>Form 1099-Q box 6, "Check if the recipient is not the designated beneficiary" (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, pages 1-2; Instructions for Recipient, same file lines 80-83, RIGHT column). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Qs/*/writableBox7">
+      <Name>Form 1099-Q box 7 fair market value or distribution code</Name>
+      <Description>Form 1099-Q box 7, printed on Copy B only, captioned "If the fair market value (FMV) is shown below, see Pub. 970, Tax Benefits for Education, for how to figure earnings." (https://www.irs.gov/pub/irs-pdf/f1099q.pdf, page 2). The caption is an instruction, not a name, so the leaf is the box number. The payer may enter a Coverdell ESA's year-end fair market value (Instructions for Recipient, same file lines 80-84, LEFT column) and may enter a distribution code 1-6 (same file lines 85-89, RIGHT column); both are transcribed as printed text. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (a state that gave a 529 deduction may recapture a non-qualified distribution) and bound in the Form 1099-Q register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

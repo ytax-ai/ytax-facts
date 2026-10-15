@@ -1,0 +1,491 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/educatorAdjustment.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/k12EducatorOptions">
+      <Name>K12 Educator Options</Name>
+      <Description>Options for who worked as a K-12 educator</Description>
+      <Derived>
+        <EnumOptions>
+          <EnumOption>
+            <Condition>
+              <True />
+            </Condition>
+            <Value>
+              <String>tpDid</String>
+            </Value>
+          </EnumOption>
+          <EnumOption>
+            <Condition>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </Condition>
+            <Value>
+              <String>spouseDid</String>
+            </Value>
+          </EnumOption>
+          <EnumOption>
+            <Condition>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </Condition>
+            <Value>
+              <String>bothDid</String>
+            </Value>
+          </EnumOption>
+          <String>neither</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/wasK12Educators">
+      <Name>Was k12 educators</Name>
+      <Description>Whether the TP or secondary filer were k12 educators</Description>
+
+      <Writable>
+        <Enum optionsPath="/k12EducatorOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseWasK12Educator">
+      <Name>Spouse was k12 educator</Name>
+      <Description>Whether the spouse was a k12 educator</Description>
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="/wasK12Educators" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/k12EducatorOptions">bothDid</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="/wasK12Educators" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/k12EducatorOptions">spouseDid</Enum>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tpWasK12Educator">
+      <Name>TP was k12 educator</Name>
+      <Description>Whether the TP was a k12 educator</Description>
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="/wasK12Educators" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/k12EducatorOptions">bothDid</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="/wasK12Educators" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/k12EducatorOptions">tpDid</Enum>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxIndividualEducatorExpensesLimit">
+      <Name>Maximum Deduction for educator expenses</Name>
+      <Description>The maximum deduction an individual can take for educator expense</Description>
+      
+
+      <Derived>
+        <Dollar>300</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryEducatorExpensesWritable">
+      <Name>Primary educator expenses writable</Name>
+      <Description>Expenses the TP spent as a k12 educator. May deduct up to the maxIndividualEducatorExpensesLimit. Enter qualified expenses NET of three of the four reductions the instructions list: nontaxable qualified tuition program earnings or distributions; any nontaxable distribution of Coverdell education savings account earnings; and any reimbursement received for these expenses that was not reported in box 1 of a Form W-2. Do NOT subtract the excludable U.S. series EE and I savings bond interest from Form 8815: the graph subtracts it (/educatorExpensesAdjustment), because Form 8815 line 9 is figured without that reduction. Enter the whole amount, even above the per-educator limit: the reductions come off the expenses before the limit, and the limit is applied to the result.</Description>
+      
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryEducatorExpenses">
+      <Name>primary educator expenses</Name>
+      <Description>Expenses the TP spent as a k12 educator. May deduct up to the maxIndividualEducatorExpensesLimit.
+        Handles the maximum conditions and eligibility to get a default 0. An entry below $0 counts as $0 (expenses paid are never negative).</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isMFJDependent" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/wasK12Educators" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/tpWasK12Educator" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/maxIndividualEducatorExpensesLimit" />
+                <GreaterOf>
+                  <Dependency path="/primaryEducatorExpensesWritable" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryEducatorExpensesWritable">
+      <Name>Secondary educator expenses writable</Name>
+      <Description>Expenses the spouse spent as a k12 educator. May deduct up to the maxIndividualEducatorExpensesLimit. Enter qualified expenses NET of three of the four reductions the instructions list: nontaxable qualified tuition program earnings or distributions; any nontaxable distribution of Coverdell education savings account earnings; and any reimbursement received for these expenses that was not reported in box 1 of a Form W-2. Do NOT subtract the excludable U.S. series EE and I savings bond interest from Form 8815: the graph subtracts it (/educatorExpensesAdjustment), because Form 8815 line 9 is figured without that reduction. Enter the whole amount, even above the per-educator limit: the reductions come off the expenses before the limit, and the limit is applied to the result.</Description>
+      
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryEducatorExpenses">
+      <Name>Secondary educator expenses</Name>
+      <Description>Expenses the secondaryFiler spent as a k12 educator. May deduct up to the
+        maxIndividualEducatorExpensesLimit. Handles the maximum conditions and eligibility to get a default 0. An entry below $0 counts as $0 (expenses paid are never negative).</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isMFJDependent" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/wasK12Educators" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/spouseWasK12Educator" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/maxIndividualEducatorExpensesLimit" />
+                <GreaterOf>
+                  <Dependency path="/secondaryEducatorExpensesWritable" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryEducatorExpensesEntered">
+      <Name>Primary filer educator expenses entered, before the per-educator limit</Name>
+      <Description>The primary filer's qualified educator expenses as entered (../primaryEducatorExpensesWritable), before the per-educator limit and before the Form 8815 savings bond reduction; $0 when that filer is not an eligible educator, and $0 on the joint dependent return whose question the interview never asks, as /primaryEducatorExpenses does. Floored at $0. Read by /educatorExpensesAboveTheLimit.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isMFJDependent" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/wasK12Educators" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/tpWasK12Educator" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/primaryEducatorExpensesWritable" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryEducatorExpensesEntered">
+      <Name>Spouse educator expenses entered, before the per-educator limit</Name>
+      <Description>The spouse's qualified educator expenses as entered (../secondaryEducatorExpensesWritable), before the per-educator limit and before the Form 8815 savings bond reduction; $0 when that filer is not an eligible educator, and $0 on the joint dependent return whose question the interview never asks, as /secondaryEducatorExpenses does. Floored at $0. Read by /educatorExpensesAboveTheLimit.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isMFJDependent" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/wasK12Educators" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/spouseWasK12Educator" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/secondaryEducatorExpensesWritable" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/educatorExpensesAboveTheLimit">
+      <Name>Educator expenses entered above the per-educator limits</Name>
+      <Description>The part of the entered educator expenses above each filer's per-educator limit: (/primaryEducatorExpensesEntered − /primaryEducatorExpenses) + (/secondaryEducatorExpensesEntered − /secondaryEducatorExpenses). The Form 8815 savings bond reduction comes off the expenses before the limit, so it is absorbed by this excess first and reduces the deduction only beyond it.</Description>
+      <Derived>
+        <Add>
+          <Subtract>
+            <Minuend><Dependency path="/primaryEducatorExpensesEntered" /></Minuend>
+            <Subtrahends><Dependency path="/primaryEducatorExpenses" /></Subtrahends>
+          </Subtract>
+          <Subtract>
+            <Minuend><Dependency path="/secondaryEducatorExpensesEntered" /></Minuend>
+            <Subtrahends><Dependency path="/secondaryEducatorExpenses" /></Subtrahends>
+          </Subtract>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/educatorSavingsBondReductionOfLimitedExpenses">
+      <Name>The Form 8815 savings bond reduction that reaches the limited educator expenses</Name>
+      <Description>Form 8815 line 14 (form8815 /form8815ExcludableSavingsBondInterestOrZero, $0 without a Form 8815) less /educatorExpensesAboveTheLimit, floored at $0: the part of the section 135 exclusion that the expenses above the limits do not absorb. On a joint return with two educators it reduces the primary filer's limited amount first and the spouse's with what remains; the total is the same either way (TAX-INTERPRETATIONS AD-26).</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend><Dependency module="form8815" path="/form8815ExcludableSavingsBondInterestOrZero" /></Minuend>
+            <Subtrahends><Dependency path="/educatorExpensesAboveTheLimit" /></Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryEducatorExpensesAfterSavingsBondExclusion">
+      <Name>Primary filer educator deduction after the Form 8815 reduction</Name>
+      <Description>/primaryEducatorExpenses less /educatorSavingsBondReductionOfLimitedExpenses, floored at $0. The primary filer's part of Schedule 1 line 11.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend><Dependency path="/primaryEducatorExpenses" /></Minuend>
+            <Subtrahends><Dependency path="/educatorSavingsBondReductionOfLimitedExpenses" /></Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryEducatorExpensesAfterSavingsBondExclusion">
+      <Name>Spouse educator deduction after the Form 8815 reduction</Name>
+      <Description>/secondaryEducatorExpenses less the part of /educatorSavingsBondReductionOfLimitedExpenses that the primary filer's limited amount did not absorb, floored at $0. The spouse's part of Schedule 1 line 11.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend><Dependency path="/secondaryEducatorExpenses" /></Minuend>
+            <Subtrahends>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Minuend><Dependency path="/educatorSavingsBondReductionOfLimitedExpenses" /></Minuend>
+                  <Subtrahends><Dependency path="/primaryEducatorExpenses" /></Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/educatorExpensesBeforeSavingsBondExclusion">
+      <Name>Educator expenses deduction before the Form 8815 reduction</Name>
+      <Description>The two per-educator limited amounts added and rounded, before the Form 8815 savings bond reduction. Form 8815 line 9 is figured with this figure ("do not reduce your educator expenses, if any, by the amount on Form 8815, line 14"), and so is every modified adjusted gross income the Form 8815 exclusion depends on: taxCalculations /adjustmentsExcludingStudentLoanIraAndSelfEmployedHealthInsurance reads it, which keeps the section 135 exclusion out of its own cone (TAX-INTERPRETATIONS AD-26). Schedule 1 line 11 is /educatorExpensesAdjustment.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryEducatorExpenses" />
+            <Dependency path="/secondaryEducatorExpenses" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/educatorExpensesSavingsBondReduction">
+      <Name>The Form 8815 reduction of Schedule 1 line 11</Name>
+      <Description>/educatorExpensesBeforeSavingsBondExclusion less /educatorExpensesAdjustment: the amount by which the section 135 exclusion reduces the educator deduction. taxCalculations /adjustmentsToIncomeBeforeTerritoryApportionment subtracts it, so adjusted gross income carries the reduced line 11 while the modified AGIs read the unreduced figure.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/educatorExpensesBeforeSavingsBondExclusion" /></Minuend>
+          <Subtrahends><Dependency path="/educatorExpensesAdjustment" /></Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/educatorExpensesAdjustment">
+      <Name>Educator Expenses Adjustment</Name>
+      <Description>Schedule 1 line 11: the two per-educator amounts after the Form 8815 savings bond reduction (/primaryEducatorExpensesAfterSavingsBondExclusion + /secondaryEducatorExpensesAfterSavingsBondExclusion), rounded. Equal to /educatorExpensesBeforeSavingsBondExclusion on every return without a Form 8815 exclusion. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryEducatorExpensesAfterSavingsBondExclusion" />
+            <Dependency path="/secondaryEducatorExpensesAfterSavingsBondExclusion" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowShowEducatorExpensesSummary">
+      <Name>Flow show educator expenses summary</Name>
+      <Description>Whether to show the educator expenses summary</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/tpWasK12Educator" />
+          <Dependency path="/spouseWasK12Educator" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/educatorExpenses">
+      <Description>filer's educator expenses</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isPrimaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/primaryEducatorExpensesAfterSavingsBondExclusion" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryEducatorExpensesAfterSavingsBondExclusion" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

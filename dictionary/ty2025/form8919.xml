@@ -1,0 +1,2646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/form8919PrimaryFiler">
+      <Description>The primary filer used by Form 8919 attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isPrimaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919SecondaryFiler">
+      <Description>The secondary filer used by Form 8919 attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8919ReasonCodeOptions">
+      <Name>The four printed Form 8919 reason codes</Name>
+      <Description>Column (c)'s option set, which is CLOSED and printed: A, C, G and H, and no
+        others. The option values are the printed letters themselves, lower-cased for this
+        dictionary's enum convention, because the code IS the value a filer enters in the column
+        rather than a label for something else.
+
+        A — "I filed Form SS-8 and received a determination letter stating that I am an employee of
+        this firm."
+        C — "I received other correspondence from the IRS stating that I am an employee." The
+        instruction glosses this as the section 530 case: the filer was determined to be an
+        employee but the employer was granted relief from employment taxes under section 530 of the
+        Revenue Act of 1978 (lines 95-100).
+        G — "I filed Form SS-8 with the IRS and haven't received a reply." This is also the
+        catch-all the instruction directs a filer to when none of the others fit: "If none of the
+        reason codes apply to you, but you believe you should have been treated as an employee,
+        enter reason code G and file Form SS-8 on or before the date you file your tax return."
+        H — "I received a Form W-2 and a Form 1099-MISC and/or 1099-NEC from this firm for 2025."
+
+        THERE IS NO B, D, E OR F. The printed set skips those letters and this option set does not
+        invent them.
+
+        AN ENUM, NOT FOUR BOOLEANS, and the discriminator is printed: "Enter only one reason code
+        on each line" (lines 87-88). Per-class Booleans would admit a row claiming two grounds,
+        which the instruction forbids.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>a</String>
+          <String>c</String>
+          <String>g</String>
+          <String>h</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms">
+      <Name>The firms a filer performed services for as a misclassified employee, one row per firm (Form 8919 lines 1-5)</Name>
+      <Description>The per-firm collection the printed lines 1-5 hold: "Complete a separate line
+        for each firm" (line 148). Each row carries the six printed columns — (a) firm name, (b)
+        federal identification number, (c) reason code, (d) date of the IRS determination, (e) the
+        1099-MISC/NEC checkbox, (f) wages — plus the spouse whose Form 8919 the row belongs on.
+
+        NO INTAKE ASKS IT TODAY, so an empty collection is the normal state and every committed
+        scenario leaves it unanswered; the root then resolves Incomplete and is omitted from every
+        snapshot. No dollar reads it — line 6 is column (f)'s attested total and keeps its own
+        writable, for the reason argued in the section banner above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableFirmName">
+      <Name>Column (a): the firm's name</Name>
+      <Description>Column (a) of the printed row. "Firm" is defined broadly by the instruction:
+        "any individual, business enterprise, company, nonprofit organization, state, or other
+        entity for which you performed services. This firm may or may not have paid you directly
+        for these services" (lines 104-108) — which is why this is free text and not a link to any
+        payer collection this dictionary already holds. When a Form 1099-MISC or 1099-NEC exists
+        the instruction says to copy the name off it exactly (lines 70-73).
+
+        THE MaxLength BOUND MIRRORS formW2s:/formW2s/*/employerName; ITS Match REGEX IS
+        DELIBERATELY NOT COPIED, for the reason given at
+        form4137:/form4137Employers/*/writableEmployerName: that regex exists because the W-2 name
+        feeds an MeF employer-name element, and this column is a line on a paper form rather than
+        that element. A firm here can also be "any individual, business enterprise, company,
+        nonprofit organization, state, or other entity", a broader set of names than an employer's,
+        which makes importing the narrower character class worse here than there.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>75</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableFirmIdentificationNumber">
+      <Name>Column (b): the firm's federal identification number, or the word "unknown"</Name>
+      <Description>Column (b) of the printed row. NOT A TYPED IDENTIFIER, and the instruction is
+        why: the number "can be an employer identification number (EIN) or a social security number
+        (SSN) (if the firm is an individual)", and "If you are unable to obtain the number, enter
+        'unknown'" (lines 75-86). Three shapes on one column, one of them a word — no EIN or TIN
+        type can hold that, so it is carried as text bounded at 11 characters, the length of a
+        formatted SSN (NNN-NN-NNNN), which is the longest of the three.
+
+        THE "unknown" ALTERNATIVE IS NOT A LOOPHOLE THIS DICTIONARY OPENS. It is the printed
+        instruction's own answer to a firm that will not supply the number even after a Form W-9
+        request, which the same paragraph describes.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>11</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableReasonCode">
+      <Name>Column (c): the reason code for filing Form 8919 against this firm</Name>
+      <Description>Column (c) of the printed row, over the closed set at
+        /form8919ReasonCodeOptions. THIS IS THE ELIGIBILITY GROUND the printed who-must-file test
+        requires: "One of the reasons listed below under Reason codes applies to you" (line 17).
+
+        IT IS ENFORCED by /knockoutForm8919WagesWithoutReasonCode, through
+        ../isCodedRowForPrimaryFiler and ../isCodedRowForSecondaryFiler: a filer with positive line
+        6 and no answered column (c) anywhere on their own form is refused at submission. ANSWERED
+        IS THE WHOLE TEST — no code is privileged, because the option set is closed and the
+        instruction names G as the catch-all for a filer none of the others fit (lines 18-20).
+        WHAT IS NOT ENFORCED, deliberately: an individual UNCODED row costs nothing while some
+        sibling row of the same filer carries a code, because line 6 keeps its attested writable
+        and the printed more-than-five-firms rule sanctions a partial table. That residual is
+        taxpayer-FAVOURABLE, because Form 8919 charges the employee half alone (6.2% + 1.45%) where
+        a genuine independent contractor owes both halves as self-employment tax (12.4% + 2.9% on
+        92.35% of net earnings). Its bound is that the wages are an attestation either way: a filer
+        who reaches this form without a ground has misreported income, not merely mis-selected a
+        form, and nothing here manufactures a deduction or a credit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Enum optionsPath="/form8919ReasonCodeOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableDateOfIrsDetermination">
+      <Name>Column (d): the date of the IRS determination or correspondence</Name>
+      <Description>Column (d) of the printed row, "(d) Date of IRS determination or correspondence
+        (MM/DD/YYYY)". The printed instruction makes it conditional: "Complete only if reason code
+        A or C is entered in column (c)" (lines 135-137), which is carried as
+        ../determinationDateRequired rather than left implicit.
+
+        UNANSWERED IS NOT REFUSED on any row. On a G or H row it is CORRECT to leave it blank — the
+        instruction says to — and on an A or C row the omission is a filing-completeness question
+        this module does not raise. The reason-code gate does NOT extend
+        here: it tests only whether column (c) is answered SOMEWHERE on the filer's form, and a
+        per-row date requirement would be a strictly stronger refusal with its own direction and
+        its own witnesses. Line 6 is an attested total and no dollar here depends on the row.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/determinationDateRequired">
+      <Name>Column (d) must be completed on this row</Name>
+      <Description>The printed conditional on column (d): "Complete only if reason code A or C is
+        entered in column (c)" (lines 135-137). True on an A or C row, false on a G or H row.
+
+        A REAL FACT RATHER THAN A COMMENT, because it is the only place the reason code drives
+        anything at all today, and because the intake surface this collection exists to model is
+        exactly where a conditional question belongs. It resolves Incomplete on a row whose reason
+        code is unanswered, which is honest: without a code there is no answer to whether the date
+        is required.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="../writableReasonCode" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/form8919ReasonCodeOptions">a</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="../writableReasonCode" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/form8919ReasonCodeOptions">c</Enum>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableReceivedForm1099MiscOrNec">
+      <Name>Column (e): a Form 1099-MISC and/or 1099-NEC was received from this firm</Name>
+      <Description>Column (e) of the printed row, the checkbox "Check if Form 1099-MISC and/or
+        1099-NEC was received."
+
+        IT IS NOT THE SAME QUESTION AS REASON CODE H, and the two are easy to collapse. Code H
+        requires BOTH a Form W-2 AND a 1099-MISC/NEC from the same firm, with the 1099 amount being
+        wages that belonged on the W-2 (lines 102-108). This checkbox asks only whether a 1099 came
+        at all, and it is printed as its own column on every row regardless of which code that row
+        carries. Carried separately for that reason.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableWages">
+      <Name>Column (f): total wages received from this firm with no social security or Medicare tax withheld</Name>
+      <Description>Column (f) of the printed row: "Total wages received with no social security or
+        Medicare tax withholding and not reported on Form W-2". Line 6 is this column's total.
+
+        LINE 6 READS THIS COLUMN when the filer's attested total is
+        UNANSWERED, through the complete-safe addend ../wagesOrZero and the per-filer filtered
+        views. An ANSWERED attested total still wins, for the more-than-five-firms reason the
+        section banner gives. This writable is the PRINTED cell either way: the register maps
+        /primaryFilerForm8919Firms/[n]/writableWages, never ../wagesOrZero.
+
+        SIGN: NON-NEGATIVE, carried as a declared Limit, matching
+        /writablePrimaryFilerForm8919Wages.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/wagesOrZero">
+      <Name>Column (f) for this row, complete-safe: the wages, or $0 when the cell is blank</Name>
+      <Description>The ADDEND form of column (f): ../writableWages when the cell is answered and $0
+        when it is not, so that the per-filer table totals
+        /primaryFilerForm8919FirmTableTotal and /secondaryFilerForm8919FirmTableTotal stay Complete
+        on a table whose rows are only partly filled in.
+        Built to formW2s:/formW2s/*/oasdiWagesUnrounded's shape, which is this dictionary's
+        precedent for a complete-safe per-item addend.
+
+        CENTS ARE PRESERVED ON PURPOSE. This fact carries no Round; the single Round sits on
+        /primaryFilerForm8919Line6 and /secondaryFilerForm8919Line6, which is what i1040gi page 23
+        requires of a line built by addition: "If you have to add two or more amounts to figure the
+        amount to enter on a line, include cents when adding the amounts and round off only the
+        total." Do NOT use this fact for the printed column (f) cell — the register prints
+        ../writableWages.
+
+        THIS IS THE ADDEND, NOT THE CELL. It is summed by the two per-filer table totals, which
+        line 6 combines when the attested total is unanswered and which
+        /knockoutForm8919Line6BelowFirmTable compares an answered attested total against.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableWages" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableWages" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/writableFirmFiler">
+      <Name>Which spouse's Form 8919 this firm row belongs on</Name>
+      <Description>The per-row filer attribution, built to the shape
+        scheduleH:/householdEmployees/*/writableEmployerFiler uses and matching
+        form4137:/form4137Employers/*/writableEmployerFiler. Form 8919 is filed per spouse ("If
+        married, complete a separate Form 8919 for each spouse who must file this form", line 10),
+        so a firm row belongs to one spouse's form.
+
+        UNANSWERED IS THE PRIMARY FILER, exact for the single-form majority.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <CollectionItem collection="/filers" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/belongsToPrimaryFiler">
+      <Name>This firm row is on the primary filer's Form 8919</Name>
+      <Description>The primary half of the row attribution. AN UNANSWERED ../writableFirmFiler
+        counts as the primary filer, for the reason given there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Not>
+            <IsComplete>
+              <Dependency path="../writableFirmFiler" />
+            </IsComplete>
+          </Not>
+          <Equal>
+            <Left>
+              <Dependency module="filers" path="../writableFirmFiler" />
+            </Left>
+            <Right>
+              <Dependency path="/form8919PrimaryFiler" />
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/belongsToSecondaryFiler">
+      <Name>This firm row is on the secondary filer's Form 8919</Name>
+      <Description>The secondary half of the row attribution. It requires an ANSWERED
+        ../writableFirmFiler, the mirror of ../belongsToPrimaryFiler's default, so that every row
+        belongs to exactly one filer.
+
+        GUARDED ON /secondaryFiler'S OWN COMPLETENESS, which is what makes that "exactly one" claim
+        true rather than merely intended. filers:/secondaryFiler is Find(/filers, isSecondaryFiler)
+        and resolves INCOMPLETE on a return whose /filers holds a single item; a bare Equal against
+        it is then Incomplete too, so an ANSWERED ../writableFirmFiler on such a return would carry
+        that Incomplete into ../isCodedRowForSecondaryFiler, into the Count at
+        /secondaryFilerHasForm8919ReasonCode, and out through
+        /knockoutForm8919WagesWithoutReasonCode — a refusal that stops RESOLVING is not a refusal.
+        The guard is the FIRST conjunct so the All short-circuits on it.
+
+        NO SUCH GUARD IS NEEDED ON THE PRIMARY SIDE and none is mirrored from it:
+        filers:/primaryFiler is Complete on every return, which is already what keeps
+        ../belongsToPrimaryFiler Complete. FALSE is the right fallthrough here on its own terms
+        rather than by copying a precedent's polarity — where no secondary filer exists, no row
+        belongs to one. Pinned by
+        tests/nodes/ty2025/form8919/f8919-reason-code-gate-single-filer-attributed-row-resolves.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/form8919SecondaryFiler" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableFirmFiler" />
+          </IsComplete>
+          <Equal>
+            <Left>
+              <Dependency module="filers" path="../writableFirmFiler" />
+            </Left>
+            <Right>
+              <Dependency path="/form8919SecondaryFiler" />
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/isCodedRowForPrimaryFiler">
+      <Name>This row is on the primary filer's Form 8919 AND carries a reason code</Name>
+      <Description>The primary half of the eligibility-ground count. True when the row belongs to
+        the primary filer (../belongsToPrimaryFiler, which takes an unanswered attribution as
+        primary) AND its column (c) is ANSWERED.
+
+        ANSWERED, NOT ANY PARTICULAR CODE. The printed test is "One of the reasons listed below
+        under Reason codes applies to you" (line 17) over a CLOSED four-value option set, so any
+        answer at all satisfies it and no code is privileged. The instruction even names G as the
+        catch-all for a filer none of the others fit (lines 18-20), which is why a code-specific
+        test would be wrong here.
+
+        ALWAYS COMPLETE, which is what lets /primaryFilerHasForm8919ReasonCode Count these without
+        an Incomplete item poisoning the count: ../belongsToPrimaryFiler is Complete on every row
+        (its first disjunct is the unanswered case) and IsComplete is Complete by
+        construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../belongsToPrimaryFiler" />
+          <IsComplete>
+            <Dependency path="../writableReasonCode" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/isCodedRowForSecondaryFiler">
+      <Name>This row is on the secondary filer's Form 8919 AND carries a reason code</Name>
+      <Description>Secondary-filer twin of ../isCodedRowForPrimaryFiler, over
+        ../belongsToSecondaryFiler. Separate because Form 8919 is filed per spouse (line 10), so
+        one spouse's coded row is no ground at all for the other spouse's wages.
+
+        ALWAYS COMPLETE, on the same requirement its twin records and for one more reason. The
+        Count at /secondaryFilerHasForm8919ReasonCode returns Incomplete on ANY Incomplete element,
+        so this fact being Complete on every row is a requirement rather than a convenience.
+        IsComplete is Complete by construction, and ../belongsToSecondaryFiler is Complete on every
+        row only because it carries an explicit guard on filers:/secondaryFiler, which is
+        INCOMPLETE on a single-filer return where the primary twin's filers:/primaryFiler never is.
+        That asymmetry is the whole of the difference between the two sides, and it is why this
+        twin is not a mechanical copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../belongsToSecondaryFiler" />
+          <IsComplete>
+            <Dependency path="../writableReasonCode" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePrimaryFilerForm8919Wages">
+      <Name>Primary filer's Form 8919 total wages (line 6, column (f) total)</Name>
+      <Description>The primary filer's attested total of Form 8919 lines 1-5 column (f) — wages
+        received from firms with no social security or Medicare tax withheld and not reported on a
+        Form W-2.
+
+        SCREEN. Question: "What were [primary filer]'s total wages from firms that didn't withhold
+        social security or Medicare tax?" Help text: this is Form 8919 line 6, "Total wages. Combine
+        lines 1 through 5 in column (f)" (https://www.irs.gov/pub/irs-pdf/f8919.pdf, page 1). If the filer
+        worked for MORE THAN FIVE such firms, the printed instruction is to enter the combined total
+        of every firm, including the ones that do not fit on the five printed lines
+        (https://www.irs.gov/pub/irs-pdf/f8919.pdf, page 2) — so this answer may be LARGER than the
+        firm rows entered, and must never be smaller. ASKED-WHEN the return has any Form 8919
+        activity for this filer (the same intake that populates /form8919Firms). VALIDATION: Dollar,
+        Min 0, no Max. UNANSWERED POSTURE: optional — a filer who was never mistreated as a
+        contractor never answers it and /primaryFilerForm8919Line6 falls through to the firm table
+        and then to $0, so the return files with a blank Form 8919 line 6 and no Schedule 2 line 6
+        tax. FEEDS Form 8919 line 6, which feeds Form 1040 line 1g, Form 8959 line 3 and (through
+        lines 10 to 13) Schedule 2 line 6.
+
+        IT IS NOT THE ONLY SOURCE OF LINE 6. This writable WINS whenever it is answered, but where
+        it is UNANSWERED and /form8919Firms is answered, line 6 combines this filer's own column (f)
+        rows, because that is what the printed line says.
+
+        TWO REFUSALS BOUND WHAT AN ANSWER CAN SAY, both at submission and neither silently altering
+        the figure. (1) /knockoutForm8919WagesWithoutReasonCode: answering POSITIVE while
+        /form8919Firms holds no coded row for this filer states Form 8919 wages with no printed
+        ground. What survives is the PARTIAL table — one coded row grounds the whole attested
+        amount, a taxpayer-FAVOURABLE residual, because Form 8919's employee-half rates are cheaper
+        than the self-employment tax a genuine contractor owes. (2)
+        /knockoutForm8919Line6BelowFirmTable: answering BELOW this filer's own column (f) rows
+        prints a form that does not foot. The more-than-five-firms rule licenses larger and never
+        smaller, so above and equal are admitted and only below is refused.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerForm8919Wages">
+      <Name>Secondary filer's Form 8919 total wages (line 6)</Name>
+      <Description>Secondary-filer twin of /writablePrimaryFilerForm8919Wages. Separate because the
+        form is filed per spouse.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919FirmTableTotal">
+      <Name>The primary filer's own column (f) rows, combined (Form 8919 lines 1 through 5)</Name>
+      <Description>The total of the column (f) cells on the firm rows attributed to the primary
+        filer: CollectionSum over /primaryFilerForm8919Firms/*/wagesOrZero. This is what line 6's
+        printed text combines, "Total wages. Combine lines 1 through 5 in column (f)."
+
+        ONE QUANTITY, ONE FACT. Three places need it and none may recompute it:
+        /primaryFilerForm8919Line6 combines it when the attested per-filer total is unanswered,
+        /knockoutForm8919Line6BelowFirmTable compares the attested total against it, and
+        /knockoutForm8919WagesWithoutReasonCode reads it to see whether this filer has stated any
+        Form 8919 wages at all. Cents are preserved here for all three - line 6 carries the single
+        Round, per i1040gi's rule that a line built by addition rounds the total and not the
+        addends, and both knockouts compare raw attestation against raw table so a cent of rounding
+        never manufactures or hides a footing failure.
+
+        COMPLETE-SAFE $0 when /form8919Firms is unanswered, which is the state of every return with
+        no Form 8919 firm table. The guard is on the COLLECTION, a real "was the source answered"
+        test, not on a complete-safe derived fact.
+
+        PER FILER, NOT PER RETURN: it sums the filtered view, never /form8919Firms, because Form
+        8919 is filed per spouse and one spouse's line 6 may never pick up the other's rows.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8919Firms" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/primaryFilerForm8919Firms/*/wagesOrZero" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919FirmTableTotal">
+      <Name>The secondary filer's own column (f) rows, combined (Form 8919 lines 1 through 5)</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919FirmTableTotal, summing
+        /secondaryFilerForm8919Firms/*/wagesOrZero. See the primary twin for the one-quantity-one-fact
+        argument, the cents rule and the complete-safe $0.
+
+        $0 ON A SINGLE-FILER RETURN rather than Incomplete, because
+        /form8919Firms/*/belongsToSecondaryFiler guards filers:/secondaryFiler's own completeness and
+        resolves Complete false where no secondary filer exists, so the filtered view is empty.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8919Firms" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/secondaryFilerForm8919Firms/*/wagesOrZero" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919Line6">
+      <Name>Form 8919 line 6, primary filer (Form 1040 line 1g)</Name>
+      <Description>Form 8919 line 6: total wages from firms that withheld no social
+        security or Medicare tax, the amount Form 1040 line 1g carries through
+        income:/primaryFilerWagesFrom8919 and Form 8959 line 3 carries through /form8919Line6Total.
+
+        THREE ARMS, IN THIS ORDER. (1) The ATTESTED per-filer total,
+        /writablePrimaryFilerForm8919Wages, whenever it is answered. (2) Otherwise, when
+        /form8919Firms is answered, this filer's own column (f) rows combined -
+        /primaryFilerForm8919FirmTableTotal - because line 6's printed text is "Total wages. Combine
+        lines 1 through 5 in column (f)" and the table is then the return's only statement of the
+        amount. (3) Otherwise the complete-safe $0, which keeps every return with no Form 8919
+        intake byte-identical.
+
+        WHY THE ATTESTED ARM IS FIRST. The printed more-than-five-firms rule tells a filer with six
+        or more firms to attach additional Forms 8919 with lines 1 through 5 completed and to enter
+        "the combined totals of all lines 1 through 5 of all your Forms 8919" on the one form's line
+        6, so the attested total may legitimately EXCEED the rows this collection prints and is the
+        better statement of the line when the filer makes it. That rule defends the attested total
+        winning when it is answered; it says nothing about a return that never answers it.
+
+        AND WHY WINNING IS NOT UNCONDITIONAL. The same rule licenses larger and never smaller, so an
+        attested total BELOW this filer's own column (f) rows is a form that does not foot. It is
+        refused at submission by /knockoutForm8919Line6BelowFirmTable rather than silently corrected
+        here: the return has stated one quantity twice and this line takes the figure the filer
+        stated, not a figure this dictionary preferred for him.
+
+        THE SECOND ARM'S PREDICATE is a real "was the source answered" test on a WRITABLE and on the
+        intake COLLECTION, never an IsComplete on a complete-safe derived fact, which would always be
+        true.
+
+        PER FILER, NOT PER RETURN, which is why the second arm reads the FILTERED view's total.
+        Form 8919 is filed per spouse, so the primary filer's line 6 may never pick up a row
+        attributed to the secondary filer; /secondaryFilerForm8919Line6 is the mirror, and the two
+        views partition /form8919Firms because ../belongsToPrimaryFiler takes the unanswered
+        attribution and ../belongsToSecondaryFiler requires an answered one.
+
+        NO ZERO FLOOR IS NEEDED, unlike Form 4137 lines 4 and 6: line 6 is a COMBINATION of column
+        (f) amounts rather than a subtraction, and both the writable and
+        /form8919Firms/*/writableWages carry a Min 0 limit, so no arrangement of valid inputs can
+        drive it negative.
+
+        THE SINGLE Round IS DELIBERATE. /form8919Firms/*/wagesOrZero and
+        /primaryFilerForm8919FirmTableTotal preserve cents so the Round applies to the total and not
+        to each addend, which is what i1040gi page 23 requires of a line built by addition.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerForm8919Wages" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writablePrimaryFilerForm8919Wages" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/form8919Firms" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/primaryFilerForm8919FirmTableTotal" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line6">
+      <Name>Form 8919 line 6, secondary filer (Form 1040 line 1g)</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line6. Same three arms in the
+        same order: the attested /writableSecondaryFilerForm8919Wages when it is answered, else this
+        filer's own column (f) rows combined (/secondaryFilerForm8919FirmTableTotal) when
+        /form8919Firms is answered, else the complete-safe $0. See the primary twin for the printed
+        line-6 text that proves the combination, for the more-than-five-firms rule that keeps the
+        attested arm first, and for the footing guard that keeps it from winning below the table.
+
+        ITS FILTERED VIEW IS EMPTY, NOT INCOMPLETE, ON A SINGLE-FILER RETURN, which is what keeps
+        this fact Complete at $0 there: /form8919Firms/*/belongsToSecondaryFiler guards
+        filers:/secondaryFiler's own completeness and resolves Complete false when no secondary
+        filer exists, so /secondaryFilerForm8919Firms filters to nothing and the sum is $0.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerForm8919Wages" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableSecondaryFilerForm8919Wages" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/form8919Firms" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/secondaryFilerForm8919FirmTableTotal" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Line6Total">
+      <Name>Form 8919 line 6, both filers (Form 8959 line 3)</Name>
+      <Description>Both filers' Form 8919 line 6, summed — the amount Form 8959 line 3 carries.
+        Form 8959 is a RETURN-level form while Form 8919 is filed per spouse, so the two per-filer
+        line-6 figures add here, exactly as form4137:/form4137Line6Total does for line 2.
+
+        Complete-safe $0 on every return with no Form 8919 intake, which keeps Form 8959 line 4 and
+        therefore Schedule 2 line 11 byte-identical on the committed corpus.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryFilerForm8919Line6" />
+            <Dependency path="/secondaryFilerForm8919Line6" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerHasForm8919ReasonCode">
+      <Name>The primary filer has stated a Form 8919 reason code on some firm row</Name>
+      <Description>True when at least one /form8919Firms row belonging to the primary filer has an
+        answered column (c). This is the printed eligibility ground, counted.
+
+        THE FALLTHROUGH IS FALSE AND THAT POLARITY IS THE POINT. An unanswered /form8919Firms
+        resolves Incomplete, and a bare Count over an absent collection resolves Placeholder rather
+        than Complete, so the Count sits inside an IsComplete wrapper exactly as
+        qbi:/qbiHasIncompleteQualifiedBusinesses and qbi:/qbiHasIneligibleAggregation do. Here the
+        SAFE fallthrough is the opposite of theirs: an absent table means NO reason code has been
+        stated, so the false arm must read "no ground", never "no problem". That is also the only
+        shape today's intake can produce, since no screen asks the firm table yet, which makes
+        this arm the population the gate actually meets rather than a corner case. Pinned by
+        tests/nodes/ty2025/form8919/f8919-reason-code-gate-no-table-one-dollar-refused.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8919Firms" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Count>
+                    <Dependency path="/form8919Firms/*/isCodedRowForPrimaryFiler" />
+                  </Count>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerHasForm8919ReasonCode">
+      <Name>The secondary filer has stated a Form 8919 reason code on some firm row</Name>
+      <Description>Secondary-filer twin of /primaryFilerHasForm8919ReasonCode, over
+        /form8919Firms/*/isCodedRowForSecondaryFiler. Separate because the form is filed per
+        spouse.
+
+        ITS COUNT HAS ONE MORE WAY TO BE POISONED than the twin's, which is why the two are not
+        symmetric below the surface. Every counted element must be Complete, and
+        /form8919Firms/*/isCodedRowForSecondaryFiler is Complete on a single-filer return only
+        because /form8919Firms/*/belongsToSecondaryFiler guards filers:/secondaryFiler, which is
+        Incomplete there. Without that guard this fact resolved Incomplete on any return with one
+        filer and an answered, attributed firm row, and carried the Incomplete out through
+        /knockoutForm8919WagesWithoutReasonCode. Pinned by
+        tests/nodes/ty2025/form8919/f8919-reason-code-gate-single-filer-attributed-row-resolves.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8919Firms" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Count>
+                    <Dependency path="/form8919Firms/*/isCodedRowForSecondaryFiler" />
+                  </Count>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8919WagesWithoutReasonCode">
+      <Name>A filer claims Form 8919 wages with no reason code stated anywhere</Name>
+      <Description>Blocks submission when EITHER filer states positive Form 8919 wages - on line 6
+        OR in that filer's own firm rows - while having no coded firm row. The printed filing test is conjunctive and this is its fourth
+        conjunct; the section banner above states what the predicate refuses, what it admits, and
+        why it is a refusal rather than a zeroed line 6.
+
+        DIRECTION, and it is the reason this exists rather than a disclosure. Form 8919 charges the
+        EMPLOYEE HALF alone: line 11 is line 10 x 0.062 and line 12 is line 6 x 0.0145 (lines
+        62-63). A genuine independent contractor owes BOTH halves as self-employment tax: Schedule
+        SE line 10 is 12.4% and line 11 is 2.9%, on 92.35% of net earnings (Schedule SE lines
+        41-42). So an ungrounded Form 8919 claim is CHEAPER than the correct treatment, a
+        taxpayer-FAVOURABLE under-collection, and the only false-allowance direction anywhere in
+        this arc. It is bounded by the fact that the wages are an attestation either way: a filer
+        who reaches this form without a ground has misreported income rather than merely
+        mis-selected a form, and nothing here manufactures a deduction or a credit.
+
+        GATED BEHIND THE FILER'S OWN AFFIRMATIVE CLAIM, which is what makes the refusal safe. Line
+        6 is complete-safe $0, so a return that never answers ANY Form 8919 intake never reaches the
+        test and is never refused (f8919-unanswered-complete-safe).
+
+        IT READS THE FIRM TABLE AND NOT ONLY LINE 6, and that is the difference between a guard
+        and a guard that can be answered around. Line 6 takes the attested per-filer total whenever
+        it is answered, so a filer who enters a firm row and then attests a total of $0 has a line 6
+        of $0 - and a predicate that read line 6 alone would see nothing while the return carried an
+        ungrounded row in column (f). Each arm therefore fires on positive wages stated ANYWHERE for
+        that filer: line 6 above zero OR /{primary,secondary}FilerForm8919FirmTableTotal above zero.
+        The all-rows total is the right trigger, and a coded-only basis would be circular here
+        because an UNCODED row is precisely the thing this test is looking for. The footing guard
+        beside it reads the same total for its own reason - the register prints column (f) from
+        every row in the view, so every row has to be footed. Witnessed by
+        f8919-reason-code-gate-answered-zero-wages-uncoded-row-refused (attested $0.00 over an
+        uncoded $500 row) and f8919-reason-code-gate-unanswered-wages-table-foots-refused (no
+        attested total, one uncoded row).
+
+        MECHANISM: BlockSubmissionOnTrue and NO flow:/flowIsKnockedOut membership, which is a
+        category judgment against lint_dual_wiring rather than a habit. That lint's permanent
+        non-scope-guard exemption covers a refusal whose scope-sidecar revisit_trigger begins
+        "n/a", and it applies here for the reason it applies to qbi:/qbiHasIneligibleAggregation:
+        there is nothing unmodelled for a knockout SCREEN to explain. There is no Form 8919
+        computation this dictionary is failing to perform. The filer either states the printed
+        ground or does not claim the wages, which is a user-input contradiction, and the refusal
+        never retires.</Description>
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <Any>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/primaryFilerForm8919Line6" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/primaryFilerForm8919FirmTableTotal" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Any>
+            <Not>
+              <Dependency path="/primaryFilerHasForm8919ReasonCode" />
+            </Not>
+          </All>
+          <All>
+            <Any>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/secondaryFilerForm8919Line6" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/secondaryFilerForm8919FirmTableTotal" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Any>
+            <Not>
+              <Dependency path="/secondaryFilerHasForm8919ReasonCode" />
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8919Line6BelowFirmTable">
+      <Name>A filer's attested Form 8919 line 6 is less than his own column (f) rows</Name>
+      <Description>Blocks submission when either filer ANSWERS his per-filer Form 8919 total below
+        the combined column (f) of his OWN firm rows. Line 6's printed text is unconditional -
+        "Total wages. Combine lines 1 through 5 in column (f)" - so a return whose line 6 is smaller
+        than the rows printed above it does not foot, and the form it would print contradicts itself
+        on its own face.
+
+        THE MORE-THAN-FIVE-FIRMS RULE IS WHY THIS IS ONE-SIDED, and it is the whole reason the
+        comparison is LessThan rather than an equality. A filer with more than five firms attaches
+        additional Forms 8919 with lines 1 through 5 completed and enters "the combined totals of all
+        lines 1 through 5 of all your Forms 8919" on the one form's line 6. That licenses an attested
+        total LARGER than the rows this return itemises; nothing printed anywhere licenses a smaller
+        one. So an attested total above the table is admitted exactly as before, an attested total
+        equal to it is admitted, and only below is refused.
+
+        IT MOVES NO DOLLAR. The attested arm of /primaryFilerForm8919Line6 still wins when it is
+        answered, so line 6, Form 1040 line 1g, Form 8959 line 3 and Schedule 2 line 6 all keep the
+        figure the filer stated. A refusal is the honest response because the return has made two
+        contradictory statements of one quantity and this dictionary cannot know which is true:
+        silently taking the larger would charge tax the filer never attested to, and silently taking
+        the smaller is the under-collection this guard exists to stop.
+
+        EVERY ROW IN THE FILER'S VIEW, CODED OR NOT, and the printed page is the reason. The
+        register maps the column (f) cell of rows 1 through 5 to
+        /primaryFilerForm8919Firms/[0..4]/writableWages unconditionally, and column (c) is a
+        separate cell, so a row whose reason code is blank still prints its wages on the face of the
+        form. A line 6 below the rows printed above it therefore fails to foot whatever those rows'
+        column (c) says, and a coded-only basis would admit a printed form that contradicts itself.
+        Whether an uncoded row is grounded at all is the different question
+        /knockoutForm8919WagesWithoutReasonCode asks, of the same total. Pinned by
+        tests/nodes/ty2025/form8919/f8919-line6-below-table-with-uncoded-row-refused, where the
+        shortfall is created by an uncoded row beside a coded sibling and this guard fires alone.
+
+        COMPLETE-SAFE, AND THE ORDER OF THE CONJUNCTS IS WHAT MAKES IT SO. Each arm tests
+        IsComplete on the per-filer writable FIRST, so the All short-circuits to false on the many
+        returns that never answer it and the comparison is never evaluated against an Incomplete
+        left side - a refusal that stops resolving is not a refusal. The right side,
+        /{primary,secondary}FilerForm8919FirmTableTotal, is complete-safe $0 when /form8919Firms is
+        unanswered, and both writables carry a Min 0 limit, so an answered total can never be less
+        than an absent table.
+
+        RAW AGAINST RAW. Both sides carry cents: the comparison is the attested writable against the
+        unrounded table total, never against the Rounded line 6, so a single rounding step can
+        neither manufacture nor conceal a footing failure.
+
+        PER FILER, NOT PER RETURN. Form 8919 is filed per spouse, so each filer's attestation is
+        compared only against his or her own rows through the filtered views, and one spouse's
+        surplus never covers the other's shortfall.
+
+        MECHANISM: BlockSubmissionOnTrue and NO flow:/flowIsKnockedOut membership, the same category
+        judgment as /knockoutForm8919WagesWithoutReasonCode beside it. Nothing is left unmodelled for a knockout SCREEN to explain: there is no Form 8919 computation this dictionary is failing to
+        perform. The filer has entered two figures that cannot both be right, which is a user-input
+        contradiction, and the refusal never retires - it would only NARROW if an application screen
+        showed the running column (f) total beside the line-6 question, which turns a dead end into a
+        fixable validation.</Description>
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete>
+              <Dependency path="/writablePrimaryFilerForm8919Wages" />
+            </IsComplete>
+            <LessThan>
+              <Left>
+                <Dependency path="/writablePrimaryFilerForm8919Wages" />
+              </Left>
+              <Right>
+                <Dependency path="/primaryFilerForm8919FirmTableTotal" />
+              </Right>
+            </LessThan>
+          </All>
+          <All>
+            <IsComplete>
+              <Dependency path="/writableSecondaryFilerForm8919Wages" />
+            </IsComplete>
+            <LessThan>
+              <Left>
+                <Dependency path="/writableSecondaryFilerForm8919Wages" />
+              </Left>
+              <Right>
+                <Dependency path="/secondaryFilerForm8919FirmTableTotal" />
+              </Right>
+            </LessThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8919Line7MaxWagesSubjectToOasdi">
+      <Name>Form 8919 line 7, maximum wages subject to social security tax</Name>
+      <Description>Form 8919 line 7: the 2025 social security (OASDI) contribution and benefit
+        base, $176,100, pre-printed on the form. Declared here rather than read from
+        form4137:/form4137Line7MaxWagesSubjectToOasdi deliberately — each form prints its own line
+        7, and a module that computed its wage base by reaching into a sibling form would make the
+        two forms look coupled where the statute simply gives them the same number. Both carry the
+        oasdi-wage-base param marker, which is what keeps them in step.</Description>
+      
+      <Derived>
+        <Dollar>176100</Dollar>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm8919Line8">
+      <Name>Form 8919 line 8, primary filer</Name>
+      <Description>Form 8919 line 8: this filer's social security wages and tips (W-2 boxes 3 and
+        7) PLUS the unreported tips subject to social security tax from Form 4137 line 10.
+
+        THE BOXES 3-AND-7 HALF IS form4137:/primaryFilerForm4137Line8 REUSED, not recomputed: the
+        two forms print that clause identically ("Total social security wages and social security
+        tips (total of boxes 3 and 7 on Form(s) W-2)" here, "(total of your Form(s) W-2, boxes 3
+        and 7)" there), so a second implementation could only drift. That fact already sums the
+        cents-bearing box-3 and box-7 twins over this filer's OWN W-2s and rounds once.
+
+        THE FORM 4137 TERM IS WHAT MAKES THIS FORM'S LINE 8 DIFFERENT, and it encodes an ORDERING:
+        a filer's unreported tips consume social security wage base BEFORE their Form 8919 wages
+        do, so a filer with both can have the tips fully taxed and the wages only partly. The
+        dependency runs one way — Form 4137 line 8 carries no reciprocal Form 8919 term — so the
+        graph stays acyclic. Witnessed by
+        tests/nodes/ty2025/form8919/f8919-form4137-tips-consume-wage-base-first.
+
+        THE RRTA TERM ARRIVES through the reused Form 4137 line 8,
+        capped at the wage base as both forms' printed line-8 instructions require; the CT-2
+        alternative source remains the oos-form8959-part-iii-rrta row's only live content.</Description>
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency module="form4137" path="/primaryFilerForm4137Line8" />
+            <Dependency module="form4137" path="/primaryFilerForm4137Line10" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line8">
+      <Name>Form 8919 line 8, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line8, reading that spouse's own
+        Form 4137 lines 8 and 10.</Description>
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency module="form4137" path="/secondaryFilerForm4137Line8" />
+            <Dependency module="form4137" path="/secondaryFilerForm4137Line10" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm8919Line9">
+      <Name>Form 8919 line 9, primary filer</Name>
+      <Description>Form 8919 line 9 = line 7 less line 8, floored at zero — the social security
+        wage base this filer has left after their W-2 wages, tips and any Form 4137 tips. The floor
+        is printed, and this form spells out its consequence: "If line 8 is more than line 7, enter
+        -0- here AND ON LINE 10", which line 10's own smaller-of already produces.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8919Line7MaxWagesSubjectToOasdi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/primaryFilerForm8919Line8" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line9">
+      <Name>Form 8919 line 9, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line9.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8919Line7MaxWagesSubjectToOasdi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/secondaryFilerForm8919Line8" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm8919Line10">
+      <Name>Form 8919 line 10, primary filer</Name>
+      <Description>Form 8919 line 10 = the smaller of line 6 or line 9: the Form 8919 wages that
+        still fit under this filer's social security wage base. The only place the wage base bites
+        — line 12's Medicare tax reads line 6 and is uncapped.
+
+        NO GOVERNMENT-EMPLOYEE CARVE-OUT HERE, unlike Form 4137 line 10. That carve-out is specific
+        to tips received in government employment subject only to the 1.45% rate; Form 8919 prints
+        no counterpart and its line 10 is a bare smaller-of. Stated because the two forms are
+        otherwise parallel and the absence is easy to mistake for an omission.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/primaryFilerForm8919Line6" />
+          <Dependency path="/primaryFilerForm8919Line9" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line10">
+      <Name>Form 8919 line 10, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line10.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/secondaryFilerForm8919Line6" />
+          <Dependency path="/secondaryFilerForm8919Line9" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm8919Line11">
+      <Name>Form 8919 line 11, primary filer (social security tax on uncollected wages)</Name>
+      <Description>Form 8919 line 11 = line 10 x 0.062, the EMPLOYEE share of social security tax.
+        Only the employee half: a worker misclassified as a contractor owes on this form what an
+        employer would have withheld, not the 12.4% both-halves rate Schedule SE charges a genuine
+        self-employed filer. Rounded once here, at the printed entry line.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>62/1000</Rational>
+            <Dependency path="/primaryFilerForm8919Line10" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line11">
+      <Name>Form 8919 line 11, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line11.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>62/1000</Rational>
+            <Dependency path="/secondaryFilerForm8919Line10" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919Line12">
+      <Name>Form 8919 line 12, primary filer (Medicare tax on uncollected wages)</Name>
+      <Description>Form 8919 line 12 = line 6 x 0.0145. NOTE THE MULTIPLICAND: line 6, not line 10.
+        Medicare tax has no wage base, so the full amount of Form 8919 wages is taxed even when the
+        social security half was capped at line 10. The boundary pair
+        tests/nodes/ty2025/form8919/f8919-{uncollected-wages-headroom,
+        form4137-tips-consume-wage-base-first} witnesses it: line 11 moves between them, line 12
+        does not.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>145/10000</Rational>
+            <Dependency path="/primaryFilerForm8919Line6" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line12">
+      <Name>Form 8919 line 12, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line12, likewise reading line 6
+        rather than line 10.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>145/10000</Rational>
+            <Dependency path="/secondaryFilerForm8919Line6" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm8919Line13">
+      <Name>Form 8919 line 13, primary filer</Name>
+      <Description>Form 8919 line 13 = lines 11 and 12: this filer's total uncollected social
+        security and Medicare tax on wages, the amount the form routes to Schedule 2 line
+        6.</Description>
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryFilerForm8919Line11" />
+            <Dependency path="/primaryFilerForm8919Line12" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Line13">
+      <Name>Form 8919 line 13, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Line13.</Description>
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/secondaryFilerForm8919Line11" />
+            <Dependency path="/secondaryFilerForm8919Line12" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919UncollectedSocialSecurityAndMedicareTaxOnWages">
+      <Name>Schedule 2 line 6, uncollected social security and Medicare tax on wages</Name>
+      <Description>Schedule 2 line 6: both filers' Form 8919 line 13, summed. Form 8919 is filed
+        per spouse and Schedule 2 is one per return, so the two forms' line 13 figures add on the
+        single printed line.
+
+        Reaches Form 1040 line 23 as a direct addend of taxCalculations:/line21OfSchedule2. The
+        printed route is line 6 -> line 7 ("Total additional social security and Medicare tax. Add
+        lines 5 and 6") -> line 21 ("Add lines 4, 7 through 16, 18, and 19"); no separate line-7
+        fact is declared because adding lines 5 and 6 straight into line 21 is the same arithmetic,
+        and it is the idiom every shipping Part II term uses. What would be WRONG is declaring a
+        line-7 fact AND its two components — line 21 must see each dollar once.
+
+        IT IS ALSO SCHEDULE 8812 LINE 22'S FOURTH TERM. With this fact wired into
+        ctcOdc:/socialSecurityOverEitc, all four of line 22's printed terms exist and the
+        oos-sched8812-line22-schedule2-tax-terms gap closes on its arithmetic.
+
+        ADDITIVE ON THE COMMITTED CORPUS: no scenario answers a Form 8919 intake and every line
+        above is complete-safe, so this resolves Complete $0 everywhere and total tax is
+        byte-identical.
+
+        DIRECTION OF THE GAP THIS CLOSES: Schedule 2 line 6 did not exist, so a filer misclassified
+        as a contractor was charged no social security or Medicare tax on the wages Form 8919
+        reports — taxpayer-FAVOURABLE, an under-collection. It was bounded to zero in practice only
+        because the income leg was a hardcoded $0 with no writable, which this module also
+        removes.</Description>
+      
+      <Export downstreamFacts="true" mef="true" />
+      <ExportZero />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryFilerForm8919Line13" />
+            <Dependency path="/secondaryFilerForm8919Line13" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+
+    <Fact path="/form8919RequiredForPrimaryFiler">
+      <Name>Form 8919's own render gate: the primary filer's copy is printed</Name>
+      <Description>True when the primary filer's Form 8919 line 6 is positive, which is exactly
+        when this return has a Form 8919 for that filer to attach. Line 6 is the form's entry
+        point: every later line is computed from it, and Schedule 2 line 6 - "Uncollected social
+        security and Medicare tax on wages. Attach Form 8919" - is what the attachment answers to.
+        Feeds dictionary/pdf/2025/gates.tsv (IRS8919 includeWhen) and nothing else.
+
+        COMPLETE-SAFE FALSE on every return that never answers a Form 8919 intake, because
+        /primaryFilerForm8919Line6 is itself complete-safe $0. A return with no Form 8919 activity
+        renders no Form 8919, which is the state the whole committed corpus is in.
+
+        PER FILER, NOT PER RETURN. The register prints the primary filer's copy only, so this gate
+        asks only about the primary filer's line 6. An MFJ return whose SECONDARY spouse alone has
+        Form 8919 wages renders no Form 8919 at all rather than rendering the primary filer's name
+        over a blank one; the second copy is the register gap named in
+        /secondaryFilerForm8919Firms and in this gate's gates.tsv evidence column.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/primaryFilerForm8919Line6" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8919Firms/*/printedReasonCode">
+      <Name>Column (c) as the form prints it: the upper-case reason code letter</Name>
+      <Description>The printed rendering of column (c). /form8919Firms/*/writableReasonCode is an Enum over /form8919ReasonCodeOptions whose option values are lower-cased by this dictionary's convention (a, c, g, h), while the form prints the code letters themselves in upper case: A, C, G and H. This fact is that mapping and nothing else, so the printed cell carries the letter a filer would write in the column rather than the dictionary's option spelling. There is no B, D, E or F, because the printed set skips those letters. A row whose column (c) is unanswered resolves to the empty string as a placeholder, which is the correct printed state for a blank column (c) and matches the module's decision not to require a code on every individual row.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableReasonCode" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/form8919ReasonCodeOptions">a</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>A</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableReasonCode" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/form8919ReasonCodeOptions">c</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>C</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableReasonCode" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/form8919ReasonCodeOptions">g</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>G</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableReasonCode" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/form8919ReasonCodeOptions">h</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <String>H</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919Firms">
+      <Name>The firm rows printed on the primary filer's Form 8919 (lines 1 through 5)</Name>
+      <Description>The primary filer's view of /form8919Firms: the rows that belong on the primary filer's own Form 8919, in the collection's order. Form 8919 is filed per spouse, "If married, complete a separate Form 8919 for each spouse who must file this form", while /form8919Firms is one return-level intake collection carrying every firm row for both spouses and attributing each row through /form8919Firms/*/belongsToPrimaryFiler. The printed register copy for lines 1 through 5 must therefore index THIS filtered view: an index into the unfiltered collection would print the spouse's firms into the primary filer's rows 1 through 5. An unanswered ../writableFirmFiler counts as the primary filer, which is the attribution the filtered leaf already carries. It is a print-shaped view AND the collection /primaryFilerForm8919FirmTableTotal sums (over /primaryFilerForm8919Firms/*/wagesOrZero), which is the per-filer partition the printed per-spouse rule requires: that total is what line 6 combines when the primary filer's attested total is unanswered, and what /knockoutForm8919Line6BelowFirmTable compares an answered attested total against. Its secondary twin is /secondaryFilerForm8919Firms.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/form8919Firms">
+          <Dependency path="belongsToPrimaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919Firms">
+      <Name>The firm rows printed on the secondary filer's Form 8919 (lines 1 through 5)</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm8919Firms: the rows attributed to the
+        secondary filer, in the collection's order, through
+        /form8919Firms/*/belongsToSecondaryFiler. Form 8919 is filed per spouse — "If married,
+        complete a separate Form 8919 for each spouse who must file this form" — so the spouse's
+        own Form 8919 prints and totals only her own rows.
+
+        /secondaryFilerForm8919FirmTableTotal sums this view's /form8919Firms/*/wagesOrZero exactly
+        as /primaryFilerForm8919FirmTableTotal sums the primary view's, so neither filer's line 6
+        can borrow the other's rows and neither filer's footing guard reads the other's table. The
+        two views PARTITION
+        /form8919Firms: ../belongsToPrimaryFiler takes an unanswered attribution and
+        ../belongsToSecondaryFiler requires an answered one.
+
+        EMPTY, NOT INCOMPLETE, ON A SINGLE-FILER RETURN, because ../belongsToSecondaryFiler guards
+        filers:/secondaryFiler's own completeness and resolves Complete false there. That is what
+        keeps the secondary line-6 CollectionSum $0 and Complete on a return with one filer.
+
+        THE REGISTER DOES NOT PRINT A SECOND FORM 8919 COPY YET. dictionary/pdf/2025/IRS8919 maps
+        lines 1 through 5 from /primaryFilerForm8919Firms only, so on an MFJ return where both
+        spouses have firm rows the spouse's page is not rendered. That is a REGISTER gap, named
+        here as the follow-on obligation this fact leaves open; the computation is complete on both
+        filers.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/form8919Firms">
+          <Dependency path="belongsToSecondaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+  
+    <Fact path="/primaryFilerForm8919PrintedRow1Item">
+      <Name>Printed line 1 of the primary filer's Form 8919: item 0 of that filer's own firm rows</Name>
+      <Description>Item 0 (counting from 0) of /primaryFilerForm8919Firms, the primary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 1 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>0</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919PrintedRow2Item">
+      <Name>Printed line 2 of the primary filer's Form 8919: item 1 of that filer's own firm rows</Name>
+      <Description>Item 1 (counting from 0) of /primaryFilerForm8919Firms, the primary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 2 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>1</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919PrintedRow3Item">
+      <Name>Printed line 3 of the primary filer's Form 8919: item 2 of that filer's own firm rows</Name>
+      <Description>Item 2 (counting from 0) of /primaryFilerForm8919Firms, the primary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 3 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>2</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919PrintedRow4Item">
+      <Name>Printed line 4 of the primary filer's Form 8919: item 3 of that filer's own firm rows</Name>
+      <Description>Item 3 (counting from 0) of /primaryFilerForm8919Firms, the primary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 4 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>3</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm8919PrintedRow5Item">
+      <Name>Printed line 5 of the primary filer's Form 8919: item 4 of that filer's own firm rows</Name>
+      <Description>Item 4 (counting from 0) of /primaryFilerForm8919Firms, the primary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 5 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>4</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919PrintedRow1Item">
+      <Name>Printed line 1 of the secondary filer's Form 8919: item 0 of that filer's own firm rows</Name>
+      <Description>Item 0 (counting from 0) of /secondaryFilerForm8919Firms, the secondary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 1 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>0</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919PrintedRow2Item">
+      <Name>Printed line 2 of the secondary filer's Form 8919: item 1 of that filer's own firm rows</Name>
+      <Description>Item 1 (counting from 0) of /secondaryFilerForm8919Firms, the secondary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 2 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>1</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919PrintedRow3Item">
+      <Name>Printed line 3 of the secondary filer's Form 8919: item 2 of that filer's own firm rows</Name>
+      <Description>Item 2 (counting from 0) of /secondaryFilerForm8919Firms, the secondary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 3 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>2</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919PrintedRow4Item">
+      <Name>Printed line 4 of the secondary filer's Form 8919: item 3 of that filer's own firm rows</Name>
+      <Description>Item 3 (counting from 0) of /secondaryFilerForm8919Firms, the secondary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 4 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>3</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm8919PrintedRow5Item">
+      <Name>Printed line 5 of the secondary filer's Form 8919: item 4 of that filer's own firm rows</Name>
+      <Description>Item 4 (counting from 0) of /secondaryFilerForm8919Firms, the secondary filer's own view of the return-level /form8919Firms intake. The printed table has five rows and the form is filed per spouse, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's firms into the other's rows 1 through 5. A filer with fewer than 5 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row - it is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm8919Firms" />
+          </Collection>
+          <Index>
+            <Int>4</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow1Name">
+      <Name>Form 8919 line 1, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 1, column (a), the name of the firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow1Item/writableFirmName on the secondary filer's copy and /primaryFilerForm8919PrintedRow1Item/writableFirmName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 1 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow1Item/writableFirmName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow1Item/writableFirmName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow1IdentificationNumber">
+      <Name>Form 8919 line 1, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 1, column (b), the firm's federal identification number, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow1Item/writableFirmIdentificationNumber on the secondary filer's copy and /primaryFilerForm8919PrintedRow1Item/writableFirmIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 1 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow1Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow1Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow1ReasonCode">
+      <Name>Form 8919 line 1, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 1, column (c), the reason code letter as the form prints it in upper case, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow1Item/printedReasonCode on the secondary filer's copy and /primaryFilerForm8919PrintedRow1Item/printedReasonCode on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 1 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow1Item/printedReasonCode" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow1Item/printedReasonCode" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow1DeterminationDate">
+      <Name>Form 8919 line 1, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 1, column (d), the date of the IRS determination or correspondence, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow1Item/writableDateOfIrsDetermination on the secondary filer's copy and /primaryFilerForm8919PrintedRow1Item/writableDateOfIrsDetermination on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 1 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow1Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow1Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow1ReceivedForm1099">
+      <Name>Form 8919 line 1, column (e), on this filer's own printed copy</Name>
+      <Description>Printed line 1, column (e), the checkbox for a Form 1099-MISC or 1099-NEC received from this firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow1Item/writableReceivedForm1099MiscOrNec on the secondary filer's copy and /primaryFilerForm8919PrintedRow1Item/writableReceivedForm1099MiscOrNec on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 1 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow1Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow1Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow1Wages">
+      <Name>Form 8919 line 1, column (f), on this filer's own printed copy</Name>
+      <Description>Printed line 1, column (f), the total wages received from this firm with no social security or Medicare tax withheld, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow1Item/writableWages on the secondary filer's copy and /primaryFilerForm8919PrintedRow1Item/writableWages on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 1 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow1Item/writableWages" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow1Item/writableWages" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow2Name">
+      <Name>Form 8919 line 2, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 2, column (a), the name of the firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow2Item/writableFirmName on the secondary filer's copy and /primaryFilerForm8919PrintedRow2Item/writableFirmName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 2 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow2Item/writableFirmName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow2Item/writableFirmName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow2IdentificationNumber">
+      <Name>Form 8919 line 2, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 2, column (b), the firm's federal identification number, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow2Item/writableFirmIdentificationNumber on the secondary filer's copy and /primaryFilerForm8919PrintedRow2Item/writableFirmIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 2 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow2Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow2Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow2ReasonCode">
+      <Name>Form 8919 line 2, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 2, column (c), the reason code letter as the form prints it in upper case, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow2Item/printedReasonCode on the secondary filer's copy and /primaryFilerForm8919PrintedRow2Item/printedReasonCode on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 2 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow2Item/printedReasonCode" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow2Item/printedReasonCode" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow2DeterminationDate">
+      <Name>Form 8919 line 2, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 2, column (d), the date of the IRS determination or correspondence, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow2Item/writableDateOfIrsDetermination on the secondary filer's copy and /primaryFilerForm8919PrintedRow2Item/writableDateOfIrsDetermination on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 2 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow2Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow2Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow2ReceivedForm1099">
+      <Name>Form 8919 line 2, column (e), on this filer's own printed copy</Name>
+      <Description>Printed line 2, column (e), the checkbox for a Form 1099-MISC or 1099-NEC received from this firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow2Item/writableReceivedForm1099MiscOrNec on the secondary filer's copy and /primaryFilerForm8919PrintedRow2Item/writableReceivedForm1099MiscOrNec on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 2 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow2Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow2Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow2Wages">
+      <Name>Form 8919 line 2, column (f), on this filer's own printed copy</Name>
+      <Description>Printed line 2, column (f), the total wages received from this firm with no social security or Medicare tax withheld, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow2Item/writableWages on the secondary filer's copy and /primaryFilerForm8919PrintedRow2Item/writableWages on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 2 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow2Item/writableWages" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow2Item/writableWages" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow3Name">
+      <Name>Form 8919 line 3, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 3, column (a), the name of the firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow3Item/writableFirmName on the secondary filer's copy and /primaryFilerForm8919PrintedRow3Item/writableFirmName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 3 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow3Item/writableFirmName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow3Item/writableFirmName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow3IdentificationNumber">
+      <Name>Form 8919 line 3, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 3, column (b), the firm's federal identification number, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow3Item/writableFirmIdentificationNumber on the secondary filer's copy and /primaryFilerForm8919PrintedRow3Item/writableFirmIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 3 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow3Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow3Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow3ReasonCode">
+      <Name>Form 8919 line 3, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 3, column (c), the reason code letter as the form prints it in upper case, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow3Item/printedReasonCode on the secondary filer's copy and /primaryFilerForm8919PrintedRow3Item/printedReasonCode on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 3 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow3Item/printedReasonCode" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow3Item/printedReasonCode" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow3DeterminationDate">
+      <Name>Form 8919 line 3, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 3, column (d), the date of the IRS determination or correspondence, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow3Item/writableDateOfIrsDetermination on the secondary filer's copy and /primaryFilerForm8919PrintedRow3Item/writableDateOfIrsDetermination on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 3 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow3Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow3Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow3ReceivedForm1099">
+      <Name>Form 8919 line 3, column (e), on this filer's own printed copy</Name>
+      <Description>Printed line 3, column (e), the checkbox for a Form 1099-MISC or 1099-NEC received from this firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow3Item/writableReceivedForm1099MiscOrNec on the secondary filer's copy and /primaryFilerForm8919PrintedRow3Item/writableReceivedForm1099MiscOrNec on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 3 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow3Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow3Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow3Wages">
+      <Name>Form 8919 line 3, column (f), on this filer's own printed copy</Name>
+      <Description>Printed line 3, column (f), the total wages received from this firm with no social security or Medicare tax withheld, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow3Item/writableWages on the secondary filer's copy and /primaryFilerForm8919PrintedRow3Item/writableWages on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 3 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow3Item/writableWages" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow3Item/writableWages" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow4Name">
+      <Name>Form 8919 line 4, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 4, column (a), the name of the firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow4Item/writableFirmName on the secondary filer's copy and /primaryFilerForm8919PrintedRow4Item/writableFirmName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 4 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow4Item/writableFirmName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow4Item/writableFirmName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow4IdentificationNumber">
+      <Name>Form 8919 line 4, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 4, column (b), the firm's federal identification number, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow4Item/writableFirmIdentificationNumber on the secondary filer's copy and /primaryFilerForm8919PrintedRow4Item/writableFirmIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 4 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow4Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow4Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow4ReasonCode">
+      <Name>Form 8919 line 4, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 4, column (c), the reason code letter as the form prints it in upper case, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow4Item/printedReasonCode on the secondary filer's copy and /primaryFilerForm8919PrintedRow4Item/printedReasonCode on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 4 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow4Item/printedReasonCode" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow4Item/printedReasonCode" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow4DeterminationDate">
+      <Name>Form 8919 line 4, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 4, column (d), the date of the IRS determination or correspondence, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow4Item/writableDateOfIrsDetermination on the secondary filer's copy and /primaryFilerForm8919PrintedRow4Item/writableDateOfIrsDetermination on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 4 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow4Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow4Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow4ReceivedForm1099">
+      <Name>Form 8919 line 4, column (e), on this filer's own printed copy</Name>
+      <Description>Printed line 4, column (e), the checkbox for a Form 1099-MISC or 1099-NEC received from this firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow4Item/writableReceivedForm1099MiscOrNec on the secondary filer's copy and /primaryFilerForm8919PrintedRow4Item/writableReceivedForm1099MiscOrNec on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 4 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow4Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow4Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow4Wages">
+      <Name>Form 8919 line 4, column (f), on this filer's own printed copy</Name>
+      <Description>Printed line 4, column (f), the total wages received from this firm with no social security or Medicare tax withheld, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow4Item/writableWages on the secondary filer's copy and /primaryFilerForm8919PrintedRow4Item/writableWages on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 4 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow4Item/writableWages" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow4Item/writableWages" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow5Name">
+      <Name>Form 8919 line 5, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 5, column (a), the name of the firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow5Item/writableFirmName on the secondary filer's copy and /primaryFilerForm8919PrintedRow5Item/writableFirmName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 5 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow5Item/writableFirmName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow5Item/writableFirmName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow5IdentificationNumber">
+      <Name>Form 8919 line 5, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 5, column (b), the firm's federal identification number, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow5Item/writableFirmIdentificationNumber on the secondary filer's copy and /primaryFilerForm8919PrintedRow5Item/writableFirmIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 5 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow5Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow5Item/writableFirmIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow5ReasonCode">
+      <Name>Form 8919 line 5, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 5, column (c), the reason code letter as the form prints it in upper case, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow5Item/printedReasonCode on the secondary filer's copy and /primaryFilerForm8919PrintedRow5Item/printedReasonCode on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 5 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow5Item/printedReasonCode" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow5Item/printedReasonCode" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow5DeterminationDate">
+      <Name>Form 8919 line 5, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 5, column (d), the date of the IRS determination or correspondence, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow5Item/writableDateOfIrsDetermination on the secondary filer's copy and /primaryFilerForm8919PrintedRow5Item/writableDateOfIrsDetermination on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 5 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow5Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow5Item/writableDateOfIrsDetermination" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow5ReceivedForm1099">
+      <Name>Form 8919 line 5, column (e), on this filer's own printed copy</Name>
+      <Description>Printed line 5, column (e), the checkbox for a Form 1099-MISC or 1099-NEC received from this firm, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow5Item/writableReceivedForm1099MiscOrNec on the secondary filer's copy and /primaryFilerForm8919PrintedRow5Item/writableReceivedForm1099MiscOrNec on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 5 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow5Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow5Item/writableReceivedForm1099MiscOrNec" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRow5Wages">
+      <Name>Form 8919 line 5, column (f), on this filer's own printed copy</Name>
+      <Description>Printed line 5, column (f), the total wages received from this firm with no social security or Medicare tax withheld, for the filer whose copy this is: /secondaryFilerForm8919PrintedRow5Item/writableWages on the secondary filer's copy and /primaryFilerForm8919PrintedRow5Item/writableWages on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed. A filer with fewer than 5 firm rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919PrintedRow5Item/writableWages" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919PrintedRow5Item/writableWages" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine6">
+      <Name>Form 8919 line 6 on this filer's own printed copy</Name>
+      <Description>Printed line 6, Total wages, lines 1 through 5 of column (f) combined, for the filer whose copy this is: /secondaryFilerForm8919Line6 on the secondary filer's copy and /primaryFilerForm8919Line6 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line6" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line6" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine7">
+      <Name>Form 8919 line 7 on this filer's own printed copy</Name>
+      <Description>Printed line 7, the maximum amount of wages subject to social security tax. RETURN-LEVEL and the same on both copies: the contribution and benefit base is a statutory amount, not a per-filer one, so this projection names the single fact rather than a pair. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/form8919Line7MaxWagesSubjectToOasdi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine8">
+      <Name>Form 8919 line 8 on this filer's own printed copy</Name>
+      <Description>Printed line 8, total social security wages and social security tips, RRTA compensation and Form 4137 line 10 tips, for the filer whose copy this is: /secondaryFilerForm8919Line8 on the secondary filer's copy and /primaryFilerForm8919Line8 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line8" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line8" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine9">
+      <Name>Form 8919 line 9 on this filer's own printed copy</Name>
+      <Description>Printed line 9, line 8 subtracted from line 7, floored at zero, for the filer whose copy this is: /secondaryFilerForm8919Line9 on the secondary filer's copy and /primaryFilerForm8919Line9 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line9" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line9" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine10">
+      <Name>Form 8919 line 10 on this filer's own printed copy</Name>
+      <Description>Printed line 10, wages subject to social security tax, the smaller of line 6 and line 9, for the filer whose copy this is: /secondaryFilerForm8919Line10 on the secondary filer's copy and /primaryFilerForm8919Line10 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line10" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line10" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine11">
+      <Name>Form 8919 line 11 on this filer's own printed copy</Name>
+      <Description>Printed line 11, line 10 multiplied by the 0.062 social security tax rate, for the filer whose copy this is: /secondaryFilerForm8919Line11 on the secondary filer's copy and /primaryFilerForm8919Line11 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line11" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line11" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine12">
+      <Name>Form 8919 line 12 on this filer's own printed copy</Name>
+      <Description>Printed line 12, line 6 multiplied by the 0.0145 Medicare tax rate, for the filer whose copy this is: /secondaryFilerForm8919Line12 on the secondary filer's copy and /primaryFilerForm8919Line12 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line12" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line12" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedLine13">
+      <Name>Form 8919 line 13 on this filer's own printed copy</Name>
+      <Description>Printed line 13, lines 11 and 12 added, the amount Schedule 2 line 6 carries, for the filer whose copy this is: /secondaryFilerForm8919Line13 on the secondary filer's copy and /primaryFilerForm8919Line13 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm8919 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 8919 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm8919Line13" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm8919Line13" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form8919PrintedRequired">
+      <Name>This filer files a Form 8919 with this return</Name>
+      <Description>True when THIS filer's own Form 8919 line 6 is positive, which is exactly when the return has a Form 8919 for that filer to attach to the Schedule 2 line 6 it is charged on. The per-filer twin of the return-level /form8919RequiredForPrimaryFiler, which stays as the primary filer's own gate and is unchanged.
+
+        THE SECONDARY LEG IS GATED ON MFJ, and that is not decoration: a return that was once joint and is no longer can carry a stale secondary intake, and without the gate that stale answer would print a whole second Form 8919 for a filer who is not on the return. /secondaryFilerForm8919Line6 is complete-safe $0 on a single-filer return, so the gate is belt and braces and the single-filer case is pinned.
+
+        COMPLETE-SAFE FALSE on every return that answers no Form 8919 intake, because both per-filer line 6 facts are themselves complete-safe $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/secondaryFilerForm8919Line6" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/primaryFilerForm8919Line6" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filersRequiredToFileForm8919">
+      <Name>The filers whose own Form 8919 this return files</Name>
+      <Description>The collection of filers that file a Form 8919 with this return, one printed copy each. The printed header is the authority - a married couple completes a separate Form 8919 for each spouse who must file one - and the register renders one copy per item of this collection, each copy reading that filer's own values through the /filers/*/form8919Printed facts.
+
+        WHAT IT REPLACES. The register gated on /form8919RequiredForPrimaryFiler, the PRIMARY filer's line 6 alone, so an MFJ return whose secondary spouse alone had Form 8919 wages rendered no Form 8919 at all - deliberately, because the alternative at the time was printing the primary filer's name over the spouse's figures. That is the register gap /secondaryFilerForm8919Firms names, and this collection closes it.
+
+        EMPTY, NOT INCOMPLETE, on a return that answers no Form 8919 intake, because the membership fact is complete-safe false for both filers.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/filers">
+          <Dependency path="form8919PrintedRequired" />
+        </Filter>
+      </Derived>
+    </Fact>
+</Facts>
+</FactDictionaryModule>

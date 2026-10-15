@@ -1,0 +1,1659 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form8958Line9DeductiblePartOfSeTaxColumnBThisReturnShare">
+      <Name>Form 8958 line 9 column B, this return's share of the deductible part of self-employment tax</Name>
+      <Description>The whole of scheduleSE:/selfEmploymentTaxDeduction. On the population this form
+        prints for, the deductible part of the self-employment tax is not split, because the tax it is
+        the deductible part of is not split: Form 8958 says "The deductible portion of the
+        self-employment tax is split only when the self-employment tax is split"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 3, RIGHT column of a two column extraction),
+        and for a MARRIED filer IRC 1402(a)(5)(A) puts the gross income and deductions of a community
+        sole proprietorship on "the spouse carrying on" the trade or business, so the whole of the
+        self-employment tax and the whole of its deductible part sit on the operating spouse's return.
+
+        THE STATUTE HAS A THIRD ARM THIS FACT DOES NOT REACH, NAMED RATHER THAN QUOTED AWAY. IRC
+        1402(a)(5)(A) does not stop at "the spouse carrying on such trade or business" — it continues
+        "or, if such trade or business is jointly operated, treated as the gross income and deductions
+        of each spouse on the basis of their respective distributive share of the gross income and
+        deductions" (26 U.S.C. 1402, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section1402&amp;num=0&amp;edition=2024, LEFT column of a two column
+        extraction). On a JOINTLY OPERATED community sole proprietorship the split is by distributive
+        share, not the whole-on-the-operating-spouse answer this fact gives, and the categorical
+        column C = $0 next to it would not hold either. Nothing in this dictionary models a jointly
+        operated Schedule C or F business today — `jointVenture`, `QJV`, `qualifiedJoint` and
+        `jointlyOperated` are all absent from scheduleC.xml and scheduleSE.xml, and the only "joint
+        venture" fact anywhere in dictionary/ty2025/ is scheduleE:/… for rental property — so nothing
+        computes wrong for any return this dictionary can build today, the same posture as the RDP arm
+        below.
+
+        THE RDP CASE IS THE OTHER ANSWER AND IS NOT WIRED. Form 8958 says the section 1402(a)(5)
+        override "does not apply to RDPs. RDPs split self-employment income from sole proprietorships
+        and partnerships for self-employment tax purposes" (same file, lines 152 to 154, RIGHT column),
+        so on an RDP return this cell would be a half. The register's includeWhen is
+        filers:/isCommunityPropertyAllocationReturn, the MFS gate; the RDP twin
+        filers:/isRdpCommunityPropertyAllocationReturn is declared and no fact depends on it, so no RDP
+        return prints this form and this fact is never read on one.
+
+        The column A cell prints scheduleSE:/selfEmploymentTaxDeduction itself, so column B equals
+        column A here and ../form8958Line9DeductiblePartOfSeTaxColumnCSpouseShare is their difference,
+        which makes the form's footing rule hold by construction rather than by a filer's arithmetic.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line9DeductiblePartOfSeTaxColumnCSpouseShare">
+      <Name>Form 8958 line 9 column C, the other spouse or RDP share of the deductible part of self-employment tax</Name>
+      <Description>Column A minus column B, which is $0 on every return this form prints for and is
+        written as the difference rather than as a literal zero so that the form's own instruction
+        "Together, columns B and C should equal column A" holds by construction. The reason the answer
+        is zero is on ../form8958Line9DeductiblePartOfSeTaxColumnBThisReturnShare: for a married filer
+        IRC 1402(a)(5)(A) puts the whole of a community sole proprietorship's self-employment tax on
+        the spouse carrying on the business, and Form 8958 splits the deductible part only when the tax
+        is split. A blank cell here invites a filer to halve line 9 by hand and print a Form 8958 that
+        contradicts the Schedule SE in the same package.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8958Line9DeductiblePartOfSeTaxColumnBThisReturnShare" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line10SelfEmploymentTaxColumnBThisReturnShare">
+      <Name>Form 8958 line 10 column B, this return's share of the self-employment tax</Name>
+      <Description>The whole of scheduleSE:/selfEmploymentTax. Form 8958 states the rule in terms:
+        "Although the self-employment tax rules contain a provision that overrides community income
+        treatment in the case of spouses (section 1402(a)(5))", and then, for a sole proprietorship,
+        "self-employment tax is imposed on the spouse carrying on the trade or business"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 3, RIGHT column of a two column extraction).
+        So on a married separate return the self-employment tax is not allocated at all: the whole of
+        it belongs to the operating spouse, which on this return is this return's taxpayer, because
+        the tax is computed from this return's own Schedule SE.
+
+        THE STATUTE HAS A THIRD ARM THIS FACT DOES NOT REACH, NAMED RATHER THAN QUOTED AWAY, exactly as
+        on line 9. IRC 1402(a)(5)(A) continues past "the spouse carrying on such trade or business" to
+        "or, if such trade or business is jointly operated, treated as the gross income and deductions
+        of each spouse on the basis of their respective distributive share of the gross income and
+        deductions" (26 U.S.C. 1402, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section1402&amp;num=0&amp;edition=2024, LEFT column of a two column
+        extraction). A JOINTLY OPERATED community sole proprietorship splits the self-employment tax by
+        distributive share, not whole-on-the-operating-spouse, so this column-B answer and the
+        categorical column C = $0 beside it would not hold there. No jointly operated Schedule C or F
+        business is modelled anywhere in this dictionary today (no `jointVenture`, `QJV`,
+        `qualifiedJoint` or `jointlyOperated` fact in scheduleC.xml or scheduleSE.xml; the only "joint
+        venture" fact in dictionary/ty2025/ is scheduleE:/… for rental property), so nothing computes
+        wrong for any return this dictionary can build today.
+
+        THE RDP CASE IS THE OTHER ANSWER AND IS NOT WIRED, exactly as on line 9: RDPs do split
+        self-employment income from sole proprietorships and partnerships for self-employment tax
+        purposes (same file, lines 152 to 154), and no RDP return prints this form today.
+
+        Column A prints scheduleSE:/selfEmploymentTax itself and
+        ../form8958Line10SelfEmploymentTaxColumnCSpouseShare is column A minus this fact, so the
+        footing holds by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="scheduleSE" path="/selfEmploymentTax" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line10SelfEmploymentTaxColumnCSpouseShare">
+      <Name>Form 8958 line 10 column C, the other spouse or RDP share of the self-employment tax</Name>
+      <Description>Column A minus column B, which is $0 on every return this form prints for, written
+        as the difference rather than as a literal zero so that "Together, columns B and C should equal
+        column A" holds by construction. The reason is IRC 1402(a)(5)(A), stated on
+        ../form8958Line10SelfEmploymentTaxColumnBThisReturnShare: the self-employment tax on a community
+        sole proprietorship is imposed on the spouse carrying on the business and is not divided.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency module="scheduleSE" path="/selfEmploymentTax" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8958Line10SelfEmploymentTaxColumnBThisReturnShare" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line10RowLabel">
+      <Name>Form 8958 line 10, the identification cell of the first printed row</Name>
+      <Description>The words Form 8958 prints in the identification cell of line 10's first row, the
+        row whose three dollar cells are computed: column A is scheduleSE:/selfEmploymentTax and columns
+        B and C are ../form8958Line10SelfEmploymentTaxColumnBThisReturnShare and
+        ../form8958Line10SelfEmploymentTaxColumnCSpouseShare. It reads "Self-employment tax" when this
+        return carries self-employment tax above $0 and is empty otherwise, so the label always
+        describes the figures beside it and a return with no self-employment tax prints an empty first
+        row. The label is computed rather than typed because the form asks each row to identify the
+        entity whose amount it carries, and the first row's entity is this return's own Schedule SE.
+        Rows a filer types begin at the second printed row, which is item [0] of
+        scheduleSE:/form8958SelfEmploymentTaxRows. Complete on every return: a self-employment tax that
+        is not yet complete leaves the label empty rather than leaving the cell unresolved.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleSE" path="/selfEmploymentTax" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="scheduleSE" path="/selfEmploymentTax" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <String>Self-employment tax</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line9RowLabel">
+      <Name>Form 8958 line 9, the identification cell of the first printed row</Name>
+      <Description>The words Form 8958 prints in the identification cell of line 9's first row, the
+        row whose three dollar cells are computed: column A is scheduleSE:/selfEmploymentTaxDeduction and
+        columns B and C are ../form8958Line9DeductiblePartOfSeTaxColumnBThisReturnShare and
+        ../form8958Line9DeductiblePartOfSeTaxColumnCSpouseShare. It reads "Deductible part of
+        self-employment tax" when this return carries a deductible part above $0 and is empty otherwise,
+        so the label always describes the figures beside it. Rows a filer types begin at the second
+        printed row, which is item [0] of scheduleSE:/form8958SelfEmploymentTaxDeductionRows. Complete on
+        every return: a deductible part that is not yet complete leaves the label empty rather than
+        leaving the cell unresolved.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <String>Deductible part of self-employment tax</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line11RowLabel">
+      <Name>Form 8958 line 11, the identification cell of the first printed row</Name>
+      <Description>The words Form 8958 prints in the identification cell of line 11's first row, the
+        row whose three dollar cells are computed from the return's own withholding:
+        ../form8958Line11TaxesWithheldColumnATotal, ../form8958Line11TaxesWithheldColumnBThisReturnShare
+        and ../form8958Line11TaxesWithheldColumnCSpouseShare. It reads "Federal income tax withheld — all
+        payers" when Form 1040 line 25d, taxCalculations:/totalWithholding, is above $0 and is empty
+        otherwise. The form asks for one row per payer; this row carries every payer together, because
+        the graph allocates withholding by class of document rather than by payer, and the per payer
+        detail stays on the documents themselves. Rows a filer types begin at the second printed row,
+        which is item [0] of taxCalculations:/form8958TaxesWithheldRows. Complete on every return: a line
+        25d that is not yet complete leaves the label empty.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="taxCalculations" path="/totalWithholding" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="taxCalculations" path="/totalWithholding" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <String>Federal income tax withheld — all payers</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line11TaxesWithheldColumnBThisReturnShare">
+      <Name>Form 8958 line 11 column B, this return's share of the federal income tax withheld</Name>
+      <Description>Form 1040 line 25d, taxCalculations:/totalWithholding, itself. Six legs of that
+        total are net of the community property allocation: the W-2, 1099-DIV, 1099-R and 1099-MISC
+        withholding totals subtract their allocated halves in their own modules, and the 1099-INT and
+        1099-G halves ride as adjustments inside the line 25b total. Withholding on income this
+        dictionary does not allocate (Form SSA-1099, W-2G, 1099-PATR, Schedule K-1) stays whole in
+        column B together with the income it was withheld from. Form 1042-S withholding is not
+        allocated: a return with any Form 1042-S is refused (form1042S:/knockoutForm1042SIncomeRoutingUnbuilt),
+        and the community-property half of its withholding is part of the build that refusal stands
+        for. On a return that files, the credit this return claims is this return's share of the
+        withholding, which is what column B prints. Complete wherever line 25d is.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="taxCalculations" path="/totalWithholding" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line11TaxesWithheldColumnCSpouseShare">
+      <Name>Form 8958 line 11 column C, the other spouse or RDP share of the federal income tax withheld</Name>
+      <Description>The federal income tax withheld on this return's documents that belongs to the
+        spouse or RDP: the sum of the six allocated withholding halves,
+        formW2s:/communityPropertyAllocatedFederalWithholding,
+        interest:/communityPropertyAllocatedInterestTaxWithheld,
+        dividendReports:/communityPropertyAllocatedDividendWithholding,
+        form1099Rs:/communityPropertyAllocatedPensionWithholding,
+        unemployment:/communityPropertyAllocatedUnemploymentWithholding and
+        form1099Misc:/communityPropertyAllocatedOtherIncomeTaxWithheld, each already rounded to whole
+        dollars. Half the tax withheld on community income leaves this return with the income it was
+        withheld from; withholding on separate income stays whole in column B. $0 on every return that
+        does not allocate community income (filers:/isCommunityPropertyAllocationReturn false), where the
+        form does not print.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+            </When>
+            <Then>
+              <Add>
+                <Dependency module="formW2s" path="/communityPropertyAllocatedFederalWithholding" />
+                <Dependency module="interest" path="/communityPropertyAllocatedInterestTaxWithheld" />
+                <Dependency module="dividendReports" path="/communityPropertyAllocatedDividendWithholding" />
+                <Dependency module="form1099Rs" path="/communityPropertyAllocatedPensionWithholding" />
+                <Dependency module="unemployment" path="/communityPropertyAllocatedUnemploymentWithholding" />
+                <Dependency module="form1099Misc" path="/communityPropertyAllocatedOtherIncomeTaxWithheld" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line11TaxesWithheldColumnATotal">
+      <Name>Form 8958 line 11 column A, the federal income tax withheld before allocation</Name>
+      <Description>Column B plus column C: the federal income tax withheld on every document this
+        return reports, before the allocation, so the form's instruction that columns B and C together
+        equal column A holds by construction. It equals the documents' own withholding up to the per
+        class rounding, since each allocated half is rounded to whole dollars before the sum.
+        Withholding on income this dictionary does not allocate, such as withholding reported on Form
+        SSA-1099, Form W-2G, Form 1099-PATR or Schedule K-1, stays whole in column B with the income it
+        was withheld from.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8958Line11TaxesWithheldColumnBThisReturnShare" />
+          <Dependency path="/form8958Line11TaxesWithheldColumnCSpouseShare" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line9RowsExceedPrintedCapacity">
+      <Name>More Form 8958 line 9 rows are typed than the form prints</Name>
+      <Description>True when scheduleSE:/form8958SelfEmploymentTaxDeductionRows holds more than three items. Line 9 prints four rows: the first is computed (from this return's own Schedule SE), and items [0], [1] and [2] of the collection print as the second, third and fourth rows, so a fourth item is typed but never printed. It reports and never refuses: nothing reads it to change a figure or to block a return. False on a return that never opened the collection, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleSE" path="/form8958SelfEmploymentTaxDeductionRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Dependency module="scheduleSE" path="/form8958SelfEmploymentTaxDeductionRows" />
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line10RowsExceedPrintedCapacity">
+      <Name>More Form 8958 line 10 rows are typed than the form prints</Name>
+      <Description>True when scheduleSE:/form8958SelfEmploymentTaxRows holds more than three items. Line 10 prints four rows: the first is computed (from this return's own Schedule SE), and items [0], [1] and [2] of the collection print as the second, third and fourth rows, so a fourth item is typed but never printed. It reports and never refuses: nothing reads it to change a figure or to block a return. False on a return that never opened the collection, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleSE" path="/form8958SelfEmploymentTaxRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Dependency module="scheduleSE" path="/form8958SelfEmploymentTaxRows" />
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line11RowsExceedPrintedCapacity">
+      <Name>More Form 8958 line 11 rows are typed than the form prints</Name>
+      <Description>True when taxCalculations:/form8958TaxesWithheldRows holds more than three items. Line 11 prints four rows: the first is computed (from the return's own withholding), and items [0], [1] and [2] of the collection print as the second, third and fourth rows, so a fourth item is typed but never printed. It reports and never refuses: nothing reads it to change a figure or to block a return. False on a return that never opened the collection, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="taxCalculations" path="/form8958TaxesWithheldRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Dependency module="taxCalculations" path="/form8958TaxesWithheldRows" />
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line4DoesNotFoot">
+      <Name>The Form 8958 line 4 allocation does not add back to column A</Name>
+      <Description>True when either allocation cell of Form 8958 line 4 is answered (income:/writableForm8958StateRefundThisReturnShare, income:/writableForm8958StateRefundSpouseShare) and the two, an unanswered cell counting as $0, do not add up to the column A figure the form prints, income:/taxableStateAndLocalIncomeTaxRefunds, the Schedule 1 line 1 amount. False while that figure is not yet complete. The form's instruction is that columns B and C together equal column A. It reports and never refuses: the typed cells change no figure on the return, so a typo must be visible but must not move anything. False on a return that never opened the line, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="income" path="/taxableStateAndLocalIncomeTaxRefunds" />
+                </IsComplete>
+                <Any>
+                  <IsComplete>
+                    <Dependency module="income" path="/writableForm8958StateRefundThisReturnShare" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency module="income" path="/writableForm8958StateRefundSpouseShare" />
+                  </IsComplete>
+                </Any>
+              </All>
+            </When>
+            <Then>
+              <Not>
+                <Equal>
+                  <Left>
+                    <Add>
+                      <Switch>
+                        <Case>
+                          <When>
+                            <IsComplete>
+                              <Dependency module="income" path="/writableForm8958StateRefundThisReturnShare" />
+                            </IsComplete>
+                          </When>
+                          <Then>
+                            <Dependency module="income" path="/writableForm8958StateRefundThisReturnShare" />
+                          </Then>
+                        </Case>
+                        <Case>
+                          <When>
+                            <True />
+                          </When>
+                          <Then>
+                            <Dollar>0</Dollar>
+                          </Then>
+                        </Case>
+                      </Switch>
+                      <Switch>
+                        <Case>
+                          <When>
+                            <IsComplete>
+                              <Dependency module="income" path="/writableForm8958StateRefundSpouseShare" />
+                            </IsComplete>
+                          </When>
+                          <Then>
+                            <Dependency module="income" path="/writableForm8958StateRefundSpouseShare" />
+                          </Then>
+                        </Case>
+                        <Case>
+                          <When>
+                            <True />
+                          </When>
+                          <Then>
+                            <Dollar>0</Dollar>
+                          </Then>
+                        </Case>
+                      </Switch>
+                    </Add>
+                  </Left>
+                  <Right>
+                    <Dependency module="income" path="/taxableStateAndLocalIncomeTaxRefunds" />
+                  </Right>
+                </Equal>
+              </Not>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line6DoesNotFoot">
+      <Name>The Form 8958 line 6 allocation does not add back to column A</Name>
+      <Description>True when either printed part of Form 8958 line 6 does not foot. The first row: either of scheduleD:/writableForm8958CapitalGainThisReturnShare and scheduleD:/writableForm8958CapitalGainSpouseShare is answered and the two, an unanswered cell counting as $0, do not add up to the column A figure that row prints, scheduleD:/capitalGainOrLossForForm1040, Schedule D's figure for Form 1040 line 7; false while that figure is not yet complete. That figure is $0 on a return whose capital gain distributions reach Form 1040 line 7 without a Schedule D, and this check compares against the printed cell and nothing else. The further rows: any item of scheduleD:/form8958CapitalGainRows with its column B or column C answered whose columns B and C do not add up to its own column A. The form's instruction is that columns B and C together equal column A. It reports and never refuses: the typed cells change no figure on the return, so a typo must be visible but must not move anything. False on a return that never opened the line, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="scheduleD" path="/capitalGainOrLossForForm1040" />
+                  </IsComplete>
+                  <Any>
+                    <IsComplete>
+                      <Dependency module="scheduleD" path="/writableForm8958CapitalGainThisReturnShare" />
+                    </IsComplete>
+                    <IsComplete>
+                      <Dependency module="scheduleD" path="/writableForm8958CapitalGainSpouseShare" />
+                    </IsComplete>
+                  </Any>
+                </All>
+              </When>
+              <Then>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Add>
+                        <Switch>
+                          <Case>
+                            <When>
+                              <IsComplete>
+                                <Dependency module="scheduleD" path="/writableForm8958CapitalGainThisReturnShare" />
+                              </IsComplete>
+                            </When>
+                            <Then>
+                              <Dependency module="scheduleD" path="/writableForm8958CapitalGainThisReturnShare" />
+                            </Then>
+                          </Case>
+                          <Case>
+                            <When>
+                              <True />
+                            </When>
+                            <Then>
+                              <Dollar>0</Dollar>
+                            </Then>
+                          </Case>
+                        </Switch>
+                        <Switch>
+                          <Case>
+                            <When>
+                              <IsComplete>
+                                <Dependency module="scheduleD" path="/writableForm8958CapitalGainSpouseShare" />
+                              </IsComplete>
+                            </When>
+                            <Then>
+                              <Dependency module="scheduleD" path="/writableForm8958CapitalGainSpouseShare" />
+                            </Then>
+                          </Case>
+                          <Case>
+                            <When>
+                              <True />
+                            </When>
+                            <Then>
+                              <Dollar>0</Dollar>
+                            </Then>
+                          </Case>
+                        </Switch>
+                      </Add>
+                    </Left>
+                    <Right>
+                      <Dependency module="scheduleD" path="/capitalGainOrLossForForm1040" />
+                    </Right>
+                  </Equal>
+                </Not>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency module="scheduleD" path="/form8958CapitalGainRows" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/form8958CapitalGainRows">
+                        <All>
+                          <Any>
+                            <IsComplete>
+                              <Dependency path="writableColumnBThisReturnShare" />
+                            </IsComplete>
+                            <IsComplete>
+                              <Dependency path="writableColumnCSpouseShare" />
+                            </IsComplete>
+                          </Any>
+                          <Not>
+                            <Equal>
+                              <Left>
+                                <Add>
+                                  <Switch>
+                                    <Case>
+                                      <When>
+                                        <IsComplete>
+                                          <Dependency path="writableColumnBThisReturnShare" />
+                                        </IsComplete>
+                                      </When>
+                                      <Then>
+                                        <Dependency path="writableColumnBThisReturnShare" />
+                                      </Then>
+                                    </Case>
+                                    <Case>
+                                      <When>
+                                        <True />
+                                      </When>
+                                      <Then>
+                                        <Dollar>0</Dollar>
+                                      </Then>
+                                    </Case>
+                                  </Switch>
+                                  <Switch>
+                                    <Case>
+                                      <When>
+                                        <IsComplete>
+                                          <Dependency path="writableColumnCSpouseShare" />
+                                        </IsComplete>
+                                      </When>
+                                      <Then>
+                                        <Dependency path="writableColumnCSpouseShare" />
+                                      </Then>
+                                    </Case>
+                                    <Case>
+                                      <When>
+                                        <True />
+                                      </When>
+                                      <Then>
+                                        <Dollar>0</Dollar>
+                                      </Then>
+                                    </Case>
+                                  </Switch>
+                                </Add>
+                              </Left>
+                              <Right>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnATotal" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnATotal" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                              </Right>
+                            </Equal>
+                          </Not>
+                        </All>
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+          </Switch>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line9RowsDoNotFoot">
+      <Name>A typed Form 8958 line 9 row does not add back to its column A</Name>
+      <Description>True when any typed row of Form 8958 line 9 — an item of scheduleSE:/form8958SelfEmploymentTaxDeductionRows with its column B or column C answered — has columns B and C that do not add up to its own column A, an unanswered cell counting as $0. The form's instruction is that columns B and C together equal column A. The first printed row of line 9 is computed from this return's own Schedule SE and foots by construction, so only the typed rows are checked. It reports and never refuses: the typed cells change no figure on the return, so a typo must be visible but must not move anything. False on a return that never opened the line, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleSE" path="/form8958SelfEmploymentTaxDeductionRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8958SelfEmploymentTaxDeductionRows">
+                      <All>
+                        <Any>
+                          <IsComplete>
+                            <Dependency path="writableColumnBThisReturnShare" />
+                          </IsComplete>
+                          <IsComplete>
+                            <Dependency path="writableColumnCSpouseShare" />
+                          </IsComplete>
+                        </Any>
+                        <Not>
+                          <Equal>
+                            <Left>
+                              <Add>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnBThisReturnShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnBThisReturnShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnCSpouseShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnCSpouseShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                              </Add>
+                            </Left>
+                            <Right>
+                              <Switch>
+                                <Case>
+                                  <When>
+                                    <IsComplete>
+                                      <Dependency path="writableColumnATotal" />
+                                    </IsComplete>
+                                  </When>
+                                  <Then>
+                                    <Dependency path="writableColumnATotal" />
+                                  </Then>
+                                </Case>
+                                <Case>
+                                  <When>
+                                    <True />
+                                  </When>
+                                  <Then>
+                                    <Dollar>0</Dollar>
+                                  </Then>
+                                </Case>
+                              </Switch>
+                            </Right>
+                          </Equal>
+                        </Not>
+                      </All>
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line10RowsDoNotFoot">
+      <Name>A typed Form 8958 line 10 row does not add back to its column A</Name>
+      <Description>True when any typed row of Form 8958 line 10 — an item of scheduleSE:/form8958SelfEmploymentTaxRows with its column B or column C answered — has columns B and C that do not add up to its own column A, an unanswered cell counting as $0. The form's instruction is that columns B and C together equal column A. The first printed row of line 10 is computed from this return's own Schedule SE and foots by construction, so only the typed rows are checked. It reports and never refuses: the typed cells change no figure on the return, so a typo must be visible but must not move anything. False on a return that never opened the line, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleSE" path="/form8958SelfEmploymentTaxRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8958SelfEmploymentTaxRows">
+                      <All>
+                        <Any>
+                          <IsComplete>
+                            <Dependency path="writableColumnBThisReturnShare" />
+                          </IsComplete>
+                          <IsComplete>
+                            <Dependency path="writableColumnCSpouseShare" />
+                          </IsComplete>
+                        </Any>
+                        <Not>
+                          <Equal>
+                            <Left>
+                              <Add>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnBThisReturnShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnBThisReturnShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnCSpouseShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnCSpouseShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                              </Add>
+                            </Left>
+                            <Right>
+                              <Switch>
+                                <Case>
+                                  <When>
+                                    <IsComplete>
+                                      <Dependency path="writableColumnATotal" />
+                                    </IsComplete>
+                                  </When>
+                                  <Then>
+                                    <Dependency path="writableColumnATotal" />
+                                  </Then>
+                                </Case>
+                                <Case>
+                                  <When>
+                                    <True />
+                                  </When>
+                                  <Then>
+                                    <Dollar>0</Dollar>
+                                  </Then>
+                                </Case>
+                              </Switch>
+                            </Right>
+                          </Equal>
+                        </Not>
+                      </All>
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line11RowsDoNotFoot">
+      <Name>A typed Form 8958 line 11 row does not add back to its column A</Name>
+      <Description>True when any typed row of Form 8958 line 11 — an item of taxCalculations:/form8958TaxesWithheldRows with its column B or column C answered — has columns B and C that do not add up to its own column A, an unanswered cell counting as $0. The form's instruction is that columns B and C together equal column A. The first printed row of line 11 is computed from the return's own withholding and foots by construction, so only the typed rows are checked. It reports and never refuses: the typed cells change no figure on the return, so a typo must be visible but must not move anything. False on a return that never opened the line, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="taxCalculations" path="/form8958TaxesWithheldRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8958TaxesWithheldRows">
+                      <All>
+                        <Any>
+                          <IsComplete>
+                            <Dependency path="writableColumnBThisReturnShare" />
+                          </IsComplete>
+                          <IsComplete>
+                            <Dependency path="writableColumnCSpouseShare" />
+                          </IsComplete>
+                        </Any>
+                        <Not>
+                          <Equal>
+                            <Left>
+                              <Add>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnBThisReturnShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnBThisReturnShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnCSpouseShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnCSpouseShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                              </Add>
+                            </Left>
+                            <Right>
+                              <Switch>
+                                <Case>
+                                  <When>
+                                    <IsComplete>
+                                      <Dependency path="writableColumnATotal" />
+                                    </IsComplete>
+                                  </When>
+                                  <Then>
+                                    <Dependency path="writableColumnATotal" />
+                                  </Then>
+                                </Case>
+                                <Case>
+                                  <When>
+                                    <True />
+                                  </When>
+                                  <Then>
+                                    <Dollar>0</Dollar>
+                                  </Then>
+                                </Case>
+                              </Switch>
+                            </Right>
+                          </Equal>
+                        </Not>
+                      </All>
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12RowsDoNotFoot">
+      <Name>A typed Form 8958 line 12 row does not add back to its column A</Name>
+      <Description>True when any typed row of Form 8958 line 12 — an item of /form8958OtherItemRows with its column B or column C answered — has columns B and C that do not add up to its own column A, an unanswered cell counting as $0. The form's instruction is that columns B and C together equal column A. Every typed item of the collection is checked. It reports and never refuses: the typed cells change no figure on the return, so a typo must be visible but must not move anything. False on a return that never opened the line, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8958OtherItemRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8958OtherItemRows">
+                      <All>
+                        <Any>
+                          <IsComplete>
+                            <Dependency path="writableColumnBThisReturnShare" />
+                          </IsComplete>
+                          <IsComplete>
+                            <Dependency path="writableColumnCSpouseShare" />
+                          </IsComplete>
+                        </Any>
+                        <Not>
+                          <Equal>
+                            <Left>
+                              <Add>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnBThisReturnShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnBThisReturnShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                                <Switch>
+                                  <Case>
+                                    <When>
+                                      <IsComplete>
+                                        <Dependency path="writableColumnCSpouseShare" />
+                                      </IsComplete>
+                                    </When>
+                                    <Then>
+                                      <Dependency path="writableColumnCSpouseShare" />
+                                    </Then>
+                                  </Case>
+                                  <Case>
+                                    <When>
+                                      <True />
+                                    </When>
+                                    <Then>
+                                      <Dollar>0</Dollar>
+                                    </Then>
+                                  </Case>
+                                </Switch>
+                              </Add>
+                            </Left>
+                            <Right>
+                              <Switch>
+                                <Case>
+                                  <When>
+                                    <IsComplete>
+                                      <Dependency path="writableColumnATotal" />
+                                    </IsComplete>
+                                  </When>
+                                  <Then>
+                                    <Dependency path="writableColumnATotal" />
+                                  </Then>
+                                </Case>
+                                <Case>
+                                  <When>
+                                    <True />
+                                  </When>
+                                  <Then>
+                                    <Dollar>0</Dollar>
+                                  </Then>
+                                </Case>
+                              </Switch>
+                            </Right>
+                          </Equal>
+                        </Not>
+                      </All>
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12UnemploymentColumnBThisReturnShare">
+      <Name>Form 8958 line 12, unemployment compensation, column B: this return's share</Name>
+      <Description>Column B of the computed Form 8958 line 12 row for unemployment compensation: unemployment:/unemploymentCompensation, the Schedule 1 line 7 figure already net of the allocation. The row is one of the four computed classes the register prints on the last four line 12 rows.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="unemployment" path="/unemploymentCompensation" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12UnemploymentColumnCSpouseShare">
+      <Name>Form 8958 line 12, unemployment compensation, column C: the spouse or RDP share</Name>
+      <Description>Column C of the computed Form 8958 line 12 row for unemployment compensation: communityPropertyAllocatedUnemploymentCompensation, the amount that crosses to the spouse, half of each community Form 1099-G.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="unemployment" path="/communityPropertyAllocatedUnemploymentCompensation" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12UnemploymentColumnATotal">
+      <Name>Form 8958 line 12, unemployment compensation, column A: the whole amount</Name>
+      <Description>Column B plus column C of the computed Form 8958 line 12 row for unemployment compensation: the whole amount before allocation, so the row foots by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8958Line12UnemploymentColumnBThisReturnShare" />
+          <Dependency path="/form8958Line12UnemploymentColumnCSpouseShare" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12UnemploymentRowLabel">
+      <Name>Form 8958 line 12, the identification cell of the unemployment compensation row</Name>
+      <Description>The words "Unemployment compensation" when the row's column A, /form8958Line12UnemploymentColumnATotal, is complete and not $0 (line 12 amounts can be negative), and empty otherwise, so a return without this class prints an empty row. Complete on every return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8958Line12UnemploymentColumnATotal" />
+                </IsComplete>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/form8958Line12UnemploymentColumnATotal" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </Equal>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <String>Unemployment compensation</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12OtherIncomeColumnBThisReturnShare">
+      <Name>Form 8958 line 12, other income — form 1099-misc, column B: this return's share</Name>
+      <Description>Column B of the computed Form 8958 line 12 row for other income — form 1099-misc:
+        the Form 1099-MISC amounts this return reports after the allocation, on the two Schedule 1
+        lines they reach. That is form1099Misc:/form1099MiscOtherIncome, the line 8z leg (box 3 other
+        income that is neither a prize nor trade or business income, box 8 substitute payments and box
+        15 nonqualified deferred compensation), plus form1099Misc:/form1099MiscPrizesAndAwards rounded
+        to whole dollars, the line 8i leg (a box 3 amount identified as a prize or award). Both legs are
+        already net of the community halves that leave the return, so this is this return's share of
+        the same documents whose halves column C carries. The row is one of the four computed classes
+        the register prints on the last four line 12 rows.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="form1099Misc" path="/form1099MiscOtherIncome" />
+          <Round>
+            <Dependency module="form1099Misc" path="/form1099MiscPrizesAndAwards" />
+          </Round>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12OtherIncomeColumnCSpouseShare">
+      <Name>Form 8958 line 12, other income — form 1099-misc, column C: the spouse or RDP share</Name>
+      <Description>Column C of the computed Form 8958 line 12 row for other income — form 1099-misc:
+        every Form 1099-MISC community half that leaves this return, summed with cents and rounded once
+        to whole dollars. The halves are the two adjustments that take them off Schedule 1:
+        form1099Misc:/communityPropertyOtherIncomeAllocationAdjustmentUnrounded (the box 3, box 8 and box
+        15 halves off line 8z) and form1099Misc:/communityPropertyPrizeAllocationAdjustmentUnrounded (the
+        prize or award halves off line 8i). Each adjustment is the negated sum of its halves, so this
+        column is their sum with the sign turned back. Reading both adjustments keeps column C the same
+        amounts column B was reduced by, so column A, B plus C, is the whole of the documents' amounts
+        before the allocation, up to the whole-dollar rounding of the two Schedule 1 lines. $0 on every
+        return that does not allocate community income, where each half is $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Subtract>
+            <Minuend>
+              <Dollar>0</Dollar>
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="form1099Misc" path="/communityPropertyOtherIncomeAllocationAdjustmentUnrounded" />
+              <Dependency module="form1099Misc" path="/communityPropertyPrizeAllocationAdjustmentUnrounded" />
+            </Subtrahends>
+          </Subtract>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12OtherIncomeColumnATotal">
+      <Name>Form 8958 line 12, other income — form 1099-misc, column A: the whole amount</Name>
+      <Description>Column B plus column C of the computed Form 8958 line 12 row for other income — form 1099-misc: the whole amount before allocation, so the row foots by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8958Line12OtherIncomeColumnBThisReturnShare" />
+          <Dependency path="/form8958Line12OtherIncomeColumnCSpouseShare" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12OtherIncomeRowLabel">
+      <Name>Form 8958 line 12, the identification cell of the other income — form 1099-misc row</Name>
+      <Description>The words "Other income — Form 1099-MISC" when the row's column A, /form8958Line12OtherIncomeColumnATotal, is complete and not $0 (line 12 amounts can be negative), and empty otherwise, so a return without this class prints an empty row. Complete on every return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8958Line12OtherIncomeColumnATotal" />
+                </IsComplete>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/form8958Line12OtherIncomeColumnATotal" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </Equal>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <String>Other income — Form 1099-MISC</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12SocialSecurityColumnBThisReturnShare">
+      <Name>Form 8958 line 12, social security benefits, column B: this return's share</Name>
+      <Description>Column B of the computed Form 8958 line 12 row for social security benefits: socialSecurity:/socialSecurityBenefits, Form 1040 line 6a: benefits are the income of the spouse who receives them, so this return keeps all of its own. The row is one of the four computed classes the register prints on the last four line 12 rows.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="socialSecurity" path="/socialSecurityBenefits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12SocialSecurityColumnCSpouseShare">
+      <Name>Form 8958 line 12, social security benefits, column C: the spouse or RDP share</Name>
+      <Description>Column C of the computed Form 8958 line 12 row for social security benefits: communityPropertyAllocatedSocialSecurityBenefits, $0: nothing crosses, which is itself the figure the form asks this row to show.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="socialSecurity" path="/communityPropertyAllocatedSocialSecurityBenefits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12SocialSecurityColumnATotal">
+      <Name>Form 8958 line 12, social security benefits, column A: the whole amount</Name>
+      <Description>Column B plus column C of the computed Form 8958 line 12 row for social security benefits: the whole amount before allocation, so the row foots by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8958Line12SocialSecurityColumnBThisReturnShare" />
+          <Dependency path="/form8958Line12SocialSecurityColumnCSpouseShare" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12SocialSecurityRowLabel">
+      <Name>Form 8958 line 12, the identification cell of the social security benefits row</Name>
+      <Description>The words "Social security benefits" when the row's column A, /form8958Line12SocialSecurityColumnATotal, is complete and not $0 (line 12 amounts can be negative), and empty otherwise, so a return without this class prints an empty row. Complete on every return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8958Line12SocialSecurityColumnATotal" />
+                </IsComplete>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/form8958Line12SocialSecurityColumnATotal" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </Equal>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <String>Social security benefits</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12HsaDistributionsColumnBThisReturnShare">
+      <Name>Form 8958 line 12, hsa distributions, column B: this return's share</Name>
+      <Description>Column B of the computed Form 8958 line 12 row for hsa distributions: the sum of hsa:/hsaDistributions/*/grossDistribution, box 1 of each Form 1099-SA; this dictionary holds no return-level HSA distributions total, and the per-item Form 8889 line 14a figure is not used because it reads its inputs without an unanswered-safe guard. The row is one of the four computed classes the register prints on the last four line 12 rows.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="hsa" path="/hsaDistributions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency module="hsa" path="/hsaDistributions/*/grossDistribution" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12HsaDistributionsColumnCSpouseShare">
+      <Name>Form 8958 line 12, hsa distributions, column C: the spouse or RDP share</Name>
+      <Description>Column C of the computed Form 8958 line 12 row for hsa distributions: communityPropertyAllocatedHsaDistributions, $0: HSA distributions are disclosed non-allocations, so nothing crosses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="hsa" path="/communityPropertyAllocatedHsaDistributions" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12HsaDistributionsColumnATotal">
+      <Name>Form 8958 line 12, hsa distributions, column A: the whole amount</Name>
+      <Description>Column B plus column C of the computed Form 8958 line 12 row for hsa distributions: the whole amount before allocation, so the row foots by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8958Line12HsaDistributionsColumnBThisReturnShare" />
+          <Dependency path="/form8958Line12HsaDistributionsColumnCSpouseShare" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958Line12HsaDistributionsRowLabel">
+      <Name>Form 8958 line 12, the identification cell of the hsa distributions row</Name>
+      <Description>The words "HSA distributions" when the row's column A, /form8958Line12HsaDistributionsColumnATotal, is complete and not $0 (line 12 amounts can be negative), and empty otherwise, so a return without this class prints an empty row. Complete on every return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8958Line12HsaDistributionsColumnATotal" />
+                </IsComplete>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/form8958Line12HsaDistributionsColumnATotal" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </Equal>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <String>HSA distributions</String>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958OtherItemRowsExceedPrintedCapacity">
+      <Name>More Form 8958 line 12 rows are typed than the form prints</Name>
+      <Description>True when /form8958OtherItemRows holds more than eight items. Line 12 prints twelve rows: items [0] to [7] of the collection print on the first eight, and the last four rows carry the four computed classes (unemployment compensation, Form 1099-MISC other income, social security benefits, HSA distributions), so a ninth typed item is never printed. It reports and never refuses. False on a return that never opened the collection, and Complete there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8958OtherItemRows" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Dependency path="/form8958OtherItemRows" />
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>8</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8958OtherItemRows">
+      <Name>Form 8958 line 12 other items allocation rows</Name>
+      <Description>The rows Form 8958 line 12, Other items such as social security benefits, unemployment compensation, deductions, credits, etc., prints: one item per return amount not previously reported on lines 1 through 11, each item carrying the row description, the column A total and the column B and column C shares. The instructions say to identify any such item on separate lines, enter the total from each item in column A and allocate that total between the spouses or RDPs in columns B and C, and columns B and C together must equal column A. FILER SUPPLIED, because line 12 is an open ended catch all, for every class except four. The last four printed rows are computed: unemployment compensation, Form 1099-MISC other income, social security benefits and HSA distributions (the /form8958Line12...RowLabel and column A, B and C facts), so a filer never types a figure the graph already holds. Items [0] to [7] of this collection print on the first eight rows; a ninth item is not printed, and /form8958OtherItemRowsExceedPrintedCapacity reports it. /form8958Line12RowsDoNotFoot checks every typed item's footing.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8958OtherItemRows/*/writableColumnATotal">
+      <Name>Form 8958 line 12 row column A total amount</Name>
+      <Description>Form 8958 line 12 column A for this row, the total amount of the item before allocation. One item of /form8958OtherItemRows, the sweep built collection behind the printed rows of line 12. FILER SUPPLIED: line 12 is the catch all for items no other line of Form 8958 reports, so the graph holds no per row fact for it. Not floored at zero, because line 12 also carries deductions and negative return amounts, and a negative amount allocates a negative share.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8958OtherItemRows/*/writableColumnBThisReturnShare">
+      <Name>Form 8958 line 12 row column B share allocated to this return's taxpayer</Name>
+      <Description>Form 8958 line 12 column B for this row, the part of the item allocated to this return's taxpayer. One item of /form8958OtherItemRows, the sweep built collection behind the printed rows of line 12. FILER SUPPLIED: line 12 is the catch all for items no other line of Form 8958 reports, so the graph holds no per row fact for it. Not floored at zero, because line 12 also carries deductions and negative return amounts, and a negative amount allocates a negative share.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8958OtherItemRows/*/writableColumnCSpouseShare">
+      <Name>Form 8958 line 12 row column C share allocated to the spouse or RDP</Name>
+      <Description>Form 8958 line 12 column C for this row, the part of the item allocated to the spouse or RDP. One item of /form8958OtherItemRows, the sweep built collection behind the printed rows of line 12. FILER SUPPLIED: line 12 is the catch all for items no other line of Form 8958 reports, so the graph holds no per row fact for it. Not floored at zero, because line 12 also carries deductions and negative return amounts, and a negative amount allocates a negative share.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8958OtherItemRows/*/writableDescription">
+      <Name>Form 8958 line 12 row description</Name>
+      <Description>the identification cell Form 8958 line 12 prints at the left of the row, naming the item being allocated. One item of /form8958OtherItemRows, the sweep built collection behind the printed rows of line 12. FILER SUPPLIED: line 12 is the catch all for items no other line of Form 8958 reports, so the graph holds no per row fact for it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

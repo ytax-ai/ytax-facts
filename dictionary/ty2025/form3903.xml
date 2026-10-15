@@ -1,0 +1,94 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm3903QualifiesUnderPcsOrders">
+      <Name>Form 3903 active-duty permanent-change-of-station eligibility</Name>
+      <Description>Certify that the filer is an active-duty member of the Armed Forces who moved under military orders because of a permanent change of station.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/writableForm3903Line1TransportationStorage">
+      <Name>Form 3903 line 1 household goods and personal effects</Name>
+      <Description>Eligible transportation and storage costs for household goods and personal effects.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm3903Line2TravelExpense">
+      <Name>Form 3903 line 2 travel from old home to new home</Name>
+      <Description>Eligible travel and lodging costs from the old home to the new home, excluding meals.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form3903Line3TotalMovingExpenses">
+      <Name>Form 3903 line 3 total moving expenses</Name>
+      <Description>Add lines 1 and 2.</Description>
+      
+      <Derived><Add><GreaterOf><Dependency path="/writableForm3903Line1TransportationStorage" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableForm3903Line2TravelExpense" /><Dollar>0</Dollar></GreaterOf></Add></Derived>
+    </Fact>
+    <Fact path="/form3903MovingExpensesExceedReimbursements">
+      <Name>Form 3903 line 5 Yes checkbox</Name>
+      <Description>True when line 3 moving expenses exceed line 4 reimbursements.</Description>
+      
+      <Derived><GreaterThan><Left><Dependency path="/form3903Line3TotalMovingExpenses" /></Left><Right><Dependency path="/writableForm3903Line4CodePReimbursement" /></Right></GreaterThan></Derived>
+    </Fact>
+    <Fact path="/form3903MovingExpensesDoNotExceedReimbursements">
+      <Name>Form 3903 line 5 No checkbox</Name>
+      <Description>True when line 3 moving expenses are equal to or less than line 4 reimbursements.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Not><Dependency path="/form3903MovingExpensesExceedReimbursements" /></Not></Derived>
+    </Fact>
+    <Fact path="/writableForm3903Line4CodePReimbursement">
+      <Name>Form 3903 line 4 government moving-expense reimbursement</Name>
+      <Description>Government reimbursement for lines 1 and 2 that is not included in Form W-2 box 1 wages, generally shown in Form W-2 box 12 code P.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form3903Line5DeductibleMovingExpenses">
+      <Name>Form 3903 line 5 moving-expense deduction</Name>
+      <Description>Line 3 less line 4 when expenses exceed reimbursement; otherwise zero. The line-4 reimbursement input is declared non-negative; floor that subtrahend at $0 so an invalid negative seed cannot inflate the deduction. Read by income /schedule1Line14ArmedForcesMovingExpensesOrZero, Schedule 1 line 14.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/form3903Line3TotalMovingExpenses" /></Minuend><Subtrahends><GreaterOf><Dependency path="/writableForm3903Line4CodePReimbursement" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form3903Line1hExcessReimbursement">
+      <Name>Form 3903 reimbursement excess reported on Form 1040 line 1h</Name>
+      <Description>When line 4 exceeds line 3, carry the excess to Form 1040 line 1h. Read by income /form1040Line1hArmedForcesMovingExpenseExcessReimbursementOrZero, Form 1040 line 1h.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/writableForm3903Line4CodePReimbursement" /></Minuend><Subtrahends><Dependency path="/form3903Line3TotalMovingExpenses" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form3903ReturnFilesThisForm">
+      <Name>Return files Form 3903</Name>
+      <Description>True when the filer attests to the military PCS eligibility and any line-1 or line-2 moving expense or line-4 reimbursement is positive.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case><When><All><IsComplete><Dependency path="/writableForm3903QualifiesUnderPcsOrders" /></IsComplete><Dependency path="/writableForm3903QualifiesUnderPcsOrders" /></All></When>
+            <Then><Any><GreaterThan><Left><Dependency path="/writableForm3903Line1TransportationStorage" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><GreaterThan><Left><Dependency path="/writableForm3903Line2TravelExpense" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><GreaterThan><Left><Dependency path="/writableForm3903Line4CodePReimbursement" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></Any></Then>
+          </Case>
+          <Case><When><All><IsComplete><Dependency path="/writableForm3903QualifiesUnderPcsOrders" /></IsComplete><Not><Dependency path="/writableForm3903QualifiesUnderPcsOrders" /></Not></All></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

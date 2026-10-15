@@ -1,0 +1,235 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm2106EmployeeName">
+      <Name>Form 2106 employee name</Name>
+      <Description>The employee name printed in the Form 2106 header. This is a form-specific transcription field; it does not replace the return's filer identity.</Description>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm2106Occupation">
+      <Name>Form 2106 occupation</Name>
+      <Description>The occupation in which the employee incurred the reported business expenses, printed in the Form 2106 header.</Description>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm2106EmployeeSsnArea">
+      <Name>Form 2106 employee SSN first segment</Name>
+      <Description>The three-digit area segment of the employee's Social Security number printed in the Form 2106 header.</Description>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm2106EmployeeSsnGroup">
+      <Name>Form 2106 employee SSN second segment</Name>
+      <Description>The two-digit group segment of the employee's Social Security number printed in the Form 2106 header.</Description>
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm2106EmployeeSsnSerial">
+      <Name>Form 2106 employee SSN third segment</Name>
+      <Description>The four-digit serial segment of the employee's Social Security number printed in the Form 2106 header.</Description>
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/writableForm2106QualifyingFiler">
+      <Name>Form 2106 filer meets a listed employee-expense category</Name>
+      <Description>Attest that the filer is an Armed Forces reservist, qualified performing artist, fee-basis state or local official, or employee with impairment-related work expenses.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writableForm2106Line1VehicleExpense">
+      <Name>Form 2106 line 1 vehicle expense</Name>
+      <Description>Vehicle expense transferred from Form 2106 Part II line 22 or line 29.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm2106Line2TransportationExpense">
+      <Name>Form 2106 line 2 parking, tolls, and local transportation</Name>
+      <Description>Parking, tolls, and non-commuting transportation expenses not involving overnight travel.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm2106Line3OvernightTravelExpense">
+      <Name>Form 2106 line 3 overnight travel expense</Name>
+      <Description>Travel while away from home overnight, excluding meals.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm2106Line4OtherBusinessExpense">
+      <Name>Form 2106 line 4 other non-meal business expenses</Name>
+      <Description>Employee business expenses not included on lines 1 through 3, excluding meals.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm2106Line5MealsExpense">
+      <Name>Form 2106 line 5 meals expense</Name>
+      <Description>Meal expenses before reimbursement and deductibility limitations.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form2106Line6ColumnAExpenses">
+      <Name>Form 2106 line 6 column A total expenses</Name>
+      <Description>Sum of lines 1 through 4, other than meals.</Description>
+      
+      <Derived><Add><GreaterOf><Dependency path="/writableForm2106Line1VehicleExpense" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableForm2106Line2TransportationExpense" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableForm2106Line3OvernightTravelExpense" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableForm2106Line4OtherBusinessExpense" /><Dollar>0</Dollar></GreaterOf></Add></Derived>
+    </Fact>
+    <Fact path="/form2106Line6ColumnBExpenses">
+      <Name>Form 2106 line 6 column B total meals expenses</Name>
+      <Description>Column B carries the line 5 meal-expense amount.</Description>
+      
+      <Derived><GreaterOf><Dependency path="/writableForm2106Line5MealsExpense" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/writableForm2106Line7ColumnAReimbursements">
+      <Name>Form 2106 line 7 column A reimbursements</Name>
+      <Description>Employer reimbursements for column A expenses, including Form W-2 box 12 code L, excluding amounts already reported in box 1.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm2106Line7ColumnBReimbursements">
+      <Name>Form 2106 line 7 column B reimbursements</Name>
+      <Description>Employer reimbursements attributable to the meal expenses in column B.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2106Line8ColumnAAfterReimbursements">
+      <Name>Form 2106 line 8 column A after reimbursements</Name>
+      <Description>Column A line 6 less column A line 7, floored at zero.</Description>
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/form2106Line6ColumnAExpenses" /></Minuend><Subtrahends><GreaterOf><Dependency path="/writableForm2106Line7ColumnAReimbursements" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2106Line8ColumnBAfterReimbursements">
+      <Name>Form 2106 line 8 column B after reimbursements</Name>
+      <Description>Column B line 6 less column B line 7, floored at zero; this is the pre-limit meal expense amount.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/form2106Line6ColumnBExpenses" /></Minuend><Subtrahends><GreaterOf><Dependency path="/writableForm2106Line7ColumnBReimbursements" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2106ColumnAReimbursementExcessReportedAsIncome">
+      <Name>Form 2106 column A reimbursement excess reported as income</Name>
+      <Description>Column A line 7 reimbursements above line 6 expenses, reported on Form 1040 line 1a. Exported for the income-module successor.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/writableForm2106Line7ColumnAReimbursements" /></Minuend><Subtrahends><Dependency path="/form2106Line6ColumnAExpenses" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2106Line9ColumnADeduction">
+      <Name>Form 2106 line 9 column A deduction</Name>
+      <Description>Column A line 9 carries the amount from line 8.</Description>
+      
+      <Derived><Dependency path="/form2106Line8ColumnAAfterReimbursements" /></Derived>
+    </Fact>
+    <Fact path="/writableForm2106MealsSubjectToHoursOfServiceLimits">
+      <Name>Form 2106 meals subject to Department of Transportation hours-of-service limits</Name>
+      <Description>Answer true when the employee's meals were incurred while away from home during or incident to a period of duty subject to the Department of Transportation hours-of-service limits. This selects the statutory 80% meal deduction instead of the general 50% limitation. Answer false for the general rule; an unanswered answer uses the conservative 50% rule.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form2106Line9ColumnBDeductibleMeals">
+      <Name>Form 2106 line 9 column B deductible meals</Name>
+      <Description>Form 2106 line 9 column B is the line 8 column B meal expense after the printed limitation: 50% generally, or 80% when the employee answers the Department of Transportation hours-of-service question true. The complete-safe unanswered Boolean takes the general 50% branch.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm2106MealsSubjectToHoursOfServiceLimits" /></IsComplete>
+                <Dependency path="/writableForm2106MealsSubjectToHoursOfServiceLimits" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/form2106Line8ColumnBAfterReimbursements" />
+                <Rational>80/100</Rational>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Multiply>
+                <Dependency path="/form2106Line8ColumnBAfterReimbursements" />
+                <Rational>50/100</Rational>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2106Line10TotalDeduction">
+      <Name>Form 2106 line 10 total employee business expense deduction</Name>
+      <Description>Sum of both line 9 columns. Exported as the Schedule 1 line 12 successor input.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/form2106Line9ColumnADeduction" /><Dependency path="/form2106Line9ColumnBDeductibleMeals" /></Add></Derived>
+    </Fact>
+    <Fact path="/form2106ReturnFilesThisForm">
+      <Name>Return files Form 2106</Name>
+      <Description>True when the filer attests eligibility and the modeled line 10 deduction or line-1a reimbursement excess is positive. Vehicle substantiation-only filings are outside this gate.
+
+        A PRINT GATE OWES A DECIDED ANSWER, and the first case is that and nothing more. The
+        eligibility attestation is the first question Who Must File asks, and a Switch with no
+        catch-all runs off its end when every When is Incomplete, so on a return that never
+        answers /writableForm2106QualifyingFiler this fact used to resolve Incomplete: the
+        renderer was handed neither a yes nor a no about a printed form. The first case answers
+        the decided no that an unselected Form 2106 deserves. It is the same guarded-presence
+        shape /form8582ReturnFilesThisForm uses, and it moves nothing on a return that answers
+        the attestation, because the later two cases already partition that population. Pinned
+        by form2106-key-absent and form2106-empty-unrelated-collection, both of which were
+        measured Incomplete before the edit and Complete false after, against
+        form2106-explicit-not-qualifying and form2106-answered-zero, which were already false.
+
+        WHAT IS STILL UNDECIDED, stated rather than left to be found: a filer who attests
+        eligibility but has not answered the Part I expense boxes reaches the second case,
+        whose Then is Incomplete because line 10 is. That is a real remaining gap in the gate,
+        not a value the dictionary may invent - deciding it means choosing between suppressing a
+        form the filer may owe and attaching one with blank money lines. form2106-eligible-unanswered-details
+        pins it as it stands.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm2106QualifyingFiler" /></IsComplete></Not></When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm2106QualifyingFiler" /></IsComplete><Dependency path="/writableForm2106QualifyingFiler" /></All></When>
+            <Then><Any><GreaterThan><Left><Dependency path="/form2106Line10TotalDeduction" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><GreaterThan><Left><Dependency path="/form2106ColumnAReimbursementExcessReportedAsIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></Any></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm2106QualifyingFiler" /></IsComplete><Not><Dependency path="/writableForm2106QualifyingFiler" /></Not></All></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutForm2106PrintGateUndecided">
+      <Name>Knockout: Form 2106 eligibility attested but Part I not answered</Name>
+      <Description>Refuses a return on which the filer attests being an Armed Forces reservist, a qualified performing artist, a fee-basis state or local government official, or an employee with impairment-related work expenses (/writableForm2106QualifyingFiler answered true) while the Part I expense and reimbursement boxes line 10 and the reimbursement excess are figured from remain unanswered. On that return /form2106ReturnFilesThisForm can say neither yes nor no: a no would drop a form the filer attested to owing, and a yes would attach a Form 2106 whose money lines are blank. The fact is TRUE exactly when that print gate is not complete, so it fires on no other return: an unanswered attestation, a no, and every answered Part I leave the gate decided and this fact false.
+
+        SCREEN: "You told us you are filing Form 2106 as a reservist, performing artist, fee-basis official, or employee with impairment-related work expenses, but the Form 2106 expense and reimbursement amounts are not entered. Enter them (enter 0 where you have none) so the form can be completed, or change your answer to the Form 2106 question."</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Not>
+          <IsComplete>
+            <Dependency path="/form2106ReturnFilesThisForm" />
+          </IsComplete>
+        </Not>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

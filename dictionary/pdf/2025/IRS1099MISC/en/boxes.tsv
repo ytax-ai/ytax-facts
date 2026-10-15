@@ -1,0 +1,69 @@
+# IRS1099MISC — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099MISC/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: b482fb2dc4656f1b142d3a53b0eae05e82805bb3c1c8d0adb0b3a62ec5a37953
+# boxes: 31   acroform fields: 119   boxes with a fact: 31
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (4): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 16 row 1 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 16 row 2 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 18 row 1 `State income`: shared spelling `state income` names 2 readings
+# unspelled: box 18 row 2 `State income`: shared spelling `state income` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/form1099Miscs/*/writableCalendarYear	String		
+void		VOID	void	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]	/form1099Miscs/*/writableVoid	Bool		
+corrected		CORRECTED	corrected	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]|topmostSubform[0].CopyB[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[0]	/form1099Miscs/*/writableCorrected	Bool		
+payer-name		PAYER'S name; the block's address and telephone are writablePayerAddress, which this one cell does not also print	payer's name; the block's address and telephone are writablepayeraddress, which this one cell does not also print	topmostSubform[0].CopyA[0].LeftColumn[0].f1_2[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_2[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_2[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_2[0]	/form1099Miscs/*/payer	String		
+payer-tin		PAYER'S TIN	payer's tin	topmostSubform[0].CopyA[0].LeftColumn[0].f1_3[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_3[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_3[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_3[0]	/form1099Miscs/*/payer/tin	EIN		
+recipient-tin		RECIPIENT'S TIN	recipient's tin	topmostSubform[0].CopyA[0].LeftColumn[0].f1_4[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_4[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_4[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_4[0]	/form1099Miscs/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftColumn[0].f1_5[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_5[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_5[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_5[0]	/form1099Miscs/*/writableRecipientName	String		
+recipient-address	1	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftColumn[0].f1_6[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_6[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_6[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_6[0]	/form1099Miscs/*/writableRecipientStreetAddress	String		
+recipient-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftColumn[0].f1_7[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_7[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_7[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_7[0]	/form1099Miscs/*/writableRecipientCityStateZip	String		
+account		Account number	account number	topmostSubform[0].CopyA[0].LeftColumn[0].f1_8[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_8[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_8[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_8[0]	/form1099Miscs/*/writableAccountNumber	String		
+2nd-tin-not		2nd TIN not. checkbox	2nd tin not. checkbox	topmostSubform[0].CopyA[0].LeftColumn[0].c1_2[0]	/form1099Miscs/*/writableSecondTinNotice	Bool		
+1		Rents	rents	topmostSubform[0].CopyA[0].RightColumn[0].f1_9[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_9[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_9[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_9[0]	/form1099Miscs/*/writableRents	Dollar		
+2		Royalties	2 royalties	topmostSubform[0].CopyA[0].RightColumn[0].f1_10[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_10[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_10[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_10[0]	/form1099Miscs/*/writableRoyalties	Dollar		
+3		Other income	3 other income	topmostSubform[0].CopyA[0].RightColumn[0].f1_11[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_11[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_11[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_11[0]	/form1099Miscs/*/writableOtherIncome	Dollar		
+4		Federal income tax withheld	4 federal income tax withheld	topmostSubform[0].CopyA[0].RightColumn[0].f1_12[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_12[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_12[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_12[0]	/form1099Miscs/*/writableFederalWithholding	Dollar		
+5		Fishing boat proceeds	fishing boat proceeds	topmostSubform[0].CopyA[0].RightColumn[0].f1_13[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_13[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_13[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_13[0]	/form1099Miscs/*/writableFishingBoatProceeds	Dollar		
+6		Medical and health care payments	medical and health care payments	topmostSubform[0].CopyA[0].RightColumn[0].f1_14[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_14[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_14[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_14[0]	/form1099Miscs/*/writableMedicalAndHealthCarePayments	Dollar		
+7		Payer made direct sales totaling $5,000 or more (checkbox)	payer made direct sales totaling $5,000 or more	topmostSubform[0].CopyA[0].RightColumn[0].c1_4[0]|topmostSubform[0].Copy1[0].RightColumn[0].c2_4[0]|topmostSubform[0].CopyB[0].RightColumn[0].c2_4[0]|topmostSubform[0].Copy2[0].RightColumn[0].c2_4[0]	/form1099Miscs/*/writablePayerMadeDirectSales	Bool		
+8		Substitute payments in lieu of dividends or interest	substitute payments in lieu of dividends or interest	topmostSubform[0].CopyA[0].RightColumn[0].f1_15[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_15[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_15[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_15[0]	/form1099Miscs/*/writableSubstitutePayments	Dollar		
+9		Crop insurance proceeds	crop insurance proceeds	topmostSubform[0].CopyA[0].RightColumn[0].f1_16[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_16[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_16[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_16[0]	/form1099Miscs/*/writableCropInsuranceProceeds	Dollar		
+10		Gross proceeds paid to an attorney	gross proceeds paid to an attorney	topmostSubform[0].CopyA[0].RightColumn[0].f1_17[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_17[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_17[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_17[0]	/form1099Miscs/*/writableGrossProceedsPaidToAttorney	Dollar		
+12		Section 409A deferrals	section 409a deferrals	topmostSubform[0].CopyA[0].RightColumn[0].f1_19[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_19[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_19[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_19[0]	/form1099Miscs/*/writableSection409ADeferrals	Dollar		
+13		FATCA filing requirement checkbox	fatca filing requirement checkbox	topmostSubform[0].CopyA[0].RightColumn[0].TagCorrectingSubform[0].c1_3[0]|topmostSubform[0].Copy1[0].RightColumn[0].TagCorrectingSubform[0].c2_3[0]|topmostSubform[0].CopyB[0].RightColumn[0].TagCorrectingSubform[0].c2_3[0]|topmostSubform[0].Copy2[0].RightColumn[0].TagCorrectingSubform[0].c2_3[0]	/form1099Miscs/*/writableFatcaFilingRequirement	Bool		
+15		Nonqualified deferred compensation	nonqualified deferred compensation	topmostSubform[0].CopyA[0].RightColumn[0].f1_21[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_21[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_21[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_21[0]	/form1099Miscs/*/writableNonqualifiedDeferredCompensation	Dollar		
+11		Fish purchased for resale	fish purchased for resale	topmostSubform[0].CopyA[0].RightColumn[0].f1_18[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_18[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_18[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_18[0]	/form1099Miscs/*/writableFishPurchasedForResale	Dollar		
+16	1	State tax withheld		topmostSubform[0].CopyA[0].Box16_ReadOrder[0].f1_22[0]|topmostSubform[0].Copy1[0].Box16_ReadOrder[0].f2_22[0]|topmostSubform[0].CopyB[0].Box16_ReadOrder[0].f2_22[0]|topmostSubform[0].Copy2[0].Box16_ReadOrder[0].f2_22[0]	/form1099Miscs/*/writableStateTaxWithheld	Dollar		
+16	2	State tax withheld		topmostSubform[0].CopyA[0].Box16_ReadOrder[0].f1_23[0]|topmostSubform[0].Copy1[0].Box16_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyB[0].Box16_ReadOrder[0].f2_23[0]|topmostSubform[0].Copy2[0].Box16_ReadOrder[0].f2_23[0]	/form1099Miscs/*/writableStateTaxWithheld2	Dollar		
+17	1	State/Payer's state no., row 1 — the payer's state number; the state half is writablePayerStateAbbreviation, which this one cell does not also print	state/payer's state no., row 1 — the payer's state number; the state half is writablepayerstateabbreviation, which this one cell does not also print	topmostSubform[0].CopyA[0].Box17_ReadOrder[0].f1_24[0]|topmostSubform[0].Copy1[0].Box17_ReadOrder[0].f2_24[0]|topmostSubform[0].CopyB[0].Box17_ReadOrder[0].f2_24[0]|topmostSubform[0].Copy2[0].Box17_ReadOrder[0].f2_24[0]	/form1099Miscs/*/writablePayerStateIdNumber	String		
+17	2	State/Payer's state no., row 2 — the payer's state number; the state half is writablePayerStateAbbreviation2, which this one cell does not also print	state/payer's state no., row 2 — the payer's state number; the state half is writablepayerstateabbreviation2, which this one cell does not also print	topmostSubform[0].CopyA[0].Box17_ReadOrder[0].f1_25[0]|topmostSubform[0].Copy1[0].Box17_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyB[0].Box17_ReadOrder[0].f2_25[0]|topmostSubform[0].Copy2[0].Box17_ReadOrder[0].f2_25[0]	/form1099Miscs/*/writablePayerStateIdNumber2	String		
+18	1	State income		topmostSubform[0].CopyA[0].f1_26[0]|topmostSubform[0].Copy1[0].f2_26[0]|topmostSubform[0].CopyB[0].f2_26[0]|topmostSubform[0].Copy2[0].f2_26[0]	/form1099Miscs/*/writableStateIncome	Dollar		
+18	2	State income		topmostSubform[0].CopyA[0].f1_27[0]|topmostSubform[0].Copy1[0].f2_27[0]|topmostSubform[0].CopyB[0].f2_27[0]|topmostSubform[0].Copy2[0].f2_27[0]	/form1099Miscs/*/writableStateIncome2	Dollar		

@@ -1,0 +1,1951 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/dependentsBenefitSplit.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/parentalSituationOptions">
+      <Name>Parental Situation Options</Name>
+      <Description>Options for parental situation</Description>
+      <Derived>
+        <EnumOptions>
+          <String>divorcedOrSeparated</String>
+          <String>livedApartLastSixMonths</String>
+          <String>other</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writtenDeclarationOptions">
+      <Description>
+        The options for who has taken a written declaration to not claim a child,
+        sometimes via Form 8332
+      </Description>
+
+      <Derived>
+        <EnumOptions>
+          <String>iDid</String>
+          <String>theyDid</String>
+          <String>nobodyDid</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/childMayQualifyForBenefitSplit">
+      <Name>Flow variable for special rule benefit split</Name>
+      <Description>
+        Whether or not to show the benefit split screens for the dependent. We have to test for
+        the special benefit split if the person is subject to custody.
+
+        Custody ends when the child is emancipated under the law of the state where the child
+        lives, and the age at which that happens is not 18 in every state. The special rule
+        reaches a child only while the child is in a parent's custody for more than half of the
+        tax year, so an emancipation on or before July 2 closes the split (2025 Publication 504
+        Example 5) while one after July 2 leaves the first half of the year, and the split,
+        intact (Example 6).
+
+        ../ageOfMajorityForCustodyTest is used ONLY to decide WHEN the emancipation question has
+        to be asked. A dependent who has not reached that age by the close of the tax year opens
+        the split without being asked at all, the same as it always has; this arm needs no state
+        answer for a dependent under the universal floor of 18, since no state sets an age of
+        majority below that. A dependent who has reached the age must answer
+        ../writableChildEmancipatedUnderStateLaw, and the answer decides, not the age: an
+        emancipated dependent below that age is taken out of the split exactly like one above it,
+        and an unanswered state or an unanswered emancipation question, once the question must be
+        asked, leaves this whole fact Incomplete rather than assuming an age of majority of 18.
+        A permanently and totally disabled dependent has no age ceiling at all. An emancipation
+        answered Yes with a date on or before the custody midyear (July 2) closes the split on
+        every arm, whatever the dependent's age or disability, because an emancipated child is
+        treated as not living with either parent; a Yes with no date yet leaves this fact
+        Incomplete.
+      </Description>
+
+      <Derived>
+        <Any>
+          <All>
+            <Dependency module="familyAndHousehold" path="../disabilityStatusMayAffectBenefits" />
+            <Dependency module="familyAndHousehold" path="../permanentTotalDisability" />
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableChildEmancipatedUnderStateLaw" />
+                </IsComplete>
+                <Dependency path="../writableChildEmancipatedUnderStateLaw" />
+                <Not>
+                  <Dependency path="../childEmancipationDateAfterCustodyMidyear" />
+                </Not>
+              </All>
+            </Not>
+          </All>
+          <All>
+            <Any>
+              <LessThan>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="../age" />
+                </Left>
+                <Right>
+                  <Int>18</Int>
+                </Right>
+              </LessThan>
+              <LessThan>
+                <Left>
+                  <Dependency module="familyAndHousehold" path="../age" />
+                </Left>
+                <Right>
+                  <Dependency path="../ageOfMajorityForCustodyTest" />
+                </Right>
+              </LessThan>
+            </Any>
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableChildEmancipatedUnderStateLaw" />
+                </IsComplete>
+                <Dependency path="../writableChildEmancipatedUnderStateLaw" />
+                <Not>
+                  <Dependency path="../childEmancipationDateAfterCustodyMidyear" />
+                </Not>
+              </All>
+            </Not>
+          </All>
+          <All>
+            <GreaterThanOrEqual>
+              <Left>
+                <Dependency module="familyAndHousehold" path="../age" />
+              </Left>
+              <Right>
+                <Dependency path="../ageOfMajorityForCustodyTest" />
+              </Right>
+            </GreaterThanOrEqual>
+            <Any>
+              <Not>
+                <Dependency path="../writableChildEmancipatedUnderStateLaw" />
+              </Not>
+              <All>
+                <Dependency path="../writableChildEmancipatedUnderStateLaw" />
+                <Dependency path="../childEmancipationDateAfterCustodyMidyear" />
+              </All>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableChildEmancipatedUnderStateLaw">
+      <Name>Child emancipated under state law</Name>
+      <Description>
+        SCREEN. Question: "Was {name} emancipated under your state's law during 2025?" Help
+        text: a child who is emancipated under state law is treated as not living with either
+        parent, so the special rule for children of divorced or separated parents can stop
+        applying. The law that counts is the state where the CHILD lives, which for a
+        noncustodial parent is often not the filer's own state. Answer Yes even if the
+        emancipation happened before 2025 too: once a child is emancipated the child stays
+        emancipated, and this question is really asking about the child's status through the end
+        of the tax year, not only about an event that happened during it. (This help-text
+        widening past the project owner's literal "during 2025" wording is a deliberate fix for a
+        filer who would otherwise answer No because the emancipation happened in an earlier
+        year, even though the child has, in fact, stayed emancipated ever since.)
+
+        Asked only when ../ageOfMajorityForCustodyTest has been reached by the close of the tax
+        year (../childMayQualifyForBenefitSplit's own Description explains why): a younger
+        dependent already opens the benefit split and is never asked. Unanswered when it must be
+        asked, this fact and everything it feeds resolve Incomplete, never defaulted to either
+        answer: an unanswered custody question holds the return rather than guessing an age of
+        majority of 18 for it.
+
+        What the answer feeds: ../childMayQualifyForBenefitSplit directly. A No keeps the child
+        in custody. A Yes moves to ../writableChildEmancipationDate, because a child emancipated
+        after the midyear point of the tax year was still in custody for more than half of it.
+      </Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableChildEmancipationDate">
+      <Name>Date the child was emancipated under state law</Name>
+      <Description>
+        SCREEN. Question: "On what date was {name} emancipated under state law?" Help text: enter
+        the date {name} became emancipated, even if it was before 2025. Asked when:
+        ../writableChildEmancipatedUnderStateLaw is Yes. Unanswered posture: neither
+        ../childEmancipationDateAfterCustodyMidyear nor ../childMayQualifyForBenefitSplit
+        resolves; both stay Incomplete until the date is entered, because a bare Yes with no date
+        does not say whether the child was still in custody for more than half of the tax year.
+        Validation: Day, no later than 2025-12-31 (a date after this tax year cannot describe an
+        event within it). What the answer feeds: ../childEmancipationDateAfterCustodyMidyear,
+        which compares the date to July 2, 2025, the same midyear point this module uses
+        elsewhere for the more-than-half-the-year custody test.
+      </Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+        <Limit type="Max">
+          <Day>2025-12-31</Day>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/childEmancipationDateAfterCustodyMidyear">
+      <Name>The emancipation date is after the tax year's custody midyear point</Name>
+      <Description>
+        Whether the entered emancipation date falls after July 2, 2025 - the point this module
+        treats as more than half of a 365-day tax year (183 of 365 days have run by the end of
+        July 2, one more than half of 365). An emancipation on or before that date means the
+        child was not in a parent's custody for more than half the year (2025 Publication 504
+        Example 5); one after that date leaves the custody condition met even though the child is
+        emancipated before the year ends (Example 6, where an August 1 emancipation still leaves
+        the custodial parent with the greater number of nights for the year). INCOMPLETE while
+        the date is unanswered: a Yes with no date does not yet say which half of the year is
+        affected. An entered date after 2025-12-31 cannot describe an event inside the tax year,
+        so it is read the conservative way, as not after the midyear point, rather than trusted
+        (the Writable's Limit is JVM-validation only and does not fire on the JS default engine).
+      </Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+              <IsComplete>
+                <Dependency path="../writableChildEmancipationDate" />
+              </IsComplete>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../writableChildEmancipationDate" />
+                </Left>
+                <Right>
+                  <Day>2025-12-31</Day>
+                </Right>
+              </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../writableChildEmancipationDate" />
+                </Left>
+                <Right>
+                  <Day>2025-07-02</Day>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+              <IsComplete>
+                <Dependency path="../writableChildEmancipationDate" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../writableChildEmancipationDate" />
+                </Left>
+                <Right>
+                  <Day>2025-12-31</Day>
+                </Right>
+              </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/childResidenceJurisdictionOptions">
+      <Name>States, territories and outside the United States, for a child's residence</Name>
+      <Description>The vocabulary of ../writableChildResidenceJurisdiction on each dependent: the
+        50 states and the District of Columbia (the same codes as constants:/scopedStateOptions),
+        then Puerto Rico, Guam, the U.S. Virgin Islands, American Samoa and the Northern Mariana
+        Islands, then outsideUnitedStates. Puerto Rico is listed because its age of majority is
+        one of the four that differ from 18; the other territories and outsideUnitedStates keep
+        the default age of 18 in /familyAndHousehold/*/ageOfMajorityForCustodyTest.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>al</String>
+          <String>ak</String>
+          <String>az</String>
+          <String>ar</String>
+          <String>ca</String>
+          <String>co</String>
+          <String>ct</String>
+          <String>de</String>
+          <String>dc</String>
+          <String>fl</String>
+          <String>ga</String>
+          <String>hi</String>
+          <String>id</String>
+          <String>il</String>
+          <String>in</String>
+          <String>ia</String>
+          <String>ks</String>
+          <String>ky</String>
+          <String>la</String>
+          <String>me</String>
+          <String>md</String>
+          <String>ma</String>
+          <String>mi</String>
+          <String>mn</String>
+          <String>ms</String>
+          <String>mo</String>
+          <String>mt</String>
+          <String>ne</String>
+          <String>nv</String>
+          <String>nh</String>
+          <String>nj</String>
+          <String>nm</String>
+          <String>ny</String>
+          <String>nc</String>
+          <String>nd</String>
+          <String>oh</String>
+          <String>ok</String>
+          <String>or</String>
+          <String>pa</String>
+          <String>ri</String>
+          <String>sc</String>
+          <String>sd</String>
+          <String>tn</String>
+          <String>tx</String>
+          <String>ut</String>
+          <String>vt</String>
+          <String>va</String>
+          <String>wa</String>
+          <String>wv</String>
+          <String>wi</String>
+          <String>wy</String>
+          <String>pr</String>
+          <String>gu</String>
+          <String>vi</String>
+          <String>as</String>
+          <String>mp</String>
+          <String>outsideUnitedStates</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableChildResidenceJurisdiction">
+      <Name>State or territory where the child lived on July 2</Name>
+      <Description>
+        In which state or U.S. territory does the dependent live? Choose outsideUnitedStates if
+        the child lives outside the United States.
+
+        Asked only for a dependent who has reached ../ageOfMajorityForCustodyTest by the close of
+        the tax year and is not permanently and totally disabled: a younger child already opens
+        the benefit split through ../childMayQualifyForBenefitSplit without needing this answer.
+        The answer is the CHILD's state, not the filer's: custody ends when the child is
+        emancipated under the law of the state where the child lives, and for a noncustodial
+        parent that state is often not the one in /filerResidenceAndIncomeState.
+
+        Unanswered, when it must be asked, ../ageOfMajorityForCustodyTest and everything it feeds
+        are Incomplete: the state is not knowable without an answer, so this fact is never
+        defaulted to an age of majority of 18.
+      </Description>
+
+      <Writable>
+        <Enum optionsPath="/childResidenceJurisdictionOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/ageOfMajorityForCustodyTest">
+      <Name>Age of majority that ends custody for the benefit split</Name>
+      <Description>
+        The age at which the dependent stops being in a parent's custody for the special rule for
+        children of divorced or separated parents: 19 when ../writableChildResidenceJurisdiction is
+        Alabama or Nebraska, 21 when it is Mississippi or Puerto Rico, and 18 for every other
+        answered state. ../childMayQualifyForBenefitSplit reads this fact ONLY to decide WHEN a
+        dependent has to answer ../writableChildEmancipatedUnderStateLaw: a dependent younger than
+        this age by the close of the tax year opens the benefit split without being asked; the
+        answer decides for everyone else, not this age.
+
+        UNANSWERED, this fact is INCOMPLETE, not 18: the state is not knowable without an answer,
+        and a dependent old enough for the question to matter must not be defaulted into or out of
+        the split by an assumed age of majority. ../childMayQualifyForBenefitSplit is written so
+        that an unanswered state never affects a dependent below the universal floor of 18, which
+        needs no state to resolve.
+
+        The IRS text does not tabulate these ages. It says a child emancipated under state law is
+        treated as not living with either parent, and that the law of the state where the child
+        lives governs. The four ages that differ from 18 are taken from those states' own
+        statutes, which are not among the vendored sources.
+      </Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+              <IsComplete>
+                <Dependency path="../writableChildResidenceJurisdiction" />
+              </IsComplete>
+              <Any>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableChildResidenceJurisdiction" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/childResidenceJurisdictionOptions">al</Enum>
+                </Right>
+              </Equal>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableChildResidenceJurisdiction" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/childResidenceJurisdictionOptions">ne</Enum>
+                </Right>
+              </Equal>
+              </Any>
+              </All>
+            </When>
+            <Then>
+              <Int>19</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+              <IsComplete>
+                <Dependency path="../writableChildResidenceJurisdiction" />
+              </IsComplete>
+              <Any>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableChildResidenceJurisdiction" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/childResidenceJurisdictionOptions">ms</Enum>
+                </Right>
+              </Equal>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableChildResidenceJurisdiction" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/childResidenceJurisdictionOptions">pr</Enum>
+                </Right>
+              </Equal>
+              </Any>
+              </All>
+            </When>
+            <Then>
+              <Int>21</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableChildResidenceJurisdiction" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Int>18</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/tpIsParent">
+      <Description>The relationship to the person is a parental one for use in the special benefit split</Description>
+
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency module="dependentsRelationship" path="../relationship" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/relationshipOptions">biologicalChild</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency module="dependentsRelationship" path="../relationship" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/relationshipOptions">adoptedChild</Enum>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/tpIsNotParent">
+      <Description>The relationship to the person is not a parental one for use in the special benefit split</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="../tpIsParent" />
+          </Not>
+          <Dependency module="dependentsRelationship" path="../qcRelationshipTest" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/hasOtherBiologicalOrAdoptiveParent">
+      <Name>Has other legal parent</Name>
+      <Description>Does the dependent have another legal parent apart from the taxpayer and spouse?</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/nonParentalSomeParentNotClaiming">
+      <Name>Written declaration not to claim was signed</Name>
+      <Description>Has any of the dependent's parents signed a written declaration not to claim them?</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/whichParentNotClaiming">
+      <Description>
+        Is one of the parents not claiming the child?
+      </Description>
+
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Enum optionsPath="/writtenDeclarationOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableDivorceOrSeparationInstrumentEffectiveDate">
+      <Name>The date the divorce decree or separation agreement went into effect</Name>
+      <Description>SCREEN. Question: "When did the divorce decree, separate maintenance decree or
+        written separation agreement covering {name} go into effect?" Help text: the date matters
+        because the law treats three vintages differently. An instrument executed before January 1,
+        1985 can give the claim to the noncustodial parent on its own terms. One that went into
+        effect after 1984 and before 2009 can stand in for Form 8332 if it says the right things.
+        One that went into effect after 2008 cannot: the custodial parent has to sign Form 8332 or
+        a similar statement. Enter the date the decree or agreement took effect, not the date it
+        was last amended; the date it was signed is asked separately, in
+        ../writableDivorceOrSeparationInstrumentExecutionDate, because the pre-1985 test is on the
+        signing date and the later two are on the effective date. Asked when: this person's benefit-split questions are being asked and the
+        taxpayer answered ../parentalSituation as divorced or separated. Unanswered posture: no
+        decree route is available, so both route facts resolve Complete FALSE and the return falls
+        back on the written declaration exactly as it does today. That is the correct refusal for a
+        condition of allowance: a claim the graph cannot substantiate is not granted. Validation:
+        Day, no later than 2025-12-31 (an instrument that takes effect after this tax year cannot
+        apply to it). The Limit is JVM-validation-only, so
+        ../divorceOrSeparationInstrumentEffectiveDateAdmissible is the value-level guard the two
+        route facts read. What the answer feeds: ../instrumentEffectiveAfter1984AndBefore2009 (the
+        decree-pages route), and ../instrumentExecutedBefore1985 (the IRC 152(e)(3) route) only
+        while ../writableDivorceOrSeparationInstrumentExecutionDate is unanswered; an instrument
+        after 2008 satisfies neither, which IS the printed bar.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+        <Limit type="Max">
+          <Day>2025-12-31</Day>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableDivorceOrSeparationInstrumentExecutionDate">
+      <Name>The date the divorce decree or separation agreement was signed</Name>
+      <Description>SCREEN. Question: "When was the divorce decree, separate maintenance decree or
+        written separation agreement covering {name} signed?" Help text: a decree or agreement
+        signed before January 1, 1985 can give the claim to the noncustodial parent on its own
+        terms, even if it took effect later. Enter the date it was signed (for a court decree, the
+        date the court entered it), not the date it took effect and not the date it was last
+        amended. Asked when: ../writableDivorceOrSeparationInstrumentEffectiveDate is answered.
+        Unanswered posture: ../instrumentExecutedBefore1985 reads the effective date in its place,
+        which is how every return that does not answer this question resolved before it was
+        added. Answered, this date alone decides the pre-1985 test, in both directions: an
+        instrument signed in 1984 that took effect in 1985 qualifies, and one signed in 1985
+        with an effective date earlier than its signing does not. Validation: Day, no later than
+        2025-12-31. What the answer feeds: ../instrumentExecutedBefore1985 only; the two later
+        vintages are banded on the effective date, which is how the instructions print them.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+        <Limit type="Max">
+          <Day>2025-12-31</Day>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/divorceOrSeparationInstrumentEffectiveDateAdmissible">
+      <Name>The instrument's effective date is answered and inside the admissible band</Name>
+      <Description>Whether the entered effective date is complete and no later than the tax year's
+        own last day. The Writable's Limit type="Max" enforces the same bound only at JVM
+        validation time (a Limit on a Writable fires as a validation Error, never at resolution),
+        and the JS path is the default engine, so an out-of-bound date is not refused there at all.
+        This derived fact is the value-level guard both route facts route through, in exactly the
+        shape familyAndHousehold:/familyAndHousehold/*/dateOfBirthAdmissible takes for the
+        dependent's date of birth. Complete-safe FALSE while the date is unanswered, which is what
+        keeps every return with no decree question answered byte-identical.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../writableDivorceOrSeparationInstrumentEffectiveDate" />
+          </IsComplete>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="../writableDivorceOrSeparationInstrumentEffectiveDate" />
+            </Left>
+            <Right>
+              <Day>2025-12-31</Day>
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/instrumentExecutedBefore1985">
+      <Name>The instrument was executed before January 1, 1985</Name>
+      <Description>IRC 152(e)(3)(B)(i), the first of the three tests a "qualified pre-1985
+        instrument" has to meet: it must be "executed before January 1, 1985". STRICTLY BEFORE, so
+        an instrument dated 1984-12-31 qualifies and one dated 1985-01-01 does not. Complete-safe FALSE while the date is unanswered or inadmissible.
+
+        THE TEST IS ON THE SIGNING DATE. The statute says "executed", so when
+        ../writableDivorceOrSeparationInstrumentExecutionDate is answered it alone decides: an
+        instrument signed in 1984 that took effect in 1985 qualifies
+        (split-152e3-instrument-executed-1984-effective-1985-pre1985-route-met), and one signed in
+        1985 with an earlier effective date does not
+        (split-152e3-instrument-effective-1984-executed-1985-not-qualified). While the signing date
+        is unanswered the effective date stands in for it, which is the reading every earlier
+        return resolved under.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../divorceOrSeparationInstrumentEffectiveDateAdmissible" />
+          <Any>
+            <All>
+              <IsComplete>
+                <Dependency path="../writableDivorceOrSeparationInstrumentExecutionDate" />
+              </IsComplete>
+              <LessThan>
+                <Left>
+                  <Dependency path="../writableDivorceOrSeparationInstrumentExecutionDate" />
+                </Left>
+                <Right>
+                  <Day>1985-01-01</Day>
+                </Right>
+              </LessThan>
+            </All>
+            <All>
+              <Not>
+                <IsComplete>
+                  <Dependency path="../writableDivorceOrSeparationInstrumentExecutionDate" />
+                </IsComplete>
+              </Not>
+              <LessThan>
+                <Left>
+                  <Dependency path="../writableDivorceOrSeparationInstrumentEffectiveDate" />
+                </Left>
+                <Right>
+                  <Day>1985-01-01</Day>
+                </Right>
+              </LessThan>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableQualifiedPre1985InstrumentGivesClaimToNoncustodialParent">
+      <Name>The pre-1985 instrument gives the claim to the noncustodial parent and was never modified to take it back</Name>
+      <Description>SCREEN. Question: "Does that decree or agreement say the other parent can claim
+        {name} as a dependent, and has it never been changed since 1984 to say they cannot?" Help
+        text: for a decree or agreement that took effect before 1985, the document itself can give
+        the claim to the parent the child does not live with, with no Form 8332 needed. Answer Yes
+        only if all of this is true: the decree or agreement applies to 2025, it says the
+        noncustodial parent can claim the child as a dependent, and it was not changed on or after
+        January 1, 1985 in a change that says this rule no longer applies. Asked when: this
+        person's benefit-split questions are being asked and
+        ../writableDivorceOrSeparationInstrumentEffectiveDate is before 1985-01-01. Unanswered
+        posture: Complete FALSE through ../qualifiedPre1985InstrumentRouteMet, so the route is not
+        taken and the return falls back on the written declaration. A CONDITION OF ALLOWANCE reads
+        silence as "not established" - the graph does not grant a claim it cannot substantiate -
+        which is also why an Incomplete is wrong here: an unanswered question about a route the
+        filer may not even be on must not stop the return. Validation: Boolean. Yes/No radio, no
+        default selection, answer required to leave the screen. What the answer feeds:
+        ../qualifiedPre1985InstrumentRouteMet, one of three conjuncts.
+
+        THIS IS THREE STATUTORY TESTS IN ONE QUESTION, and they are kept together because they are
+        three properties of one document that only the filer can read: IRC 152(e)(3)(A)(i) (the
+        instrument "provides that the noncustodial parent shall be entitled to any deduction
+        allowable under section 151 for such child"), 152(e)(3)(B)(ii) (it contained that provision
+        on 1985-01-01) and 152(e)(3)(B)(iii) (it "is not modified on or after such date in a
+        modification which expressly provides that this paragraph shall not apply"). Splitting them
+        into three screens would ask the filer to parse the statute rather than read their
+        decree.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writablePre1985InstrumentSupportProvidedByNoncustodialParent">
+      <Name>Support the noncustodial parent provided for this child during the year, for the section 152(e)(3) $600 test</Name>
+      <Description>SCREEN. Question: "How much did the parent {name} does not live with provide
+        for {name}'s support during 2025?" Help text: the pre-1985 decree route has a support
+        floor the Form 8332 route does not: the noncustodial parent has to provide at least $600
+        for the child's support during the year. Count everything that parent spent on the child's
+        support; under a pre-1985 agreement, all child support payments actually received from the
+        noncustodial parent count as used for the child's support even if they were spent on
+        something else. Asked when: ../instrumentExecutedBefore1985 is true and
+        ../writableQualifiedPre1985InstrumentGivesClaimToNoncustodialParent is Yes. Unanswered
+        posture: $0 through ../pre1985InstrumentSupportTestMet, which fails the $600 test and
+        refuses the route. That is the taxpayer-adverse direction and the right one for a condition
+        of allowance. Validation: Dollar, Min $0, ONE amount per person. What the answer feeds:
+        ../pre1985InstrumentSupportTestMet.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/pre1985InstrumentSupportTestMet">
+      <Name>The section 152(e)(3)(A)(ii) $600 support floor is met</Name>
+      <Description>IRC 152(e)(3)(A)(ii): the noncustodial parent "provides at least $600 for the
+        support of such child during such calendar year". AT LEAST, so $600 exactly passes and $599
+        fails. The amount reads $0 while unanswered, so an unasked question fails the floor and
+        refuses the route rather than granting it. THIS FLOOR IS ON THE PRE-1985 LEG ONLY: neither
+        the Form 8332 route (IRC 152(e)(2)) nor the post-1984/pre-2009 decree route carries it, and
+        the instructions for the decree-pages route say the opposite, that the claim must be
+        "without regard to any condition, such as payment of support".</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="../writablePre1985InstrumentSupportProvidedByNoncustodialParent" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="../writablePre1985InstrumentSupportProvidedByNoncustodialParent" />
+                </Then>
+              </Case>
+              <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+            </Switch>
+          </Left>
+          <Right>
+            <Dollar>600</Dollar>
+          </Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/qualifiedPre1985InstrumentRouteMet">
+      <Name>Section 152(e)(1) is satisfied through paragraph (3), the qualified pre-1985 instrument</Name>
+      <Description>IRC 152(e)(1) is met when "the requirements described in paragraph (2) OR (3)"
+        are met. Paragraph (2) is the written declaration this module already models through
+        ../whichParentNotClaiming. THIS FACT IS PARAGRAPH (3): all three of its tests at once - the
+        instrument was executed before 1985 (../instrumentExecutedBefore1985), it gives the claim
+        to the noncustodial parent and was never modified to take it back
+        (../writableQualifiedPre1985InstrumentGivesClaimToNoncustodialParent), and the $600 support
+        floor is met (../pre1985InstrumentSupportTestMet).
+
+        COMPLETE-SAFE FALSE, every conjunct. A return that never opens the decree questions is
+        byte-identical to what it is today, and a return that opens them and leaves one unanswered
+        is REFUSED the route rather than left Incomplete: this is a condition of allowance, and a
+        claim the graph cannot substantiate is not granted. That posture is also what protects the
+        corpus - ../tpCanClaimSplitBenefitsDependencyCtcOdc is read under an All(IsComplete(x), x)
+        gate at familyAndHousehold:/familyAndHousehold/*/eligibleDependentMinusFilerInformation and
+        /eligibleCtc, so an Incomplete arm here would put every dependent's claim Incomplete across
+        the whole corpus.
+
+        WHERE IT GOES, four places, all in this module: ../parentalSomeParentNotClaiming (so
+        ../eligibleForBenefitSplit opens on the parental path), the noncustodial arm of
+        ../tpCanClaimSplitBenefitsDependencyCtcOdc, the custodial arm of
+        ../tpCanClaimSplitBenefitsHohEitcCdcc (the custodial parent who lost the dependency claim
+        under the decree keeps head of household, the earned income credit and the child and
+        dependent care credit - the "both" direction), and
+        ../noncustodialParentBenefitSplitReleaseNotAttached, which must NOT refuse this population:
+        Form 8332 page 2 item 3b states this route with no attachment at all, and the Form 1040
+        instruction's condition 4 is "Either of the following applies", 4a being Form 8332 and 4b
+        being this instrument.
+
+        THE POPULATION IS NARROW BUT NOT EMPTY. An unmodified pre-1985 instrument implies a
+        marriage that predates 1985, so most named children are past dependent age by 2025 - but a
+        permanently and totally disabled qualifying child has no age ceiling
+        (familyAndHousehold:/familyAndHousehold/*/permanentTotalDisability), and IRC
+        152(e)(3)(B)(iii) keeps an unmodified instrument live indefinitely.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../instrumentExecutedBefore1985" />
+          <All>
+            <IsComplete>
+              <Dependency path="../writableQualifiedPre1985InstrumentGivesClaimToNoncustodialParent" />
+            </IsComplete>
+            <Dependency path="../writableQualifiedPre1985InstrumentGivesClaimToNoncustodialParent" />
+          </All>
+          <Dependency path="../pre1985InstrumentSupportTestMet" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/instrumentEffectiveAfter1984AndBefore2009">
+      <Name>The decree or agreement went into effect after 1984 and before 2009</Name>
+      <Description>The middle of the three vintages the law bands
+        ../writableDivorceOrSeparationInstrumentEffectiveDate into: "If the divorce decree or
+        separation agreement went into effect after 1984 and before 2009, the noncustodial parent
+        may be able to include certain pages from the decree or agreement instead of Form 8332."
+        Read as 1985-01-01 through 2008-12-31 inclusive, which is what "after 1984 and before 2009"
+        means on a calendar-year boundary. Both edges are on the EFFECTIVE date, as printed; the
+        pre-1985 test is on the signing date, so an instrument signed in 1984 that took effect in
+        1985 can meet both, and either route may then be used.
+        THE UPPER EDGE IS THE PRINTED BAR, not a modelling choice: "Post-2008 decree or agreement.
+        If the divorce decree or separation agreement went into effect after 2008, the noncustodial
+        parent can't include pages from the decree or agreement instead of Form 8332." A post-2008
+        instrument therefore satisfies neither this fact nor ../instrumentExecutedBefore1985, and
+        the filer is left on the Form 8332 route, which is the correct answer. Complete-safe FALSE while the date is unanswered or inadmissible.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../divorceOrSeparationInstrumentEffectiveDateAdmissible" />
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="../writableDivorceOrSeparationInstrumentEffectiveDate" />
+            </Left>
+            <Right>
+              <Day>1985-01-01</Day>
+            </Right>
+          </GreaterThanOrEqual>
+          <LessThan>
+            <Left>
+              <Dependency path="../writableDivorceOrSeparationInstrumentEffectiveDate" />
+            </Left>
+            <Right>
+              <Day>2009-01-01</Day>
+            </Right>
+          </LessThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writablePost1984Pre2009DecreeStatesAllThreeReleaseTerms">
+      <Name>The post-1984 and pre-2009 decree states all three things the instruction requires</Name>
+      <Description>SCREEN. Question: "Does that decree or agreement say all three of these things
+        about {name}?" with the three printed statements listed as they are printed: (1) the other
+        parent can claim {name} as a dependent without regard to any condition, such as payment of
+        support; (2) you will not claim {name} as a dependent; (3) the years for which the claim is
+        released. Help text: for a decree or agreement that went into effect after 1984 and before
+        2009, the pages of the decree can stand in for Form 8332 - but only if the decree says all
+        three of these things. You have to include the cover page (with the other parent's Social
+        Security number on it), the pages carrying the three statements, and the signature page
+        with the other parent's signature and the date of the agreement, and you have to include
+        them even if you filed them with a return in an earlier year. Asked when:
+        ../instrumentEffectiveAfter1984AndBefore2009 is true. Unanswered posture: Complete FALSE
+        through ../post1984Pre2009DecreeRouteMet, so the route is not taken and the return falls
+        back on Form 8332. A CONDITION OF ALLOWANCE reads silence as "not established". Validation:
+        Boolean. Yes/No radio, no default selection, answer required to leave the screen. What the
+        answer feeds: ../post1984Pre2009DecreeRouteMet.
+
+        THE WORDING OF THE QUESTION IS FROM THE OTHER PARENT'S SIDE OR THE FILER'S, depending on
+        who is answering, and the application substitutes accordingly: ../tpIsCustodialParent says which
+        side of the decree this filer is on, and the three statements are the same statements
+        either way.
+
+        THE THREE ARE ONE QUESTION for the same reason the pre-1985 attestation is: they are three
+        properties of one document that only the filer can read, and asking them separately would
+        invite a Yes on two of three that the instruction does not allow. NO SUPPORT FLOOR ON THIS
+        ROUTE, deliberately - statement (1) is the opposite, the claim must be unconditional "such
+        as payment of support"; the $600 floor belongs to the pre-1985 leg alone.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/post1984Pre2009DecreeRouteMet">
+      <Name>Section 152(e) is satisfied by the pages of a post-1984 and pre-2009 decree</Name>
+      <Description>The second of the two decree routes section 152(e) admits beside Form 8332.
+        Unlike the pre-1985 route this is not a separate statutory paragraph: IRC 152(e)(2) asks for a written
+        declaration, and for this vintage of instrument the instructions let the DECREE ITSELF be
+        that declaration, in place of Form 8332. So this fact is the conjunction of the vintage
+        (../instrumentEffectiveAfter1984AndBefore2009) and the three statements the decree must
+        make (../writablePost1984Pre2009DecreeStatesAllThreeReleaseTerms).
+
+        THE POPULATION IS REAL, unlike the pre-1985 route's, but it is NARROWER THAN THE
+        QUALIFYING-CHILD AGE TEST and this is a rule of law, not a modelling shortfall. IRC
+        152(e)(1)(B) opens the special rule only for a child "in the custody of 1 or both parents
+        for more than one-half of the calendar year", and Publication 501 reads that against state
+        law: "If a child is emancipated under state law, the child is treated as not living with
+        either parent", with Example 5 - a child who turned 18 in May and became emancipated -
+        ending "The special rule for children of divorced or separated parents doesn't apply". So
+        an 18-to-23-year-old student does NOT reach this route even with a perfect decree, and
+        ../childMayQualifyForBenefitSplit is the fact that says so: not yet 18 on July 2, or
+        permanently and totally disabled. The reachable band under an instrument that went into
+        effect no later than 2008-12-31 is therefore a child born after 2007-07-02, plus a
+        permanently and totally disabled child of any age. The one open residue is the age of majority itself, which this module hard-codes at 18: it
+        is 19 in Alabama and Nebraska and 21 in Mississippi and Puerto Rico, and
+        ../childMayQualifyForBenefitSplit's own Description names those four.
+
+        THE PAGES ARE THE ATTACHMENT, which is why this route does NOT join the pre-1985 route
+        inside ../noncustodialParentBenefitSplitReleaseNotAttached. IRC 152(e)(2)(B) still requires
+        the noncustodial parent to attach the declaration, and here the declaration is the cover
+        page, the pages carrying the three statements and the signature page. The existing intake
+        ../writableNoncustodialParentHasReleaseToAttach asks exactly that question and its
+        Description now names the decree pages as an accepted answer, so a filer on this route who
+        does not hold the pages is still refused - correctly.
+
+        COMPLETE-SAFE FALSE on both conjuncts, for the reason stated on
+        ../qualifiedPre1985InstrumentRouteMet. WHERE IT GOES: the same three places that route goes,
+        ../parentalSomeParentNotClaiming, the noncustodial arm of
+        ../tpCanClaimSplitBenefitsDependencyCtcOdc and the custodial arm of
+        ../tpCanClaimSplitBenefitsHohEitcCdcc - and NOT the fourth.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="../instrumentEffectiveAfter1984AndBefore2009" />
+          <All>
+            <IsComplete>
+              <Dependency path="../writablePost1984Pre2009DecreeStatesAllThreeReleaseTerms" />
+            </IsComplete>
+            <Dependency path="../writablePost1984Pre2009DecreeStatesAllThreeReleaseTerms" />
+          </All>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/parentalSomeParentNotClaiming">
+      <Description>
+        At least one of the parents is not claiming
+      </Description>
+
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="../whichParentNotClaiming" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/writtenDeclarationOptions">iDid</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="../whichParentNotClaiming" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/writtenDeclarationOptions">theyDid</Enum>
+            </Right>
+          </Equal>
+          <Dependency path="../qualifiedPre1985InstrumentRouteMet" />
+          <Dependency path="../post1984Pre2009DecreeRouteMet" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/primaryFilerNotClaiming">
+      <Description>True when taxpayer not filing MFJ is not claiming child</Description>
+
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path="../whichParentNotClaiming" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/writtenDeclarationOptions">iDid</Enum>
+            </Right>
+          </Equal>
+          <Not>
+            <Dependency path="/treatAsMFJ" module="filingStatus" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/bothFilersNotClaiming">
+      <Description>True when taxpayers filing MFJ are not claiming child</Description>
+
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path="../whichParentNotClaiming" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/writtenDeclarationOptions">iDid</Enum>
+            </Right>
+          </Equal>
+          <Dependency path="/treatAsMFJ" module="filingStatus" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/inParentsCustody">
+      <Name>In parents' custody</Name>
+      <Description>As of July 2, was the dependent still in the legal custody of their biological or adoptive parents?</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/livedWithTpOrOtherBiologicalOrAdoptiveParentMoreThanSixMonths">
+      <Name>Lived with taxpayer and/or other legal parent more than six months</Name>
+      <Description>Did the dependent live with the taxpayer and/or the other legal parent for more than six months?</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/biologicalOrAdoptiveParentsLiving">
+      <Name>Biological or adoptive parents living</Name>
+      <Description>Are the dependent's biological or adoptive parents living?</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/nightsWithTpVsOtherParent">
+      <Name>Nights spent with taxpayer vs. other parent</Name>
+      <Description>
+        Did the dependent spend more, less, or same number of nights with taxpayer vs. other parent?
+
+        The filer is told how to count the nights:
+        (1) A night counts for a parent when the child sleeps at that parent's home, whether
+            or not the parent is there, or in the company of that parent away from a parent's
+            home (for example, on vacation together).
+        (2) The night of December 31 belongs to the year in which it begins.
+        (3) A night the child was with neither parent (for example, at a friend's house) counts
+            for the parent the child normally would have been with that night; if that cannot be
+            determined, it counts for neither parent.
+        (4) Time with a parent after the child is emancipated under state law does not count.
+        (5) If the parents divorced or separated during the year and the child lived with both
+            parents before the separation, count only the nights after the separation.
+
+        The night-work exception is asked separately, in ../writableNightWorkCustodialParent,
+        because it overrides this count rather than changing how it is taken.
+      </Description>
+
+      <Writable>
+        <Enum optionsPath="/moreLessEqualOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/tpAgiHigherThanOtherParent">
+      <Name>Taxpayer's AGI higher than other parent</Name>
+      <Description>Is the taxpayer's AGI higher than the dependent's other legal parent?</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/familyAndHousehold/*/parentsMeetReqsRuleForChildrenOfDivorcedParents">
+      <Description>
+        The person's parents meet the requirements of the rule for children of divorced
+        or separated parents
+        or parents who lived apart.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/specialRuleChildUsedByCustodialParentAsQP">
+      <Description>
+        In a situation where the taxpayer is not a parent, and the person has an alive custodial parent,
+        that
+        custodial parent intends to claim this person as a QP for Hoh, EITC, DCC, or another credit
+        and this person will
+        thus not be an eligible to be the taxpayer's QP.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/specialRuleAgiTest">
+      <Description>
+        In a situation where the TP is not a parent, and the person has an alive custodial parent,
+        that
+        custodial parent is not claiming the person as a qualifying person, the taxpayer has
+        a higher AGI than the
+        custodial parent, which will allow the TP to claim the person for
+        certain tax benefits.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/parentalSituation">
+      <Name>Taxpayer's situation with other legal parent</Name>
+      <Description>The taxpayer's marital or living situation with the dependent's other legal parent, as it applies to
+        benefit split.</Description>
+
+      <Writable>
+        <Enum optionsPath="/parentalSituationOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/parentsAreDivorcedSeparatedOrLivingApart">
+      <Description>
+        Used to decide whether to display screen AddPersonParentalSupport
+      </Description>
+
+      <Derived>
+        <NotEqual>
+          <Left>
+            <Dependency path="../parentalSituation" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/parentalSituationOptions">other</Enum>
+          </Right>
+        </NotEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/parentalSupport">
+      <Name>Parental support</Name>
+      <Description>
+        Did the taxpayer and/or other parent pay more than half the dependent's support?
+
+        The question counts support from both parents together, and the filer is told how to
+        count it:
+        (1) A PARENT'S NEW SPOUSE. When a parent has remarried, support the child received from
+            that parent's spouse (a stepparent) counts as support from that parent.
+        (2) ALIMONY. Alimony or separate maintenance paid to the other parent is not support of
+            the child by the parent who paid it; count only what was spent on the child.
+        (3) PUBLIC ASSISTANCE. Benefits the state provides to a needy person are generally
+            support from the state, not from a parent. But TANF or similar payments a parent
+            received and used to support the child count as that parent's support (the
+            Publication states this rule as one made under proposed Treasury regulations).
+
+        These are counting rules for the answer, not separate questions: the answer is one
+        yes or no for the parents together.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableChildSupportUnderMultipleSupportAgreement">
+      <Name>Child's support is determined under a multiple support agreement</Name>
+      <Description>
+        Is this child's support for the year determined under a multiple support agreement (a
+        Form 2120 multiple support declaration), so that someone is treated as having provided
+        over half of the child's support under that agreement?
+
+        When the answer is yes, the special rule for children of divorced or separated parents
+        does not apply: the custodial parent cannot release the claim with Form 8332, and the
+        noncustodial parent cannot claim the child through that rule. ../eligibleForBenefitSplit
+        closes on the parental path and the child is decided under the ordinary rules.
+
+        Asked on the parental path, after ../parentalSupport. Unanswered, the benefit split is
+        decided as if the answer were no, so silence never closes the split; an explicit no
+        leaves it unchanged.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/tpIsCustodialParent">
+      <Name>Taxpayer is custodial parent</Name>
+      <Description>
+        Is the taxpayer custodial parent of the dependent?
+        The custodial parent is eligible to claim the
+        person for EITC and HoH
+        but not eligible to claim them as a dependent, or for CTC/ACTC/ODC.
+
+        The custodial parent is the parent with whom the child lived for the greater number of
+        nights (../nightsWithTpVsOtherParent), with the higher-AGI parent on an equal count
+        (../tpAgiHigherThanOtherParent). The night-work exception overrides that count: when,
+        because of a parent's nighttime work schedule, the child lived more days but not more
+        nights with that parent, that parent is the custodial parent
+        (../writableNightWorkCustodialParent). Each override arm is fenced with IsComplete, so
+        an unanswered night-work question, or an answer of neither, leaves the nights count to
+        decide exactly as before.
+      </Description>
+
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete>
+              <Dependency path="../writableNightWorkCustodialParent" />
+            </IsComplete>
+            <Equal>
+              <Left>
+                <Dependency path="../writableNightWorkCustodialParent" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/nightWorkCustodialParentOptions">taxpayer</Enum>
+              </Right>
+            </Equal>
+          </All>
+          <All>
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableNightWorkCustodialParent" />
+                </IsComplete>
+                <Equal>
+                  <Left>
+                    <Dependency path="../writableNightWorkCustodialParent" />
+                  </Left>
+                  <Right>
+                    <Enum optionsPath="/nightWorkCustodialParentOptions">otherParent</Enum>
+                  </Right>
+                </Equal>
+              </All>
+            </Not>
+            <Any>
+              <Equal>
+                <Left>
+                  <Dependency path="../nightsWithTpVsOtherParent" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/moreLessEqualOptions">more</Enum>
+                </Right>
+              </Equal>
+              <All>
+                <Equal>
+                  <Left>
+                    <Dependency path="../nightsWithTpVsOtherParent" />
+                  </Left>
+                  <Right>
+                    <Enum optionsPath="/moreLessEqualOptions">equal</Enum>
+                  </Right>
+                </Equal>
+                <Dependency path="../tpAgiHigherThanOtherParent" />
+              </All>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nightWorkCustodialParentOptions">
+      <Name>Night-work custodial parent options</Name>
+      <Description>The vocabulary of ../writableNightWorkCustodialParent on each dependent: taxpayer
+        (the taxpayer is the parent who works at night), otherParent (the other parent is), and
+        neither (the exception does not apply).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>taxpayer</String>
+          <String>otherParent</String>
+          <String>neither</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableNightWorkCustodialParent">
+      <Name>Night-work exception to the nights count</Name>
+      <Description>
+        Because of a parent's nighttime work schedule, did the child live with that parent for a
+        greater number of days, but not nights? If so, which parent works at night: the taxpayer,
+        the other parent, or neither (the exception does not apply)?
+
+        When the answer names a parent, that parent is treated as the custodial parent whatever
+        ../nightsWithTpVsOtherParent says. On a school day the child is treated as living at the
+        primary residence registered with the school.
+
+        Asked on the parental benefit-split path, with ../nightsWithTpVsOtherParent. Unanswered, or
+        answered neither, the nights count decides the custodial parent as before.
+      </Description>
+
+      <Writable>
+        <Enum optionsPath="/nightWorkCustodialParentOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/tpCanClaimSplitBenefitsHohEitcCdcc">
+      <Description>
+        The person qualifies for a special benefit split, and the taxpayer can therefore qualify
+        for either HoH, EITC, or CDCC using this person. This happens because the taxpayer is the
+        CUSTODIAL parent and the dependency claim has moved to the other parent by one of the three
+        routes section 152(e)(1) admits, or because the taxpayer is not a parent but is eligible for
+        the split.
+
+        THE THREE ROUTES on the custodial side, which is what the inner Any arm holds: the taxpayer
+        signed the written declaration themselves (../whichParentNotClaiming answers "iDid"); a
+        qualified pre-1985 instrument gives the claim to the other parent
+        (../qualifiedPre1985InstrumentRouteMet); or the pages of a post-1984 and pre-2009 decree do
+        (../post1984Pre2009DecreeRouteMet). On the last two the custodial parent signs nothing - the
+        document already decided it - which is why the arm is a disjunction and not a second reading
+        of the declaration answer. Head of household, the earned income credit and the child and
+        dependent care credit read the qualifying child determined WITHOUT regard to section 152(e),
+        so they stay here whichever route moved the dependency claim.
+      </Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="../eligibleForBenefitSplit" />
+          <Any>
+            <All>
+              <Any>
+                <Equal>
+                  <Left>
+                    <Dependency path="../whichParentNotClaiming" />
+                  </Left>
+                  <Right>
+                    <Enum optionsPath="/writtenDeclarationOptions">iDid</Enum>
+                  </Right>
+                </Equal>
+                <Dependency path="../qualifiedPre1985InstrumentRouteMet" />
+                <Dependency path="../post1984Pre2009DecreeRouteMet" />
+              </Any>
+              <Dependency path="../tpIsCustodialParent" />
+            </All>
+            <Dependency path="../reachedNonParentalBenefitSplit" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/familyAndHousehold/*/contradictory8832TPIsCustodialParent">
+      <Description>The taxpayer is the custodial parent of the dependent but says the other possible claimant signed
+        form 8332</Description>
+      <Derived>
+        <All>
+          <Dependency path="../tpIsCustodialParent" />
+          <Equal>
+            <Left>
+              <Dependency path="../whichParentNotClaiming" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/writtenDeclarationOptions">theyDid</Enum>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/contradictory8832TPNotCustodialParent">
+      <Description>The taxpayer is NOT the custodial parent of the dependent but says that they (the TP) signed form
+        8332</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="../tpIsCustodialParent" />
+          </Not>
+          <Equal>
+            <Left>
+              <Dependency path="../whichParentNotClaiming" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/writtenDeclarationOptions">iDid</Enum>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/contradictory8832Knockout">
+      <Name>Form 8332 release answers contradict the custodial-parent test for this person</Name>
+      <Description>
+        NO LONGER A REFUSAL TRIGGER. True when this person qualifies for the benefit split but the
+        filer's answers about the written declaration contradict the custodial-parent test: the
+        filer is the custodial parent on the custody test and says the OTHER parent signed the
+        release, or the filer is not the custodial parent and says THEY signed it. The release of
+        claim to the child (Form 8332, or a statement conforming to it) can be signed only by the
+        custodial parent, so neither contradictory answer describes a release IRC 152(e)(2)(A)
+        recognises.
+
+        IRC 152(e)(1) treats the child as the noncustodial parent's qualifying child only "if the
+        requirements described in paragraph (2) or (3) are met". A release the filer describes as
+        signed by the wrong parent meets neither: paragraph (2) fails on its own terms, and nothing
+        in either contradiction opens paragraph (3) (the pre-1985 instrument, a different document
+        entirely). So on the filer's own answers section 152(e) simply does not apply, and the
+        ordinary section 152(c) tests decide who claims the child - exactly the outcome the statute
+        already prescribes for a condition that is not met, not an unanswerable question this graph
+        must refuse rather than guess.
+
+        WHAT HAPPENS INSTEAD, and why no other fact needs to change. On the custodial side
+        (../contradictory8832TPIsCustodialParent) ../tpCanClaimSplitBenefitsHohEitcCdcc's custodial
+        arm still requires this filer's OWN signature ("iDid") or one of the two document routes;
+        a contradictory "theyDid" satisfies none of them, so the split simply never opens for this
+        filer and the ordinary qualifying-child tests (which do not read this Boolean) decide, with
+        this filer as the parent the child in fact lived with. On the noncustodial side
+        (../contradictory8832TPNotCustodialParent) ../tpCanClaimSplitBenefitsDependencyCtcOdc
+        likewise requires the OTHER parent's signature ("theyDid") or a document route; a
+        contradictory "iDid" satisfies none of them either, so this filer gets no claim through the
+        special rule and the ordinary tests (which this filer will typically fail on residency,
+        having fewer nights) decide instead. Neither fact reads this Boolean, so retiring it changes
+        nothing else in the module.
+
+        KEPT AT A CONSTANT, not deleted, because the flow member /knockedOutByContradictory8832,
+        the scope-sidecar knockout-guard row and the two per-side aggregator facts below all read
+        it; no population needs the hard stop today, but the wiring stays for one that might.
+      </Description>
+
+      <Derived>
+        <False />
+      </Derived>
+    </Fact>
+
+    <Fact path="/contradictory8832TPIsCustodialParentTriggeredKnockout">
+      <Name>Contradictory release: custodial parent says the other parent signed Form 8332</Name>
+      <Description>/knockedOutByContradictory8832 was triggered by a filer who is the custodial
+        parent on the custody test but says the other parent signed the Form 8332 release.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/familyAndHousehold/*/contradictory8832TPIsCustodialParent" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/contradictory8832TPNotCustodialParentTriggeredKnockout">
+      <Name>Contradictory release: noncustodial parent says they signed Form 8332</Name>
+      <Description>/knockedOutByContradictory8832 was triggered by a filer who is not the custodial
+        parent on the custody test but says they signed the Form 8332 release themselves.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/familyAndHousehold/*/contradictory8832TPNotCustodialParent" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockedOutByContradictory8832">
+      <Name>Knockout: the Form 8332 release answers contradict the custodial-parent test</Name>
+      <Description>
+        NEVER FIRES TODAY: its trigger, ../contradictory8832Knockout, is now a constant false, so
+        this fact and its screen text below are kept only for the flow member and the aggregator
+        facts that read them. If a future population needs a hard stop on this data-consistency
+        pattern, this is where it is turned back on. The retired screen text, kept because it may be
+        useful again: "Your answers about the release of claim to a child (Form 8332) contradict
+        each other. Only the custodial parent - generally the parent the child lived with for the
+        greater number of nights in 2025 - can sign that release. You said you are the custodial
+        parent and the other parent signed it, or that you are not the custodial parent and you
+        signed it. Check who the child lived with and who signed the release. This return cannot be
+        filed here until the answers agree."
+      </Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <IsComplete><Dependency module="familyAndHousehold" path="/familyAndHousehold" /></IsComplete>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <Dependency path="/familyAndHousehold/*/contradictory8832Knockout" />
+              </Count>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentWhoCausedContradictory8832Knockout">
+      <Description>
+        The family/household member who caused /knockedOutByContradictory8832 (the first child whose
+        Form 8332 release answers contradict the custodial-parent test).
+      </Description>
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Filter path="/familyAndHousehold">
+              <Dependency path="contradictory8832Knockout"></Dependency>
+            </Filter>
+          </Collection>
+          <Index>
+            <Int>0</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/familyAndHousehold/*/noncustodialParentSection152eRouteOpen">
+      <Name>One of the three section 152(e) routes is open on the noncustodial side, before the release-attachment answer</Name>
+      <Description>The taxpayer is not the custodial parent, the child otherwise meets everything
+        the special rule requires (../eligibleForBenefitSplit), and ONE OF THE THREE ROUTES section
+        152(e)(1) admits is open. THIS IS NOT YET "the claim moves here" - ../whichParentNotClaiming
+        answering "theyDid" only says the OTHER (custodial) parent signed the declaration; IRC
+        152(e)(2)(B) still requires THIS taxpayer to attach it, which
+        ../tpCanClaimSplitBenefitsDependencyCtcOdc's own conjunct on
+        ../writableNoncustodialParentHasReleaseToAttach is what tests. This fact is the SCREEN GATE
+        for that writable and for nothing else: it is what "asked when" means on that intake, kept
+        separate so answering the release question can never make its own gate disappear.
+
+        THE THREE ROUTES, which is what the Any arm below holds. Section 152(e)(1) is satisfied
+        when "the requirements described in paragraph (2) or (3)" are met.
+        (1) PARAGRAPH (2), the written declaration: ../whichParentNotClaiming answers "theyDid",
+            the other parent signed Form 8332 or a substantially similar statement.
+        (2) PARAGRAPH (3), the qualified pre-1985 instrument: ../qualifiedPre1985InstrumentRouteMet,
+            an instrument executed before 1985 that gives the claim to the noncustodial parent, was
+            never modified to take it back, and carries at least $600 of support.
+        (3) THE DECREE PAGES, still paragraph (2) but with a different document:
+            ../post1984Pre2009DecreeRouteMet, a decree that went into effect after 1984 and before
+            2009 and states the three things the instruction requires. An instrument that went into
+            effect after 2008 opens neither of the last two, which is the printed bar.
+
+        THIS FACT IS A RENAME, NOT A NEW DERIVATION. Its body is byte for byte the body
+        ../tpCanClaimSplitBenefitsDependencyCtcOdc carried before the release-attachment conjunct
+        was added there; splitting it out kept every existing consumer of THAT fact's meaning intact
+        while giving the screen gate a name that does not move when the release answer does.
+
+        TYPE/SIGN: Boolean, per family-and-household member, no rounding. NOT complete-safe: it
+        inherits ../eligibleForBenefitSplit's completeness.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="../eligibleForBenefitSplit" />
+          <Not>
+            <Dependency path="../tpIsCustodialParent" />
+          </Not>
+          <Any>
+            <Equal>
+              <Left>
+                <Dependency path="../whichParentNotClaiming" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/writtenDeclarationOptions">theyDid</Enum>
+              </Right>
+            </Equal>
+            <Dependency path="../qualifiedPre1985InstrumentRouteMet" />
+            <Dependency path="../post1984Pre2009DecreeRouteMet" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/tpCanClaimSplitBenefitsDependencyCtcOdc">
+      <Name>The section 152(e) split moves this child's dependency claim and CTC/ODC to the taxpayer</Name>
+      <Description>The
+        MIRROR of ../tpCanClaimSplitBenefitsHohEitcCdcc: the same IRC 152(e) split seen from the
+        NONCUSTODIAL parent's side, gated on BOTH of IRC 152(e)(2)'s limbs: (A), tested by
+        ../noncustodialParentSection152eRouteOpen (the custodial parent's declaration, or one of the
+        two document routes that stand in for it), and (B), the noncustodial parent's own duty to
+        attach the declaration, tested by the fenced conjunct below on
+        ../writableNoncustodialParentHasReleaseToAttach.
+
+        THE RELEASE CONJUNCT, and why it reads the bare Writable rather than the complete-safe
+        ../noncustodialParentHasReleaseToAttach. IRC 152(e)(1) opens only "if the requirements
+        described in paragraph (2) or (3) are met" (26 U.S.C. 152, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section152&amp;num=0&amp;edition=2024). Limb (B)
+        of paragraph (2) is a requirement, so an ANSWERED No means it fails on the filer's own
+        answers and section 152(e) does not apply at all - the ordinary section 152(c) tests decide
+        who claims the child instead, with no refusal. An UNANSWERED question is a different
+        posture, a data-completeness gap rather than a failed condition, and must not silently
+        decide the statutory question either way: the conjunct
+        `Not(All(IsComplete(w), Not(w)))` is true whenever w is unanswered OR true, and false only
+        when w is answered No, so only an affirmative No closes this route. THE PRE-1985 ROUTE IS
+        EXEMPT from this conjunct by its own Any arm below: paragraph (3) carries no attachment duty
+        at all (Form 8332 page 2 item 3b), so an instrument route filer's release answer - No,
+        unanswered, or never asked - never closes the claim paragraph (3) already grants.
+
+        WHAT NO LONGER HOLDS: this fact is no longer byte for byte
+        ../noncustodialParentSection152eRouteOpen (that fact is now the mirror-rename this
+        Description used to describe); this one adds the release-attachment test IRC 152(e)(2)(B)
+        requires. The refusal that used to fire on the whole noncustodial population reads
+        ../noncustodialParentBenefitSplitReleaseNotAttached, whose residue is named there and is now
+        narrower still: it fires only while the release question is UNANSWERED, because an answered
+        No already closes this fact above rather than reaching that refusal.
+
+        THE THREE CARVE-OUTS DO NOT MOVE. Head of household (IRC 2(b)(1)(A)(i)), the EITC (IRC
+        32(c)(3)(A)) and the CDCC (IRC 21(e)(5)) each read the qualifying child determined WITHOUT
+        regard to section 152(e), so they stay with the custodial parent. Nothing here
+        touches a consumer of ../tpCanClaimSplitBenefitsHohEitcCdcc, which is the cheapest proof
+        that they hold.
+
+        TYPE/SIGN: Boolean, per family-and-household member, no rounding. NOT complete-safe: it
+        inherits ../eligibleForBenefitSplit's completeness. Its familyAndHousehold consumers
+        (qualifyingChildUnderSection152e, qualifyingRelativeUnderSection152e) read it through a
+        Switch: answered, it decides; unanswered while ../residencyTest is Complete true, the
+        taxpayer is the custodial parent and the noncustodial route is not reached (false);
+        otherwise the Switch runs off the end and the consumer stays Incomplete.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="../noncustodialParentSection152eRouteOpen" />
+          <Any>
+            <Dependency path="../qualifiedPre1985InstrumentRouteMet" />
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableNoncustodialParentHasReleaseToAttach" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableNoncustodialParentHasReleaseToAttach" />
+                </Not>
+              </All>
+            </Not>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableNoncustodialParentHasReleaseToAttach">
+      <Name>Noncustodial parent has the signed release to include with the return</Name>
+      <Description>IRC 152(e)(2) has TWO limbs and this module modelled
+        only the first: (A) the custodial parent signs the written declaration - which
+        ../whichParentNotClaiming already asks - and (B) "the noncustodial parent attaches such
+        written declaration to the noncustodial parent's return for the taxable year". This is
+        limb (B), and it is the only thing left standing between this taxpayer and the claim
+        section 152(e) grants them.
+
+        SCREEN SPECIFICATION - the application implements this without opening a statute.
+
+        SCREEN NAME (proposed): NoncustodialParentReleaseDocument, in the Dependents section,
+        immediately after the existing benefit-split questions for this person and before the
+        person's summary.
+
+        QUESTION TEXT, as asked, with the person's first name substituted for {name}:
+          "Do you have the signed Form 8332 (or a similar signed statement) from {name}'s other
+          parent to include with your return?"
+
+        THE DECREE PAGES ARE AN ACCEPTED ANSWER on one vintage of instrument, and the screen has to
+        say so. Where ../instrumentEffectiveAfter1984AndBefore2009 is true the question reads
+          "Do you have the signed Form 8332 or similar statement from {name}'s other parent, OR the
+          required pages of the divorce decree or separation agreement, to include with your
+          return?"
+        with the extra help text:
+          "If the decree or separation agreement went into effect after 1984 and before 2009, you
+          can include pages from it instead of Form 8332. You need the cover page with the other
+          parent's Social Security number on it, the pages that say the other parent can claim
+          {name} without any conditions, that they will not claim {name}, and which years the claim
+          covers, and the signature page with the other parent's signature and the date. You have
+          to include them even if you filed them with a return in an earlier year."
+          Source: 2025 Instructions for Form 1040, "Post-1984 and pre-2009 decree or agreement",
+          https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 20, RIGHT column; Form 8332 page 2,
+          https://www.irs.gov/pub/irs-pdf/f8332.pdf, page 2.
+        NOT ASKED AT ALL on the pre-1985 route (../qualifiedPre1985InstrumentRouteMet): Form 8332
+        page 2 item 3b states that route with no attachment, so
+        ../noncustodialParentBenefitSplitReleaseNotAttached carries the route as a disjunct inside
+        its Not and the refusal never reaches that population.
+
+        HELP TEXT, paraphrasing the governing instruction:
+          "The other parent has to sign Form 8332, Release/Revocation of Release of Claim to
+          Exemption for Child by Custodial Parent, or a statement that does the same thing, saying
+          they will not claim {name} as a dependent for 2025. You have to include a copy with your
+          return, and the release cannot depend on you paying support. Answer Yes only if you have
+          that signed form or statement now."
+          Source: 2025 Instructions for Form 1040, Children of divorced or separated parents,
+          condition 4a - "The custodial parent signs Form 8332 or a substantially similar
+          statement that they won't claim the child as a dependent for 2025, and the noncustodial
+          parent includes a copy of the form or statement with their return" -
+          https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 20, LEFT column; and IRC 152(e)(2)(B),
+          26 U.S.C. 152, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section152&amp;num=0&amp;edition=2024.
+
+        ASKED WHEN: ../noncustodialParentSection152eRouteOpen is COMPLETE TRUE for this person -
+        that is, the taxpayer is the noncustodial parent, the child meets everything else section
+        152(e) requires, and the other parent signed the release (or one of the two document routes
+        stands in for that signature). NOT ../tpCanClaimSplitBenefitsDependencyCtcOdc: that fact now
+        reads THIS writable as its own conjunct, so gating the screen on it would hide the question
+        the moment it is answered No - the screen gate has to be the fact as it stood before that
+        conjunct was added. Complete true, not merely true: ../noncustodialParentSection152eRouteOpen
+        inherits ../eligibleForBenefitSplit's completeness and is Incomplete while the benefit-split
+        questions are unfinished, and an Incomplete gate must not open the screen. Do NOT ask it of
+        the custodial parent (../tpCanClaimSplitBenefitsHohEitcCdcc) - the custodial parent signs the
+        release, they do not attach it. Ask it ONCE PER PERSON; the household can hold more than one
+        released child, and the answers are independent.
+
+        NOT THE FORM 8332 RENDER GATE. form8332:/writableForm8332FilesReleaseOrRevocation
+        (form8332.xml:22) is the CUSTODIAL side - the filer who SIGNS a release or revocation and
+        files the form itself. This writable is the other return: the noncustodial parent attaches a
+        COPY of the form the other parent signed, and does not file Form 8332 at all. Wiring this
+        screen to that render gate would be wrong in both directions.
+
+        UNANSWERED POSTURE, and why. Unanswered means NO. The derived
+        ../noncustodialParentHasReleaseToAttach wraps this writable in All(IsComplete(w), w), so an
+        unanswered screen reads Complete false and /knockedOutByNonCustodialParentBenefitSplit
+        keeps refusing exactly the filers it refuses today. That is deliberate: a return that
+        claims a released child WITHOUT the declaration is one the IRS disallows, so the safe
+        reading of silence is "we do not have it". There is no Placeholder and no default.
+
+        VALIDATION: Boolean. Yes/No radio, labels "Yes" / "No", no default selection, answer
+        required to leave the screen. No Min/Max. Nothing to normalise.
+
+        WHAT THE ANSWER FEEDS: directly, a fenced conjunct on
+        ../tpCanClaimSplitBenefitsDependencyCtcOdc; and, through
+        ../noncustodialParentHasReleaseToAttach, ../noncustodialParentBenefitSplitReleaseNotAttached
+        -> /knockedOutByNonCustodialParentBenefitSplit (flow.xml). A Yes computes the dependency
+        claim plus CTC/ACTC/ODC through
+        familyAndHousehold:/familyAndHousehold/*/qualifyingChildUnderSection152e, same as leaving the
+        question unanswered on the pre-1985 route, which needs no attachment at all. A No CLOSES
+        THE CLAIM RATHER THAN REFUSING IT: IRC 152(e)(2)(B) is a requirement of the special rule, so
+        an answered No means section 152(e) does not apply on the filer's own answers, and the
+        ordinary section 152(c) tests decide who claims the child instead - no knockout fires and no
+        knockout copy is shown. UNANSWERED is the only posture that still refuses, through
+        ../noncustodialParentBenefitSplitReleaseNotAttached: a return may not claim a released child
+        while this question sits open.
+
+        MeF FOLLOW-ON (named, not built here): a Yes means the return carries the signed release,
+        which MeF transmits as a binary attachment (or on paper with Form 8453). The MeF element names are not asserted here.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/noncustodialParentHasReleaseToAttach">
+      <Name>The signed release is in hand (complete-safe)</Name>
+      <Description>The complete-safe reading of
+        ../writableNoncustodialParentHasReleaseToAttach: All(IsComplete(w), w), so an UNANSWERED
+        intake resolves Complete false rather than Incomplete. That matters because the refusal
+        ../noncustodialParentBenefitSplitReleaseNotAttached negates this fact, and a knockout that
+        went Incomplete where it used to be Complete true would change the flow on every committed
+        scenario in this population. The IsComplete gate is on a bare Writable that is genuinely
+        unanswered today - it is a "source answered" predicate, not a gate on a complete-safe
+        fact.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../writableNoncustodialParentHasReleaseToAttach" />
+          </IsComplete>
+          <Dependency path="../writableNoncustodialParentHasReleaseToAttach" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/noncustodialParentBenefitSplitReleaseNotAttached">
+      <Name>Section 152(e) moves the claim here but whether the release can be carried is still unknown</Name>
+      <Description>The trigger of /knockedOutByNonCustodialParentBenefitSplit, narrowed a second
+        time. What is left is the DATA-COMPLETENESS RESIDUE and nothing else: the taxpayer to whom
+        the split moves the claim who has not yet ANSWERED whether they hold the signed release IRC
+        152(e)(2)(B) requires them to attach. That residue is the correct permanent refusal for the
+        one posture it still reaches - a return may not claim a released child while the question
+        sits open - and it is the whole of what this guard now refuses.
+
+        AN ANSWERED NO NO LONGER REACHES THIS FACT AT ALL. The first conjunct,
+        ../tpCanClaimSplitBenefitsDependencyCtcOdc, is itself false whenever
+        ../writableNoncustodialParentHasReleaseToAttach is answered No (its own fenced conjunct, the
+        pre-1985 route exempt): a failed IRC 152(e)(2)(B) condition on the filer's own answers means
+        section 152(e) does not apply, not that the return must be refused pending more paperwork.
+        So this All is false on an answered No before its own second conjunct is even reached; only
+        an UNANSWERED release question - where ../noncustodialParentHasReleaseToAttach is Complete
+        false but ../tpCanClaimSplitBenefitsDependencyCtcOdc is still true - lands here.
+
+        THIS FACT'S OWN Not(...) NO LONGER DISTINGUISHES ANSWERED-NO FROM UNANSWERED: it did before
+        the release-attachment conjunct moved onto ../tpCanClaimSplitBenefitsDependencyCtcOdc, when
+        this fact was the only place a No or a silence was read. It is kept, unsimplified, because it
+        is still doing one job: carving the pre-1985 route out of the unanswered-release refusal (see
+        below), the same carve-out ../tpCanClaimSplitBenefitsDependencyCtcOdc's own Any repeats for
+        the answered-No case.
+
+        ONE POPULATION IS CARVED OUT, and it is a NEW one rather than a narrowing of the old: the
+        qualified pre-1985 instrument route (../qualifiedPre1985InstrumentRouteMet) has NOTHING TO
+        ATTACH. Form 8332 page 2 sets out the two ways the condition can be met and asks for an
+        attachment on the first only; the second is "A pre-1985 decree of divorce or separate
+        maintenance or written separation agreement states that the noncustodial parent can claim
+        the child as a dependent", with a support floor and no document duty. So that route is a
+        disjunct inside the Not below and this refusal never reaches it. THE DECREE-PAGES ROUTE IS
+        THE OPPOSITE and is deliberately NOT carved out: there the pages of the decree ARE the
+        written declaration section 152(e)(2)(B) makes the noncustodial parent attach, so a filer
+        on that route who does not hold them is refused exactly as a Form 8332 filer without the
+        form is.</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="../tpCanClaimSplitBenefitsDependencyCtcOdc" />
+          <Not>
+            <Any>
+              <Dependency path="../noncustodialParentHasReleaseToAttach" />
+              <Dependency path="../qualifiedPre1985InstrumentRouteMet" />
+            </Any>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockedOutByNonCustodialParentBenefitSplit">
+      <Description>
+        We should knockout the user because one they are are the noncustodial parent
+        in a special benefit
+        split
+
+        This does not refuse the whole IRC 152(e) noncustodial
+        population: that population's claim now computes
+        (../tpCanClaimSplitBenefitsDependencyCtcOdc with
+        familyAndHousehold:/familyAndHousehold/*/qualifyingChildUnderSection152e). WHAT IT NOW
+        REFUSES is the residue named on
+        /familyAndHousehold/*/noncustodialParentBenefitSplitReleaseNotAttached - the filer to whom
+        the split moves the claim who has not said they hold the signed release IRC 152(e)(2)(B)
+        requires them to attach to the return. That is a data-completeness refusal and it is
+        permanent.
+      </Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <IsComplete><Dependency module="familyAndHousehold" path="/familyAndHousehold" /></IsComplete>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <Dependency path="/familyAndHousehold/*/noncustodialParentBenefitSplitReleaseNotAttached" />
+              </Count>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dependentWhoCausedNonCustodialKnockoutSplit">
+      <Description>
+        The family/household member who caused the knockedOutByNonCustodialParentBenefitSplit
+      </Description>
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Filter path="/familyAndHousehold">
+              <Dependency path="noncustodialParentBenefitSplitReleaseNotAttached"></Dependency>
+            </Filter>
+          </Collection>
+          <Index>
+            <Int>0</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/eligibleForBenefitSplit">
+      <Name>Eligible for benefit split</Name>
+      <Description>Is the dependent eligible for the special rule benefit split?</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Any>
+          <All>
+            <Dependency path="../childMayQualifyForBenefitSplit" />
+            <Dependency path="../tpIsParent" />
+            <Dependency path="../hasOtherBiologicalOrAdoptiveParent" />
+            <Dependency path="../parentalSomeParentNotClaiming" />
+            <Dependency path="../inParentsCustody" />
+            <Dependency path="../livedWithTpOrOtherBiologicalOrAdoptiveParentMoreThanSixMonths" />
+            <Dependency path="../parentsAreDivorcedSeparatedOrLivingApart" />
+            <Dependency path="../parentalSupport" />
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableChildSupportUnderMultipleSupportAgreement" />
+                </IsComplete>
+                <Dependency path="../writableChildSupportUnderMultipleSupportAgreement" />
+              </All>
+            </Not>
+          </All>
+          <All>
+            <Dependency path="../reachedNonParentalBenefitSplit" />
+            <Not>
+              <Dependency path="../specialRuleChildUsedByCustodialParentAsQP" />
+            </Not>
+            <Dependency path="../specialRuleAgiTest" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/reachedNonParentalBenefitSplit">
+      <Description>
+        On a non-parental path, the taxpayer has realized that the child qualified for the
+        benefit split --
+        but that doesn't yet mean that they can claim the child.
+
+        Exported so that a consumer of ../tpCanClaimSplitBenefitsHohEitcCdcc can tell its
+        non-parental arm from its custodial-parent arm: head of household and the earned income
+        credit follow both arms, but the child and dependent care credit and the dependent care
+        benefits exclusion follow the custodial parent alone.
+      </Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="../childMayQualifyForBenefitSplit" />
+          <Dependency path="../tpIsNotParent" />
+          <Dependency path="../biologicalOrAdoptiveParentsLiving" />
+          <Dependency path="../inParentsCustody" />
+          <Dependency path="../nonParentalSomeParentNotClaiming" />
+          <Dependency path="../parentsMeetReqsRuleForChildrenOfDivorcedParents" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/disqualifiedDueToParentalCustody">
+      <Description>
+        The taxpayer answered questions about the person deep into the special benefit split
+        section -- far
+        enough that we know that the person is a QP for their parents, and
+        that they cannot be used for tax benefits on
+        this return.
+      </Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="../reachedNonParentalBenefitSplit" />
+          <Any>
+            <Not>
+              <Dependency path="../specialRuleAgiTest" />
+            </Not>
+            <Dependency path="../specialRuleChildUsedByCustodialParentAsQP" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

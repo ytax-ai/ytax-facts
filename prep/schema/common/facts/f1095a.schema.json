@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/f1095a.schema.json",
+  "title": "Form 1095-A (Health Insurance Marketplace Statement), Part III",
+  "description": "The form's own grid, lines 21-32, columns A (enrollment premiums), B (the applicable SLCSP premium) and C (advance payment of the premium tax credit), one cents field per cell; line 33's totals are derived. A month is a coverage month when its column A is above zero; the policy's dates are the first and last coverage months. One form per return at the pin (a second is refused by name). A form with no coverage month, column C in a month without column A, or a zero column B on a coverage month is refused by name. Reaches Form 8962 and, through Schedule 2 line 2 or Schedule 3 line 9, Form 1040 lines 24, 33 and 34.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [],
+  "properties": {
+    "jan_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 21 (January), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "jan_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 21 (January), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "jan_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 21 (January), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "feb_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 22 (February), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "feb_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 22 (February), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "feb_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 22 (February), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "mar_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 23 (March), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "mar_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 23 (March), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "mar_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 23 (March), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "apr_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 24 (April), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "apr_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 24 (April), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "apr_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 24 (April), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "may_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 25 (May), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "may_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 25 (May), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "may_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 25 (May), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "jun_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 26 (June), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "jun_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 26 (June), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "jun_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 26 (June), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "jul_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 27 (July), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "jul_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 27 (July), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "jul_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 27 (July), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "aug_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 28 (August), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "aug_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 28 (August), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "aug_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 28 (August), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "sep_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 29 (September), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "sep_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 29 (September), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "sep_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 29 (September), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "oct_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 30 (October), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "oct_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 30 (October), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "oct_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 30 (October), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "nov_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 31 (November), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "nov_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 31 (November), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "nov_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 31 (November), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    },
+    "dec_premium_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 32 (December), column A — monthly enrollment premiums. Optional: blank or 0 is a month without coverage (column A decides the coverage months)."
+    },
+    "dec_slcsp_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 32 (December), column B — monthly second lowest cost silver plan (SLCSP) premium. Optional: blank or 0 is a month without coverage."
+    },
+    "dec_aptc_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 1095-A line 32 (December), column C — monthly advance payment of premium tax credit. Optional: blank or 0 is a month without coverage."
+    }
+  }
+}

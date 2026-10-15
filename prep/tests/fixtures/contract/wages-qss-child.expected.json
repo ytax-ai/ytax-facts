@@ -1,0 +1,20 @@
+{
+  "comment": "Blessed from the pinned engine: qualifying surviving spouse uses the joint rates and deduction, so every line deliberately reuses the mfj-ACTC fixture's arithmetic (31,500 / tax 1,678 wiped by the CTC / 522 refundable -> line 33 = 6,522) - the cross-check IS the hand-check. The death-year and could-file-jointly answers make /eligibleForQss TRUE; the two_years_ago literal is exercised by its own test. Re-blessed with the earned income credit 345 now computes and joins line 33 (was 6,522, now 6,867; line 34 6,522 -> 6,867) — hand-checked against the 2025 EITC table for one qualifying child: 4,328 - 15.98% x (48,275 bracket midpoint - 23,350) = 345. Earlier, the EITC gate facts (Form 8862, qualifying child of another) were unanswered, the chain resolved Placeholder and the credit was a placeholder 0 — the refundable-side twin of the Form 8960 understatement.",
+  "expected_lines": {
+    "1a": 4825000,
+    "1e": 0,
+    "6a": 0,
+    "6b": 0,
+    "8": 0,
+    "9": 4825000,
+    "11": 4825000,
+    "12": 3150000,
+    "15": 1675000,
+    "16": 167800,
+    "24": 0,
+    "25d": 600000,
+    "26": 0,
+    "33": 686700,
+    "34": 686700
+  }
+}

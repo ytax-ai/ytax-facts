@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/carryovers.schema.json",
+  "title": "Carried-in amounts",
+  "description": "Carry-IN inputs only (single-year); the engine computes carry-OUT. NOT YET COMPUTED: nothing maps this group into the engine, so sending it non-empty is REFUSED (OUT_OF_COVERAGE) rather than silently ignored. The `coverage` operation lists it as an exclusion.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "capital_loss_cents": {
+      "$ref": "cents.schema.json"
+    },
+    "ira_basis_cents": {
+      "$ref": "cents.schema.json"
+    }
+  }
+}

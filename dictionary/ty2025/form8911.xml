@@ -1,0 +1,1003 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm8911Applies">
+      <Name>Form8911 is being completed</Name>
+      <Description>Form8911 is being completed. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Applies">
+      <Name>Form8911 is active</Name>
+      <Description>Form8911 is active. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableForm8911Applies" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/writableForm8911Applies" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+          </Switch>
+          <All>
+            <IsComplete>
+              <Dependency path="/form8911Properties" />
+            </IsComplete>
+            <GreaterThan>
+              <Left>
+                <CollectionSize>
+                  <Dependency path="/form8911Properties" />
+                </CollectionSize>
+              </Left>
+              <Right>
+                <Int>0</Int>
+              </Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties">
+      <Name>Alternative fuel refueling properties (one Schedule A per item)</Name>
+      <Description>Alternative fuel refueling properties (one Schedule A per item). See the cited form and instructions.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911PropertiesIsComplete">
+      <Name>Alternative fuel refueling properties (one Schedule A per item): all entries and applicable zero amounts have been entered</Name>
+      <Description>Alternative fuel refueling properties (one Schedule A per item): all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/registrationNumber">
+      <Name>IRS prefiling registration number for a transfer election</Name>
+      <Description>IRS prefiling registration number for a transfer election. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/description">
+      <Name>Property description</Name>
+      <Description>Property description. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/ownerName">
+      <Name>Owner name if different from filer</Name>
+      <Description>Owner name if different from filer. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/ownerTin">
+      <Name>Owner TIN</Name>
+      <Description>Owner TIN. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/address">
+      <Name>Property address</Name>
+      <Description>Property address. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/latitude">
+      <Name>Latitude including sign</Name>
+      <Description>Latitude including sign. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/longitude">
+      <Name>Longitude including sign</Name>
+      <Description>Longitude including sign. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/geoid">
+      <Name>11-digit eligible census tract GEOID</Name>
+      <Description>11-digit eligible census tract GEOID. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/permitNumber">
+      <Name>Government certification or permit number</Name>
+      <Description>Government certification or permit number. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/constructionStartDate">
+      <Name>Schedule A line 4: construction start date</Name>
+      <Description>Schedule A line 4: construction start date. See the cited form and instructions.</Description>
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/placedInServiceDate">
+      <Name>Schedule A line 5: placed in service</Name>
+      <Description>Schedule A line 5: placed in service. See the cited form and instructions.</Description>
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/eligibleCensusTract">
+      <Name>Schedule A line 6a: eligible low-income or non-urban census tract</Name>
+      <Description>Schedule A line 6a: eligible low-income or non-urban census tract. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/qualifiedProperty">
+      <Name>Original use, eligible refueling equipment and all section 30C property requirements satisfied</Name>
+      <Description>Original use, eligible refueling equipment and all section 30C property requirements satisfied. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/line8">
+      <Name>Schedule A line 8: qualified property cost</Name>
+      <Description>Schedule A line 8: qualified property cost. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/businessUsePercent">
+      <Name>Schedule A line 9: business/investment-use percentage</Name>
+      <Description>Schedule A line 9: business/investment-use percentage. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+        <Limit type="Max">
+          <Dollar>100</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/line10">
+      <Name>Schedule A line 10: business cost</Name>
+      <Description>Schedule A line 10: business cost. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <GreaterOf>
+            <Dependency path="../line8" />
+            <Dollar>0</Dollar>
+          </GreaterOf>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="../businessUsePercent" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="../businessUsePercent" />
+                  </Left>
+                  <Right>
+                    <Dollar>100</Dollar>
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <GreaterOf>
+                              <Dependency path="../businessUsePercent" />
+                              <Dollar>0</Dollar>
+                            </GreaterOf>
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <Dollar>100</Dollar>
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line11">
+      <Name>Schedule A line 11: section 179 expense deduction</Name>
+      <Description>Schedule A line 11: section 179 expense deduction. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/line12">
+      <Name>Schedule A line 12: business basis after section 179</Name>
+      <Description>Schedule A line 12: business basis after section 179. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../line10" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line11" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/pwaRequirementsMet">
+      <Name>Prevailing wage and apprenticeship requirements met; retain Form 7220 where required</Name>
+      <Description>Prevailing wage and apprenticeship requirements met; retain Form 7220 where required. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/line13">
+      <Name>Schedule A line 13: increased rate applies</Name>
+      <Description>Schedule A line 13: increased rate applies. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="../constructionStartDate" />
+                </Left>
+                <Right>
+                  <Day>2023-01-29</Day>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../pwaRequirementsMet" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line14">
+      <Name>Schedule A line 14: business credit before per-item limit</Name>
+      <Description>Schedule A line 14: business credit before per-item limit. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../line12" />
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="../line13" />
+              </When>
+              <Then>
+                <Rational>30/100</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Rational>6/100</Rational>
+              </Then>
+            </Case>
+          </Switch>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line15">
+      <Name>Schedule A line 15: per-item business limit</Name>
+      <Description>Schedule A line 15: per-item business limit. See the cited form and instructions.</Description>
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/eligible">
+      <Name>Property qualifies for this 2025 claim</Name>
+      <Description>Property qualifies for this 2025 claim. See the cited form and instructions.</Description>
+      <Derived>
+        <All>
+          <Dependency path="../qualifiedProperty" />
+          <Dependency path="../eligibleCensusTract" />
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="../placedInServiceDate" />
+            </Left>
+            <Right>
+              <Day>2025-01-01</Day>
+            </Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="../placedInServiceDate" />
+            </Left>
+            <Right>
+              <Day>2025-12-31</Day>
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line16">
+      <Name>Schedule A line 16: business credit</Name>
+      <Description>Schedule A line 16: business credit. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../eligible" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThan>
+                      <Left>
+                        <Dependency path="../line10" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </GreaterThan>
+                  </When>
+                  <Then>
+                    <Dependency path="../line16Minimum1" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/mainHome">
+      <Name>Schedule A line 17: property installed at the main home</Name>
+      <Description>Schedule A line 17: property installed at the main home. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Properties/*/line18">
+      <Name>Schedule A line 18: personal cost</Name>
+      <Description>Schedule A line 18: personal cost. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../line8" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line10" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line19">
+      <Name>Schedule A line 19: personal credit before per-item limit</Name>
+      <Description>Schedule A line 19: personal credit before per-item limit. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../line18" />
+          <Rational>30/100</Rational>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line20">
+      <Name>Schedule A line 20: per-item personal limit</Name>
+      <Description>Schedule A line 20: per-item personal limit. See the cited form and instructions.</Description>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line21">
+      <Name>Schedule A line 21: personal credit</Name>
+      <Description>Schedule A line 21: personal credit. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../eligible" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency path="../businessUsePercent" />
+                      </Left>
+                      <Right>
+                        <Dollar>100</Dollar>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="../mainHome" />
+                        </When>
+                        <Then>
+                          <Dependency path="../line21Minimum1" />
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/basisReduction">
+      <Name>Property basis reduction (before personal credit tax limitation)</Name>
+      <Description>The basis reduction for this property: Schedule A lines 16 plus 21, the credit determined before the section 30C(d) tax limitation, unless the filer elects not to claim the credit. It lowers the property's basis for every later purpose, including its depreciable basis on Form 4562 Part III column (c), whose instructions list this credit among those that reduce the basis for depreciation. Form 4562 rows are class totals the filer enters, not linked to Form 8911 properties, so no module subtracts this figure automatically: the application shows it on the depreciation screen and the filer enters the reduced basis there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../line16" />
+          <Dependency path="../line21" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line1">
+      <Name>Form 8911 line 1: total property business credits</Name>
+      <Description>Form 8911 line 1: total property business credits. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8911Properties" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8911Properties" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8911PropertiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8911Properties/*/line16" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911ItemANumberOfProperties">
+      <Name>Form 8911 Item A: number of qualified refueling properties</Name>
+      <Description>Form 8911 Item A, the total number of qualified alternative fuel vehicle refueling properties for which the credit is claimed, one Schedule A (Form 8911) per property. It counts the entered properties whose /form8911Properties/*/eligible is true; a property that fails eligibility earns no credit and is not counted. With no property entered (including a return whose only credit is the partnership or S corporation amount on line 2) the count is 0, which is the printed "enter -0-" rule. An unanswered property collection is also 0; properties entered but not marked complete leave the count Incomplete, the same gate line 1 uses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8911Properties" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8911Properties" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Int>0</Int>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Dependency path="/form8911PropertiesIsComplete" />
+                  </When>
+                  <Then>
+                    <CollectionSize>
+                      <Filter path="/form8911Properties">
+                        <Dependency path="eligible" />
+                      </Filter>
+                    </CollectionSize>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Int>0</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line4">
+      <Name>Form 8911 line 4: total property personal credits</Name>
+      <Description>Form 8911 line 4: total property personal credits. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8911Properties" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8911Properties" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8911PropertiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8911Properties/*/line21" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8911Line2">
+      <Name>Form 8911 line 2: credit from partnerships and S corporations</Name>
+      <Description>Form 8911 line 2: credit from partnerships and S corporations. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8911Line2OrZero">
+      <Name>Form 8911 line 2, complete-safe</Name>
+      <Description>Form 8911 line 2, the alternative fuel vehicle refueling property credit from partnerships and S corporations, floored at $0; $0 when the filer leaves the line blank, so line 3 and the Form 3800 Part III line 1s amount it feeds resolve on every return that has no such credit.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8911Line2" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableForm8911Line2" /><Dollar>0</Dollar> </GreaterOf></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8911Line2PassThroughEntityEin">
+      <Name>EIN of the partnership or S corporation that passed through the Form 8911 line 2 credit (Form 3800 Part III line 1s column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership or S corporation that passed this alternative fuel vehicle refueling property credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 that reports the credit. Asked when /writableForm8911Line2 is more than $0. Unanswered: Form 3800 Part III line 1s column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine1sColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+    <Fact path="/form8911Line3">
+      <Name>Form 8911 line 3: business credit for Form 3800 Part III line 1s</Name>
+      <Description>General business credit component before Form 3800 limitations, passive restrictions, transfers and carryovers: line 1 plus line 2, a blank line 2 counting as $0. Form 3800 Part III line 1s reads it. Do not add this directly to Schedule 3 line 6a; use the Form 3800 allowed credit there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8911Line1" />
+          <Dependency path="/form8911Line2OrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line5">
+      <Name>Form 8911 line 5</Name>
+      <Description>Form 8911 line 5. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/outFormRegularTaxBeforeCredits" module="outFormCreditLimits" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line6a">
+      <Name>Form 8911 line 6a</Name>
+      <Description>Form 8911 line 6a. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/sched3Line1" module="schedule3" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line6b">
+      <Name>Form 8911 line 6b</Name>
+      <Description>Form 8911 line 6b. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/outFormCreditsBefore8911" module="outFormCreditLimits" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line6c">
+      <Name>Form 8911 line 6c</Name>
+      <Description>Form 8911 line 6c. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8911Line6a" />
+          <Dependency path="/form8911Line6b" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line7">
+      <Name>Form 8911 line 7</Name>
+      <Description>Form 8911 line 7. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8911Line5" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8911Line6c" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line8">
+      <Name>Form 8911 line 8</Name>
+      <Description>Form 8911 line 8, the tentative minimum tax an individual copies from Form 6251 line 9: form6251 /amtLine9TentativeMinimumTaxAfterAmtftcFloored, line 7 less the line 8 AMT foreign tax credit, floored at zero. Line 7 less the credit is the section 55(b)(1) amount that section 26(c) makes the tentative minimum tax for this credit, whether or not the filer owes AMT. The floor keeps a negative line 9 (a foreign tax credit above line 7) from raising the line 9 limit above the net regular tax. The reasons for both are on the shared fact.</Description>
+      <Derived>
+        <Dependency path="/amtLine9TentativeMinimumTaxAfterAmtftcFloored" module="form6251" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line9">
+      <Name>Form 8911 line 9</Name>
+      <Description>Form 8911 line 9. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8911Line7" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8911Line8" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line10">
+      <Name>Form 8911 line 10</Name>
+      <Description>Form 8911 line 10. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8911Line4" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8911Line10Minimum1" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911PersonalCredit">
+      <Name>Personal refueling property credit; Schedule 3 line 6j</Name>
+      <Description>Personal refueling property credit; Schedule 3 line 6j. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form8911Applies" />
+            </When>
+            <Then>
+              <Round>
+                <Dependency path="/form8911Line10" />
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911PersonalCreditLost">
+      <Name>Unused personal credit (no carryback or carryforward)</Name>
+      <Description>Unused personal credit (no carryback or carryforward). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8911Line4" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8911Line10" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line16Minimum1">
+      <Name>Schedule A line 16: business credit: intermediate minimum 1</Name>
+      <Description>Schedule A line 16: business credit: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../line14" />
+          <Dependency path="../line15" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Properties/*/line21Minimum1">
+      <Name>Schedule A line 21: personal credit: intermediate minimum 1</Name>
+      <Description>Schedule A line 21: personal credit: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../line19" />
+          <Dependency path="../line20" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911Line10Minimum1">
+      <Name>Form 8911 line 10: intermediate minimum 1</Name>
+      <Description>Form 8911 line 10: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8911Line4" />
+          <Dependency path="/form8911Line9" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8911PersonalPartApplies">
+      <Name>Personal refueling credit requires the tentative minimum tax computation</Name>
+      <Description>Personal refueling credit requires the tentative minimum tax computation. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/form8911Applies" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form8911Line4" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

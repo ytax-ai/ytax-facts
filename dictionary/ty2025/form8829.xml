@@ -1,0 +1,749 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/scheduleCs/*/formIsRequired">
+      <Name>This business files Form 8829</Name>
+      <Description>True only for a Schedule C business whose filer answered that the regular Form 8829 method is elected. The Schedule C method gate defaults complete-false when unanswered.</Description>
+      <Derived><Dependency module="scheduleC" path="../electsRegularHomeOfficeMethodComplete" /></Derived>
+    </Fact>
+
+    <Fact path="/form8829RequiredForReturn">
+      <Name>Return files Form 8829</Name>
+      <Description>True when at least one Schedule C business elects the regular method.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Any><Dependency path="/scheduleCs/*/formIsRequired" /></Any></Derived>
+    </Fact>
+
+    <Fact path="/form8829ItemsToPrint">
+      <Name>Form 8829 copies to render</Name>
+      <Description>Filtered Schedule C businesses that have elected the regular method; one copy per business.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Filter path="/scheduleCs"><Dependency path="formIsRequired" /></Filter></Derived>
+    </Fact>
+
+    <Fact path="/scheduleCs/*/form8829Line1BusinessArea">
+      <Name>Form 8829 line 1 — business-use area</Name>
+      <Description>Schedule C's Form 8829 line-1 square-footage intake.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dependency module="scheduleC" path="../writableHomeOfficeBusinessArea" /><Int>0</Int></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line2TotalHomeArea">
+      <Name>Form 8829 line 2 — total home area</Name>
+      <Description>Schedule C's Form 8829 line-2 square-footage intake.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dependency module="scheduleC" path="../writableHomeOfficeTotalArea" /><Int>0</Int></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line3AreaRatio">
+      <Name>Form 8829 line 3 — business-use area ratio</Name>
+      <Description>Line 1 divided by line 2. If either area is unanswered, or total home area is zero, line 3 stays Incomplete.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="scheduleC" path="../writableHomeOfficeBusinessArea" /></IsComplete>
+                <IsComplete><Dependency module="scheduleC" path="../writableHomeOfficeTotalArea" /></IsComplete>
+                <GreaterThan><Left><Dependency module="scheduleC" path="../writableHomeOfficeTotalArea" /></Left><Right><Int>0</Int></Right></GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Divide>
+                <Dividend><GreaterOf><Dependency module="scheduleC" path="../writableHomeOfficeBusinessArea" /><Int>0</Int></GreaterOf></Dividend>
+                <Divisors><GreaterOf><Dependency module="scheduleC" path="../writableHomeOfficeTotalArea" /><Int>0</Int></GreaterOf></Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line4DaycareHoursUsed">
+      <Name>Form 8829 line 4 — daycare hours used</Name>
+      <Description>Daycare hours used in the year, when the Schedule C daycare exception applies.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dependency module="scheduleC" path="../writableHomeOfficeDaycareHoursUsed" /><Int>0</Int></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line5DaycareHoursAvailable">
+      <Name>Form 8829 line 5 — daycare hours available</Name>
+      <Description>Daycare hours available in the year, including a prorated period when the home entered or left daycare use.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dependency module="scheduleC" path="../writableHomeOfficeDaycareHoursAvailable" /><Int>0</Int></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line6DaycareRatio">
+      <Name>Form 8829 line 6 — daycare time ratio</Name>
+      <Description>Schedule C's complete-safe daycare-use ratio; non-daycare homes use 1.0.</Description>
+      <Derived><Dependency module="scheduleC" path="../form8829DaycareHoursRatio" /></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line7BusinessPercentage">
+      <Name>Form 8829 line 7 — business-use percentage</Name>
+      <Description>Line 3 multiplied by the line-6 daycare-use ratio. If either area input is unanswered, the business percentage stays Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Multiply><Dependency path="../form8829Line3AreaRatio" /><Dependency path="../form8829Line6DaycareRatio" /></Multiply></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line8BusinessIncomeLimit">
+      <Name>Form 8829 line 8 — gross income limitation</Name>
+      <Description>Schedule C's gross income limitation for the business use of the home (scheduleC:/scheduleCs/*/homeOfficeGrossIncomeLimitation): line 29 plus any gain derived from the business use of the home on Form 8949 or Form 4797, minus the losses on those forms allocable to the business but not to the use of the home; or, when some of the income is from another place of business, the home-use part of the gross income minus Schedule C line 28 and those losses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency module="scheduleC" path="../homeOfficeGrossIncomeLimitation" /></Derived>
+    </Fact>
+
+    <Fact path="/scheduleCs/*/form8829Line14MortgageTaxesBusinessUseDeduction">
+      <Name>Form 8829 line 14 — allowable mortgage interest and real-estate taxes</Name>
+      <Description>Schedule C's line-14 amount (the direct amount plus the business part of the deductible mortgage interest and the real estate taxes within the state and local tax deduction limit), less the real estate taxes the Line 11 Worksheet moves to line 17 (../form8829Line11PrintedSplitAdjustment).</Description>
+      <Derived><Subtract><Minuend><Dependency module="scheduleC" path="../form8829MortgageInterestAndTaxesDeduction" /></Minuend><Subtrahends><Dependency path="../form8829Line11PrintedSplitAdjustment" /></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line11WorksheetRealEstateTaxesOnLine11">
+      <Name>Line 11 Worksheet line 10 — the business part of the real estate taxes reported on Form 8829 line 11</Name>
+      <Description>The smaller of line 6 (the business part of the home's real estate taxes, scheduleC:/scheduleCs/*/form8829Line11WorksheetRealEstateTaxesBusinessPart) or line 9 (line 8, the state and local tax deduction limit, less line 7a, the other state and local taxes, scheduleC:/form8829Line11WorksheetOtherStateAndLocalTaxes; not below zero). Line 8 is the Schedule A limit scheduleA:/saltDeductionLimit: where line 7b applies (line 5 at most $10,000) the limit is at least line 5, so all of line 6 fits; where line 7c applies (line 7a at least $40,000) the limit is at most line 7a, so none fits; otherwise the limit is the one line 7d and the iteration instructions arrive at whenever the split cannot change the deduction, and the return is refused (form8829:/knockoutForm8829ItemizerMortgageInterestAndTaxesNotSplit) where it could. $0 when there is no business part.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="scheduleC" path="../form8829Line11WorksheetRealEstateTaxesBusinessPart" /></IsComplete>
+                <Equal>
+                  <Left><Dependency module="scheduleC" path="../form8829Line11WorksheetRealEstateTaxesBusinessPart" /></Left>
+                  <Right><Dollar>0</Dollar> </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="scheduleC" path="/form8829Line11WorksheetOtherStateAndLocalTaxes" /></IsComplete>
+                <IsComplete><Dependency module="scheduleA" path="/saltDeductionLimit" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency module="scheduleC" path="../form8829Line11WorksheetRealEstateTaxesBusinessPart" />
+                <GreaterOf>
+                  <Dollar>0</Dollar>
+                  <Subtract>
+                    <Minuend><Dependency module="scheduleA" path="/saltDeductionLimit" /></Minuend>
+                    <Subtrahends><Dependency module="scheduleC" path="/form8829Line11WorksheetOtherStateAndLocalTaxes" /></Subtrahends>
+                  </Subtract>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line11WorksheetExcessRealEstateTaxes">
+      <Name>Line 11 Worksheet line 11 — excess real estate taxes reported on Form 8829 line 17</Name>
+      <Description>Line 6 less line 10 of the Line 11 Worksheet: the business part of the home's real estate taxes that the state and local tax deduction limit keeps off line 11, which goes in column (a) of line 17.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency module="scheduleC" path="../form8829Line11WorksheetRealEstateTaxesBusinessPart" /></Minuend>
+          <Subtrahends><Dependency path="../form8829Line11WorksheetRealEstateTaxesOnLine11" /></Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line11PrintedSplitAdjustment">
+      <Name>Real estate taxes the printed form moves from line 11 to line 17</Name>
+      <Description>The business part of the real estate taxes that Schedule C's figuring counts on line 11 (scheduleC:/scheduleCs/*/form8829Line11RealEstateTaxesForTheIncomeLimit) less what Line 11 Worksheet line 10 puts there. Moved only when line 14 is no more than line 8, where moving it to line 17 leaves lines 28, 34 and 36 unchanged; the printed lines 14, 15, 26 and 27 show the move. $0 when line 14 is more than line 8 (the split would change the deduction: a line 7c return, where nothing is moved, or the refused iteration), and on every return without the business part of a home's real estate taxes.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="scheduleC" path="../form8829Line11WorksheetRealEstateTaxesBusinessPart" /></IsComplete>
+                <Equal>
+                  <Left><Dependency module="scheduleC" path="../form8829Line11WorksheetRealEstateTaxesBusinessPart" /></Left>
+                  <Right><Dollar>0</Dollar> </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+              <IsComplete><Dependency module="scheduleC" path="../form8829MortgageInterestAndTaxesDeduction" /></IsComplete>
+              <IsComplete><Dependency path="../form8829Line8BusinessIncomeLimit" /></IsComplete>
+              <Not>
+                <GreaterThan>
+                  <Left><Dependency module="scheduleC" path="../form8829MortgageInterestAndTaxesDeduction" /></Left>
+                  <Right><Dependency path="../form8829Line8BusinessIncomeLimit" /></Right>
+                </GreaterThan>
+              </Not>
+              </All>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency module="scheduleC" path="../form8829Line11RealEstateTaxesForTheIncomeLimit" /></Minuend>
+                <Subtrahends><Dependency path="../form8829Line11WorksheetRealEstateTaxesOnLine11" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+              <IsComplete><Dependency module="scheduleC" path="../form8829MortgageInterestAndTaxesDeduction" /></IsComplete>
+              <IsComplete><Dependency path="../form8829Line8BusinessIncomeLimit" /></IsComplete>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line15RemainingLimit">
+      <Name>Form 8829 line 15 — income limit remaining</Name>
+      <Description>Line 8 less the printed line 14, not below zero: "Subtract line 14 from line 8. If zero or less, enter -0-."</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dollar>0</Dollar> <Subtract><Minuend><Dependency path="../form8829Line8BusinessIncomeLimit" /></Minuend><Subtrahends><Dependency path="../form8829Line14MortgageTaxesBusinessUseDeduction" /></Subtrahends></Subtract></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line25OperatingExpenseCarryover">
+      <Name>Form 8829 line 25 — operating-expense carryover into 2025</Name>
+      <Description>Amount carried from the prior-year Form 8829 line 43; $0 when the carryover question is unanswered, as scheduleC:/scheduleCs/*/form8829OperatingExpensesWithCarryover reads it, so the printed line and the line 26 it feeds agree.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleC" path="../writableForm8829OperatingExpenseCarryoverFromPriorTaxYear" /></IsComplete></When>
+            <Then><GreaterOf><Dependency module="scheduleC" path="../writableForm8829OperatingExpenseCarryoverFromPriorTaxYear" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line26OperatingExpensesWithCarryover">
+      <Name>Form 8829 line 26 — operating expenses with carryover</Name>
+      <Description>Schedule C's line-26 direct and indirect operating expenses (with lines 16 and 17) plus prior-year carryover, plus the real estate taxes the Line 11 Worksheet moves from line 11 to line 17 (../form8829Line11PrintedSplitAdjustment).</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Add><Dependency module="scheduleC" path="../form8829OperatingExpensesWithCarryover" /><Dependency path="../form8829Line11PrintedSplitAdjustment" /></Add></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line27AllowableOperatingExpenses">
+      <Name>Form 8829 line 27 — allowable operating expenses</Name>
+      <Description>The smaller of the printed line 15 or line 26: "Enter the smaller of line 15 or line 26."</Description>
+      <Derived><LesserOf><Dependency path="../form8829Line15RemainingLimit" /><Dependency path="../form8829Line26OperatingExpensesWithCarryover" /></LesserOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line28RemainingLimit">
+      <Name>Form 8829 line 28 — remaining limit for casualty loss and depreciation</Name>
+      <Description>Schedule C's line-28 limit after allowable operating expenses.</Description>
+      <Derived><Dependency module="scheduleC" path="../form8829RemainingLimitAfterOperatingExpenses" /></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/writableForm8829Line29ExcessCasualtyLosses">
+      <Name>Form 8829 line 29 — excess casualty losses</Name>
+      <Description>Deductible excess casualty loss for the home from the Form 4684 calculation. UNANSWERED MEANS NO EXCESS CASUALTY LOSS, and ../form8829Line29ExcessCasualtyLosses reports $0 for that filer rather than leaving printed lines 32-34, 36 and 44 unresolvable.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/scheduleCs/*/hasLinkedHomeCasualty">
+      <Name>A Form 4684 home casualty names THIS Schedule C</Name>
+      <Description>True when at least one casualty event attests a home used for a Schedule C business (form4684:/casualtyEvents/*/homeUsedForScheduleCBusiness) AND names THIS /scheduleCs item (form4684:/casualtyEvents/*/writableHomeScheduleC). It switches line 29 and line 35 from the filer's own entries to the figures the linked casualty supplies. COMPLETE SAFE FALSE on a return with no casualty section answered (the outer IsComplete on /casualtyEvents) and on every event that is not such a home (the complete safe head of the All keeps the comparison unforced); an attested event whose Schedule C is not yet named leaves it Incomplete, because this Schedule C may be the one.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="form4684" path="/casualtyEvents" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Count>
+                    <All>
+                      <Dependency module="form4684" path="/casualtyEvents/*/homeUsedForScheduleCBusiness" />
+                        <Equal>
+                          <Left><Dependency module="form4684" path="/casualtyEvents/*/writableHomeScheduleC" /></Left>
+                          <Right><Dependency path=".." /></Right>
+                        </Equal>
+                    </All>
+                  </Count>
+                </Left>
+                <Right><Int>0</Int> </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/homeCasualtyLossesFromLinkedEvents">
+      <Name>The home casualty losses of the Form 4684 events that name THIS Schedule C</Name>
+      <Description>The sum of form4684:/casualtyEvents/*/homeCasualtyLossForForm8829 over the casualty events that attest a home used for a Schedule C business and name THIS /scheduleCs item: "the casualty losses attributable to the home in which you conducted business" of i8829 Line 29, before the business percentage. Complete safe $0 by the same two guards ../hasLinkedHomeCasualty documents.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="form4684" path="/casualtyEvents" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Switch>
+                  <Case>
+                    <When>
+                      <All>
+                        <Dependency module="form4684" path="/casualtyEvents/*/homeUsedForScheduleCBusiness" />
+                        <Equal>
+                          <Left><Dependency module="form4684" path="/casualtyEvents/*/writableHomeScheduleC" /></Left>
+                          <Right><Dependency path=".." /></Right>
+                        </Equal>
+                      </All>
+                    </When>
+                    <Then><Dependency module="form4684" path="/casualtyEvents/*/homeCasualtyLossForForm8829" /></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar> </Then>
+                  </Case>
+                </Switch>
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line29ExcessCasualtyLosses">
+      <Name>Form 8829 line 29 — excess casualty losses</Name>
+      <Description>When ../hasLinkedHomeCasualty is true, line 29 is DERIVED from the linked Form 4684 casualty as i8829 Line 29 states it: ../homeCasualtyLossesFromLinkedEvents (the casualty losses attributable to the home) multiplied by ../form8829Line7BusinessPercentage, rounded to the cent. This dictionary builds no printed line 9, so nothing is subtracted for it; a federally declared disaster loss an itemizer would put on line 9 goes to line 29 instead, where the income limit reaches it. Otherwise it is the line 29 amount the filer transcribed, and $0 when ../writableForm8829Line29ExcessCasualtyLosses is unanswered (the ordinary no-casualty filer is never asked). Printed line 32 adds lines 29 through 31 unconditionally, so a blank entry is a zero term, not a missing one.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../hasLinkedHomeCasualty" /></When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="../homeCasualtyLossesFromLinkedEvents" />
+                  <Dependency path="../form8829Line7BusinessPercentage" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../writableForm8829Line29ExcessCasualtyLosses" /></IsComplete></When>
+            <Then><Dependency path="../writableForm8829Line29ExcessCasualtyLosses" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line30Depreciation">
+      <Name>Form 8829 line 30 — depreciation deduction from Part III</Name>
+      <Description>Schedule C's effective home and addition depreciation amount entering the final expense limitation, including its supported fallback.</Description>
+      <Derived><Dependency module="scheduleC" path="../form8829HomeDepreciation" /></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line31CasualtyDepreciationCarryover">
+      <Name>Form 8829 line 31 — prior-year casualty and depreciation carryover</Name>
+      <Description>Carryover amount entered from the filer's prior-year Form 8829 line 44; $0 when the carryover question is unanswered, as scheduleC:/scheduleCs/*/form8829DepreciationWithCarryover reads it, so printed lines 32 through 36 resolve and agree with Schedule C line 30.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleC" path="../writableForm8829ExcessCasualtyAndDepreciationCarryoverFromPriorTaxYear" /></IsComplete></When>
+            <Then><GreaterOf><Dependency module="scheduleC" path="../writableForm8829ExcessCasualtyAndDepreciationCarryoverFromPriorTaxYear" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line32CasualtyDepreciationTotal">
+      <Name>Form 8829 line 32 — excess casualty and depreciation with carryover</Name>
+      <Description>Sum of lines 29 through 31, including the casualty-loss amount entered from Form 4684.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="../form8829Line29ExcessCasualtyLosses" />
+          <Dependency path="../form8829Line30Depreciation" />
+          <Dependency path="../form8829Line31CasualtyDepreciationCarryover" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line33AllowableCasualtyDepreciation">
+      <Name>Form 8829 line 33 — allowable casualty and depreciation tier</Name>
+      <Description>The smaller of line 28 or line 32.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><LesserOf><Dependency path="../form8829Line28RemainingLimit" /><Dependency path="../form8829Line32CasualtyDepreciationTotal" /></LesserOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line34AllowableTotalHomeExpense">
+      <Name>Form 8829 line 34 — total allowable home-business expenses before casualty transfer</Name>
+      <Description>Sum of allowable tier-1 expenses on line 14, operating expenses on line 27, and casualty/depreciation expenses on line 33.</Description>
+      <Derived><Add><Dependency path="../form8829Line14MortgageTaxesBusinessUseDeduction" /><Dependency path="../form8829Line27AllowableOperatingExpenses" /><Dependency path="../form8829Line33AllowableCasualtyDepreciation" /></Add></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/writableForm8829Line35CasualtyPortion">
+      <Name>Form 8829 line 35 — casualty-loss portion to carry to Form 4684</Name>
+      <Description>Casualty-loss amount included in lines 14 and 33 and transferred to Form 4684 line 27. The filer supplies this amount from the casualty worksheet. UNANSWERED MEANS NONE - the printed line reads "Casualty loss portion, if any" - and ../form8829Line35CasualtyPortion reports $0 rather than leaving printed lines 36 and 44 unresolvable.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line35CasualtyPortionLowerBound">
+      <Name>The least casualty portion line 33 can hold (Form 8829 line 35 floor, linked casualty)</Name>
+      <Description>The smaller of line 29 and line 33. Pub. 587 limits the otherwise nondeductible home expenses "with depreciation of your home taken last", so within line 33 this year's excess casualty loss (line 29) is allowed before depreciation (line 30) and before the depreciation part of the line 31 carryover; at least this much of line 33 is therefore casualty loss. With no line 31 carryover this equals ../form8829Line35CasualtyPortionUpperBound and fixes line 35. Read by ../form8829Line35CasualtyPortion on a Schedule C a Form 4684 home casualty names.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../form8829Line29ExcessCasualtyLosses" />
+          <Dependency path="../form8829Line33AllowableCasualtyDepreciation" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line35CasualtyPortionUpperBound">
+      <Name>The most casualty portion line 33 can hold (Form 8829 line 35 ceiling, linked casualty)</Name>
+      <Description>The smaller of line 33 and line 29 plus line 31. The casualty losses inside line 32 are line 29 and at most the whole line 31 carryover, and line 33 allows no more than itself, so at most this much of line 33 is casualty loss. Line 14 carries no casualty loss here because this dictionary builds no printed line 9. Read by ../form8829Line35CasualtyPortion on a Schedule C a Form 4684 home casualty names.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../form8829Line33AllowableCasualtyDepreciation" />
+          <Add>
+            <Dependency path="../form8829Line29ExcessCasualtyLosses" />
+            <Dependency path="../form8829Line31CasualtyDepreciationCarryover" />
+          </Add>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line35CasualtyPortion">
+      <Name>Form 8829 line 35 — casualty-loss portion to Form 4684</Name>
+      <Description>The casualty loss portion of lines 14 and 33, carried to Form 4684 line 27.
+
+        ON A SCHEDULE C A FORM 4684 HOME CASUALTY NAMES (../hasLinkedHomeCasualty), line 35 is what form4684:/casualtyEvents/*/sectionBCasualtyLoss reads for that event's line 27, so it is never a blank-is-zero entry there: a blank would leave the casualty loss inside line 36 and Schedule C line 30 while Form 4684 took nothing. It is ../form8829Line35CasualtyPortionLowerBound, the smaller of line 29 and line 33, when that equals ../form8829Line35CasualtyPortionUpperBound, which is every case without a line 31 carryover: Pub. 587 takes depreciation of the home last, so this year's casualty loss is allowed first. Only a line 31 carryover, whose split between prior casualty loss and prior depreciation this graph does not hold, leaves a range: then ../writableForm8829Line35CasualtyPortion is REQUIRED (read bare, Incomplete until answered) and is held between the two bounds.
+
+        ON ANY OTHER SCHEDULE C it is the amount the filer entered on line 35, and $0 when ../writableForm8829Line35CasualtyPortion is unanswered: the printed line reads "Casualty loss portion, if any", and printed line 36 subtracts line 35 from line 34 unconditionally, so a blank entry is a zero subtrahend, not a missing one.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../hasLinkedHomeCasualty" />
+                <Equal>
+                  <Left><Dependency path="../form8829Line35CasualtyPortionLowerBound" /></Left>
+                  <Right><Dependency path="../form8829Line35CasualtyPortionUpperBound" /></Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dependency path="../form8829Line35CasualtyPortionLowerBound" /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../hasLinkedHomeCasualty" /></When>
+            <Then>
+              <GreaterOf>
+                <LesserOf>
+                  <Dependency path="../writableForm8829Line35CasualtyPortion" />
+                  <Dependency path="../form8829Line35CasualtyPortionUpperBound" />
+                </LesserOf>
+                <Dependency path="../form8829Line35CasualtyPortionLowerBound" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../writableForm8829Line35CasualtyPortion" /></IsComplete></When>
+            <Then><Dependency path="../writableForm8829Line35CasualtyPortion" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line36AllowableHomeExpenseForScheduleC">
+      <Name>Form 8829 line 36 — allowable expenses transferred to Schedule C line 30</Name>
+      <Description>Line 34 less the casualty-loss portion carried to Form 4684 on line 35: "Enter here and on Schedule C, line 30". Schedule C line 30 (scheduleC:/scheduleCs/*/homeOfficeRegularDeduction) is this amount in whole dollars: its third tier is line 33 less line 35 (scheduleC:/scheduleCs/*/form8829AllowableDepreciationAfterLinkedCasualty) and scheduleC's line 32 carries line 29, so the two differ only by the whole-dollar rounding of Schedule C line 30.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../form8829Line3AreaRatio" /></IsComplete>
+                <IsComplete><Dependency path="../form8829Line35CasualtyPortion" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="../form8829Line34AllowableTotalHomeExpense" /></Minuend>
+                <Subtrahends><Dependency path="../form8829Line35CasualtyPortion" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleCs/*/form8829Line37HomeBasisOrFmv">
+      <Name>Form 8829 line 37 — home basis or fair market value</Name>
+      <Description>Home's adjusted basis or fair market value at first business use, whichever is smaller.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dependency module="scheduleC" path="../writableForm8829HomeBasisOrFmv" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line38LandValue">
+      <Name>Form 8829 line 38 — land included in line 37</Name>
+      <Description>Value of the land included in the line-37 basis or fair-market-value amount.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf><Dependency module="scheduleC" path="../writableForm8829LandValue" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line39BuildingBasis">
+      <Name>Form 8829 line 39 — building basis</Name>
+      <Description>Schedule C's building basis after subtracting land value.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency module="scheduleC" path="../form8829BuildingBasis" /></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line40BusinessBuildingBasis">
+      <Name>Form 8829 line 40 — business basis of building</Name>
+      <Description>Building basis multiplied by line 7 business-use percentage.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency module="scheduleC" path="../form8829BusinessBasisOfBuilding" /></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line41DepreciationPercentage">
+      <Name>Form 8829 line 41 — depreciation percentage</Name>
+      <Description>Applicable Table A percentage based on the first year of business use and the month first used; for a home first used for business from 1981 through 1986, the Pub. 534 ACRS percentage (scheduleC:/scheduleCs/*/form8829Pub534DepreciationPercentage).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="scheduleC" path="../form8829Pub534IsModeled" /></When>
+            <Then><Dependency module="scheduleC" path="../form8829Pub534DepreciationPercentage" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency module="scheduleC" path="../form8829DepreciationPercentage" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line42DepreciationAllowed">
+      <Name>Form 8829 line 42 — depreciation allowed</Name>
+      <Description>Schedule C's Form 8829 line-42 home depreciation plus supported addition depreciation.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency module="scheduleC" path="../form8829HomeDepreciation" /></Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line43OperatingCarryoverToNextYear">
+      <Name>Form 8829 line 43 — operating expenses carried to 2026</Name>
+      <Description>Under the regular method, line 26 less line 27, floored at zero; an incomplete operand keeps the carryover Incomplete. In a year this business uses the simplified method, nothing on line 25 is deducted ("you cannot deduct the amounts you entered on lines 6a and 6b this year"), so the whole prior-year carryover (line 25, Simplified Method Worksheet line 6a) is carried to 2026, to be used when Form 8829 is filed again.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="scheduleC" path="../electsRegularHomeOfficeMethodComplete" /></When>
+            <Then>
+              <GreaterOf><Dollar>0</Dollar><Subtract><Minuend><Dependency module="scheduleC" path="../form8829OperatingExpensesWithCarryover" /></Minuend><Subtrahends><Dependency module="scheduleC" path="../form8829AllowableOperatingExpenses" /></Subtrahends></Subtract></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="../form8829Line25OperatingExpenseCarryover" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/scheduleCs/*/form8829Line44CasualtyDepreciationCarryoverToNextYear">
+      <Name>Form 8829 line 44 — excess casualty loss and depreciation carried to 2026</Name>
+      <Description>Under the regular method, line 32 less line 33, floored at zero. In a year this business uses the simplified method, nothing on line 31 is deducted, so the whole prior-year carryover (line 31, Simplified Method Worksheet line 6b) is carried to 2026.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="scheduleC" path="../electsRegularHomeOfficeMethodComplete" /></When>
+            <Then>
+              <GreaterOf><Dollar>0</Dollar><Subtract><Minuend><Dependency path="../form8829Line32CasualtyDepreciationTotal" /></Minuend><Subtrahends><Dependency path="../form8829Line33AllowableCasualtyDepreciation" /></Subtrahends></Subtract></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="../form8829Line31CasualtyDepreciationCarryover" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8829HomeCasualtyNotCarried">
+      <Name>A home casualty Form 8829 cannot carry in full</Name>
+      <Description>A casualty or theft you entered on a home used in your Schedule C business cannot be filed here, in either of two cases. (1) You have not said the loss is outside a federally declared disaster: Form 8829 line 9 takes the federally declared disaster share of the home's casualty loss outside the business income limit, and this return does not figure line 9, so it would put that share under the limit instead. (2) Two or more of your businesses file Form 8829: this return links a home casualty to one Schedule C only, so a home two businesses use would not be split between their Forms 8829.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency module="form4684" path="/casualtyEvents" /></IsComplete>
+          <Any>
+            <GreaterThan>
+              <Left><Count><Dependency module="form4684" path="/casualtyEvents/*/homeCasualtyNotAttestedOutsideAFederallyDeclaredDisaster" /></Count></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+            <All>
+              <GreaterThan>
+                <Left><Count><Dependency module="form4684" path="/casualtyEvents/*/homeUsedForScheduleCBusiness" /></Count></Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+              <IsComplete><Dependency module="scheduleC" path="/scheduleCs" /></IsComplete>
+              <GreaterThan>
+                <Left><Count><Dependency path="/scheduleCs/*/formIsRequired" /></Count></Left>
+                
+                <Right><Int>1</Int></Right>
+              </GreaterThan>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8829ItemizerMortgageInterestAndTaxesNotSplit">
+      <Name>An itemizer's home mortgage interest and real estate taxes on Form 8829 that cannot be split from Schedule A yet</Name>
+      <Description>You itemize deductions and a business that files Form 8829 enters mortgage interest or real estate taxes for the home. This return splits those amounts between Form 8829 (the business part, on lines 10 and 11, with any excess on lines 16 and 17) and Schedule A (the personal part, on lines 8a and 5b), but not yet in these cases, so the return is refused: (1) an amount is entered as a direct expense in column (a), which the instructions do not use for an itemizer's mortgage interest (it is figured on all the loans secured by the home) or real estate taxes (the Line 11 Worksheet takes the business percentage of all the home's taxes); (2) more than one business enters these amounts, so the return cannot tell whether they are one home's amounts entered twice; (3) a mortgage interest credit (Form 8396) reduces the home mortgage interest, and the return cannot tell how much of that reduction belongs to the business part; (4) the business part of the real estate taxes has to be split between lines 11 and 17 by the state and local tax deduction limit, the split changes the deduction (line 14 is more than line 8), and the limit itself depends on that deduction: the Line 11 Worksheet's iteration, which this return does not run.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency module="scheduleC" path="/scheduleCs" /></IsComplete>
+          <Any>
+            <GreaterThan>
+              <Left>
+                <CollectionSize>
+                  <Filter path="/scheduleCs">
+                    <All>
+                      <Dependency module="scheduleC" path="form8829ItemizerRegularMethod" />
+                      <IsComplete><Dependency module="scheduleC" path="writableForm8829DirectMortgageInterestAndTaxes" /></IsComplete>
+                      <GreaterThan>
+                        <Left><Dependency module="scheduleC" path="writableForm8829DirectMortgageInterestAndTaxes" /></Left>
+                        <Right><Dollar>0</Dollar> </Right>
+                      </GreaterThan>
+                    </All>
+                  </Filter>
+                </CollectionSize>
+              </Left>
+              <Right><Int>0</Int> </Right>
+            </GreaterThan>
+            <GreaterThan>
+              <Left>
+                <CollectionSize>
+                  <Filter path="/scheduleCs">
+                    <All>
+                      <Dependency module="scheduleC" path="form8829ItemizerRegularMethod" />
+                      <GreaterThan>
+                        <Left><Dependency module="scheduleC" path="form8829IndirectMortgageInterestAndTaxesOrZero" /></Left>
+                        <Right><Dollar>0</Dollar> </Right>
+                      </GreaterThan>
+                    </All>
+                  </Filter>
+                </CollectionSize>
+              </Left>
+              <Right><Int>1</Int> </Right>
+            </GreaterThan>
+            <All>
+              <IsComplete><Dependency module="form8396" path="/form8396TentativeCredit" /></IsComplete>
+              <GreaterThan>
+                <Left><Dependency module="form8396" path="/form8396TentativeCredit" /></Left>
+                <Right><Dollar>0</Dollar> </Right>
+              </GreaterThan>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/scheduleCs">
+                      <All>
+                        <Dependency module="scheduleC" path="form8829ItemizerRegularMethod" />
+                        <IsComplete><Dependency module="scheduleC" path="form8829HomeMortgageInterest" /></IsComplete>
+                        <GreaterThan>
+                          <Left><Dependency module="scheduleC" path="form8829HomeMortgageInterest" /></Left>
+                          <Right><Dollar>0</Dollar> </Right>
+                        </GreaterThan>
+                      </All>
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right><Int>0</Int> </Right>
+              </GreaterThan>
+            </All>
+            <GreaterThan>
+              <Left>
+                <CollectionSize>
+                  <Filter path="/scheduleCs">
+                    <All>
+                      <Dependency module="scheduleC" path="form8829ItemizerRegularMethod" />
+                      <IsComplete><Dependency module="scheduleC" path="form8829Line11WorksheetRealEstateTaxesBusinessPart" /></IsComplete>
+                      <GreaterThan>
+                        <Left><Dependency module="scheduleC" path="form8829Line11WorksheetRealEstateTaxesBusinessPart" /></Left>
+                        <Right><Dollar>0</Dollar> </Right>
+                      </GreaterThan>
+                      <IsComplete><Dependency module="scheduleC" path="/form8829Line11WorksheetOtherStateAndLocalTaxes" /></IsComplete>
+                      <IsComplete><Dependency module="scheduleC" path="/form8829StateAndLocalTaxLimitBase" /></IsComplete>
+                      <IsComplete><Dependency module="scheduleC" path="/form8829StateAndLocalTaxLimitFloor" /></IsComplete>
+                      <Not>
+                        <GreaterThanOrEqual>
+                          <Left><Dependency module="scheduleC" path="/form8829Line11WorksheetOtherStateAndLocalTaxes" /></Left>
+                          <Right><Dependency module="scheduleC" path="/form8829StateAndLocalTaxLimitBase" /></Right>
+                        </GreaterThanOrEqual>
+                      </Not>
+                      <GreaterThan>
+                        <Left>
+                          <Add>
+                            <Dependency module="scheduleC" path="/form8829Line11WorksheetOtherStateAndLocalTaxes" />
+                            <Dependency module="scheduleC" path="form8829Line11WorksheetRealEstateTaxesBusinessPart" />
+                          </Add>
+                        </Left>
+                        <Right><Dependency module="scheduleC" path="/form8829StateAndLocalTaxLimitFloor" /></Right>
+                      </GreaterThan>
+                      <IsComplete><Dependency module="scheduleC" path="form8829MortgageInterestAndTaxesDeduction" /></IsComplete>
+                      <IsComplete><Dependency module="scheduleC" path="homeOfficeGrossIncomeLimitation" /></IsComplete>
+                      <GreaterThan>
+                        <Left><Dependency module="scheduleC" path="form8829MortgageInterestAndTaxesDeduction" /></Left>
+                        <Right><Dependency module="scheduleC" path="homeOfficeGrossIncomeLimitation" /></Right>
+                      </GreaterThan>
+                      <IsComplete><Dependency module="scheduleA" path="/saltDeductionLimit" /></IsComplete>
+                      <Not>
+                        <All>
+                          <Not>
+                            <LessThan>
+                              <Left><Dependency module="scheduleA" path="/saltDeductionLimit" /></Left>
+                              <Right><Dependency module="scheduleC" path="/form8829StateAndLocalTaxLimitBase" /></Right>
+                            </LessThan>
+                          </Not>
+                          <Not>
+                            <GreaterThan>
+                              <Left>
+                                <Add>
+                                  <Dependency module="scheduleC" path="/form8829Line11WorksheetOtherStateAndLocalTaxes" />
+                                  <Dependency module="scheduleC" path="form8829Line11WorksheetRealEstateTaxesBusinessPart" />
+                                </Add>
+                              </Left>
+                              <Right><Dependency module="scheduleC" path="/form8829StateAndLocalTaxLimitBase" /></Right>
+                            </GreaterThan>
+                          </Not>
+                        </All>
+                      </Not>
+                    </All>
+                  </Filter>
+                </CollectionSize>
+              </Left>
+              <Right><Int>0</Int> </Right>
+            </GreaterThan>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

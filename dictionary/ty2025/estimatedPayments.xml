@@ -1,0 +1,2454 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/estimatedPayments.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/paidEstimatedTaxesWithFormerSpouseOptions">
+      <Name>Paid estimated taxes with former spouse options</Name>
+      <Description>Options for which TP paid estimated taxes with a former spouse</Description>
+      <Derived>
+        <EnumOptions>
+          <EnumOption>
+            <Condition>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </Condition>
+            <Value>
+              <String>spouseDid</String>
+            </Value>
+          </EnumOption>
+          <EnumOption>
+            <Condition>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </Condition>
+            <Value>
+              <String>bothDid</String>
+            </Value>
+          </EnumOption>
+          <String>tpDid</String>
+          <String>neither</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/paidEstimatedTaxesOrFromLastYear">
+      <Name>Paid estimated taxes or from last year</Name>
+      <Description>Whether the TP paid estimated taxes last year, or chose to apply their previous year's refund
+        to this
+        year's taxes</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/paidEstimatedTaxesOrFromLastYearCompleteSafe">
+      <Name>Paid estimated taxes or applied a prior-year overpayment, complete-safe</Name>
+      <Description>Passes /paidEstimatedTaxesOrFromLastYear through when answered and reads false when
+        unanswered, so an unanswered question cannot select a payment arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/paidEstimatedTaxesOrFromLastYear" /></IsComplete></When>
+            <Then><Dependency path="/paidEstimatedTaxesOrFromLastYear" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/paidEstimatedTaxesOrFromLastYearUnderDifferentName">
+      <Name>Paid estimated taxes or from last year under different name</Name>
+      <Description>Whether the TP or their spouse paid estimated taxes under a different legal name.
+
+        THIS ANSWER USED TO REFUSE THE RETURN (/knockoutPaidEstimatedTaxesUnderDifferentLastName,
+        retired below). It no longer does: the printed remedy for a name change is a DISCLOSURE, not a
+        reconciliation, so answering "yes" now routes to /primaryFilerEstimatedTaxPaymentsFormerName
+        and /secondaryFilerEstimatedTaxPaymentsFormerName and the return files with Form 1040 line 26
+        unchanged.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/primaryFilerEstimatedTaxPaymentsFormerName">
+      <Name>Primary filer's former name on the estimated tax payments</Name>
+      <Description>The name under which the primary filer made estimated tax payments (or under which
+        the prior-year overpayment applied to this year was filed), when that name is not the name on
+        this return. FREE TEXT and deliberately not a typed name: the instruction asks for "the
+        name(s) ... under which you made them" inside a narrative statement, not for the structured
+        first/middle/last that filers:/filers/*/lastName carries for MeF.
+
+        THE SSN IS NOT ASKED FOR HERE and that is a decision, not an omission. A legal name change does
+        not change the SSN, so the number under which these payments were made is this filer's own
+        identifier, already carried at filers:/filers/*/tin. A payment made under a different NUMBER is
+        a distinct situation (an ITIN-to-SSN transition) that
+        /paidEstimatedTaxesOrFromLastYearUnderDifferentName never asked about and this fill does not
+        model — named as residual (b) in the retirement note above rather than silently folded in.
+
+        REJECTED ALTERNATIVE: one free-text field for both filers, matching the instruction's own
+        "name(s)" plural. Rejected because it would hand a downstream consumer one blob to parse where
+        the module's own former-spouse template already carries the other party's particulars per
+        filer (/primaryFilerDivorcedSpouseTaxID, /secondaryFilerDivorcedSpouseTaxID). This pair copies
+        that template.</Description>
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>100</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryFilerEstimatedTaxPaymentsFormerName">
+      <Name>Secondary filer's former name on the estimated tax payments</Name>
+      <Description>The secondary filer's arm of the same disclosure — the name under which the spouse
+        made estimated tax payments, when that name is not the name on this return. Reachable only on a
+        joint return: /estimatedTaxesIsComplete accepts this field as the answer to
+        /paidEstimatedTaxesOrFromLastYearUnderDifferentName only when filingStatus:/isFilingStatusMFJ,
+        so a Single or HoH filer cannot satisfy the gate by answering a spouse field that names
+        nobody. Example: answering ONLY this
+        field on a Single return leaves the section INCOMPLETE.
+
+        WHAT THE MFJ GATE DOES NOT DO, and it is residual (f) of the retirement note above rather
+        than a gap this Description can talk away. The gate decides WHETHER this arm is available,
+        not WHICH filer changed their name — because the intake above it is ONE shared Boolean for
+        both filers, unlike the former-spouse twin's two per-filer Booleans. So on a joint return
+        the completeness check is DISJUNCTIVE and coarse in two ways: the "wrong" arm satisfies it
+        (the primary changed names and only this field is answered), and where BOTH spouses paid
+        under former names only ONE name is collected, against an instruction that asks for "the
+        name(s)". Fixing it means per-filer
+        attestations, i.e. reshaping an inherited writable the application already consumes — deliberately
+        not this fill's scope.</Description>
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>100</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/paidEstimatedTaxesWithFormerSpouse">
+      <Name>Paid estimated taxes with former spouse</Name>
+      <Description>Whether the TP or their spouse paid estimated taxes with a former spouse</Description>
+      <Writable>
+        <Enum optionsPath="/paidEstimatedTaxesWithFormerSpouseOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spousePaidEstimatedTaxesWithFormerSpouse">
+      <Name>Spouse paid estimated taxes with former spouse</Name>
+      <Description>Whether the spouse paid estimated taxes with a former spouse</Description>
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="/paidEstimatedTaxesWithFormerSpouse" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/paidEstimatedTaxesWithFormerSpouseOptions">bothDid</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="/paidEstimatedTaxesWithFormerSpouse" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/paidEstimatedTaxesWithFormerSpouseOptions">spouseDid</Enum>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tpPaidEstimatedTaxesWithFormerSpouse">
+      <Name>TP paid estimated taxes with former spouse</Name>
+      <Description>Whether the TP paid estimated taxes with a former spouse</Description>
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="/paidEstimatedTaxesWithFormerSpouse" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/paidEstimatedTaxesWithFormerSpouseOptions">bothDid</Enum>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="/paidEstimatedTaxesWithFormerSpouse" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/paidEstimatedTaxesWithFormerSpouseOptions">tpDid</Enum>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerDivorcedSpouseTaxID">
+      <Name>Primary Filer Divorced Spouse Tax ID</Name>
+      <Description>The Tax ID of a former spouse with whom the primary filer has already paid estimated taxes.</Description>
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryFilerDivorcedSpouseTaxID">
+      <Name>Secondary Filer Divorced Spouse Tax ID</Name>
+      <Description>The Tax ID of a former spouse with whom the secondary filer has already paid estimated taxes.</Description>
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/estimatedTaxPaymentWritable">
+      <Name>Estimated Tax Payment Writable</Name>
+      <Description>The amount that the TP paid previously in estimated taxes</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/estimatedTaxesIsComplete">
+      <Description>Has the Filer answered all the necessary questions in estimated taxes?</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+
+        <Any>
+          <All>
+            <IsComplete>
+              <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+            </IsComplete>
+            <Not>
+              <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+            </Not>
+          </All>
+
+          <All>
+            <IsComplete>
+              <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+            </IsComplete>
+            <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+
+            <IsComplete>
+              <Dependency path="/paidEstimatedTaxesOrFromLastYearUnderDifferentName" />
+            </IsComplete>
+
+            <Any>
+              <Not>
+                <Dependency path="/paidEstimatedTaxesOrFromLastYearUnderDifferentName" />
+              </Not>
+              <All>
+                <Dependency path="/paidEstimatedTaxesOrFromLastYearUnderDifferentName" />
+                <Any>
+                  <IsComplete>
+                    <Dependency path="/primaryFilerEstimatedTaxPaymentsFormerName" />
+                  </IsComplete>
+                  <All>
+                    <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                    <IsComplete>
+                      <Dependency path="/secondaryFilerEstimatedTaxPaymentsFormerName" />
+                    </IsComplete>
+                  </All>
+                </Any>
+              </All>
+            </Any>
+
+            <IsComplete>
+              <Dependency path="/paidEstimatedTaxesWithFormerSpouse" />
+            </IsComplete>
+            <Any>
+              <Not>
+                <Dependency path="/tpPaidEstimatedTaxesWithFormerSpouse" />
+              </Not>
+              <All>
+                <Dependency path="/tpPaidEstimatedTaxesWithFormerSpouse" />
+                <IsComplete>
+                  <Dependency path="/primaryFilerDivorcedSpouseTaxID" />
+                </IsComplete>
+              </All>
+            </Any>
+
+            <Any>
+              <Not>
+                <Dependency path="/spousePaidEstimatedTaxesWithFormerSpouse" />
+              </Not>
+              <All>
+                <Dependency path="/spousePaidEstimatedTaxesWithFormerSpouse" />
+                <IsComplete>
+                  <Dependency path="/secondaryFilerDivorcedSpouseTaxID" />
+                </IsComplete>
+              </All>
+            </Any>
+
+            <IsComplete>
+              <Dependency path="/estimatedTaxPaymentWritable" />
+            </IsComplete>
+          </All>
+        </Any>
+
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1041K1s/*/estateTrustK1Box13CreditForEstimatedTaxes">
+      <Name>This estate or trust K-1's credit for estimated taxes (box 13 code A)</Name>
+      <Description>THIS Schedule K-1 (Form 1041)'s share of the estimated tax the estate or trust
+        paid and elected to credit to its beneficiary: the total of the box 13 rows whose printed
+        letter code is A. The form's own page 2 table routes the code in one line, "A Credit for
+        estimated taxes   Form 1040 or 1040-SR, line 26", the same printed line the filer's own
+        /estimatedTaxPaymentWritable feeds.
+
+        COMPLETE SAFE: a row contributes only when BOTH its code and its amount are answered and
+        the code is A, so a K-1 item that answered no box 13 row contributes a Complete $0 and the
+        CollectionSum over the collection stays Complete.
+
+        CODE B IS DELIBERATELY NOT ROUTED HERE. The same box's code B is "Credit for backup
+        withholding", which the printed table sends to Form 1040 line 25c, a DIFFERENT line of a
+        different total (withheld tax, not estimated tax). This dictionary models no line 25c
+        intake at all, so code B has no consumer to reach and none is invented in this module:
+        putting backup withholding into line 26 would state the right money on the wrong line and
+        would corrupt the Form 2210 estimated tax reconciliation that reads line 26. Reported to
+        the lead as a consumer that must be created in the module that owns Form 1040 line 25.
+        Codes C through G are credits routed to forms this dictionary does not model.  Summed over the collection by
+        /estateTrustK1CreditForEstimatedTaxes.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleE" path="../creditEntries" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="../creditEntries/*/creditForEstimatedTaxesFromThisRow" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1041K1s/*/creditEntries/*/creditForEstimatedTaxesFromThisRow">
+      <Name>This estate or trust K-1's credit for estimated taxes (box 13 code A): this row's part</Name>
+      <Description>One row of /form1041K1s/*/creditEntries as /form1041K1s/*/estateTrustK1Box13CreditForEstimatedTaxes reads it: this row's amount when the row's code is A, both the code and the amount are answered; otherwise $0. Complete on every row, because the code and amount tests open on IsComplete, so the reader over the row table is Complete once the table is answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableCode" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableAmount" />
+                </IsComplete>
+                <Equal>
+                  <Left>
+                    <Dependency module="scheduleE" path="../writableCode" />
+                  </Left>
+                  <Right>
+                    <String>A</String>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="scheduleE" path="../writableAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/estateTrustK1CreditForEstimatedTaxes">
+      <Name>Estate or trust K-1 credit for estimated taxes (box 13 code A) (aggregate to Form 1040 line 26)</Name>
+      <Description>CollectionSum(/form1041K1s/*/estateTrustK1Box13CreditForEstimatedTaxes), the
+        Schedule K-1 (Form 1041) leg of Form 1040 line 26.
+
+        IT IS A SECOND TERM, NOT A SECOND ARM, of /estimatedAndFromLastYear. That fact's own Switch
+        returns /estimatedTaxPaymentWritable when /paidEstimatedTaxesOrFromLastYear is true and $0
+        otherwise. The K-1 credit is money a DIFFERENT payer remitted, so it is not an alternative
+        source for the filer's own payments and must not displace them: a beneficiary who both paid
+        their own estimated tax and received a box 13 code A credit claims BOTH. The Switch is
+        therefore left exactly as it is and this term is Added beside it, which also means the line
+        stays $0 for a filer who answers "no" to /paidEstimatedTaxesOrFromLastYear and records no
+        K-1.
+
+        COMPLETE SAFE: the CollectionSum sits inside an IsComplete Switch on the /form1041K1s
+        collection defaulting to $0, and each item's term defaults to $0, so a return that never
+        opened the estate or trust K-1 section resolves Complete $0. Every committed scenario with
+        no Form 1041 K-1 is byte identical.
+
+        NOW DATED, RATHER THAN DISCLOSED AS UNDATED. THE SCHEDULE K-1 ITSELF PRINTS NO DATE, but the
+        statute does: IRC 643(g)(1)(C)(ii) treats the trustee-elected portion as paid by the
+        beneficiary "on January 15 following the taxable year" - column (d)'s own due date. This
+        credit is added into /form2210DatedPaymentsColumnDTotal and /form2210DatedPaymentsTotal at
+        that column, and /form2210DatedPaymentsReconcileEstimatedTax's Right side adds the same term
+        so the dated decomposition still reconciles to /estimatedAndFromLastYear's full total rather
+        than falling short of it by the credit's own amount.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleE" path="/form1041K1s" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form1041K1s/*/estateTrustK1Box13CreditForEstimatedTaxes" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/estimatedAndFromLastYear">
+      <Name>Estimated And From Last Year</Name>
+      <Description>2025 estimated tax payments and amount applied from 2024 return (line 26 1040).
+        A SECOND TERM, /estateTrustK1CreditForEstimatedTaxes (the Schedule K-1 (Form 1041) box 13
+        code A credit), which the form's own routing table sends to this same printed line, is Added
+        beside the Switch rather than folded into it, because the K-1 credit is money a different
+        payer remitted and does not displace the filer's own payments; the totality argument is on
+        that fact. The Form 2210 dated decomposition below now also carries this term (dated to
+        January 15 by IRC 643(g)(1)(C)(ii)), so the two figures reconcile rather than one falling
+        short of the other by the credit's own amount.</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Derived>
+        <Round>
+          <Add>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+                  </IsComplete>
+                  <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/estimatedTaxPaymentWritable" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/estateTrustK1CreditForEstimatedTaxes" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form2210DatedEstimatedPayments">
+      <Name>Estimated tax payments for 2025, one row per payment, with the date each was made</Name>
+      <Description>The dated decomposition of /estimatedTaxPaymentWritable. i2210 asks the filer to
+        build exactly this list before completing line 11: "Table 1 - List your estimated tax payments
+        for 2025. Before completing line 11, enter in Table 1 the payments you made for 2025", whose
+        two printed columns are Date and Payment amount.
+
+        WHAT GOES IN IT, per the printed Table 1 instruction: any overpayment from the 2024 return
+        applied to 2025 estimated tax (generally treated as made on April 15, 2025), and the estimated
+        tax payments made for 2025.
+
+        WITHHOLDING IS DELIBERATELY EXCLUDED, AND THAT IS A DEPARTURE FROM TABLE 1's LITERAL LIST. The
+        printed bullet reads "Estimated tax payments you made for the 2025 tax year, plus any federal
+        income tax and excess social security and RRTA tax withheld", so a paper filer's Table 1 does
+        carry withholding. This collection does not, because form2210:/form2210PaidPerPeriod already
+        puts withholding into line 11 by the printed one-fourth-per-due-date default, and a filer who
+        listed it here too would have it counted twice - which would UNDERSTATE the penalty. The
+        exclusion is also what lets /form2210DatedPaymentsReconcileEstimatedTax compare this total
+        against Form 1040 line 26, which is estimated payments alone. The Penalty Worksheet agrees
+        about where withholding does not belong: "Do not enter any withheld federal income tax and
+        excess social security or tier 1 RRTA on line 1b."
+
+        UNBOUNDED, like the printed table's own overflow. Table 1 prints a fixed grid of rows; a filer
+        with more payments than rows is not refused by this graph for row count.
+
+        NO INTAKE ASKS FOR IT TODAY - the application owns the screen (invariant #7) - so an unanswered
+        collection is the normal state and every total below is complete-safe to zero. Under the
+        BUILD-FIRST directive that absence is not a reason to defer the dictionary side: the application builds
+        its screen against what ships.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210DatedEstimatedPayments/*/writablePaymentDate">
+      <Name>Table 1 column "Date" - the date this payment was made</Name>
+      <Description>The date column of i2210's Table 1. "If you mail your estimated tax payments, use
+        the date of the U.S. postmark as the date of payment."
+
+        THE 2024-OVERPAYMENT CONVENTION IS THE FILER'S TO APPLY, and the printed rule is not uniform:
+        an overpayment from a 2024 return that was fully paid before April 15, 2025 is treated as a
+        payment made on April 15, 2025, but "if an overpayment is generated on your 2024 return from a
+        payment made after April 15, 2025, treat the payment as made on the date of payment". Both
+        conventions are dates, so both are entered here as dates; this graph does not re-derive them.
+        Nothing downstream is exposed if a filer enters the true (earlier) date of a pre-April-15
+        overpayment instead of April 15 itself: every date on or before April 15, 2025 lands in column
+        (a) alike, and no payment dated on or before a column's due date is ever eligible for that
+        column's Penalty Worksheet line 1b.
+
+        NOT MEF-EXPORTED, and the asymmetry with the sibling dated collection is deliberate.
+        scheduleH:/scheduleHFutaStateContributions/*/writableRatePeriodFrom carries mef="true"
+        because it is a printed COLUMN of a transmitted schedule. i2210's Table 1 is a worksheet in
+        the INSTRUCTIONS with no form line and no element behind it, so claiming an MeF binding for
+        it would be a claim this repo cannot cite (invariants #3 and #7). It is consumed instead, by
+        ../amountInColumnA through ../amountInColumnD.</Description>
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210DatedEstimatedPayments/*/writablePaymentAmount">
+      <Name>Table 1 column "Payment amount" - the dollars paid on that date</Name>
+      <Description>The payment-amount column of i2210's Table 1. Sign: NON-NEGATIVE, enforced by the
+        declared Limit - a negative estimated payment is not a thing Table 1 can express, and one would
+        silently reduce a column's line 11.
+
+        NOT NETTED, NOT SUMMED. One row per payment: two payments made on the same date are
+        two rows, because the Penalty Worksheet's line 1b works payment by payment.
+
+        NOT MEF-EXPORTED, for the reason given on ../writablePaymentDate: Table 1 is an instructions
+        worksheet, not a transmitted form line.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/form2210DatedEstimatedPayments/*/amountInColumnA">
+      <Name>This payment's contribution to Form 2210 line 11, column (a)</Name>
+      <Description>The amount if this payment was made THROUGH April 15, 2025, zero otherwise. The
+        window is inclusive of its own due date, which is what "payments made through April 15, 2025"
+        says and is also why no column (a) payment can ever appear on the Penalty Worksheet's line 1b
+        (that line takes only payments made AFTER the date at the top of the column).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="../writablePaymentDate" /></Left>
+                <Right><Day>2025-04-15</Day></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writablePaymentAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="../writablePaymentDate" /></Left>
+                <Right><Day>2025-04-15</Day></Right>
+              </GreaterThan>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedEstimatedPayments/*/amountInColumnB">
+      <Name>This payment's contribution to Form 2210 line 11, column (b)</Name>
+      <Description>The amount if this payment was made after April 15, 2025 and on or before June 16,
+        2025, zero otherwise.
+
+        THE UPPER BOUND IS JUNE 16, NOT JUNE 15, AND THAT IS PRINTED. The column's own heading is
+        "after April 15, 2025, through June 15, 2025", but June 15, 2025 falls on a Sunday, and the
+        same page prints the shift: a payment made on the next day that is not a Sunday, Saturday or
+        legal holiday "is considered made on the due date". Monday June 16, 2025 is that next day. The
+        column (c) window below opens after June 16 for the same reason, so the two stay
+        disjoint.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-04-15</Day></Right>
+                </GreaterThan>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-06-16</Day></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writablePaymentAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-04-15</Day></Right>
+                </LessThanOrEqual>
+                <GreaterThan>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-06-16</Day></Right>
+                </GreaterThan>
+              </Any>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedEstimatedPayments/*/amountInColumnC">
+      <Name>This payment's contribution to Form 2210 line 11, column (c)</Name>
+      <Description>The amount if this payment was made after June 16, 2025 and on or before September
+        15, 2025, zero otherwise. The lower bound is June 16 rather than June 15 because the weekend
+        shift documented on ../amountInColumnB moved column (b)'s close; September 15, 2025 is a
+        Monday and needs no shift of its own.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-06-16</Day></Right>
+                </GreaterThan>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-09-15</Day></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writablePaymentAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-06-16</Day></Right>
+                </LessThanOrEqual>
+                <GreaterThan>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-09-15</Day></Right>
+                </GreaterThan>
+              </Any>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedEstimatedPayments/*/amountInColumnD">
+      <Name>This payment's contribution to Form 2210 line 11, column (d)</Name>
+      <Description>The amount if this payment was made after September 15, 2025 and on or before
+        January 15, 2026, zero otherwise. January 15, 2026 is a Thursday, so no weekend shift applies.
+
+        A PAYMENT AFTER JANUARY 15, 2026 LANDS NOWHERE, deliberately - see the block note above for
+        why that is safe rather than lost.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-09-15</Day></Right>
+                </GreaterThan>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2026-01-15</Day></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writablePaymentAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2025-09-15</Day></Right>
+                </LessThanOrEqual>
+                <GreaterThan>
+                  <Left><Dependency path="../writablePaymentDate" /></Left>
+                  <Right><Day>2026-01-15</Day></Right>
+                </GreaterThan>
+              </Any>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsTotal">
+      <Name>Total of the dated estimated tax payments</Name>
+      <Description>The sum of every row's ../writablePaymentAmount, PLUS the Schedule K-1 (Form 1041)
+        box 13 code A credit (/estateTrustK1CreditForEstimatedTaxes), which IRC 643(g)(1)(C)(ii) dates
+        to January 15 following the taxable year even though the K-1 itself prints no date. This
+        figure's only job is the reconciliation below: it must equal what the return already reports
+        as estimated tax paid, or the dated detail is not a decomposition of it and Form 2210 refuses
+        to use it.
+
+        AN UNANSWERED COLLECTION IS NOT AN EMPTY ONE, so the explicit zero arm carries the difference.
+        A CollectionSum over an ANSWERED empty collection is a Complete zero; over a collection never
+        answered at all it is Incomplete before the K-1 term is added, and that Incompleteness would
+        otherwise reach /form2210Penalty and withdraw the penalties this dictionary already computes
+        for the 519 returns that never had a collection to answer. The K-1 term is itself complete-safe
+        $0, so adding it does not change that posture: a return with no Form 1041 K-1 is byte identical
+        to before.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete><Dependency path="/form2210DatedEstimatedPayments" /></IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <CollectionSum>
+                    <Dependency path="/form2210DatedEstimatedPayments/*/writablePaymentAmount" />
+                  </CollectionSum>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Dependency path="/estateTrustK1CreditForEstimatedTaxes" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsColumnATotal">
+      <Name>Form 2210 line 11, column (a) - the estimated payments half</Name>
+      <Description>The sum of every row's ../amountInColumnA: the estimated tax payments made through
+        April 15, 2025. form2210:/form2210Line11ColA adds the withholding quarter to it. Carries the
+        same unanswered-collection zero arm as /form2210DatedPaymentsTotal.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/form2210DatedEstimatedPayments" /></IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form2210DatedEstimatedPayments/*/amountInColumnA" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsColumnBTotal">
+      <Name>Form 2210 line 11, column (b) - the estimated payments half</Name>
+      <Description>The sum of every row's ../amountInColumnB: the estimated tax payments made after
+        April 15, 2025 through the shifted June 16, 2025 close. Carries the same
+        unanswered-collection zero arm as /form2210DatedPaymentsTotal.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/form2210DatedEstimatedPayments" /></IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form2210DatedEstimatedPayments/*/amountInColumnB" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsColumnCTotal">
+      <Name>Form 2210 line 11, column (c) - the estimated payments half</Name>
+      <Description>The sum of every row's ../amountInColumnC: the estimated tax payments made after
+        the shifted June 16, 2025 close through September 15, 2025. Carries the same
+        unanswered-collection zero arm as /form2210DatedPaymentsTotal.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/form2210DatedEstimatedPayments" /></IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form2210DatedEstimatedPayments/*/amountInColumnC" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsColumnDTotal">
+      <Name>Form 2210 line 11, column (d) - the estimated payments half</Name>
+      <Description>The sum of every row's ../amountInColumnD: the estimated tax payments made after
+        September 15, 2025 through January 15, 2026, PLUS the Schedule K-1 (Form 1041) box 13 code A
+        credit (/estateTrustK1CreditForEstimatedTaxes). IRC 643(g)(1)(C)(ii) treats that credit as paid
+        by the beneficiary "on January 15 following the taxable year" - column (d)'s own due date - so
+        it lands here rather than in a column the K-1 itself never dates. Carries the same
+        unanswered-collection zero arm as /form2210DatedPaymentsTotal, to which this term is added
+        identically so the two figures move together.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete><Dependency path="/form2210DatedEstimatedPayments" /></IsComplete>
+              </When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/form2210DatedEstimatedPayments/*/amountInColumnD" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Dependency path="/estateTrustK1CreditForEstimatedTaxes" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form2210DatedPaymentsAfterColumnADueDate">
+      <Name>Dated payments made after April 15, 2025 - column (a)'s line 1b eligible pool</Name>
+      <Description>The dated total less column (a)'s share, i.e. every payment made after April 15,
+        2025. Zero exactly when no payment could ever appear on the Penalty Worksheet's line 1b for
+        column (a).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/form2210DatedPaymentsTotal" /></Minuend>
+          <Subtrahends>
+            <Dependency path="/form2210DatedPaymentsColumnATotal" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsAfterColumnBDueDate">
+      <Name>Dated payments made after June 16, 2025 - column (b)'s line 1b eligible pool</Name>
+      <Description>The dated total less columns (a) and (b), i.e. every payment made after column
+        (b)'s shifted close.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/form2210DatedPaymentsTotal" /></Minuend>
+          <Subtrahends>
+            <Dependency path="/form2210DatedPaymentsColumnATotal" />
+            <Dependency path="/form2210DatedPaymentsColumnBTotal" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsAfterColumnCDueDate">
+      <Name>Dated payments made after September 15, 2025 - column (c)'s line 1b eligible pool</Name>
+      <Description>The dated total less columns (a) through (c).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/form2210DatedPaymentsTotal" /></Minuend>
+          <Subtrahends>
+            <Dependency path="/form2210DatedPaymentsColumnATotal" />
+            <Dependency path="/form2210DatedPaymentsColumnBTotal" />
+            <Dependency path="/form2210DatedPaymentsColumnCTotal" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsAfterColumnDDueDate">
+      <Name>Dated payments made after January 15, 2026 - column (d)'s line 1b eligible pool</Name>
+      <Description>The dated total less all four columns. Non-zero exactly when a payment falls
+        outside every printed line 11 window, which is also the only way a payment can be eligible for
+        column (d)'s line 1b.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/form2210DatedPaymentsTotal" /></Minuend>
+          <Subtrahends>
+            <Dependency path="/form2210DatedPaymentsColumnATotal" />
+            <Dependency path="/form2210DatedPaymentsColumnBTotal" />
+            <Dependency path="/form2210DatedPaymentsColumnCTotal" />
+            <Dependency path="/form2210DatedPaymentsColumnDTotal" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DatedPaymentsReconcileEstimatedTax">
+      <Name>The dated detail accounts for every estimated tax dollar the return reports</Name>
+      <Description>TRUE when the filer's estimated-payment answer is settled AND the dated collection
+        adds up to exactly what the return reports on Form 1040 line 26. This is the fact that decides
+        whether Form 2210 may use the dated detail at all.
+
+        WHY EQUALITY AND NOT "AT LEAST". A dated total SHORT of the reported figure means payments the
+        return claims are missing from line 11, which raises the underpayments and OVERSTATES the
+        penalty. A dated total OVER it means the graph would credit money the return does not report,
+        which UNDERSTATES it. Neither is acceptable, so only an exact decomposition is used.
+
+        THIS IS THE FACT THAT KEEPS TODAY'S REFUSALS EXACTLY WHERE THEY ARE. Every one of the 25
+        committed returns that answers /paidEstimatedTaxesOrFromLastYear true has an annual scalar and
+        no collection, so its dated total is a Complete zero against a non-zero line 26 and this
+        resolves FALSE - the same refusal those returns get today, reached by a fact about the data
+        rather than by a fence on the question. And every return that answers FALSE has zero on both
+        sides, so this resolves TRUE and the 519 penalties this dictionary already computes are
+        untouched.
+
+        THE ANSWER ITSELF MUST BE SETTLED. /estimatedAndFromLastYear resolves to a Complete zero even
+        when /paidEstimatedTaxesOrFromLastYear is unanswered (its own second Case is unconditional), so
+        without the explicit IsComplete leg a return that never answered the question would reconcile
+        vacuously and be handed a computed penalty. It is refused instead.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/paidEstimatedTaxesOrFromLastYear" />
+          </IsComplete>
+          <Equal>
+            <Left><Dependency path="/form2210DatedPaymentsTotal" /></Left>
+            <Right>
+              <Add>
+                <Switch>
+                  <Case>
+                    <When>
+                      <Dependency path="/paidEstimatedTaxesOrFromLastYearCompleteSafe" />
+                    </When>
+                    <Then>
+                      <Dependency path="/estimatedTaxPaymentWritable" />
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+                <Dependency path="/estateTrustK1CreditForEstimatedTaxes" />
+              </Add>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form2210PriorYearTax">
+      <Name>Prior-year (2024) tax — attested (Form 2210 line 8 base)</Name>
+      <Description>The taxpayer's 2024 total tax as figured for Form 2210 line 8 (the prior-year safe
+        harbor). Taxpayer-attested writable; the single-year engine carries no cross-year tax (each year is its own dictionary, not a data flow). Optional/complete-safe.
+
+        WHAT AN UNANSWERED 2024 TAX COSTS, AND WHAT IT DOES NOT. It leaves line 8 unevaluable, so the
+        prior-year leg cannot be taken — but three of the four exemption exits do not need it: the
+        $1,000 de-minimis exit, the farmers-and-fishers waiver, and the withholding safe harbor
+        whenever line 9 is evaluable without a 2024 figure, which it is when the filer answers that
+        no 2024 return was filed or that 2024 was not a 12-month year. The one exit it does close is
+        the no-liability exception, which needs an ANSWERED $0 rather than a blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210PriorYearAgi">
+      <Name>Prior-year (2024) AGI — attested (Form 2210 line 8, 110% threshold)</Name>
+      <Description>The AGI shown on the taxpayer's 2024 return, used ONLY to select the 100% vs 110%
+        prior-year safe-harbor percentage (110% if 2024 AGI &gt; $150,000, or &gt; $75,000 if the 2025
+        filing status is MFS). A DEDICATED attested writable, not /lastYearAgi (a signing-identity
+        field with an MFJ per-spouse split). Optional/complete-safe.
+
+        IT IS NOT NEEDED WHENEVER IT CANNOT CHANGE THE ANSWER. On an attested 2024 tax of $0 both
+        percentages give $0, so line 8, line 9 and the withholding safe harbor all resolve with this
+        left blank; and when the prior-year leg is disapplied altogether, line 9 is line 5 alone and
+        neither 2024 figure is read. Unanswered matters only where the 2024 tax is a nonzero
+        attestation that the prior-year leg still applies to.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/writableFiledPriorYearReturn">
+      <Name>Filed a 2024 federal income tax return (Form 2210 line 8 condition)</Name>
+      <Description>ASK: "Did you file a 2024 federal income tax return?" HELP: the prior-year safe
+        harbor on Form 2210 line 8 is only available to a filer who filed for 2024 - "Clause (ii)
+        shall not apply if the preceding taxable year was not a taxable year of 12 months or if the
+        individual did not file a return for such preceding taxable year"
+        (26 U.S.C. 6654, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6654&amp;num=0&amp;edition=2024), which the instructions make mechanical: "If you didn't
+        file a return for 2024 or your 2024 tax year was less than 12 months, don't complete line 8.
+        Instead, enter the amount from line 5 on line 9" (https://www.irs.gov/pub/irs-pdf/i2210.pdf, page 4).
+        ASKED WHEN the return reaches the estimated-tax-penalty section, beside the 2024 tax and
+        2024 AGI attestations - it is the same screen and the same tax year. UNANSWERED: the
+        disapplication does NOT fire, so the filer keeps the prior-year safe harbor exactly as
+        today; nothing about the return moves until the question is answered NO. VALIDATION:
+        yes/no. FEEDS /priorYearReturnNotFiled, and through it Form 2210 line 9.
+
+        A DEDICATED ATTESTATION, NOT signing:/filedLastYear, for the same reason /form2210PriorYearAgi
+        is not /lastYearAgi: that field is a signing-identity question about the person signing this
+        return, and on a joint 2025 return it carries an MFJ per-spouse split. Section 6654(d)(1)(B)
+        asks whether THE INDIVIDUAL filed a return for 2024, and i2210's own line-8 text contemplates
+        spouses who filed separately for 2024 and jointly for 2025, so the two questions can be
+        answered differently on the same return.</Description>
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorYearReturnNotFiled">
+      <Name>Answered NO to filing a 2024 return, complete-safe</Name>
+      <Description>TRUE only when the filer has answered that no 2024 return was filed. An
+        unanswered question is not a NO: this resolves FALSE, and the prior-year safe harbor stands
+        untouched. The direction matters because this condition REMOVES a safe harbor rather than
+        granting one, so silence must not fire it.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableFiledPriorYearReturn" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Not>
+                <Dependency path="/writableFiledPriorYearReturn" />
+              </Not>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePriorTaxYearWasTwelveMonths">
+      <Name>The 2024 tax year was a full 12 months (Form 2210 line 8 and the no-liability exception)</Name>
+      <Description>ASK: "Was your 2024 tax year a full 12 months?" HELP: a short 2024 year costs the
+        filer the prior-year safe harbor on line 8 - "Clause (ii) shall not apply if the preceding
+        taxable year was not a taxable year of 12 months" (26 U.S.C. 6654, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6654&amp;num=0&amp;edition=2024) - and a
+        full 12-month 2024 year is also the first of the three conditions of the no-liability
+        exception, "your 2024 tax return was (or would have been had you been required to file) for
+        a full 12 months" (https://www.irs.gov/pub/irs-pdf/i2210.pdf, page 1). Almost every individual filer
+        answers yes; a short year arises on a change of accounting period or a final return. ASKED
+        WHEN the return reaches the estimated-tax-penalty section, on the same screen as the
+        filed-a-2024-return question. UNANSWERED: neither the disapplication nor the exception
+        fires - the filer keeps today's line 8 and is not exempted. VALIDATION: yes/no. FEEDS
+        /priorTaxYearWasNotTwelveMonths (the line 8 disapplication) and /priorTaxYearWasTwelveMonths
+        (the no-liability exception).</Description>
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/priorTaxYearWasNotTwelveMonths">
+      <Name>Answered NO to a full 12-month 2024 tax year, complete-safe</Name>
+      <Description>TRUE only when the filer has answered that the 2024 tax year was NOT a full 12
+        months. Unanswered is not a NO: FALSE, and the prior-year safe harbor stands.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePriorTaxYearWasTwelveMonths" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Not>
+                <Dependency path="/writablePriorTaxYearWasTwelveMonths" />
+              </Not>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/priorTaxYearWasTwelveMonths">
+      <Name>Answered YES to a full 12-month 2024 tax year, complete-safe</Name>
+      <Description>TRUE only when the filer has answered that the 2024 tax year WAS a full 12
+        months. Unanswered is FALSE: the no-liability exception is a condition of allowance and an
+        unestablished condition grants nothing.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePriorTaxYearWasTwelveMonths" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writablePriorTaxYearWasTwelveMonths" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableCitizenOrResidentEntirePriorTaxYear">
+      <Name>U.S. citizen or resident alien for the whole of 2024 (no-liability exception condition)</Name>
+      <Description>ASK: "Were you a U.S. citizen or resident alien for all of 2024?" HELP: the
+        no-liability exception to the estimated-tax penalty is available only to a filer who "was a
+        citizen or resident of the United States throughout the preceding taxable year"
+        (26 U.S.C. 6654, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6654&amp;num=0&amp;edition=2024); the instructions print the same condition as "you were
+        a U.S. citizen or resident alien for the entire year (or an estate of a domestic decedent or
+        a domestic trust)" (https://www.irs.gov/pub/irs-pdf/i2210.pdf, page 1). It is about 2024, not 2025, and
+        it is about the WHOLE year - a filer who became a resident partway through 2024 answers no.
+        ASKED WHEN the filer's 2024 tax attestation is zero, which is the only case in which this
+        condition can change an answer. UNANSWERED: the exception does not apply and the filer is
+        not exempted through it; every other exit is unaffected. VALIDATION: yes/no. FEEDS
+        /citizenOrResidentEntirePriorTaxYear and /form2210NoPriorYearLiabilityExemption. This is a
+        DEDICATED 2024 attestation and deliberately not the 2025 citizenship facts on /filers,
+        which are about this filing year and answer a different question.</Description>
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/citizenOrResidentEntirePriorTaxYear">
+      <Name>Answered YES to U.S. citizen or resident alien throughout 2024, complete-safe</Name>
+      <Description>TRUE only when the filer has answered that they were a U.S. citizen or resident
+        alien for all of 2024. Unanswered is FALSE - a condition of allowance that nobody has
+        established grants nothing.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableCitizenOrResidentEntirePriorTaxYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableCitizenOrResidentEntirePriorTaxYear" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PriorYearSafeHarborDisapplied">
+      <Name>Form 2210 line 8 is not completed - the prior-year leg is disapplied</Name>
+      <Description>TRUE when the filer has answered that no 2024 return was filed, or that the 2024
+        tax year was shorter than 12 months. Either answer disapplies the prior-year leg of the
+        required annual payment, and the instructions say what to do instead: skip line 8 and carry
+        line 5 to line 9.
+
+        COMPLETE-SAFE FALSE IN BOTH DISJUNCTS. This removes a safe harbor, so it fires only on an
+        established answer; a return that never sees the two questions keeps today's line 9
+        exactly.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Any>
+          <Dependency path="/priorYearReturnNotFiled" />
+          <Dependency path="/priorTaxYearWasNotTwelveMonths" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PriorYearTaxAttestedZero">
+      <Name>The 2024 tax attestation is an answered zero</Name>
+      <Description>TRUE when /form2210PriorYearTax has been answered AND the answer is $0. The
+        IsComplete conjunct is what separates "the filer told us there was no 2024 tax" from "nobody
+        has said", which is the distinction the whole prior-year leg turns on: an answered zero
+        establishes the prior-year figure, and an unanswered one establishes nothing.</Description>
+      
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/form2210PriorYearTax" />
+          </IsComplete>
+          <Equal>
+            <Left><Dependency path="/form2210PriorYearTax" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210CurrentYearTax">
+      <Name>Form 2210 line 4 — current-year tax</Name>
+      <Description>Form 2210 Part I line 4, "Current year tax. Combine lines 1, 2, and 3" —
+        estimatedPayments /form2210PartILine1TaxAfterCredits (line 1, Form 1040 line 22) plus
+        /form2210PartILine2OtherTaxes (line 2, the i2210 table's Schedule 2 subset) MINUS the
+        printed line 3, /form2210PartILine3OtherPaymentsAndRefundableCredits. Section 6654(f)
+        defines the tax this section works on as chapter 1 plus chapter 2 plus chapter 2A less the
+        credits against tax provided by part IV of subchapter A of chapter 1 other than the section
+        31 withholding credit, and the printed line 3 is the instructions' list of those credits and
+        payments (see /form2210PartILine3OtherPaymentsAndRefundableCredits for the members this
+        dictionary models). The subtraction is not optional, and it is the same subtrahend Form
+        2210-F takes on its own line 6.
+
+        REBUILT from taxCalculations /totalTax minus line 3. That minuend carried the WHOLE of
+        Schedule 2 line 21, where the printed line 2 is only the i2210 table's named subset;
+        Schedule 2 lines 5 and 6 (Forms 4137 and 8919) and line 13 (uncollected box 12 tax) are
+        chapter 21 FICA, which section 6654(f)(2) does not count as "tax" for this section, and
+        line 17b (form8828 /form8828Line23RecaptureTaxOrZero, the section 143(m) mortgage-subsidy
+        recapture) is the one increase section 6654(f)(1) excludes by name. Combining line 1 and
+        line 2 directly, rather than reaching them through /totalTax, removes all four terms along
+        with 17k and 17m through 17q (none of which the printed table names either) and the
+        non-distribution part of Schedule 2 line 8 (the two Form 5329 excise taxes on excess
+        contributions, already excluded from line 2 on that same ground). It also stops line 4 from
+        seeing taxCalculations /totalTax's own form8621 section 1294 deferral subtraction, which is
+        a Form 1040 line 24 adjustment with no counterpart on the printed Form 2210 Part I.
+
+        THE RESIDUAL THAT REMAINS: line 2 omits Schedule 2 lines 17g and 17j (see
+        /form2210PartILine2OtherTaxes) because neither carries an Export tag yet, so line 4 is
+        SHORT by whatever those two facts hold on a return that has them — an under-charge, and the
+        opposite direction from every defect this rebuild fixes. Once schedule2.xml exports them
+        this fact needs no further change; it already reads /form2210PartILine2OtherTaxes by path.
+
+        LINE 4 MAY BE NEGATIVE when the refundable credits exceed the tax, which is the intended
+        reading and needs no floor: /form2210DeMinimisNoPenalty tests line 4 against $1,000, so a
+        negative line 4 exempts the filer through /isExemptFromEstimatedTaxPenalty and
+        /form2210Penalty's first arm before any installment is figured.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Add>
+              <Dependency path="/form2210PartILine1TaxAfterCredits" />
+              <Dependency path="/form2210PartILine2OtherTaxes" />
+            </Add>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form2210PartILine3OtherPaymentsAndRefundableCredits" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210NinetyPercentOfCurrentYearTax">
+      <Name>Form 2210 line 5 — 90% of current-year tax</Name>
+      <Description>Form 2210 line 5 = line 4 × 90%.
+
+        66 2/3% FOR A FARMER OR FISHER, the half of the rule a waiver-only
+        fill would have missed. The instructions say "If at least two-thirds of your gross income
+        for 2024 or 2025 is from farming and fishing, substitute 66 2/3% for 90% in (1) above"
+        (https://www.irs.gov/pub/irs-pdf/i2210.pdf, page 1), and "(1) above" is this line — the
+        90%-of-current-year-tax leg of the required annual payment.
+
+        IT TURNS ON TEST 1 ALONE, NOT ON THE WAIVER. The full waiver needs test 1 AND the
+        filed-and-paid-by-March-2 test 2; this substitution carries no filing-date condition at
+        all. A fill that gated it on /isExemptFromEstimatedTaxPenalty would leave a farmer who
+        meets test 1 but files after March 2 with an OVERSTATED required annual payment — the
+        exact defect the retired contract's sizing item 9 named.
+
+        The factor is 2/3 exactly, as a Rational, not the decimal 0.6667 the instructions print
+        for hand computation: the printed rounding exists for a filer with a pencil, and using it
+        here would understate the requirement by a few cents on a large tax.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/farmerFishermanTwoThirdsGrossIncomeTest" />
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>2/3</Rational>
+                  <Dependency path="/form2210CurrentYearTax" />
+                </Multiply>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Multiply>
+                  <Dependency path="/form2210CurrentYearTax" />
+                  <Dollar>0.90</Dollar>
+                </Multiply>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210WithholdingTaxes">
+      <Name>Form 2210 line 6 — withholding taxes</Name>
+      <Description>Form 2210 Part I line 6, "Withholding taxes. Don't include estimated tax payments."
+        The instructions define the line as TWO withholding amounts plus an optional credit, and all three are added here: Form 1040 line 25d
+        (taxCalculations /totalWithholding) and Schedule 3 (Form 1040) line 11, the excess social
+        security and tier 1 RRTA tax withheld (schedule3 /excessSocialSecurityTaxWithheld). The Part III
+        line 11 rule names the same pair again — "For withheld federal income tax and excess social
+        security or tier 1 RRTA, you are considered to have paid one-fourth of these amounts on each
+        payment due date" — so the excess-withholding term reaches the four columns through
+        /form2210PaidPerPeriod, which reads this fact.
+
+        WHAT ELSE READS IT, because this line is load-bearing in four places: the $1,000 de-minimis exit
+        on line 7 (/form2210BalanceAfterWithholding), the "Is line 9 more than line 6?" safe-harbor exit
+        (/form2210SafeHarborNoPenalty), the per-quarter payments above, and Form 2210-F lines 9 and 12.
+
+        THE USVI CREDIT IS A THIRD ADDEND. The same Line 6 instruction ends: "Credit for U.S. tax paid
+        to the USVI. You can take a credit on your U.S. return for the U.S. tax allocated to the USVI
+        only if you actually paid the tax to the USVI. To take the credit, you must complete Form 8689
+        ... You can include that credit here." form8689 /form8689Credit is that credit, Form 8689
+        lines 41 and 46 (the USVI tax actually paid, which Schedule 3 line 13z carries to Form 1040
+        line 31). It is complete-safe $0 on every return with no Form 8689, and it is not a member of
+        line 3 (Schedule 3 line 13z is not on the line 3 list), so it is counted once. Because the
+        per-quarter payments and Form 2210-F lines 8 and 12 read this fact, the credit reaches them
+        too, at one-fourth per column on the regular form: the instructions name no separate date for
+        it, and the Form 2210-F instructions are not vendored, so that reach is this build's reading
+        of "include that credit here" rather than a printed rule.
+
+        ESTIMATED PAYMENTS ARE DELIBERATELY EXCLUDED, as the printed caption directs; they enter only
+        through the Part III dated collection. Section 6654(g)(1) is why withholding belongs on this line
+        at all: the section 31 credit is DEEMED a payment of estimated tax, an equal part on each due
+        date, unless the taxpayer establishes the dates on which the amounts were actually withheld.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="taxCalculations" path="/totalWithholding" />
+          <Dependency module="schedule3" path="/excessSocialSecurityTaxWithheld" />
+          <Dependency module="form8689" path="/form8689Credit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210BalanceAfterWithholding">
+      <Name>Form 2210 line 7 — current-year tax less withholding</Name>
+      <Description>Form 2210 line 7 = line 4 − line 6. "If less than $1,000, stop; you don't owe
+        a penalty." May be negative (over-withheld), which is &lt; $1,000 → exempt.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form2210CurrentYearTax" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form2210WithholdingTaxes" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PriorYearAgiThreshold">
+      <Name>Prior-year AGI threshold for the 110% safe harbor ($150,000 / $75,000 MFS)</Name>
+      <Description>The AGI threshold above which the prior-year safe harbor is 110% instead of
+        100% — $150,000, or $75,000 if the 2025 filing status is married filing separately.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusMFS" /></When>
+            <Then><Dollar>75000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PriorYearAgiExceedsThreshold">
+      <Name>Prior-year AGI exceeds the 110% threshold</Name>
+      <Description>True when attested 2024 AGI is more than the threshold (strictly greater, per
+        "more than $150,000") → the prior-year safe harbor uses 110%.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="/form2210PriorYearAgi" /></Left>
+          <Right><Dependency path="/form2210PriorYearAgiThreshold" /></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PriorYearRequiredPayment">
+      <Name>Form 2210 line 8 — required payment based on prior year's tax</Name>
+      <Description>Form 2210 line 8 = 2024 tax × (110% if 2024 AGI &gt; threshold, else 100%) — EXCEPT
+        for a farmer or fisher, who takes 100% regardless of 2024 AGI.
+
+        THE FARMER CONJUNCT. Section 6654(i)(1)(C) computes the farmer's single installment as the
+        required annual payment "without regard to subparagraph (C) of subsection (d)(1)" —
+        subparagraph (C) is the 110% AGI substitution this fact otherwise applies. So a farmer or
+        fisher who meets test 1 (/farmerFishermanTwoThirdsGrossIncomeTest, the same gate
+        /form2210NinetyPercentOfCurrentYearTax reads for its own 66 2/3% substitution) never takes
+        110% here, whatever the 2024 AGI was. This turns on test 1 alone, the same as the 66 2/3%
+        substitution and for the same statutory reason: the farmer route is disregarding
+        subparagraph (C), not applying a favourable version of it.
+
+        AN ANSWERED ZERO NEEDS NO AGI, and that arm is not an optimisation. Both factors multiply the
+        same 2024 tax, so on an attested $0 the answer is $0 whichever one applies and the AGI
+        question cannot change it. Without the arm, a filer with no 2024 tax who leaves 2024 AGI
+        blank — the natural answer when there was no tax — takes /form2210PriorYearAgiExceedsThreshold
+        Incomplete, the Switch below collapses, and line 8, line 9 and the whole penalty go
+        unfigured. Incomplete otherwise when the 2024 tax is unattested, or when it is nonzero, the
+        filer is not a farmer or fisher under test 1, and the 2024 AGI is unattested; the safe harbor
+        is then not evaluable.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/form2210PriorYearTaxAttestedZero" /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="/form2210PriorYearTax" />
+                  <Switch>
+                    <Case>
+                      <When><Dependency path="/farmerFishermanTwoThirdsGrossIncomeTest" /></When>
+                      <Then><Dollar>1.00</Dollar></Then>
+                    </Case>
+                    <Case>
+                      <When><Dependency path="/form2210PriorYearAgiExceedsThreshold" /></When>
+                      <Then><Dollar>1.10</Dollar></Then>
+                    </Case>
+                    <Case>
+                      <When><True /></When>
+                      <Then><Dollar>1.00</Dollar></Then>
+                    </Case>
+                  </Switch>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210RequiredAnnualPayment">
+      <Name>Form 2210 line 9 — required annual payment</Name>
+      <Description>Form 2210 line 9 = smaller of line 5 (90% of current-year tax) and line 8 (the
+        prior-year safe harbor) — EXCEPT that the prior-year leg is disapplied when the filer did not
+        file a 2024 return or the 2024 tax year was shorter than 12 months, and line 9 is then line 5
+        alone. That is not a shortcut around an unanswered line 8: it is the printed rule, and it
+        makes line 9 evaluable for a filer who has no prior-year figure to give.
+
+        WHAT LEAVES THE PENALTY UNFIGURED, named here because a blank Form 1040 line 38 is silent
+        about its own reason. Line 9 is Incomplete — and with it every installment, the whole Part III
+        chain and the penalty — when the prior-year leg applies and the 2024 tax is unattested, or
+        when the 2024 tax is a nonzero attestation and the 2024 AGI is unattested. An attested 2024
+        tax of $0 needs no AGI. Nothing else on this line refuses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/form2210PriorYearSafeHarborDisapplied" /></When>
+            <Then><Dependency path="/form2210NinetyPercentOfCurrentYearTax" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form2210NinetyPercentOfCurrentYearTax" />
+                <Dependency path="/form2210PriorYearRequiredPayment" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210DeMinimisNoPenalty">
+      <Name>Form 2210 de-minimis exit — no penalty (line 4 or line 7 &lt; $1,000)</Name>
+      <Description>The two "$1,000" stop-exits of Form 2210 Part I — current-year tax (line 4) or
+        current-year tax net of withholding (line 7) is less than $1,000. Either → the taxpayer does not
+        owe an estimated-tax penalty. Always evaluable (uses only current-year tax + withholding).</Description>
+      <Derived>
+        <Any>
+          <LessThan>
+            <Left><Dependency path="/form2210CurrentYearTax" /></Left>
+            <Right><Dollar>1000</Dollar></Right>
+          </LessThan>
+          <LessThan>
+            <Left><Dependency path="/form2210BalanceAfterWithholding" /></Left>
+            <Right><Dollar>1000</Dollar></Right>
+          </LessThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210SafeHarborNoPenalty">
+      <Name>Form 2210 safe-harbor exit — no penalty (withholding ≥ required annual payment)</Name>
+      <Description>The "Is line 9 more than line 6? No → you don't owe a penalty" exit — withholding
+        (line 6) alone covers the required annual payment (line 9).
+
+        THE GUARD IS THAT LINE 9 IS ESTABLISHED, not that any particular attestation was given, and
+        the difference is the point. Line 9 is evaluable on three shapes: the ordinary one (2024 tax
+        and 2024 AGI both attested), an attested 2024 tax of $0 (where the AGI cannot change the
+        answer), and a disapplied prior-year leg (where line 9 is line 5 alone and no 2024 figure is
+        needed at all). Reading IsComplete on line 9 covers all three and will cover the next one;
+        naming the attestations would have kept refusing two of them. When line 9 is not evaluable
+        this is FALSE, never Incomplete: the taxpayer is not declared exempt through this path, which
+        is the conservative direction.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form2210RequiredAnnualPayment" /></IsComplete>
+          <LessThanOrEqual>
+            <Left><Dependency path="/form2210RequiredAnnualPayment" /></Left>
+            <Right><Dependency path="/form2210WithholdingTaxes" /></Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableGrossFarmingFishingIncomeFromPriorTaxYear">
+      <Name>2024 gross income from farming or fishing</Name>
+      <Description>Test 1's 2024 numerator: "your gross income from farming or fishing ... for
+        2024", attested. A cross-year fact: the previous year's figure is this
+        year's input, entering as an attested writable rather than as engine state (no year's graph
+        holds another year's facts).
+
+        NO PRINTED RECONCILIATION EXISTS FOR IT, and that is disclosed rather than papered over.
+        The 2024 return is not part of this filing, so nothing in this graph can check the figure
+        — unlike the 2025 arm, whose numerator is computed from ten facts. The attestation stands
+        unchecked and its arm is guarded accordingly (see /farmerFisherman2024Arm: the pair must
+        BOTH be answered or the arm is false, because a ratio with half its terms attested is a
+        guess).
+
+        Min 0: it is a gross income figure. interpretation:provisional.</Description>
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableGrossIncomeFromAllSourcesFromPriorTaxYear">
+      <Name>2024 annual gross income from all sources</Name>
+      <Description>Test 1's 2024 DENOMINATOR: "your annual gross income from all sources for
+        2024", attested. A SEPARATE attestation from the numerator and not derivable from it —
+        the two are independent figures and asking for one does not give the other.
+
+        Same cross-year intake shape and same unchecked-attestation disclosure as its numerator twin.
+        Min 0. interpretation:provisional.</Description>
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableFiledAndPaidEntireTaxByJanuary31">
+      <Name>Filed the 2025 return and paid the tax due in full by 31 January 2026 (IRC 6654(h))</Name>
+      <Description>ASK: "Will you file this return and pay everything you owe on it on or before
+        January 31, 2026?" HELP: doing both removes the penalty on the fourth estimated-tax
+        installment, the one due January 15, 2026 - "If you file your 2025 Form 1040 or 1040-SR by
+        January 31, 2026, and pay the rest of the tax you owe, you don't need to make the payment
+        due on January 15, 2026" (https://www.irs.gov/pub/irs-prior/p505--2025.pdf, page 23). It removes nothing
+        else: the first three installments are unaffected, and so is any part of their underpayment
+        that is still outstanding in the January-to-April rate period. BOTH halves are required -
+        filing by January 31 without paying in full does not qualify. THIS IS THE GENERAL RULE, not
+        the farmer's: a farmer or fisher answers /writableFiledAndPaidEntireTaxByMarch2 instead,
+        where subsection (i)(1)(D) substitutes March 1 for January 31. ASKED WHEN the
+        estimated-tax-penalty section is reached, of every filer and not only one who owes a balance:
+        subsection (h) is written about filing and paying "the amount computed on the return as
+        payable", and an amount of $0 payable satisfies it, so a refund return with a late-January
+        filing date still answers. It is a statement about conduct the filer controls at filing time.
+        UNANSWERED: FALSE - column (d) is charged in full, which is today's behaviour and the
+        adverse-safe direction. VALIDATION: yes/no. FEEDS form2210:/form2210PenaltyColDPeriod4 and
+        form2210:/form2210Line1bDemandThroughColD.
+
+        UPDATED: A FILER WHO ANSWERS YES ONCE WAS OVER-CHARGED ON COLUMNS (a) TO (c); THAT HALF NOW
+        CLOSES ON A VALID ANSWER. The printed worksheet DATES the balance-due payment - "Use the date
+        you filed (or will file) your return or April 15, 2026, whichever is earlier" - and
+        form2210:/form2210Line1bBalanceDuePaymentContribution now feeds that dated credit into
+        /form2210PenaltyWorksheetLine1bDayCount, so a filer who gives a valid Yes answer with a date
+        and an amount has the earlier columns' day counts stop at the filing date instead of running
+        to April 15. What still does not close is an INVALID Yes answer (no date, no amount, or the
+        combination the guard is meant to catch): see the block note on
+        form2210:/knockoutForm2210BalanceDuePaymentInputsInvalid.</Description>
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filedAndPaidEntireTaxByJanuary31">
+      <Name>The IRC 6654(h) January-31 rule, complete-safe</Name>
+      <Description>/writableFiledAndPaidEntireTaxByJanuary31 when answered, else FALSE. The default
+        is adverse-safe by design: an unanswered filing-and-payment claim does not forgive an
+        installment, and on the Form 2210 chain an Incomplete would not refuse the return - it would
+        sink into a hard $0 penalty, which is a silent FULL waiver rather than the narrow one this
+        rule grants.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableFiledAndPaidEntireTaxByJanuary31" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableFiledAndPaidEntireTaxByJanuary31" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableFiledAndPaidEntireTaxByMarch2">
+      <Name>Filed and paid the entire tax due by March 2, 2026 (Form 2210 farmers/fishers test 2)</Name>
+      <Description>Test 2: "You filed Form 1040, 1040-SR, or 1041 and paid the entire tax due by
+        March 2, 2026." A statement about the filer's own filing CONDUCT at filing time.
+
+        NOT A CROSS-YEAR FACT, and the distinction is deliberate: it is neither prior-year state nor a
+        figure carried across a year boundary, so it takes no cross-year pairing name and owes no
+        emit-side twin in any year's dictionary. Complete-safe FALSE — an unanswered test 2 does
+        not grant the waiver. interpretation:provisional.</Description>
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filedAndPaidEntireTaxByMarch2">
+      <Name>Test 2, complete-safe (filed and paid the entire tax by March 2, 2026)</Name>
+      <Description>/writableFiledAndPaidEntireTaxByMarch2 when answered, else FALSE — the ordinary
+        IsComplete wrapper, and it is here for a reason worth stating rather than as boilerplate.
+
+        THE BARE WRITABLE WAS A LATENT CONTAGION. /isExemptFromEstimatedTaxPenalty combines this
+        with test 1 under All, and All SHORT-CIRCUITS on a false operand — so on the whole
+        committed corpus, where test 1 is false, an unanswered writable never showed. A filer who
+        MEETS test 1 and never answered test 2 would have hit All(true, Incomplete) and taken the
+        exemption fact Incomplete with them. The node tests could not have caught it: every
+        farmer fixture answers test 2 explicitly. Found by looking for the shape after the same
+        contagion had just been caught one fact away, on
+        /farmerFishermanTwoThirdsArmCurrentYear.
+
+        FALSE IS THE RIGHT DEFAULT: an unanswered filing-and-payment claim does not grant a
+        waiver.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableFiledAndPaidEntireTaxByMarch2" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableFiledAndPaidEntireTaxByMarch2" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/grossFarmingFishingIncomeCurrentYear">
+      <Name>2025 gross income from farming and fishing — Pub. 505's ten summands</Name>
+      <Description>The 2025 numerator of the two-thirds test, computed from Pub. 505 chapter 2's
+        two form-line maps. EIGHT facts covering TEN printed source lines:
+
+          scheduleF:/scheduleFGrossIncome                 Schedule F line 9, floored at 0
+          form4835:/form4835GrossFarmRentalIncome         Form 4835 line 7
+          scheduleE:/k1GrossFarmingFishingIncome          K-1 (1065) box 14 code B
+          scheduleE:/k1FarmingFishingIncomeSCorp          K-1 (1120-S) box 17 code AN
+          scheduleE:/estateTrustGrossFarmingFishingIncome K-1 (1041) box 14 code F
+          form4797:/farmLivestockGainsFromForm4797        Form 4797 livestock gains
+          scheduleC:/scheduleCFishingGrossIncome          Schedule C line 7, fishing businesses
+          income:/grossFishingServicesIncome              crew service, Exxon Valdez, other
+
+        THE THREE K-1 BOXES ARE COUNTED ONCE EACH, NOT TWICE. Pub. 505 names them in BOTH its
+        farming list and its fishing list, but each printed box carries a COMBINED farming-and-
+        fishing figure — Schedule E line 42 says so in its own words — so adding them per list
+        would double-count. That collapse is what makes the count ten rather than thirteen.
+
+        IT IS NOT SCHEDULE E LINE 42, and that is the retired contract's ground (d): line 42 is
+        four pass-through legs and omits Schedule F, Form 4797 and the whole fishing side.
+        Building this on line 42 would UNDERSTATE the numerator, understate the ratio, and deny a
+        waiver the filer is entitled to — taxpayer-adverse.
+
+        MUCH OF IT IS A RE-CLASSIFICATION OF THE DENOMINATOR, not new money, and a successor must
+        not "fix" that: the fishing-services items are already inside /totalIncome as wages or
+        interest, and the 1041 K-1 leg is a separately stated subset of its own box 6. The test
+        asks what FRACTION of gross income is farming or fishing, so the numerator overlapping
+        the denominator is the point.
+
+        Every summand is complete-safe 0 on a return that claims none of them, so this resolves
+        Complete 0 for the overwhelming majority of filers.
+
+        THE SCHEDULE F LEG COUNTS INCOME, NOT LOSS. Schedule F line 9 can be negative: line 1c
+        subtracts the cost of livestock bought for resale from their sale price, line 8 can carry a
+        negative entry, and the accrual route's line 50 subtracts line 49 from line 44. A farm whose
+        line 9 is a loss has no gross income from farming, and Publication 505 measures the
+        two-thirds test on "the total of the income (not loss) amounts", so the leg enters as 0
+        rather than cutting the fishing or K-1 income beside it. The floor sits here, on the one
+        Schedule F leg, because this return carries exactly one Schedule F: scheduleF
+        /knockoutScheduleFMoreThanOneFarm refuses a second farm, so this leg IS the per-farm amount.
+        If Schedule F becomes a collection, the floor moves to each farm. Direction of the unfloored
+        reading: a farm loss shrank the numerator and could deny the 66 2/3 percent route
+        (over-charge). Example:
+        (a -5,000 line 9 beside 40,000 of fishing crew income gives 40,000, not 35,000).
+        EVERY OTHER LEG COUNTS INCOME, NOT LOSS, TOO. The same
+        Publication 505 sentence governs every amount in the two lists, so each of the other seven legs
+        is floored at 0 as well. Form 4835 line 7 was the live case: a futures loss or a negative line 6
+        makes it negative and the
+        unfloored term cut the numerator.
+        interpretation:provisional.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Round>
+          <Add>
+            <GreaterOf>
+              <Dependency module="scheduleF" path="/scheduleFGrossIncome" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="form4835" path="/form4835GrossFarmRentalIncome" /><Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="scheduleE" path="/k1GrossFarmingFishingIncomeWithoutLosses" /><Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="scheduleE" path="/k1FarmingFishingIncomeSCorpWithoutLosses" /><Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="scheduleE" path="/estateTrustGrossFarmingFishingIncomeWithoutLosses" /><Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="form4797" path="/farmLivestockGainsFromForm4797" /><Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="scheduleC" path="/scheduleCFishingGrossIncome" /><Dollar>0</Dollar>
+            </GreaterOf>
+            <GreaterOf><Dependency module="income" path="/grossFishingServicesIncome" /><Dollar>0</Dollar>
+            </GreaterOf>
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/farmerFishermanTwoThirdsArmPriorTaxYear">
+      <Name>The two-thirds test on the 2024 figures</Name>
+      <Description>True when the attested 2024 farming/fishing income is at least two-thirds of
+        the attested 2024 gross income from all sources.
+
+        GUARDED ON BOTH TERMS BEING ANSWERED, and FALSE rather than Incomplete when either is
+        missing. A ratio with half its terms attested is a guess, and the Any over the two years
+        below stays decidable from the 2025 arm alone — so an unanswered 2024 pair costs the
+        filer nothing except this arm.
+
+        CROSS-MULTIPLIED: numerator x 3 >= denominator x 2, never numerator/denominator >= 2/3, so
+        no rounding decision is smuggled into the comparison. interpretation:provisional.</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableGrossFarmingFishingIncomeFromPriorTaxYear" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableGrossIncomeFromAllSourcesFromPriorTaxYear" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/writableGrossIncomeFromAllSourcesFromPriorTaxYear" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Multiply>
+                    <Rational>3/1</Rational>
+                    <Dependency path="/writableGrossFarmingFishingIncomeFromPriorTaxYear" />
+                  </Multiply>
+                </Left>
+                <Right>
+                  <Multiply>
+                    <Rational>2/1</Rational>
+                    <Dependency path="/writableGrossIncomeFromAllSourcesFromPriorTaxYear" />
+                  </Multiply>
+                </Right>
+              </GreaterThanOrEqual>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/grossIncomeFromAllSourcesCurrentYear">
+      <Name>Gross income from all sources used by the 2025 farmer or fisherman test</Name>
+      <Description>The 2025 total gross income from all sources used as the denominator by
+        /farmerFishermanTwoThirdsArmCurrentYear. It reads the already-exported
+        income:/writableGrossIncomeFromAllSources attestation, the same quantity used by the 2024
+        arm's prior-tax-year counterpart. The amount remains Incomplete until that income fact is
+        answered; an unanswered amount cannot grant the special 66 2/3% treatment.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/farmerFishermanTwoThirdsArmCurrentYear">
+      <Name>The two-thirds test on the 2025 figures</Name>
+      <Description>True when /grossFarmingFishingIncomeCurrentYear is at least two-thirds of
+        /grossIncomeFromAllSourcesCurrentYear. Cross-multiplied on the same reasoning as the 2024
+        arm.
+
+        THE DENOMINATOR IS THE ATTESTED GROSS FIGURE, NOT FORM 1040 LINE 9. The test says "total
+        gross income from all sources"; /grossIncomeFromAllSourcesCurrentYear reads the
+        already-exported income:/writableGrossIncomeFromAllSources attestation, the 2025 twin of
+        the 2024 arm's own /writableGrossIncomeFromAllSourcesFromPriorTaxYear denominator, so both
+        arms of this test now carry the same KIND of denominator. If the attestation is unanswered,
+        this arm's complete-safe FALSE fallback governs; the 2024 arm can still independently
+        satisfy test 1.
+
+        A ZERO OR NEGATIVE DENOMINATOR passes trivially under cross-multiplication when the
+        numerator is 0 (0 >= 0), which is harmless: such a filer has no tax to underpay and the
+        waiver changes nothing for them. interpretation:provisional.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/grossFarmingFishingIncomeCurrentYear" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/grossIncomeFromAllSourcesCurrentYear" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/grossIncomeFromAllSourcesCurrentYear" />                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Multiply>
+                    <Rational>3/1</Rational>
+                    <Dependency path="/grossFarmingFishingIncomeCurrentYear" />
+                  </Multiply>
+                </Left>
+                <Right>
+                  <Multiply>
+                    <Rational>2/1</Rational>
+                    <Dependency path="/grossIncomeFromAllSourcesCurrentYear" />                  </Multiply>
+                </Right>
+              </GreaterThanOrEqual>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/farmerFishermanTwoThirdsGrossIncomeTest">
+      <Name>Form 2210 farmers and fishers — test 1, the two-thirds gross income test</Name>
+      <Description>Test 1 of the Form 2210 farmer/fisher special rule: true when EITHER the 2024
+        arm or the 2025 arm is satisfied. The printed disjunction is "for 2024 or 2025", so one
+        year suffices.
+
+        IT HAS TWO CONSUMERS ON TWO DIFFERENT GATES, which is why it is a fact of its own rather
+        than an inline condition. /isExemptFromEstimatedTaxPenalty needs this AND test 2 (the
+        full waiver). /form2210NinetyPercentOfCurrentYearTax needs this ALONE — the instructions
+        substitute 66 2/3% for 90% on the strength of test 1 by itself, with no filing-date
+        condition.
+
+        This is why this reads /grossFarmingFishingIncomeCurrentYear and NOT
+        scheduleE:/scheduleEFarmingFishingReconciliation: line 42 is four pass-through legs, the
+        test's numerator is ten summands, and building on line 42 would deny a waiver the filer
+        is entitled to. interpretation:provisional.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+
+      <Derived>
+        <Any>
+          <Dependency path="/farmerFishermanTwoThirdsArmPriorTaxYear" />
+          <Dependency path="/farmerFishermanTwoThirdsArmCurrentYear" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210NoPriorYearLiabilityExemption">
+      <Name>The no-liability exception — IRC 6654(e)(2), stated rather than arithmetic</Name>
+      <Description>TRUE when all three printed conditions of the no-liability exception hold: the
+        2024 tax year was a full 12 months, the filer had no 2024 tax liability, and the filer was a
+        U.S. citizen or resident alien throughout 2024. Any one of them unanswered is FALSE; this is
+        a condition of allowance and an unestablished condition grants nothing.
+
+        WHY IT IS NOT REDUNDANT WITH THE ARITHMETIC, which is the first thing to check before minting
+        an exemption a computation already reaches. On a filer who DID file a 12-month 2024 return
+        with no tax, the arithmetic already exempts them: line 8 is $0, line 9 is $0, and the
+        withholding safe harbor answers "no penalty" without this fact. The exception does its own
+        work exactly where the prior-year leg is DISAPPLIED — no 2024 return filed — because line 9
+        is then line 5 alone and the arithmetic gives no exemption at all. The statute does not
+        require a return to have been filed for this exception, and the instructions say so in
+        parentheses: "your 2024 tax return was (or would have been had you been required to file) for
+        a full 12 months". So the boundary is a pair: a filer who filed no 2024 return, had no 2024
+        liability, was a citizen all year and whose 2024 year was 12 months IS exempt here; the same
+        filer with a short 2024 year is NOT, and takes line 9 = line 5.
+
+        WHAT "NO TAX LIABILITY" IS IN THIS GRAPH: an answered $0 on the 2024 tax attestation. The
+        answered part is load-bearing — an unattested 2024 tax is not a zero one. Publication 505
+        gives the term two halves — "your total tax … was zero OR you didn't have to file an income
+        tax return" — and only the first is modelled here. A filer who was not required to file for
+        2024 and does not attest a $0 2024 tax is NOT exempted through this fact; they answer $0 if
+        their 2024 tax was zero, which for a non-filer it almost always was. That residue is
+        deliberate: the alternative is a second attestation about a filing obligation the graph
+        cannot check, on top of the figure it already asks for.</Description>
+      
+      <Derived>
+        <All>
+          <Dependency path="/priorTaxYearWasTwelveMonths" />
+          <Dependency path="/form2210PriorYearTaxAttestedZero" />
+          <Dependency path="/citizenOrResidentEntirePriorTaxYear" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isExemptFromEstimatedTaxPenalty">
+      <Name>Exempt from the estimated-tax (Form 2210) penalty</Name>
+      <Description>TRUE when the taxpayer does not owe an underpayment penalty. Four exits, and the
+        enumeration is exhaustive: the $1,000 de-minimis exit, the withholding safe harbor, the
+        FARMERS AND FISHERS waiver (test 1 AND test 2), and the NO-LIABILITY exception of section
+        6654(e)(2). When TRUE this matches Form 2210's own "you don't owe a penalty" exits. When
+        FALSE the taxpayer "may owe" and the AMOUNT is figured: form2210:/form2210Penalty computes
+        the Part III underpayment and the Penalty Worksheet, and
+        taxCalculations:/estimatedTaxPenaltyLeg carries it to Form 1040 line 38.
+
+        WHICH UNANSWERED INPUTS LEAVE THE PENALTY UNFIGURED, stated because a blank line 38 says
+        nothing about its own reason and the return is not wrong when it is blank ("the IRS will
+        figure it and send you a bill"). THREE classes. (1) The required annual payment, Form 2210
+        line 9, is unevaluable: the prior-year leg applies and the 2024 tax is unattested, or the
+        2024 tax is a nonzero attestation and the 2024 AGI is unattested. (2) The annualized-income
+        method is ELECTED and not substantiated: form2210:/form2210ScheduleAiLine27ColA..D is a
+        Switch with no fallthrough, so a failed or unanswered Schedule AI leg takes the column's
+        annualized installment, every Part III line below it and the penalty Incomplete. (3) The
+        dated payment detail does not fit the Penalty Worksheet's line 1b slots, or the dated total
+        does not reconcile to Form 1040 line 26 — which includes the case where
+        /paidEstimatedTaxesOrFromLastYear itself is unanswered, since the reconciliation requires an
+        answered question and not merely equal totals.
+
+        THE THIRD EXIT IS NOT IN PART I'S LINE STRUCTURE, which is why it carries its own
+        authority below rather than riding the flowchart cite. It is a special rule in the
+        instructions, and it needs BOTH printed tests — the two-thirds gross income test and the
+        filed-and-paid-by-March-2 test. The two-thirds test ALONE drives a different consequence
+        (the 66 2/3% substitution on line 5) and deliberately does not appear here.</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Derived>
+        <Any>
+          <Dependency path="/form2210DeMinimisNoPenalty" />
+          <Dependency path="/form2210SafeHarborNoPenalty" />
+          <All>
+            <Dependency path="/farmerFishermanTwoThirdsGrossIncomeTest" />
+            <Dependency path="/filedAndPaidEntireTaxByMarch2" />
+          </All>
+          <Dependency path="/form2210NoPriorYearLiabilityExemption" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3AdditionalCtcOrZero">
+      <Name>Form 2210 line 3 addend: /additionalCtc or zero</Name>
+      <Description>Complete-safe reading of /additionalCtc for Form 2210 Part I line 3: a return that never opens that credit's section leaves the credit Incomplete, and an Add over it would leave line 3 unresolved on every return. Zero when the credit does not resolve.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="ctcOdc" path="/additionalCtc" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="ctcOdc" path="/additionalCtc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3AmericanOpportunityCreditOrZero">
+      <Name>Form 2210 line 3 addend: /americanOpportunityCredit or zero</Name>
+      <Description>Complete-safe reading of /americanOpportunityCredit for Form 2210 Part I line 3: a return that never opens that credit's section leaves the credit Incomplete, and an Add over it would leave line 3 unresolved on every return. Zero when the credit does not resolve.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="taxCalculations" path="/americanOpportunityCredit" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="taxCalculations" path="/americanOpportunityCredit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3EarnedIncomeCreditOrZero">
+      <Name>Form 2210 line 3 addend: /earnedIncomeCredit or zero</Name>
+      <Description>Complete-safe reading of /earnedIncomeCredit for Form 2210 Part I line 3: a return that never opens that credit's section leaves the credit Incomplete, and an Add over it would leave line 3 unresolved on every return. Zero when the credit does not resolve.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="eitc" path="/earnedIncomeCredit" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="eitc" path="/earnedIncomeCredit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3NetPtcOrZero">
+      <Name>Form 2210 line 3 addend: /netPtcAmountWhenZeroOrPositive or zero</Name>
+      <Description>Complete-safe reading of /netPtcAmountWhenZeroOrPositive for Form 2210 Part I line 3: a return that never opens that credit's section leaves the credit Incomplete, and an Add over it would leave line 3 unresolved on every return. Zero when the credit does not resolve.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="ptc" path="/netPtcAmountWhenZeroOrPositive" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="ptc" path="/netPtcAmountWhenZeroOrPositive" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3RefundableAdoptionCreditOrZero">
+      <Name>Form 2210 line 3 addend: /refundableAdoptionCredit or zero</Name>
+      <Description>Complete-safe reading of /refundableAdoptionCredit for Form 2210 Part I line 3: a return that never opens that credit's section leaves the credit Incomplete, and an Add over it would leave line 3 unresolved on every return. Zero when the credit does not resolve.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="form8839" path="/refundableAdoptionCredit" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="form8839" path="/refundableAdoptionCredit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PartILine1TaxAfterCredits">
+      <Name>Form 2210 Part I line 1: 2025 tax after credits (Form 1040 line 22)</Name>
+      <Description>Form 2210 Part I line 1, "Enter your 2025 tax after credits from Form 1040, 1040-SR, or 1040-NR, line 22." The 2025 Instructions for Form 2210 define the line by that one reference and nothing else, so the fact is the Form 1040 line 22 figure itself, taxCalculations /taxLessNonRefundableCredits (the fact the Form 1040 register prints in that box). The printed CAUTION beside the instruction lets a filer exclude a section 965 net tax liability; no fact in this dictionary carries a section 965 liability, so there is nothing to exclude and the alias is exact for every return this dictionary files. Form 2210 line 4, estimatedPayments /form2210CurrentYearTax, now adds this fact to line 2 and subtracts line 3, per the printed "Combine lines 1, 2, and 3" - the same figure Form 2210-F line 3 already read.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="taxCalculations" path="/taxLessNonRefundableCredits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PartILine2OtherTaxes">
+      <Name>Form 2210 Part I line 2: other taxes, the printed subset of Schedule 2</Name>
+      <Description>Form 2210 Part I line 2, "Other taxes, including self-employment tax and, if applicable, Additional Medicare Tax and/or Net Investment Income Tax." The caption reads like Form 1040 line 23, but the 2025 Instructions for Form 2210 define the line with an explicit table of Schedule 2 lines, and that table is a strict subset of Schedule 2 line 21. This fact adds every addend of taxCalculations /line21OfSchedule2 that the table admits, each identified by its own printed Schedule 2 line: line 4 self-employment tax, line 8's additional taxes on distributions (Form 5329 Part I, early distributions, and Form 5329 Part II, certain distributions from education and ABLE accounts), line 9 household employment taxes (through /form2210HouseholdEmploymentTaxesOnLine2, which is zero when the table's footnote and IRC 3510(b)(2) take them out of the estimated-tax base), line 11 Additional Medicare Tax, line 12 Net Investment Income Tax, line 14 installment-sale interest on residential lots and timeshares, line 15 interest on deferred tax from large installment sales, line 16 low-income housing credit recapture, line 17a recapture of other credits, line 17c the 20 percent tax on unqualified HSA distributions, line 17d the testing period tax, line 17e the Archer MSA 20 percent tax, line 17f the Medicare Advantage MSA 50 percent tax, line 17g recapture of a charitable deduction for a fractional interest in tangible personal property, line 17h section 409A nonqualified deferred compensation, line 17i section 457A deferred compensation, line 17j the section 72(m)(5) excess benefits tax, line 17l tax on accumulation distribution of trusts, line 17z's three legs (the filer's own catch-all entry, the HSA pledge additional tax and the negative Form 8978 adjustment schedule2 /schedule2Line17zNegativeForm8978Adjustment, all of which schedule2 /line18OfSchedule2 adds as separate terms of the same printed box; the table names line 17z without exception, so the negative leg reduces this line exactly as it reduces line 18) and line 19 (the Form 4255 net EPE recapture). Self-employment tax stays IN here: the removal of it recorded on form2210 /form2210ScheduleAiPart1AttestationsConsistent belongs to Schedule AI line 16, whose instruction has the filer include the same taxes used to figure Form 2210 Part I line 2 except self-employment tax (the 2025 Instructions for Form 2210, Line 16), while Part I line 2 names self-employment tax in its own printed caption. The addends of line 21 the table does not name are excluded: Schedule 2 line 5 (Form 4137), line 6 (Form 8919), line 13 (uncollected box 12 tax), lines 17b, 17k and 17m through 17q, and the Form 5329 taxes that also print on line 8 but are not taxes on distributions (the excess contribution taxes of Parts III through VIII, the HSA and Archer MSA excess contribution excise among them, and the Part IX tax on excess accumulation), which the table leaves out by admitting line 8 only as "Line 8 (additional tax on distributions only),". Form 2210 line 4, estimatedPayments /form2210CurrentYearTax, now adds this fact to line 1 and subtracts line 3, per the printed "Combine lines 1, 2, and 3"; the farmer route, form2210 /form2210FLine3TaxBeforeRefundableCredits, already added it the same way.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form2210PartILine2OtherTaxesExcludingHouseholdEmploymentTaxes" />
+          <Dependency path="/form2210HouseholdEmploymentTaxesOnLine2" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PartILine2OtherTaxesExcludingHouseholdEmploymentTaxes">
+      <Name>Form 2210 Part I line 2 without the household employment taxes</Name>
+      <Description>Every Schedule 2 amount the 2025 Instructions for Form 2210 put on Part I line 2 except line 9, the household employment taxes: self-employment tax, the Form 5329 Part I and Part II additional taxes on distributions, Additional Medicare Tax, Net Investment Income Tax, Schedule 2 lines 14, 15, 16, 17a, 17c through 17j, 17l, the three line 17z legs and line 19. Line 2 is this amount plus /form2210HouseholdEmploymentTaxesOnLine2. It is also the line 2 the household-employer test of IRC 3510(b)(2)(B) runs against: whether a section 6654(e) exception would hold if the household employment taxes were left out (/form2210HouseholdEmploymentTaxesLeaveTheBase).</Description>
+      <Derived>
+        <Add>
+          <Dependency module="scheduleSE" path="/selfEmploymentTax" />
+          <Dependency module="form5329" path="/form5329AdditionalTaxOnEarlyDistributions" />
+          <Dependency module="form5329" path="/form5329PartIiEducationAndAbleTaxOrZero" />
+          <Dependency module="form8959" path="/additionalMedicareTax" />
+          <Dependency module="form8960" path="/netInvestmentIncomeTax" />
+          <Dependency module="hsa" path="/hsaCollectionRouteAdditionalTax20PctTotal" />
+          <Dependency module="hsa" path="/hsaTestingPeriodFailureAdditionalTax" />
+          <Dependency module="hsa" path="/archerMsaSchedule2Line17eAdditional20PctTax" />
+          <Dependency module="hsa" path="/medicareAdvantageMsaSchedule2Line17fAdditional50PctTax" />
+          <Dependency module="schedule2" path="/schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares" />
+          <Dependency module="schedule2" path="/schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales" />
+          <Dependency module="schedule2" path="/schedule2Line16LowIncomeHousingCreditRecapture" />
+          <Dependency module="schedule2" path="/schedule2Line17aRecaptureOfOtherCredits" />
+          <Dependency module="schedule2" path="/schedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+          <Dependency module="schedule2" path="/schedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+          <Dependency module="schedule2" path="/schedule2Line17iSection457ADeferredCompensation" />
+          <Dependency module="schedule2" path="/schedule2Line17jSection72m5ExcessBenefitsTax" />
+          <Dependency module="schedule2" path="/schedule2Line17lTaxOnAccumulationDistributionOfTrusts" />
+          <Dependency module="schedule2" path="/schedule2Line17zAnyOtherTaxes" />
+          <Dependency module="hsa" path="/hsaPledgeSchedule2Line17zAdditional20PctTax" />
+          <Dependency module="schedule2" path="/schedule2Line17zNegativeForm8978Adjustment" />
+          <Dependency module="form4255" path="/form4255NetEpeRecaptureFromLine1dOrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210HouseholdEmploymentTaxesLeaveTheBase">
+      <Name>The household employment taxes stay out of the estimated-tax base (IRC 3510(b)(2))</Name>
+      <Description>TRUE when the household employment taxes on Schedule 2 line 9 are left out of Form 2210 Part I line 2 (and so out of line 4, every required installment and the penalty). IRC 3510(b)(1) treats them as chapter 2 tax solely for section 6654, and IRC 3510(b)(2) turns that off for an employer when BOTH (A) no section 31 credit for wage withholding is allowed for the year, and (B) no addition to tax would be imposed under section 6654 by reason of section 6654(e) if they were not tax. The 2025 Instructions for Form 2210 print the same two conditions as the Line 2 footnote: no federal income tax withheld from the filer's income, and no requirement to make estimated tax payments even without the household employment taxes. Condition (A) reads the Form 1040 line 25d total, taxCalculations /totalWithholding, as zero. Condition (B) is either section 6654(e) exception, figured without the household employment taxes: the section 6654(e)(1) small-tax exception, read the way the form states it, as line 4 less line 6 below $1,000 with line 2 taken from /form2210PartILine2OtherTaxesExcludingHouseholdEmploymentTaxes; or the section 6654(e)(2) no-liability exception, /form2210NoPriorYearLiabilityExemption, which does not depend on the current year's tax at all. The section 6654(e)(3) waivers are determinations the IRS makes on request and are not figured here, so they never take the household employment taxes out; the section 6654(d) safe harbors are not section 6654(e) exceptions and do not count either. When this is TRUE, line 4 is below $1,000 or the no-liability exception holds, so the return owes no estimated-tax penalty.</Description>
+      <Derived>
+        <All>
+          <Equal>
+            <Left><Dependency module="taxCalculations" path="/totalWithholding" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </Equal>
+          <Any>
+            <LessThan>
+              <Left>
+                <Subtract>
+                  <Minuend>
+                    <Add>
+                      <Dependency path="/form2210PartILine1TaxAfterCredits" />
+                      <Dependency path="/form2210PartILine2OtherTaxesExcludingHouseholdEmploymentTaxes" />
+                    </Add>
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/form2210PartILine3OtherPaymentsAndRefundableCredits" />
+                    <Dependency path="/form2210WithholdingTaxes" />
+                  </Subtrahends>
+                </Subtract>
+              </Left>
+              <Right><Dollar>1000</Dollar></Right>
+            </LessThan>
+            <Dependency path="/form2210NoPriorYearLiabilityExemption" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210HouseholdEmploymentTaxesOnLine2">
+      <Name>Form 2210 Part I line 2 addend: household employment taxes (Schedule 2 line 9), or zero</Name>
+      <Description>The household employment taxes (scheduleH /scheduleHTotalHouseholdEmploymentTaxes, Schedule H line 26, printed on Schedule 2 line 9) as they enter Form 2210 Part I line 2: the full amount, or zero when /form2210HouseholdEmploymentTaxesLeaveTheBase holds (IRC 3510(b)(2), the Line 2 table footnote). Schedule AI line 16 takes "the same taxes used to figure Form 2210, Part I, line 2", so form2210 /form2210ScheduleAiPart1AttestationsConsistent reads this fact for its column (d) target, and Form 2210-F reads it through line 2.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/form2210HouseholdEmploymentTaxesLeaveTheBase" /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency module="scheduleH" path="/scheduleHTotalHouseholdEmploymentTaxes" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PartILine3OtherPaymentsAndRefundableCredits">
+      <Name>Form 2210 Part I line 3: other payments and refundable credits</Name>
+      <Description>Form 2210 Part I line 3, "Other payments and refundable credits", printed in parentheses because line 4 subtracts it. The 2025 Instructions for Form 2210 name the members: the earned income credit, the additional child tax credit, the refundable part of the American opportunity credit, the refundable adoption credit, the premium tax credit, the credit for federal tax paid on fuels, the section 1341(a)(5)(B) credit and, for a filer who properly elected under section 1062(a) for this taxable year, 75 percent of the applicable net tax liability with respect to the qualified sale or exchange the election covers. This fact adds the seven members the dictionary models: eitc /earnedIncomeCredit, ctcOdc /additionalCtc, taxCalculations /americanOpportunityCredit, form8839 /refundableAdoptionCredit, ptc /netPtcAmountWhenZeroOrPositive, schedule3 /sched3Line12 (the fuels credit, Schedule 3 line 12, which reads the Form 4136 line 17 total when a Form 4136 activity is entered and the filer's own line 12 entry otherwise) and schedule3 /sched3Line13b (the section 1341(a)(5)(B) credit, Schedule 3 line 13b), each through a complete-safe wrapper. The section 1062(a) inclusion is modelled nowhere in this dictionary (no section 1062 election or applicable net tax liability intake exists), and on a calendar-year 2025 return it cannot arise: the 2025 Instructions for Schedule F say the election is available only for tax years beginning after July 4, 2025, and a calendar-year 2025 taxable year began on January 1, 2025. Every Form 2210 date in this dictionary is a calendar-year date, so the only return that could carry the inclusion is a fiscal-year return beginning after July 4, 2025, which is the section 6654(k)(1) fiscal-year population this dictionary does not yet model. For that return the omission would make the line SMALLER and raise line 4, an over-charge. Form 1040 line 32 (taxCalculations /totalOtherPaymentsRefundableCredits) is deliberately NOT used even though its caption matches word for word: through Schedule 3 line 15 it also carries the amount paid with a request for an extension and the excess social security withheld, neither of which is a refundable credit, and the second of which the instructions already put on Form 2210 line 6. Form 2210 line 4 SUBTRACTS this fact, exactly as the printed "Combine lines 1, 2, and 3" directs: estimatedPayments /form2210CurrentYearTax adds line 1 and line 2 and subtracts this line, so this fact reaches line 5, line 9, every required installment and the penalty. Form 2210-F line 6 subtracts the same fact, so the two underpayment forms take the same subtrahend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form2210Line3EarnedIncomeCreditOrZero" />
+          <Dependency path="/form2210Line3AdditionalCtcOrZero" />
+          <Dependency path="/form2210Line3AmericanOpportunityCreditOrZero" />
+          <Dependency path="/form2210Line3RefundableAdoptionCreditOrZero" />
+          <Dependency path="/form2210Line3NetPtcOrZero" />
+          <Dependency path="/form2210Line3FuelsCreditOrZero" />
+          <Dependency path="/form2210Line3Section1341CreditOrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3FuelsCreditOrZero">
+      <Name>Form 2210 line 3 addend: the credit for federal tax paid on fuels, or zero</Name>
+      <Description>Complete-safe reading of schedule3 /sched3Line12, the credit for federal tax on fuels (Schedule 3 line 12), for Form 2210 Part I line 3, which the 2025 Instructions for Form 2210 name as a member of that line. Schedule 3 line 12 is Incomplete while an entered Form 4136 activity is unfinished; an Add over it would leave line 3 unresolved on that return, so the line reads zero until it resolves, the same shape as the five sibling line 3 wrappers.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="schedule3" path="/sched3Line12" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="schedule3" path="/sched3Line12" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210Line3Section1341CreditOrZero">
+      <Name>Form 2210 line 3 addend: the section 1341(a)(5)(B) credit, or zero</Name>
+      <Description>Complete-safe reading of schedule3 /sched3Line13b, the section 1341 credit for repayment of amounts included in income from earlier years (Schedule 3 line 13b), for Form 2210 Part I line 3, which the 2025 Instructions for Form 2210 name as a member of that line ("Credit determined under section 1341(a)(5)(B)"). Schedule 3 line 13b is Incomplete while the credit method's two earlier-year tax figures are unanswered; an Add over it would leave line 3 unresolved on that return, so the line reads zero until it resolves, the same shape as the five sibling line 3 wrappers.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="schedule3" path="/sched3Line13b" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="schedule3" path="/sched3Line13b" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210PartIMayOwePenaltyYesBox">
+      <Name>Form 2210 Part I: the Yes box under "Is line 9 more than line 6?"</Name>
+      <Description>The Yes box of the printed question that follows line 9, "Yes. You may owe a penalty, but don't file Form 2210 unless one or more boxes in Part II below applies." The question has exactly two boxes and the No box is estimatedPayments /form2210SafeHarborNoPenalty, so this is its negation and the two boxes are never both checked and never both clear. THE POLARITY IS CHOSEN, not inherited. /form2210SafeHarborNoPenalty is complete-safe FALSE when either prior-year attestation is missing, because it refuses to claim a safe harbor it cannot establish; negating it therefore checks Yes on a return whose line 9 is not evaluable. That is the right box for that return: the printed Yes text says "You may owe a penalty", not that a penalty is owed, and it sends the filer to Part II rather than to a figure. The alternative, leaving both boxes clear, prints a question with no answer. Like its dependency this fact can never be Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/form2210SafeHarborNoPenalty" />
+        </Not>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form1040Line26DivorcedSpouseTaxID">
+      <Name>Former spouse tax ID printed under Form 1040 line 26</Name>
+      <Description>The tax ID Form 1040 prints under line 26 for the former spouse with whom estimated tax payments were made: the primary filer's former spouse when the primary filer made them, otherwise the secondary filer's former spouse.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/tpPaidEstimatedTaxesWithFormerSpouse" />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerDivorcedSpouseTaxID" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerDivorcedSpouseTaxID" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

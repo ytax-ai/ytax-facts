@@ -1,0 +1,1781 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8283SectionOptions">
+      <Name>Form 8283 section choices</Name>
+      <Description>The two sections printed on Form 8283: Section A and Section B.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions><String>a</String><String>b</String></EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283PropertyTypeOptions">
+      <Name>Form 8283 Section B property types</Name>
+      <Description>The printed Section B, Part I line 2 property-type choices.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>artAtLeast20000</String><String>qualifiedConservationContribution</String>
+          <String>certifiedHistoricStructure</String><String>artUnder20000</String>
+          <String>otherRealEstate</String><String>equipment</String><String>securities</String>
+          <String>collectibles</String><String>intellectualProperty</String><String>vehicle</String>
+          <String>clothingOrHouseholdItems</String><String>digitalAssets</String><String>other</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283ItemLetters">
+      <Name>Form 8283 Section B item letters</Name>
+      <Description>The A, B, and C item identifiers printed in Section B, Part I and referenced by Parts II and III.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions><String>a</String><String>b</String><String>c</String></EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8283EntityNameIfDifferent">
+      <Name>Original reporting entity name, when different from the return name</Name>
+      <Description>Form 8283 header, the name of the entity whose return originally reported this contribution, if different from the individual return name.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm8283EntityIdentifyingNumberIfDifferent">
+      <Name>Original reporting entity identifying number, when different</Name>
+      <Description>Form 8283 header identifying number for the entity whose return originally reported the contribution, if different from the return shown above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm8283FamilyPassThroughEntityMadeContribution">
+      <Name>Family pass-through entity contribution indicator</Name>
+      <Description>Form 8283 header checkbox indicating that a family pass-through entity made the noncash charitable contribution.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form8283Items">
+      <Name>Noncash property contributions reported on Form 8283</Name>
+      <Description>One contribution item or group of similar items per collection entry. A separate rendered copy per entry is an allowed way to use the form's one-or-more-copy instruction; entries retain the data needed for either Section A or Section B.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+
+    <Fact path="/form8283Items/*/writableSection">
+      <Name>Section used for this property item</Name>
+      <Description>Whether this item is reported in Section A or Section B, based on the form's property and deduction rules. The module records the preparer's section choice. SINCE THE SECTION IS COMPUTED, this entry is read for ONE purpose only: a pass-through allocation, where the instructions require a member to complete the same section the entity completed, so the entity's section governs and no amount test applies. For every other item /form8283Items/*/sectionForPrinting decides the section from the printed rules and this entry is not read; an entry that disagrees with the computed section does not move it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/form8283SectionOptions" /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeOrganizationName">
+      <Name>Donee organization name</Name>
+      <Description>Section A line 1 column (a), or the donee organization named for the Section B item.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeOrganizationAddress">
+      <Name>Donee organization address</Name>
+      <Description>Address of the charitable organization receiving the contribution.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Address /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableVehicleDonation">
+      <Name>Vehicle contribution checkbox</Name>
+      <Description>Section A line 1 column (b), whether the donated property is a vehicle.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableVehicleIdentificationNumber">
+      <Name>Vehicle identification number</Name>
+      <Description>Vehicle identification number for a donated vehicle unless Form 1098-C is attached.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePropertyDescription">
+      <Name>Description of donated property</Name>
+      <Description>Property description for Section A column (c) or Section B, Part I, line 3 column (a); include the year, make, model, and mileage for a vehicle.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePropertyCondition">
+      <Name>Property condition at gift date</Name>
+      <Description>Brief summary of the overall physical condition at the time of the gift, for tangible personal or real property in Section B.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableContributionDate">
+      <Name>Date of contribution</Name>
+      <Description>Section A column (d), date the property contribution was made. Typed as a
+        calendar date, not free text, because the printed cell asks for one specific date (unlike
+        ../writableDateAcquired, where "Various" is a printed valid entry). This is ordinarily a
+        2025 date; it is legitimately a prior-year date on a Form 8283 attached only because the
+        return carries a charitable contribution carryover under IRC 170(d)
+        (/writableForm8283RequiredForCarryoverYear true), where the instructions have the filer
+        keep reporting the item from the year it was actually contributed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDateAcquired">
+      <Name>Date acquired by donor</Name>
+      <Description>Date the donor acquired the property, as requested in Section A column (e) and Section B, Part I, line 3 column (d).</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableHowAcquired">
+      <Name>How donor acquired property</Name>
+      <Description>How the donor acquired the property, as requested in Section A column (f) and Section B, Part I, line 3 column (e).</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDonorCostOrAdjustedBasis">
+      <Name>Donor's cost or adjusted basis</Name>
+      <Description>Donor's cost or adjusted basis, requested in Section A column (g) and Section B, Part I, line 3 column (f). Section A says this column need not be completed for an item with a claimed deduction of $500 or less.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableFairMarketValue">
+      <Name>Fair market value for Section A</Name>
+      <Description>Fair market value reported in Section A column (h).</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableFairMarketValueMethod">
+      <Name>Method used to determine fair market value</Name>
+      <Description>Method used to determine fair market value, requested in Section A column (i).</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableSectionBPropertyType">
+      <Name>Section B property type</Name>
+      <Description>Section B, Part I, line 2 category for the donated property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/form8283PropertyTypeOptions" /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableNpsNumber">
+      <Name>Certified historic structure NPS number</Name>
+      <Description>National Park Service number when the Section B property is a certified historic structure.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableAppraisedFairMarketValue">
+      <Name>Appraised fair market value</Name>
+      <Description>Section B, Part I, line 3 column (c), the appraised fair market value.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableBargainSaleAmountReceived">
+      <Name>Bargain sale amount received</Name>
+      <Description>For a bargain sale, the amount received, Section B, Part I, line 3 column (g).</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableQualifiedConservationRelevantBasis">
+      <Name>Qualified conservation contribution relevant basis</Name>
+      <Description>Relevant basis amount required for the qualified conservation contribution section B entry.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableClaimedDeduction">
+      <Name>Amount claimed as a deduction for this property item</Name>
+      <Description>Amount claimed as a deduction, before income-limit carryover, in Section B, Part I, line 3 column (i). For Section A this carries the item's claimed deduction used in the filing-threshold total. A claimed deduction is never negative, and the Min 0 limit below says so at intake: this amount is summed across items into /form8283TotalDeductionForFilingTest, so a negative entry here would net DOWN another item's amount and could switch /form8283ReturnFilesThisForm off on a return the statute requires the form for. The reductions the instructions require are applied BEFORE the amount is entered, which is why the floor is zero rather than a negative-adjustment slot.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePartialInterestPropertyLetter">
+      <Name>Section B property letter for the partial-interest statement</Name>
+      <Description>Section B, Part II line 4a, letter A, B, or C identifying the property for which less than an entire interest was given.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/form8283ItemLetters" /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePartialInterestDeductionCurrentYear">
+      <Name>Partial-interest deduction for this tax year</Name>
+      <Description>Section B, Part II line 4b(1), total amount claimed as a deduction for the listed property for this tax year.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePartialInterestDeductionPriorYears">
+      <Name>Partial-interest deduction for prior tax years</Name>
+      <Description>Section B, Part II line 4b(2), total amount claimed as a deduction for the listed property for any prior tax years.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePriorYearDoneeName">
+      <Name>Prior-year donee name (Form 8283 Section B Part II)</Name>
+      <Description>Screen: "What is the name of the organization that received your prior-year contribution?" -- Section B Part II line 4c prints this only when a prior year's contribution of an interest in the SAME property went to an organization different from the current donee named in Part I; the box is left blank whenever there was no prior-year gift or it went to the same donee. Help text: copy the name exactly as the prior year's Form 8283 or the organization's own acknowledgment states it. Asked beside the address question below, whenever the filer says a different organization received an earlier interest in this property. Unanswered ⇒ DEFAULTED to a blank box, not refused: the printed cell is left empty and no computed figure on the return moves. Validation on this screen: optional single-line text, no format. Feeds the Part II "Name of charitable organization (donee)" printed cell through /form8283Items/*/sectionBPriorYearDoneeName, which blanks the cell on a Section A copy. REPLACES /form8283Items/*/writablePriorYearDoneeNameAndAddress, which asked for a name AND an address in one answer and could not fill the printed form's three separate boxes (name, street, city/state/ZIP).</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writablePriorYearDoneeAddress">
+      <Name>Prior-year donee address (Form 8283 Section B Part II)</Name>
+      <Description>Screen: "What is that organization's address?" -- the mailing address of the prior-year donee named above, printed on Section B Part II line 4c across a street box and a city/state/ZIP box. Help text: copy the address exactly as the prior year's Form 8283 or the organization's own acknowledgment states it. Asked directly beside the prior-year donee name question, whenever that question is asked. Unanswered ⇒ DEFAULTED to a blank box, not refused: the printed cells are left empty and no computed figure on the return moves. Validation on this screen: a standard address (street, city, state, ZIP); no format beyond the ordinary address rules. Feeds the Part II "Address" and "City or town, state, and ZIP code" printed cells through /form8283Items/*/sectionBPriorYearDoneeAddress, split the same way the appraiser's and the acknowledging donee's business addresses already split into two boxes, which blanks both cells on a Section A copy. Together with .../writablePriorYearDoneeName, REPLACES /form8283Items/*/writablePriorYearDoneeNameAndAddress.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Address /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableTangiblePropertyLocation">
+      <Name>Location of tangible property</Name>
+      <Description>Section B, Part II line 4d, place where tangible property is located or kept.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableOtherPersonInPossession">
+      <Name>Other person having actual possession of the property</Name>
+      <Description>Section B, Part II line 4e, name of any person other than the donee having actual possession.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableRestrictionOnDoneeUseOrDisposition">
+      <Name>Restriction on donee's use or disposition</Name>
+      <Description>Section B, Part II line 5a, whether a temporary or permanent restriction limits the donee's right to use or dispose of the property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableThirdPartyPropertyRights">
+      <Name>Third-party rights to income, possession, voting, acquisition, or designation</Name>
+      <Description>Section B, Part II line 5b, whether another person received a listed right relating to the donated property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableRestrictionToParticularUse">
+      <Name>Restriction limiting property to a particular use</Name>
+      <Description>Section B, Part II line 5c, whether a restriction limits the donated property to a particular use.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDonorStatementItemDescription">
+      <Name>Donor statement item at appraised value of $500 or less</Name>
+      <Description>Section B, Part III: description of each item that the appraisal identifies as having a value of $500 or less, with the identifying letter from Part I.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDonorStatementItemLetter">
+      <Name>Donor statement's Section B item letter</Name>
+      <Description>Identifying letter from Section B, Part I for the donor's $500-or-less item statement.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/form8283ItemLetters" /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDonorSignature">
+      <Name>Donor signature</Name>
+      <Description>Donor's signature for the Section B, Part III taxpayer statement; signature is a filer-supplied text value and is not generated by the module.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDonorSignatureDate">
+      <Name>Donor signature date</Name>
+      <Description>Date the taxpayer signs the Section B, Part III statement.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableAppraiserSignature">
+      <Name>Appraiser signature</Name>
+      <Description>Appraiser signature for the Section B, Part IV declaration.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableAppraiserName">
+      <Name>Appraiser name (Form 8283 Section B Part IV)</Name>
+      <Description>Screen: "What is the name of the appraiser who signed your appraisal?" — the appraiser's name exactly as it is written on the qualified appraisal, which is what the printed Part IV "Appraiser name" box carries. Help text: this is the person or firm that valued the property, never the donor and never the charity — the printed declaration above the box has the appraiser swear they are none of those. Copy the name from the signed appraisal rather than retyping it, because the IRS reads this box against the appraisal document itself. Asked whenever a contributed item is going to print in Section B, which is the over-$5,000 section. Unanswered ⇒ DEFAULTED to a blank box, not refused: the printed cell is left empty and no computed figure on the return moves, so a filer who has not yet received the appraisal can still file every other line. Validation on this screen: optional single-line text, no format. Feeds the Part IV "Appraiser name" printed cell through /form8283Items/*/sectionBAppraiserName, which blanks the cell on a Section A copy.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form8283Items/*/writableAppraiserTitle">
+      <Name>Appraiser title (Form 8283 Section B Part IV)</Name>
+      <Description>Screen: "What is that appraiser's title?" — the professional title printed beside the appraiser's name in Part IV, for example Accredited Senior Appraiser, or Partner. Help text: the title is how the appraiser states the qualification the declaration above the box relies on ("because of my qualifications as described in the appraisal, I am qualified to make appraisals of the type of property being valued"), so copy it from the appraisal. Leave it empty if the appraisal shows none. Asked beside the appraiser-name question, whenever a contributed item is going to print in Section B. Unanswered ⇒ DEFAULTED to a blank box, not refused: the cell prints empty and no computed figure moves. Validation on this screen: optional single-line text, no format. Feeds the Part IV "Title" printed cell through /form8283Items/*/sectionBAppraiserTitle, which blanks the cell on a Section A copy.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableAppraiserBusinessAddress">
+      <Name>Appraiser business address</Name>
+      <Description>Appraiser's business address in Section B, Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Address /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableAppraiserIdentifyingNumber">
+      <Name>Appraiser identifying number</Name>
+      <Description>Appraiser identifying number in Section B, Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableAppraiserSignatureDate">
+      <Name>Appraiser signature date</Name>
+      <Description>Date the appraiser signs the Section B, Part IV declaration.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeAcknowledgmentReceivedDate">
+      <Name>Date donee received donated property</Name>
+      <Description>Section B, Part V date on which the charitable organization received the property described in Part I.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeIntendsUnrelatedUse">
+      <Name>Donee intends unrelated use</Name>
+      <Description>Section B, Part V, whether the organization intends to use the property for an unrelated use.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeAcknowledgingOrganizationName">
+      <Name>Donee acknowledging organization name</Name>
+      <Description>Section B, Part V name of charitable organization and employer identification number.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeEmployerIdentificationNumber">
+      <Name>Donee employer identification number</Name>
+      <Description>Employer identification number for the Section B, Part V donee organization.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeAddress">
+      <Name>Donee address in the acknowledgment</Name>
+      <Description>Section B, Part V address of the acknowledging charitable organization.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Address /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeAuthorizedSignature">
+      <Name>Donee authorized signature</Name>
+      <Description>Authorized representative's signature acknowledging receipt of the Section B property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8283Items/*/writableDoneeAuthorizedTitle">
+      <Name>Donee authorized representative's title (Form 8283 Section B Part V)</Name>
+      <Description>Screen: "What is the title of the person who signed the charity's acknowledgment?" — the title printed beside the authorized signature in Part V, for example Executive Director, or Treasurer. Help text: the charity completes and signs Part V; you copy what it wrote. The title is the charity's evidence that the signer could bind it to the Form 8282 undertaking printed above the line. Asked whenever a contributed item is going to print in Section B and the filer has the signed acknowledgment in hand. Unanswered ⇒ DEFAULTED to a blank box, not refused: the cell prints empty and no computed figure on the return moves. Validation on this screen: optional single-line text, no format. Feeds the Part V "Title" printed cell through /form8283Items/*/sectionBDoneeAuthorizedTitle, which blanks the cell on a Section A copy.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form8283Items/*/writableDoneeAuthorizedSignatureDate">
+      <Name>Donee authorized signature date (Form 8283 Section B Part V)</Name>
+      <Description>Screen: "On what date did the charity sign its acknowledgment?" — the date written beside the authorized signature at the foot of Part V. Help text: this is the date the charity signed the form, which is not the same as the date it received the property; that one is asked separately and prints inside the acknowledgment paragraph. Asked beside the donee-title question. Unanswered ⇒ DEFAULTED and nothing is lost on the filed page: the printed Part V "Date" caption HAS NO fillable AcroForm field on the TY2025 template, so this answer cannot be rendered by the register at all and is held for the externally-signed or Form 8453 route. No computed figure on the return reads it. Validation on this screen: optional single-line text; the application should collect it as a date and hand it over formatted. Feeds no printed cell on the TY2025 template.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form8283TotalDeductionForFilingTest">
+      <Name>Total claimed noncash deduction before income-limit carryover</Name>
+      <Description>Total amount claimed across the entered noncash property items, before applying income limits that may create a carryover. An entered contribution with no claimed-deduction amount keeps this sum Incomplete; an empty item collection sums to zero, and so does an ABSENT one: a bare CollectionSum over a collection that was never created resolves Placeholder, not Complete, so the absent case is answered first and explicitly. Each addend is floored at zero, so a negative entry on one item cannot cancel a positive one out of the filing test and hide a form the return owes. This total must never be added to Schedule A, which computes the charitable deduction itself.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form8283Items" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="/form8283Items" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form8283Items/*/claimedDeductionNonnegative" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8283ReturnFilesThisForm">
+      <Name>Return files Form 8283</Name>
+      <Description>True when the complete total deduction for contributed property is over $500; a listed item with no claimed-deduction amount stays Incomplete rather than silently suppressing the form. A charitable carryover year ALSO requires the form on its own: the instructions say to file Form 8283 for any carryover year described in IRC 170(d), whatever was contributed this year, so an answered-true carryover makes this fact true before the amount is even looked at. An answered-false or unanswered carryover takes nothing away and the amount test decides alone. A pass-through allocation ALSO requires the form on its own: an item answered as a share allocated by an entity that filed its own Form 8283 means the entity contribution was over $500, and the instructions have every member complete and attach a separate form for it, so such an item makes this fact true whatever the member share is. A true filing obligation is not proof that every required item detail, signature or attached statement is ready.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8283RequiredForCarryoverYear" /></IsComplete>
+                <Dependency path="/writableForm8283RequiredForCarryoverYear" />
+              </All>
+            </When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8283Items" /></IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/form8283Items">
+                        <Dependency path="isPassThroughAllocation" />
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right><Int>0</Int></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="/form8283TotalDeductionForFilingTest" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Dependency path="/form8283TotalDeductionForFilingTest" /></Left>
+                <Right><Dollar>500</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8283Items/*/isPassThroughAllocation">
+      <Name>This property is a share allocated by a pass-through entity that filed its own Form 8283</Name>
+      <Description>TRUE when this item's reporting treatment is answered as a pass-through allocation; FALSE when the treatment is answered as anything else or is unanswered, so an undecided item never forces the form on its own. Read by the pass-through arm of the return-level filing test.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writablePrintTreatment" /></IsComplete>
+          <Equal>
+            <Left><Dependency path="../writablePrintTreatment" /></Left>
+            <Right><Enum optionsPath="/form8283PrintTreatmentOptions">passThrough</Enum></Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form8283Items/*/formIsRequired">
+      <Name>Form 8283 item is in the filed population</Name>
+      <Description>Every property item is rendered only when the return-level $500 filing test is true.</Description>
+      <Derived><Dependency path="/form8283ReturnFilesThisForm" /></Derived>
+    </Fact>
+    <Fact path="/form8283ItemsToPrint">
+      <Name>Form 8283 copies to render, one per contribution item</Name>
+      <Description>Filtered view used by includeForEach. One copy per entered item is within the form's "one or more Forms 8283" instruction and avoids exceeding the four Section A / three Section B rows; a group of similar items can remain a single item.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Filter path="/form8283Items"><Dependency path="formIsRequired" /></Filter></Derived>
+    </Fact>
+
+
+    <Fact path="/form8283PrintTreatmentOptions">
+      <Name>Form 8283 reporting-treatment categories</Name>
+      <Description>The categories the printed section instructions turn on. Each names a rule in the instructions, not a conclusion about whether a charitable deduction is allowed: the five Section A exception categories (the three published-quotation security tests taken together, the regulatory other-security exception, an acknowledged gross-proceeds vehicle, intellectual property, and inventory), the poor-condition clothing or household article the instructions send to Section B over $500, a partial-interest or restricted-use contribution, a pass-through allocation that follows the entity's section, and ordinary property, which is everything else and is decided on the amount alone. THE CATEGORIES ARE EXCLUSIVE AND ORDERED BY THE INSTRUCTIONS: partial interest or restricted use is chosen ahead of an inventory or security label, because the instructions say to use Section B even when the property the partial interest was carved from was held primarily for sale to customers.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>ordinary</String><String>publiclyTradedSecurity</String>
+          <String>otherQualifyingSecurity</String><String>vehicleGrossProceedsAcknowledged</String>
+          <String>qualifyingIntellectualProperty</String><String>inventory</String>
+          <String>poorConditionClothingHousehold</String><String>partialInterestOrRestrictedUse</String>
+          <String>passThrough</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/writablePrintTreatment">
+      <Name>Reporting treatment of this donated property (writable)</Name>
+      <Description>Which of the printed instruction categories this property falls in. It is a FACTUAL intake about the property, not a legal inference from its description: a security counts as publicly traded only if it meets one of the three published-quotation tests the instructions print, the other-security category requires the regulatory exception the instructions cross-reference, the vehicle category requires BOTH that the deduction is limited to the gross proceeds of the sale AND that a contemporaneous written acknowledgment was obtained, and the intellectual-property and inventory categories are only the property the instructions define. A single article of clothing or a household item not in good used condition or better is the poor-condition category. Choose partial interest or restricted use ahead of any ordinary category. Choose pass-through when this share was allocated by an entity that filed its own Form 8283. Unanswered leaves the section undecided, which leaves both printed sections blank rather than guessing one.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/form8283PrintTreatmentOptions" /></Writable>
+    </Fact>
+
+    <Fact path="/form8283Items/*/writableDeductionForItemOrSimilarGroup">
+      <Name>Claimed deduction for this item or its whole group of similar items (writable)</Name>
+      <Description>The total claimed deduction, before the income limits that could create a carryover, for this item or for the entire group of similar items it belongs to, INCLUDING the parts given to other donee organizations. The instructions say to consider all items in the group even when they went to more than one donee, and then to file a separate Section B for each donee, which is why the group total decides the section while each donee keeps its own copy. For a standalone item this is that item's own claimed deduction. It is never summed across items and never reaches Schedule A, which computes the deduction itself. Nonnegative; an amount below this item's own claimed deduction contradicts itself and leaves the section undecided rather than picking one.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableForm8283RequiredForCarryoverYear">
+      <Name>Form 8283 is required for a charitable carryover year (writable)</Name>
+      <Description>Does this return carry a charitable contribution forward from an earlier year under IRC 170(d)? The instructions require Form 8283 for any such carryover year, independently of what was contributed this year, so a true answer makes the form required even when this year's noncash total is at or below the filing threshold. An unanswered entry establishes no carryover obligation, and a false one takes nothing away: the this-year threshold test still decides on its own.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form8283Items/*/claimedDeductionNonnegative">
+      <Name>Claimed deduction for this item, floored at zero</Name>
+      <Description>The entered claimed deduction floored at zero, so that a negative entry on one item cannot cancel a positive one out of the filing total and cannot pull an item below a section threshold. The floor is in this body and not on the Writable because a Limit is validation on the entry screen and is not enforced when the graph resolves. An unanswered claimed deduction stays Incomplete here; this is not a Schedule A deduction computation.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../writableClaimedDeduction" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/poorConditionClaimNotAllowed">
+      <Name>A claimed deduction for clothing or a household item not in good used condition, at $500 or less</Name>
+      <Description>TRUE when this item is clothing or a household item not in good used condition or better and its claimed deduction is more than $0 but not more than $500. No deduction is allowed for such an item; the only exception is a single item claimed at more than $500 with a qualified appraisal, which goes to Section B. FALSE, never Incomplete, while the treatment or the claimed deduction is unanswered.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../writablePrintTreatment" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableClaimedDeduction" />
+          </IsComplete>
+          <Equal>
+            <Left><Dependency path="../writablePrintTreatment" /></Left>
+            <Right><Enum optionsPath="/form8283PrintTreatmentOptions">poorConditionClothingHousehold</Enum></Right>
+          </Equal>
+          <GreaterThan>
+            <Left><Dependency path="../claimedDeductionNonnegative" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <LessThanOrEqual>
+            <Left><Dependency path="../claimedDeductionNonnegative" /></Left>
+            <Right><Dollar>500</Dollar></Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm8283PoorConditionClaimNotAllowed">
+      <Name>Refusal: a deduction claimed for clothing or a household item not in good used condition, at $500 or less</Name>
+      <Description>We can't file this return: it claims a charitable deduction for clothing or a household item that is not in good used condition or better, valued at $500 or less. The law allows no deduction for such an item. Remove it from your charitable contributions, or, if it is in good used condition or better, change its description. A single item claimed at more than $500 is deductible only with a qualified appraisal attached, and that is reported in Section B.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8283Items" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/form8283Items">
+                      <Dependency path="poorConditionClaimNotAllowed" />
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/form8283Items" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionThresholdAmount">
+      <Name>The deduction the Form 8283 section threshold is applied to</Name>
+      <Description>The item-or-group total this item's section is decided on: the entered group total, accepted only when both amounts are answered and the group total is at least this item's own floored deduction. A group total below the item it contains contradicts itself, and an unanswered group total says nothing, so both leave this Incomplete and the section undecided. It is used for the section decision only and is never summed across items.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableClaimedDeduction" /></IsComplete>
+                <IsComplete><Dependency path="../writableDeductionForItemOrSimilarGroup" /></IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../writableDeductionForItemOrSimilarGroup" /></Left>
+                  <Right><Dependency path="../claimedDeductionNonnegative" /></Right>
+                </GreaterThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableDeductionForItemOrSimilarGroup" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionForPrinting">
+      <Name>The Form 8283 section this property must be reported in</Name>
+      <Description>Section A or Section B, decided from the reporting category and the item-or-group deduction in the order the printed instructions state them. A pass-through allocation takes the section the entity used, which the instructions say a member must match. A single article of clothing or a household item not in good used condition or better goes to Section B whenever the deduction is OVER $500, which is why exactly $500 falls through to the ordinary amount test. The five Section A exception categories stay in Section A whatever the amount. Everything else turns on the item-or-group total: at or below $5,000 Section A, above $5,000 Section B. The boundary is the printed one, not a rounded one: $5,000 is Section A and $5,001 is Section B. An undecided category or an undecided group total runs off the end of this Switch and leaves the section Incomplete, which prints the item in NEITHER section; there is deliberately no catch-all, because a default section would put a property in front of the IRS under a rule nobody applied. This decides printed placement only. It never changes the deduction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">passThrough</Enum></Right>
+                </Equal></When>
+            <Then><Dependency path="../writableSection" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All><Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">poorConditionClothingHousehold</Enum></Right>
+                </Equal>
+                <GreaterThan>
+                  <Left><Dependency path="../claimedDeductionNonnegative" /></Left>
+                  <Right><Dollar>500</Dollar></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then><Enum optionsPath="/form8283SectionOptions">b</Enum></Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">publiclyTradedSecurity</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">otherQualifyingSecurity</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">vehicleGrossProceedsAcknowledged</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">qualifyingIntellectualProperty</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">inventory</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Enum optionsPath="/form8283SectionOptions">a</Enum></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Any>
+                  <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">ordinary</Enum></Right>
+                </Equal>
+                  <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">poorConditionClothingHousehold</Enum></Right>
+                </Equal>
+                  <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">partialInterestOrRestrictedUse</Enum></Right>
+                </Equal>
+                </Any>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../sectionThresholdAmount" /></Left>
+                  <Right><Dollar>5000</Dollar></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then><Enum optionsPath="/form8283SectionOptions">a</Enum></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Any>
+                  <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">ordinary</Enum></Right>
+                </Equal>
+                  <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">poorConditionClothingHousehold</Enum></Right>
+                </Equal>
+                  <Equal>
+                  <Left><Dependency path="../writablePrintTreatment" /></Left>
+                  <Right><Enum optionsPath="/form8283PrintTreatmentOptions">partialInterestOrRestrictedUse</Enum></Right>
+                </Equal>
+                </Any>
+                <GreaterThan>
+                  <Left><Dependency path="../sectionThresholdAmount" /></Left>
+                  <Right><Dollar>5000</Dollar></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then><Enum optionsPath="/form8283SectionOptions">b</Enum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/printsInSectionA">
+      <Name>This property prints in Form 8283 Section A</Name>
+      <Description>True exactly when the computed section for this property is Section A. An undecided section leaves this Incomplete, and every Section A column projection runs off its own Switch on that, so the printed cells stay blank rather than carrying a value into a section nobody chose.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="../sectionForPrinting" /></Left>
+          <Right><Enum optionsPath="/form8283SectionOptions">a</Enum></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/printInSectionAOnThisReturn">
+      <Name>This property belongs in the Form 8283 Section A print collection</Name>
+      <Description>True when this return files Form 8283 AND this property belongs in Section A. A return that does not file the form answers false without ever needing a section, so an item whose category was never entered does not hold up a return that attaches nothing. Once the form IS filed, an undecided section leaves this Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8283ReturnFilesThisForm" /></IsComplete>
+                <Not><Dependency path="/form8283ReturnFilesThisForm" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8283ReturnFilesThisForm" /></IsComplete>
+                <Dependency path="/form8283ReturnFilesThisForm" />
+              </All>
+            </When>
+            <Then><Dependency path="../printsInSectionA" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283SectionAItemsToPrint">
+      <Name>Form 8283 Section A contribution items</Name>
+      <Description>The filed items that belong in Section A, in the order they were entered. It exists so a reviewer and a future register packing pass can see which items land in which section; the shipping register still renders one copy per item off /form8283ItemsToPrint and fills only the cells of the section that item belongs to.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/form8283Items">
+          <Dependency path="printInSectionAOnThisReturn" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/printsInSectionB">
+      <Name>This property prints in Form 8283 Section B</Name>
+      <Description>True exactly when the computed section for this property is Section B. An undecided section leaves this Incomplete, and every Section B column projection runs off its own Switch on that, so the printed cells stay blank rather than carrying a value into a section nobody chose.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left><Dependency path="../sectionForPrinting" /></Left>
+          <Right><Enum optionsPath="/form8283SectionOptions">b</Enum></Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/printInSectionBOnThisReturn">
+      <Name>This property belongs in the Form 8283 Section B print collection</Name>
+      <Description>True when this return files Form 8283 AND this property belongs in Section B. A return that does not file the form answers false without ever needing a section, so an item whose category was never entered does not hold up a return that attaches nothing. Once the form IS filed, an undecided section leaves this Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8283ReturnFilesThisForm" /></IsComplete>
+                <Not><Dependency path="/form8283ReturnFilesThisForm" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8283ReturnFilesThisForm" /></IsComplete>
+                <Dependency path="/form8283ReturnFilesThisForm" />
+              </All>
+            </When>
+            <Then><Dependency path="../printsInSectionB" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283SectionBItemsToPrint">
+      <Name>Form 8283 Section B contribution items</Name>
+      <Description>The filed items that belong in Section B, in the order they were entered. It exists so a reviewer and a future register packing pass can see which items land in which section; the shipping register still renders one copy per item off /form8283ItemsToPrint and fills only the cells of the section that item belongs to.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/form8283Items">
+          <Dependency path="printInSectionBOnThisReturn" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionADoneeName">
+      <Name>Form 8283 Section A line 1 column (a), the donee organization name, for this property</Name>
+      <Description>The Section A line 1 column (a), the donee organization name cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeOrganizationName when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableDoneeOrganizationName" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionADoneeAddress">
+      <Name>Form 8283 Section A line 1 column (a), the donee organization address, for this property</Name>
+      <Description>The Section A line 1 column (a), the donee organization address cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeOrganizationAddress when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy. The printed cell carries a name and an address together; the register composes the two projections into the one box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableDoneeOrganizationAddress" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionAVehicleCheckbox">
+      <Name>Form 8283 Section A line 1 column (b), the vehicle checkbox, for this property</Name>
+      <Description>The Section A line 1 column (b), the vehicle checkbox cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableVehicleDonation when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableVehicleDonation" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionAVehicleIdentificationNumber">
+      <Name>Form 8283 Section A line 1 column (b), the vehicle identification number, for this property</Name>
+      <Description>The Section A line 1 column (b), the vehicle identification number cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableVehicleIdentificationNumber when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableVehicleIdentificationNumber" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionADescription">
+      <Name>Form 8283 Section A line 1 column (c), the description of the donated property, for this property</Name>
+      <Description>The Section A line 1 column (c), the description of the donated property cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writablePropertyDescription when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy. The printed cell asks for the description and the condition together; the register composes this projection with the condition projection beside it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writablePropertyDescription" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionACondition">
+      <Name>Form 8283 Section A line 1 column (c), the condition of the donated property, for this property</Name>
+      <Description>The Section A line 1 column (c), the condition of the donated property cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writablePropertyCondition when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writablePropertyCondition" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionAContributionDate">
+      <Name>Form 8283 Section A line 1 column (d), the date of the contribution, for this property</Name>
+      <Description>The Section A line 1 column (d), the date of the contribution cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableContributionDate when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableContributionDate" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionADateAcquired">
+      <Name>Form 8283 Section A line 1 column (e), the date the donor acquired the property, for this property</Name>
+      <Description>The Section A line 1 column (e), the date the donor acquired the property cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDateAcquired when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableDateAcquired" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionAHowAcquired">
+      <Name>Form 8283 Section A line 1 column (f), how the donor acquired the property, for this property</Name>
+      <Description>The Section A line 1 column (f), how the donor acquired the property cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableHowAcquired when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableHowAcquired" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionACostOrBasis">
+      <Name>Form 8283 Section A line 1 column (g), the donor cost or adjusted basis, for this property</Name>
+      <Description>The Section A line 1 column (g), the donor cost or adjusted basis cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDonorCostOrAdjustedBasis when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableDonorCostOrAdjustedBasis" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionAFairMarketValue">
+      <Name>Form 8283 Section A line 1 column (h), the fair market value, for this property</Name>
+      <Description>The Section A line 1 column (h), the fair market value cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableFairMarketValue when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableFairMarketValue" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionAValueMethod">
+      <Name>Form 8283 Section A line 1 column (i), the method used to determine the fair market value, for this property</Name>
+      <Description>The Section A line 1 column (i), the method used to determine the fair market value cell for this property, blank unless the property belongs in Section A. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableFairMarketValueMethod when the item prints in Section A, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionA" /></When>
+            <Then><Dependency path="../writableFairMarketValueMethod" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDescription">
+      <Name>Form 8283 Section B Part I line 3 column (a), the description of the donated property, for this property</Name>
+      <Description>The Section B Part I line 3 column (a), the description of the donated property cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writablePropertyDescription when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writablePropertyDescription" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBCondition">
+      <Name>Form 8283 Section B Part I line 3 column (b), the summary of the overall physical condition, for this property</Name>
+      <Description>The Section B Part I line 3 column (b), the summary of the overall physical condition cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writablePropertyCondition when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writablePropertyCondition" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBAppraisedValue">
+      <Name>Form 8283 Section B Part I line 3 column (c), the appraised fair market value, for this property</Name>
+      <Description>The Section B Part I line 3 column (c), the appraised fair market value cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableAppraisedFairMarketValue when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableAppraisedFairMarketValue" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDateAcquired">
+      <Name>Form 8283 Section B Part I line 3 column (d), the date the donor acquired the property, for this property</Name>
+      <Description>The Section B Part I line 3 column (d), the date the donor acquired the property cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDateAcquired when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDateAcquired" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBHowAcquired">
+      <Name>Form 8283 Section B Part I line 3 column (e), how the donor acquired the property, for this property</Name>
+      <Description>The Section B Part I line 3 column (e), how the donor acquired the property cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableHowAcquired when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableHowAcquired" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBCostOrBasis">
+      <Name>Form 8283 Section B Part I line 3 column (f), the donor cost or adjusted basis, for this property</Name>
+      <Description>The Section B Part I line 3 column (f), the donor cost or adjusted basis cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDonorCostOrAdjustedBasis when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDonorCostOrAdjustedBasis" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBargainSaleProceeds">
+      <Name>Form 8283 Section B Part I line 3 column (g), the amount received on a bargain sale, for this property</Name>
+      <Description>The Section B Part I line 3 column (g), the amount received on a bargain sale cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableBargainSaleAmountReceived when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableBargainSaleAmountReceived" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBRelevantBasis">
+      <Name>Form 8283 Section B Part I line 3 column (h), the qualified conservation contribution relevant basis, for this property</Name>
+      <Description>The Section B Part I line 3 column (h), the qualified conservation contribution relevant basis cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableQualifiedConservationRelevantBasis when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableQualifiedConservationRelevantBasis" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBNpsNumber">
+      <Name>Form 8283 Section B Part I line 2 box b(1), the National Park Service number of the certified historic structure, for this property</Name>
+      <Description>The Section B Part I line 2 box b(1), the National Park Service number of the certified historic structure cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableNpsNumber when the item prints in Section B, and Incomplete otherwise, which leaves the opposite section's cells empty on the same copy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableNpsNumber" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxArtAtLeast20000">
+      <Name>Form 8283 Section B Part I line 2 box a, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box a names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">artAtLeast20000</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxConservation">
+      <Name>Form 8283 Section B Part I line 2 box b, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box b names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type. A certified historic structure is a qualified conservation contribution, so it checks box b as well as box b(1): the printed b(1) sits underneath b, not beside it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">qualifiedConservationContribution</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">certifiedHistoricStructure</Enum></Right>
+                </Equal>
+              </Any>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxHistoricStructure">
+      <Name>Form 8283 Section B Part I line 2 box b(1), for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box b(1) names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">certifiedHistoricStructure</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxArtUnder20000">
+      <Name>Form 8283 Section B Part I line 2 box c, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box c names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">artUnder20000</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxOtherRealEstate">
+      <Name>Form 8283 Section B Part I line 2 box d, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box d names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">otherRealEstate</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxEquipment">
+      <Name>Form 8283 Section B Part I line 2 box e, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box e names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">equipment</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxSecurities">
+      <Name>Form 8283 Section B Part I line 2 box f, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box f names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">securities</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxCollectibles">
+      <Name>Form 8283 Section B Part I line 2 box g, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box g names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">collectibles</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxIntellectualProperty">
+      <Name>Form 8283 Section B Part I line 2 box h, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box h names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">intellectualProperty</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxVehicle">
+      <Name>Form 8283 Section B Part I line 2 box i, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box i names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">vehicle</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxClothingHousehold">
+      <Name>Form 8283 Section B Part I line 2 box j, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box j names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">clothingOrHouseholdItems</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxDigitalAssets">
+      <Name>Form 8283 Section B Part I line 2 box k, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box k names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">digitalAssets</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBBoxOther">
+      <Name>Form 8283 Section B Part I line 2 box l, for this property</Name>
+      <Description>True when this property prints in Section B and its entered Section B property type is the one box l names. False for a Section B property of another type, so exactly one of the thirteen boxes is checked on a Section B copy. Incomplete when the section or the property type is undecided, which leaves every box unchecked rather than guessing a type.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../printsInSectionB" /></IsComplete>
+                <Not><Dependency path="../printsInSectionB" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then>
+              <Equal>
+                  <Left><Dependency path="../writableSectionBPropertyType" /></Left>
+                  <Right><Enum optionsPath="/form8283PropertyTypeOptions">other</Enum></Right>
+                </Equal>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBPriorYearDoneeName">
+      <Name>Form 8283 Section B Part II, the prior-year donee name box, for this property</Name>
+      <Description>The Section B Part II line 4c "Name of charitable organization (donee)" cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writablePriorYearDoneeName when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a prior-year donee under a rule nobody applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writablePriorYearDoneeName" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBPriorYearDoneeAddress">
+      <Name>Form 8283 Section B Part II, the prior-year donee address, for this property</Name>
+      <Description>The Section B Part II line 4c prior-year donee address for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writablePriorYearDoneeAddress when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a prior-year donee under a rule nobody applied. The printed form splits one address over TWO boxes on the same line - the street and room or suite box, and the city, state and ZIP box - so the register binds the street members of this one Address-typed projection into the first and its city, state and ZIP members into the second, the same split the appraiser's and the acknowledging donee's business addresses already use.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writablePriorYearDoneeAddress" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBRestrictionOnDoneeUseOrDisposition">
+      <Name>Form 8283 Section B Part II line 5a, the Yes box, for this property</Name>
+      <Description>The Section B Part II line 5a "Yes" box for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableRestrictionOnDoneeUseOrDisposition when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a restriction answer under a rule nobody applied. The printed question is a Yes/No pair and the register binds one box to each side, so this projection carries the Yes box and /form8283Items/*/sectionBNoRestrictionOnDoneeUseOrDisposition carries the No box. An unanswered question leaves BOTH boxes unchecked, which is the printed posture of a donor who has not answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableRestrictionOnDoneeUseOrDisposition" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBNoRestrictionOnDoneeUseOrDisposition">
+      <Name>Form 8283 Section B Part II line 5a, the No box, for this property</Name>
+      <Description>The Section B Part II line 5a "No" box for this property - the negation of the donor's answer, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableRestrictionOnDoneeUseOrDisposition when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a restriction answer under a rule nobody applied. The negation is taken INSIDE the section-gated arm, so an unanswered attestation propagates Incomplete through the Not and leaves this box unchecked instead of checking No on the donor's behalf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Not><Dependency path="../writableRestrictionOnDoneeUseOrDisposition" /></Not></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBThirdPartyPropertyRights">
+      <Name>Form 8283 Section B Part II line 5b, the Yes box, for this property</Name>
+      <Description>The Section B Part II line 5b "Yes" box for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableThirdPartyPropertyRights when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a restriction answer under a rule nobody applied. The printed question is a Yes/No pair and the register binds one box to each side, so this projection carries the Yes box and /form8283Items/*/sectionBNoThirdPartyPropertyRights carries the No box. An unanswered question leaves BOTH boxes unchecked, which is the printed posture of a donor who has not answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableThirdPartyPropertyRights" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBNoThirdPartyPropertyRights">
+      <Name>Form 8283 Section B Part II line 5b, the No box, for this property</Name>
+      <Description>The Section B Part II line 5b "No" box for this property - the negation of the donor's answer, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableThirdPartyPropertyRights when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a restriction answer under a rule nobody applied. The negation is taken INSIDE the section-gated arm, so an unanswered attestation propagates Incomplete through the Not and leaves this box unchecked instead of checking No on the donor's behalf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Not><Dependency path="../writableThirdPartyPropertyRights" /></Not></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBRestrictionToParticularUse">
+      <Name>Form 8283 Section B Part II line 5c, the Yes box, for this property</Name>
+      <Description>The Section B Part II line 5c "Yes" box for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableRestrictionToParticularUse when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a restriction answer under a rule nobody applied. The printed question is a Yes/No pair and the register binds one box to each side, so this projection carries the Yes box and /form8283Items/*/sectionBNoRestrictionToParticularUse carries the No box. An unanswered question leaves BOTH boxes unchecked, which is the printed posture of a donor who has not answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableRestrictionToParticularUse" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBNoRestrictionToParticularUse">
+      <Name>Form 8283 Section B Part II line 5c, the No box, for this property</Name>
+      <Description>The Section B Part II line 5c "No" box for this property - the negation of the donor's answer, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableRestrictionToParticularUse when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a restriction answer under a rule nobody applied. The negation is taken INSIDE the section-gated arm, so an unanswered attestation propagates Incomplete through the Not and leaves this box unchecked instead of checking No on the donor's behalf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Not><Dependency path="../writableRestrictionToParticularUse" /></Not></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDonorStatementItemLetter">
+      <Name>Form 8283 Section B Part III, the identifying letter, for this property</Name>
+      <Description>The Section B Part III identifying-letter half of the taxpayer statement for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDonorStatementItemLetter when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a taxpayer statement under a rule nobody applied. The printed line composes this letter with the item description at /form8283Items/*/sectionBDonorStatementItemDescription in ONE box; the register binds both into that single cell.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDonorStatementItemLetter" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDonorStatementItemDescription">
+      <Name>Form 8283 Section B Part III, the item description, for this property</Name>
+      <Description>The Section B Part III item-description half of the taxpayer statement for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDonorStatementItemDescription when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing a taxpayer statement under a rule nobody applied. The printed line composes this description with the identifying letter at /form8283Items/*/sectionBDonorStatementItemLetter in ONE box; the register binds both into that single cell.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDonorStatementItemDescription" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBAppraiserName">
+      <Name>Form 8283 Section B Part IV, the appraiser name box, for this property</Name>
+      <Description>The Section B Part IV "Appraiser name" cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableAppraiserName when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableAppraiserName" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBAppraiserTitle">
+      <Name>Form 8283 Section B Part IV, the appraiser title box, for this property</Name>
+      <Description>The Section B Part IV "Title" cell beside the appraiser's name for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableAppraiserTitle when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableAppraiserTitle" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBAppraiserBusinessAddress">
+      <Name>Form 8283 Section B Part IV, the appraiser business address, for this property</Name>
+      <Description>The Section B Part IV appraiser business address for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableAppraiserBusinessAddress when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. The printed form splits one address over TWO boxes - the street and room or suite line, and the city, state and ZIP line - so the register binds the street members of this one Address-typed projection into the first box and its city, state and ZIP members into the second.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableAppraiserBusinessAddress" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBAppraiserIdentifyingNumber">
+      <Name>Form 8283 Section B Part IV, the appraiser identifying number box, for this property</Name>
+      <Description>The Section B Part IV "Identifying number" cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableAppraiserIdentifyingNumber when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableAppraiserIdentifyingNumber" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeAcknowledgmentReceivedDate">
+      <Name>Form 8283 Section B Part V, the date the donee received the property, for this property</Name>
+      <Description>The Section B Part V date-of-receipt cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeAcknowledgmentReceivedDate when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. This is the date the charity says it RECEIVED the property, which the printed paragraph places inside the acknowledgment sentence; the separate date the charity SIGNED has no printed field on this template.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDoneeAcknowledgmentReceivedDate" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeIntendsUnrelatedUse">
+      <Name>Form 8283 Section B Part V, the unrelated-use Yes box, for this property</Name>
+      <Description>The Section B Part V "Yes" box of the unrelated-use question for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeIntendsUnrelatedUse when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. The printed question is a Yes/No pair and the register binds one box to each side, so this projection carries the Yes box and /form8283Items/*/sectionBDoneeDoesNotIntendUnrelatedUse carries the No box. An unanswered acknowledgment leaves BOTH boxes unchecked, which is the printed posture of a charity that has not answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDoneeIntendsUnrelatedUse" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeDoesNotIntendUnrelatedUse">
+      <Name>Form 8283 Section B Part V, the unrelated-use No box, for this property</Name>
+      <Description>The Section B Part V "No" box of the unrelated-use question for this property - the negation of the charity's answer, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeIntendsUnrelatedUse when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. The negation is taken INSIDE the section-gated arm, so an unanswered acknowledgment propagates Incomplete through the Not and leaves this box unchecked instead of checking No on the charity's behalf.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Not><Dependency path="../writableDoneeIntendsUnrelatedUse" /></Not></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeAcknowledgingOrganizationName">
+      <Name>Form 8283 Section B Part V, the donee organization name box, for this property</Name>
+      <Description>The Section B Part V "Name of charitable organization (donee)" cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeAcknowledgingOrganizationName when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. This is the organization that signed the acknowledgment. It is asked again here, rather than reused from the Section A donee question, because a Section B copy carries the charity's OWN signed block and the two can differ.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDoneeAcknowledgingOrganizationName" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeEmployerIdentificationNumber">
+      <Name>Form 8283 Section B Part V, the donee employer identification number box, for this property</Name>
+      <Description>The Section B Part V "Employer identification number" cell for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeEmployerIdentificationNumber when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDoneeEmployerIdentificationNumber" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeAddress">
+      <Name>Form 8283 Section B Part V, the donee address, for this property</Name>
+      <Description>The Section B Part V address of the acknowledging charitable organization for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeAddress when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. The printed form splits one address over TWO boxes on the same line - the street and room or suite box, and the city, state and ZIP box - so the register binds the street members of this one Address-typed projection into the first and its city, state and ZIP members into the second.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDoneeAddress" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8283Items/*/sectionBDoneeAuthorizedTitle">
+      <Name>Form 8283 Section B Part V, the authorized signer's title box, for this property</Name>
+      <Description>The Section B Part V "Title" cell beside the charity's authorized signature for this property, blank unless the property belongs in Section B. The register renders one copy per contribution item and a register mapping cannot switch on the section, so each printed cell reads its own section-gated projection: this fact is the item's own writableDoneeAuthorizedTitle when the item prints in Section B, and Incomplete otherwise, which leaves this page-two cell empty on a Section A copy. There is no catch-all arm, so an undecided section also leaves the cell blank rather than printing an appraisal summary under a rule nobody applied. The signature box and the date box on that same printed line have NO fillable field on the TY2025 template, so the title is the only cell of the signature line this register can fill; a Section B copy still has to be signed outside this software.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../printsInSectionB" /></When>
+            <Then><Dependency path="../writableDoneeAuthorizedTitle" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

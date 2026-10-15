@@ -1,0 +1,2883 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableTransferredNewCleanVehicleCredit">
+      <Name>New clean vehicle credit transferred to the dealer (Schedule A (Form 8936) line 4a, Part II)</Name>
+      <Description>The amount of the NEW clean vehicle credit (IRC §30D) the taxpayer transferred to a
+        registered dealer at the time of sale, from the seller's report — Schedule A (Form 8936) line 4a,
+        for a Part II (new clean vehicle) transfer. When the taxpayer no longer qualifies for the credit,
+        this full amount is repaid on Schedule 2 line 1b. Integer cents; Min 0. Optional — absent means no
+        new clean vehicle credit was transferred, so no line-1b repayment.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableTransferredUsedCleanVehicleCredit">
+      <Name>Previously-owned clean vehicle credit transferred to the dealer (Schedule A (Form 8936) line 4a, Part IV)</Name>
+      <Description>The amount of the PREVIOUSLY-OWNED (used) clean vehicle credit (IRC §25E) the taxpayer
+        transferred to a registered dealer at the time of sale, from the seller's report — Schedule A
+        (Form 8936) line 4a, for a Part IV (used clean vehicle) transfer. When the taxpayer no longer
+        qualifies, this full amount is repaid on Schedule 2 line 1c. The used credit is itself capped at
+        $4,000 (Schedule A line 16), so a transfer is at most $4,000. Integer cents; Min 0. Optional —
+        absent means no used clean vehicle credit was transferred.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles">
+      <Name>Additional new clean vehicles beyond the legacy single-vehicle inputs</Name>
+      <Description>One item per additional new clean vehicle placed in service in 2025 and reported on
+        its own Schedule A (Form 8936), after the legacy root new-vehicle inputs are used for at most
+        one vehicle. Each item keeps its own VIN, acquisition date, placed-in-service date, seller
+        tentative-credit amount, and qualification answer. The collection may be empty. An opened
+        item with a missing required field leaves Schedule 3 line 6f incomplete rather than silently
+        losing that vehicle. The separate 2025 acquisition cutoff is computed per item; see
+        /additionalNewCleanVehicles/*/personalUseCreditCandidate.</Description>
+      <Writable><Collection /></Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/writableVin">
+      <Name>Additional new clean vehicle VIN (Schedule A line 2)</Name>
+      <Description>The uppercase 17-character VIN on this additional vehicle's separate Schedule A
+        (Form 8936), line 2. Required for each opened item; this is the statutory per-vehicle identity
+        on the return. The fact graph checks that it is well-formed, unique within the additional-
+        vehicle collection, and not the already-entered primary Schedule A VIN.</Description>
+      <Writable>
+        <String />
+        <Limit type="Match"><String><![CDATA[[A-HJ-NPR-Z0-9]{17}]]></String></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/writableAcquisitionDate">
+      <Name>Additional new clean vehicle acquisition date for the 2025 cutoff (Form 8936 Schedule A line 5)</Name>
+      <Description>The date this vehicle was acquired for federal clean-vehicle-credit purposes: the
+        date a written binding contract was entered into AND a payment was made (a nominal down
+        payment or trade-in counts). Required for an opened item. The schedule's deadline is strict:
+        2025-09-30 qualifies and 2025-10-01 does not.</Description>
+      <Writable><Day /></Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/writablePlacedInServiceDate">
+      <Name>Additional new clean vehicle placed-in-service date (Schedule A line 3)</Name>
+      <Description>The date this additional vehicle was placed in service, as entered on its own
+        Schedule A (Form 8936), line 3. Required for each opened item and must fall in 2025.</Description>
+      <Writable><Day /></Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/writableQualifiesForPersonalCredit">
+      <Name>Additional new vehicle meets the non-computable personal-credit gates</Name>
+      <Description>Answer Yes only if this identified vehicle otherwise qualifies for the new clean
+        vehicle personal-use credit: Schedule A line 5 new-vehicle status; line 8a not resold within
+        30 days; line 8e acquired for use or lease and not for resale (and not leased from another
+        person); all applicable §30D manufacturer, battery, mineral, and price rules; and 0% business
+        or investment use so the full personal-use amount routes directly to Schedule 3 line 6f.
+        Also attest that the vehicle meets the remaining non-computable statutory definition, is
+        used primarily in the United States, and the taxpayer cannot be claimed as a dependent.
+        The acquisition cutoff and placed-in-service year are checked from this item's dates, the
+        shared MAGI test is computed once for the taxpayer, and a VIN may support only one credit.
+        Required for each opened vehicle. No answer means the credit remains Incomplete.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/writableTentativeCredit">
+      <Name>Additional new vehicle tentative credit from seller's report (Schedule A line 9)</Name>
+      <Description>Transcribe this vehicle's line 9 amount from its seller report. Required for each
+        opened item; the derived amount caps it at $7,500 for this VIN before the per-vehicle amounts
+        are added.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/writableTransferredCredit">
+      <Name>Additional new vehicle credit transferred to the dealer (Schedule A line 4a)</Name>
+      <Description>If this additional vehicle's credit was transferred to the dealer, enter the
+        seller-report amount; enter 0 if it was not transferred. This answer is required for every
+        opened item so an unanswered transfer question cannot be mistaken for a no-transfer sale.
+        A positive transfer excludes the vehicle from Schedule 3 line 6f.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePriorYearMagi">
+      <Name>Prior-year (2024) modified AGI for the clean vehicle MAGI test (Form 8936 lines 3-4)</Name>
+      <Description>The taxpayer's 2024 modified adjusted gross income (Form 8936 line 3a = line 11 of the
+        2024 Form 1040; the §911/Form 2555/Form 4563 add-backs are added separately, by
+        /cleanVehiclePriorYearMagi), used as the
+        prior-year prong of the "MAGI exceeds the limit for BOTH 2024 and 2025" disqualification test. A
+        SAFE-HARBOR input: the single-year fact graph cannot derive a prior-year amount, so the taxpayer
+        supplies it to prove the lookback qualified them. Integer cents; Min 0. Optional — when unanswered
+        the disqualification test conservatively assumes the prior year also exceeded the limit (an unknown
+        2024 MAGI does not rescue a filer from repayment — World-#1-safe for an addition to tax).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleOtherwiseIneligible">
+      <Name>New clean vehicle: otherwise no longer qualifies (Schedule A (Form 8936) 8a/8e)</Name>
+      <Description>True if the taxpayer no longer qualifies for the NEW clean vehicle credit for a reason
+        other than the MAGI limitation — e.g. the vehicle was resold within 30 days of the placed-in-service
+        date (Schedule A line 8a), or it was not acquired for use or lease (line 8e). When true and a new
+        credit was transferred, the full transferred amount is repaid on Schedule 2 line 1b regardless of
+        MAGI. Optional — absent => treated as false (not disqualified on a categorical ground); the MAGI
+        test still applies.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableUsedCleanVehicleOtherwiseIneligible">
+      <Name>Used clean vehicle: otherwise no longer qualifies (Schedule A (Form 8936) 13a/13d/13e/13g)</Name>
+      <Description>True if the taxpayer no longer qualifies for the PREVIOUSLY-OWNED clean vehicle credit
+        for a reason other than the MAGI limitation — e.g. resold within 30 days (Schedule A line 13a),
+        already claimed a used-EV credit in the 3-year lookback (13d), sales price over $25,000 (13e), or
+        claimable as a dependent (13g). When true and a used credit was transferred, the full transferred
+        amount is repaid on Schedule 2 line 1c regardless of MAGI. Optional — absent => treated as false.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/newCleanVehicleTransferredCreditCompleteSafeForComparison">
+      <Name>New transferred clean vehicle credit, zero when unanswered for branch comparisons</Name>
+      <Description>Complete-safe comparison view of the optional new clean vehicle transfer amount.
+        An unanswered transfer remains the existing no-transfer path; an answered amount is floored
+        at zero under the writable's Min rule.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableTransferredNewCleanVehicleCredit" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableTransferredNewCleanVehicleCredit" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleOtherwiseIneligibleCompleteSafe">
+      <Name>New clean vehicle categorical disqualification, false when unanswered</Name>
+      <Description>Complete-safe Boolean view for the optional repayment attestation. Silence keeps
+        the existing repayment interpretation that no categorical disqualification was answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableNewCleanVehicleOtherwiseIneligible" /></IsComplete></When>
+            <Then><Dependency path="/writableNewCleanVehicleOtherwiseIneligible" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleOtherwiseIneligibleCompleteSafe">
+      <Name>Previously-owned clean vehicle categorical disqualification, false when unanswered</Name>
+      <Description>Complete-safe Boolean view for the optional used-vehicle repayment attestation.
+        Silence keeps the existing repayment interpretation that no categorical disqualification
+        was answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableUsedCleanVehicleOtherwiseIneligible" /></IsComplete></When>
+            <Then><Dependency path="/writableUsedCleanVehicleOtherwiseIneligible" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleQualifiesForCreditCompleteSafe">
+      <Name>New clean vehicle qualification attestation, false when unanswered</Name>
+      <Description>Complete-safe Boolean view of the affirmative new-vehicle qualification intake.
+        An unanswered attestation remains the existing no-credit branch.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableNewCleanVehicleQualifiesForCredit" /></IsComplete></When>
+            <Then><Dependency path="/writableNewCleanVehicleQualifiesForCredit" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleQualifiesForCreditCompleteSafe">
+      <Name>Previously-owned clean vehicle qualification attestation, false when unanswered</Name>
+      <Description>Complete-safe Boolean view of the affirmative used-vehicle qualification intake.
+        An unanswered attestation remains the existing no-credit branch.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableUsedCleanVehicleQualifiesForCredit" /></IsComplete></When>
+            <Then><Dependency path="/writableUsedCleanVehicleQualifiesForCredit" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleSalePriceCompleteSafeForComparison">
+      <Name>Previously-owned clean vehicle sale price, zero when unanswered for comparisons</Name>
+      <Description>Complete-safe comparison view of the optional used-vehicle sale price. An
+        unanswered price remains the existing no-credit path; an answered amount is floored at zero
+        under the writable's Min rule.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableUsedCleanVehicleSalePrice" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableUsedCleanVehicleSalePrice" /><Dollar>0</Dollar> </GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleIsNewCleanVehicleCompleteSafe">
+      <Name>Clean vehicle type attestation, false when unanswered</Name>
+      <Description>Complete-safe Boolean view of the Schedule A new-vehicle routing attestation.
+        Silence follows the existing fallthrough to the previously-owned vehicle arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableCleanVehicleIsNewCleanVehicle" /></IsComplete></When>
+            <Then><Dependency path="/writableCleanVehicleIsNewCleanVehicle" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/cleanVehicleCurrentYearMagi">
+      <Name>Current-year (2025) modified AGI for the clean vehicle MAGI test (Form 8936 line 2)</Name>
+      <Description>Form 8936 line 2 MAGI for 2025 = /agi PLUS the Form 8936 lines 1b-1e add-backs
+        — the Puerto Rico section 933 exclusion, Form 2555 lines 45/50, and Form 4563 line 15 — as the
+        Derived below shows.
+
+        Both possession intakes are complete-safe with a $0 tail, so a filer who
+        is never asked reaches this fact with every add-back at $0 and MAGI equal to AGI — which for
+        THIS fact means a repayment near a threshold can still go undetected. That is a
+        faithful-input limitation, not a derivation gap; wiring cannot close it, only asking can.
+
+        This fact is a direct alias of ctcOdc /modifiedAgiWithForeignAndPossessionExclusions, the
+        single root for the AGI + sections 911/931/933 modified AGI that this and four sibling
+        surfaces define identically; the add-back list this description reads from the printed
+        form is unchanged and lives on the root.
+
+        For example, $20,000 of section 933 exclusion against $259,190 of AGI gives $279,190 here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="ctcOdc" path="/modifiedAgiWithForeignAndPossessionExclusions" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleMagiThreshold">
+      <Name>New clean vehicle credit MAGI limit by filing status (Form 8936 line 5 chart, §30D)</Name>
+      <Description>The IRC §30D(f)(10) modified-AGI limitation for the NEW clean vehicle credit (Form 8936
+        line-5 chart): $300,000 MFJ or QSS, $225,000 head of household, $150,000 single or MFS. A filer is
+        disqualified only if MAGI exceeds this for BOTH 2024 and 2025.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></When>
+            <Then><Dollar>300000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusQSS" /></When>
+            <Then><Dollar>300000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusHOH" /></When>
+            <Then><Dollar>225000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleMagiThreshold">
+      <Name>Previously-owned clean vehicle credit MAGI limit by filing status (Form 8936 line 5 chart, §25E)</Name>
+      <Description>The IRC §25E(b)(2) modified-AGI limitation for the PREVIOUSLY-OWNED clean vehicle credit
+        (Form 8936 line-5 chart): $150,000 MFJ or QSS, $112,500 head of household, $75,000 single or MFS. A
+        filer is disqualified only if MAGI exceeds this for BOTH 2024 and 2025.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusQSS" /></When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusHOH" /></When>
+            <Then><Dollar>112500</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>75000</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehiclePriorYearMagi">
+      <Name>Form 8936 line 4, the prior year (2024) modified AGI total</Name>
+      <Description>Form 8936 line 4, printed "Add lines 3a through 3e" - the prior year prong of the both years MAGI test, read in place of the bare safe harbor amount by /newCleanVehicleMagiAllowsCredit, /usedCleanVehicleMagiAllowsCredit, /newCleanVehicleCreditRepayment and /usedCleanVehicleCreditRepayment.
+
+        THE BASE TERM IS DELIBERATELY UNGUARDED. /writableCleanVehiclePriorYearMagi is a safe harbor input whose own INCOMPLETENESS is load bearing: the four readers each carry Not(IsComplete(...)) as the "unanswered means the prior year also exceeded the limit" arm, which is the World-#1-safe reading for an addition to tax. Guarding it here would make this total Complete on every return and silently delete that arm. The FOUR ADD BACKS are guarded instead, so this fact is Complete exactly when the base writable is Complete and Incomplete exactly when it is not - the completeness the readers test is unchanged, term for term.
+
+        VALUE-NEUTRAL on every return that answers no add back, which is the whole committed corpus: each guarded term is a hard $0 there, so this total equals /writableCleanVehiclePriorYearMagi exactly.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <GreaterOf><Dependency path="/writableCleanVehiclePriorYearMagi" /><Dollar>0</Dollar></GreaterOf>
+            <Switch>
+              <Case>
+                <When><IsComplete><Dependency path="/writableCleanVehiclePriorYearPuertoRicoAddBack" /></IsComplete></When>
+                <Then><GreaterOf><Dependency path="/writableCleanVehiclePriorYearPuertoRicoAddBack" /><Dollar>0</Dollar></GreaterOf></Then>
+              </Case>
+              <Case>
+                <When><True /></When>
+                <Then><Dollar>0</Dollar></Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When><IsComplete><Dependency path="/writableCleanVehiclePriorYearForm2555Line45AddBack" /></IsComplete></When>
+                <Then><Dependency path="/writableCleanVehiclePriorYearForm2555Line45AddBack" /></Then>
+              </Case>
+              <Case>
+                <When><True /></When>
+                <Then><Dollar>0</Dollar></Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When><IsComplete><Dependency path="/writableCleanVehiclePriorYearForm2555Line50AddBack" /></IsComplete></When>
+                <Then><GreaterOf><Dependency path="/writableCleanVehiclePriorYearForm2555Line50AddBack" /><Dollar>0</Dollar></GreaterOf></Then>
+              </Case>
+              <Case>
+                <When><True /></When>
+                <Then><Dollar>0</Dollar></Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When><IsComplete><Dependency path="/writableCleanVehiclePriorYearPossessionAddBack" /></IsComplete></When>
+                <Then><GreaterOf><Dependency path="/writableCleanVehiclePriorYearPossessionAddBack" /><Dollar>0</Dollar></GreaterOf></Then>
+              </Case>
+              <Case>
+                <When><True /></When>
+                <Then><Dollar>0</Dollar></Then>
+              </Case>
+            </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehiclePriorYearMagiThreshold">
+      <Name>Form 8936 line 5 chart row for the PRIOR year (2024) filing status - the Part II/III limits column</Name>
+      <Description>The line 5 chart threshold the 2024 prong of the both years MAGI test measures against, /newCleanVehicleMagiThreshold answers the same chart for THIS year, off filingStatus:/isFilingStatusMFJ, /isFilingStatusQSS and /isFilingStatusHOH - the 2025 election. That is the wrong chart row for anyone who married, divorced or was widowed during the year, which is precisely the population the prior year prong exists for.
+
+        FALLBACK, NOT A NEW REFUSAL: /writableCleanVehiclePriorYearFilingStatusCode is an optional printed intake, so when it is unanswered this fact resolves to /newCleanVehicleMagiThreshold - exactly today's behaviour - and no return that has never seen the line 5 code question changes value. The five codes are the ones the chart prints: S, MFS, HOH, MFJ, QSS.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></IsComplete>
+                <Any>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>MFJ</String></Right>
+                  </Equal>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>QSS</String></Right>
+                  </Equal>
+                </Any>
+              </All>
+            </When>
+            <Then><Dollar>300000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></IsComplete>
+                <Equal>
+                  <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                  <Right><String>HOH</String></Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dollar>225000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></IsComplete>
+                <Any>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>S</String></Right>
+                  </Equal>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>MFS</String></Right>
+                  </Equal>
+                </Any>
+              </All>
+            </When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/newCleanVehicleMagiThreshold" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehiclePriorYearMagiThreshold">
+      <Name>Form 8936 line 5 chart row for the PRIOR year (2024) filing status - the Part IV limits column</Name>
+      <Description>The line 5 chart threshold the 2024 prong of the both years MAGI test measures against, /usedCleanVehicleMagiThreshold answers the same chart for THIS year, off filingStatus:/isFilingStatusMFJ, /isFilingStatusQSS and /isFilingStatusHOH - the 2025 election. That is the wrong chart row for anyone who married, divorced or was widowed during the year, which is precisely the population the prior year prong exists for.
+
+        FALLBACK, NOT A NEW REFUSAL: /writableCleanVehiclePriorYearFilingStatusCode is an optional printed intake, so when it is unanswered this fact resolves to /usedCleanVehicleMagiThreshold - exactly today's behaviour - and no return that has never seen the line 5 code question changes value. The five codes are the ones the chart prints: S, MFS, HOH, MFJ, QSS.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></IsComplete>
+                <Any>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>MFJ</String></Right>
+                  </Equal>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>QSS</String></Right>
+                  </Equal>
+                </Any>
+              </All>
+            </When>
+            <Then><Dollar>150000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></IsComplete>
+                <Equal>
+                  <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                  <Right><String>HOH</String></Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dollar>112500</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></IsComplete>
+                <Any>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>S</String></Right>
+                  </Equal>
+                  <Equal>
+                    <Left><Dependency path="/writableCleanVehiclePriorYearFilingStatusCode" /></Left>
+                    <Right><String>MFS</String></Right>
+                  </Equal>
+                </Any>
+              </All>
+            </When>
+            <Then><Dollar>75000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dependency path="/usedCleanVehicleMagiThreshold" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/cleanVehiclePlacedInServiceOutsideTaxYear">
+      <Name>The Schedule A line 3 placed-in-service date falls outside 2025</Name>
+      <Description>TRUE when the Schedule A (Form 8936) line 3 date (/writableCleanVehiclePlacedInServiceDate) is answered and falls before January 1, 2025 or after December 31, 2025. The repayment of a transferred credit is an addition to the tax of the year the vehicle was placed in service, so a transfer for a vehicle placed in service in another year is not repaid on this return. FALSE when the date is unanswered or inside 2025. Always complete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/writableCleanVehiclePlacedInServiceDate" /></IsComplete>
+          <Any>
+            <LessThanOrEqual>
+              <Left><Dependency path="/writableCleanVehiclePlacedInServiceDate" /></Left>
+              <Right><Day>2024-12-31</Day></Right>
+            </LessThanOrEqual>
+            <Not>
+              <LessThanOrEqual>
+                <Left><Dependency path="/writableCleanVehiclePlacedInServiceDate" /></Left>
+                <Right><Day>2025-12-31</Day></Right>
+              </LessThanOrEqual>
+            </Not>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCreditRepayment">
+      <Name>Repayment of transferred new clean vehicle credit (Schedule 2 line 1b)</Name>
+      <Description>Schedule 2 (Form 1040) line 1b = the full amount of the transferred NEW clean vehicle
+        credit, repaid when the taxpayer no longer qualifies. Branch-gated on IsComplete(the transferred
+        amount): a return with no transferred new credit takes the else-0 branch without evaluating the MAGI
+        chain. When a transfer exists, the repayment is the transferred amount if the taxpayer is
+        disqualified — either the categorical attestation is true, OR the MAGI test fails (2025 MAGI &gt; the
+        §30D limit AND (2024 MAGI unanswered OR 2024 MAGI &gt; the limit)) — else 0 (the filer still
+        qualifies and keeps the point-of-sale credit).</Description>
+      <Export mef="true" downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/cleanVehiclePlacedInServiceOutsideTaxYear" /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/writableTransferredNewCleanVehicleCredit" /></IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Any>
+                      <All>
+                        <IsComplete><Dependency path="/writableNewCleanVehicleOtherwiseIneligible" /></IsComplete>
+                        <Dependency path="/newCleanVehicleOtherwiseIneligibleCompleteSafe" />
+                      </All>
+                      <All>
+                        <GreaterThan>
+                          <Left><Dependency path="/cleanVehicleCurrentYearMagi" /></Left>
+                          <Right><Dependency path="/newCleanVehicleMagiThreshold" /></Right>
+                        </GreaterThan>
+                        <Any>
+                          <Not>
+                            <IsComplete><Dependency path="/cleanVehiclePriorYearMagi" /></IsComplete>
+                          </Not>
+                          <GreaterThan>
+                            <Left><Dependency path="/cleanVehiclePriorYearMagi" /></Left>
+                            <Right><Dependency path="/newCleanVehiclePriorYearMagiThreshold" /></Right>
+                          </GreaterThan>
+                        </Any>
+                      </All>
+                    </Any>
+                  </When>
+                  <Then>
+                    <GreaterOf><Dependency path="/writableTransferredNewCleanVehicleCredit" /><Dollar>0</Dollar></GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When><True /></When>
+                  <Then><Dollar>0</Dollar></Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCreditRepayment">
+      <Name>Repayment of transferred previously-owned clean vehicle credit (Schedule 2 line 1c)</Name>
+      <Description>Schedule 2 (Form 1040) line 1c = the full amount of the transferred PREVIOUSLY-OWNED
+        clean vehicle credit, repaid when the taxpayer no longer qualifies. Same shape as line 1b: branch-
+        gated on IsComplete(the transferred used amount); when a transfer exists, the repayment is the
+        transferred amount if the used categorical attestation is true OR the §25E MAGI test fails (2025
+        MAGI &gt; the §25E limit AND (2024 MAGI unanswered OR 2024 MAGI &gt; the limit)) — else 0.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="/cleanVehiclePlacedInServiceOutsideTaxYear" /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete><Dependency path="/writableTransferredUsedCleanVehicleCredit" /></IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Any>
+                      <All>
+                        <IsComplete><Dependency path="/writableUsedCleanVehicleOtherwiseIneligible" /></IsComplete>
+                        <Dependency path="/usedCleanVehicleOtherwiseIneligibleCompleteSafe" />
+                      </All>
+                      <All>
+                        <GreaterThan>
+                          <Left><Dependency path="/cleanVehicleCurrentYearMagi" /></Left>
+                          <Right><Dependency path="/usedCleanVehicleMagiThreshold" /></Right>
+                        </GreaterThan>
+                        <Any>
+                          <Not>
+                            <IsComplete><Dependency path="/cleanVehiclePriorYearMagi" /></IsComplete>
+                          </Not>
+                          <GreaterThan>
+                            <Left><Dependency path="/cleanVehiclePriorYearMagi" /></Left>
+                            <Right><Dependency path="/usedCleanVehiclePriorYearMagiThreshold" /></Right>
+                          </GreaterThan>
+                        </Any>
+                      </All>
+                    </Any>
+                  </When>
+                  <Then>
+                    <GreaterOf><Dependency path="/writableTransferredUsedCleanVehicleCredit" /><Dollar>0</Dollar></GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When><True /></When>
+                  <Then><Dollar>0</Dollar></Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableUsedCleanVehicleSalePrice">
+      <Name>Previously-owned clean vehicle sales price (Schedule A (Form 8936) line 14)</Name>
+      <Description>The sales price of the previously-owned clean vehicle — Schedule A (Form 8936)
+        line 14, the base of the 30% credit on line 15. Integer cents; Min 0. Optional — absent
+        means no previously-owned clean vehicle credit is claimed, and /usedCleanVehicleCredit
+        takes its else-0 branch without evaluating anything else.
+
+        THE $25,000 CEILING IS COMPUTED FROM THIS FACT, NOT ATTESTED. Schedule A line 13e ("Is the
+        sales price of the vehicle more than $25,000? Yes. Stop here. The vehicle doesn't qualify
+        for the Part IV credit") reads the same figure this line reads, so asking the taxpayer a
+        second time would let the two answers disagree. tests/nodes/ty2025/form8936/
+        cvc-used-credit-price-at-25000-allows and -price-over-25000-denies are the boundary
+        pair.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableUsedCleanVehicleQualifiesForCredit">
+      <Name>Previously-owned clean vehicle: the taxpayer affirms every non-computable Part IV gate</Name>
+      <Description>TRUE only if the taxpayer affirms ALL of the Schedule A Part IV qualification
+        gates this dictionary cannot derive: line 6 (the VIN belongs to a previously owned clean
+        vehicle acquired after 2022 AND BEFORE OCTOBER 1, 2025 — the OBBBA termination date — and
+        placed in service during the tax year), line 13a (not resold within 30 days of the
+        placed-in-service date), line 13d (no previously-owned clean vehicle credit claimed for
+        another vehicle in the 3-year lookback), line 13f (acquired for use and not for resale, and
+        not leased from another person), and line 13g (the taxpayer cannot be claimed as a
+        dependent on another return).
+
+        TWO SUBSECTION (f) CONDITIONS ARE ALSO AFFIRMED HERE: the taxpayer uses the vehicle
+        primarily in the United States (IRC 30D(f)(4), applied to this credit by IRC 25E(e); the 2025 Instructions for Form 8936 list it
+        among the additional requirements that must be met to qualify for the credit), and no
+        previously owned clean vehicle credit has already been allowed for this VIN (IRC 30D(f)(8), one credit per
+        vehicle, determined by VIN). Neither can be computed on the return; a filer who cannot
+        affirm either answers No.
+
+        UNANSWERED MEANS NO CREDIT, AND THAT IS THE POINT. This is the mirror image of
+        /writableUsedCleanVehicleOtherwiseIneligible, which serves the REPAYMENT direction and is
+        shaped so silence assumes the filer is NOT disqualified (safe for an addition to tax).
+        Re-using that fact here, inverted, would GRANT a credit on silence — the false-allowance
+        this unit exists not to create. A credit needs an affirmative answer; an addition to tax
+        does not.
+
+        Line 13e (sales price over $25,000) is deliberately NOT in this list: it is computed from
+        /writableUsedCleanVehicleSalePrice. Line 13b/13c (the MAGI test) is computed too, by
+        /usedCleanVehicleMagiAllowsCredit.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleTentativeCredit">
+      <Name>New clean vehicle tentative credit amount from the seller's report (Schedule A (Form 8936) line 9)</Name>
+      <Description>Schedule A (Form 8936) line 9, the tentative credit amount for the new clean
+        vehicle. The instructions make this an INPUT rather than a computation: "Tentative credit
+        amounts for new clean vehicles are provided to the purchaser by the seller at the time the
+        vehicle is sold, and later forwarded to the IRS. Generally, this amount will be the maximum
+        credit amount listed in the seller's report for the vehicle." Nothing on the return
+        determines it — the §30D(b) critical-minerals and battery-components halves are certified by
+        the seller — so the taxpayer transcribes it. Integer cents; Min 0. Optional — absent means
+        no new clean vehicle credit is claimed.
+
+        THE $7,500 CEILING IS A STATUTE, NOT A FORM LINE, and the statute
+        is already vendored: IRC 30D(b) — "(b) Per vehicle dollar limitation", whose paragraph (1)
+        makes the per-vehicle amount "the sum of the amounts determined under paragraphs (2) and
+        (3)", and those two paragraphs each print $3,750. $7,500 per vehicle, citable today from
+        26 U.S.C. 30D, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section30D&amp;num=0&amp;edition=2024, so invariant #3 does not stand in the way. An unbounded intake
+        would produce an unbounded nonrefundable credit up to the filer's tax; the used side takes
+        its printed $4,000 ceiling and this side has no reason not to take its statutory one.
+
+        THE CAP IS APPLIED IN TWO PLACES, deliberately, and they are not redundant. This writable
+        carries a Max limit of $7,500, which is the INTAKE constraint — a transcription that exceeds
+        the statutory per-vehicle maximum is not a number Form 8936 can carry. /newCleanVehicleCredit
+        additionally takes a LesserOf against the same figure, which is the COMPUTATION, so the
+        limitation is visible in the credit's own body rather than resting on an intake rule a
+        fixture or an API caller could bypass. tests/nodes/ty2025/form8936/
+        cvc-new-credit-tentative-above-30d-cap-binds is the boundary case: 50,000 in, 7,500 out.
+
+        WHAT IS STILL NOT CHECKED, and named rather than implied: nothing here verifies that a
+        seller's report BELOW $7,500 is right. §30D(b)(2) and (3) each condition their $3,750 on a
+        requirement (critical minerals, battery components) that only the seller certifies, so a
+        vehicle qualifying for one half and not the other is $3,750 and this dictionary takes the
+        filer's transcription for it. The cap bounds the error above; it cannot detect one
+        below.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+        <Limit type="Max">
+          <Dollar>7500</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleBusinessUsePercentage">
+      <Name>Schedule A (Form 8936) line 10, the business or investment use percentage of the new clean vehicle</Name>
+      <Description>Schedule A (Form 8936) line 10, printed "Business/investment use percentage (see
+        instructions)" with the percent sign preprinted beside the box, so this is a WHOLE NUMBER
+        of percent (Int, 0 to 100) and not a rate. It is the legacy single vehicle (scalar) path's
+        copy of that box; the Schedule A copy collection has its own, form8936sa
+        /form8936Vehicles/*/writableBoxf220, and the application must not ask both for one vehicle.
+
+        WHAT IT IS: the 2025 Instructions for Form 8936, Line 10 figure the taxpayer computes by
+        "dividing the number of miles the vehicle was driven during the year for business purposes
+        or for the production of income (not to include any commuting mileage) by the total number
+        of miles the vehicle was driven for all purposes", with the employee use rule (100 percent
+        where the personal use value is in the employees' wages) and the mid year conversion
+        proration in the same instruction. The graph cannot derive any of that: no mileage fact
+        exists in this dictionary.
+
+        OPTIONAL, AND UNANSWERED MEANS WHOLLY PERSONAL. Leaving it blank is the same answer as 0,
+        which is the state every committed return is in, so opening this question changes no
+        existing result. Answering it splits the credit: line 11 (this percentage times the capped
+        line 9) becomes a general business credit on Form 3800 Part III line 1y, and line 12 (line
+        9 minus line 11) stays the personal credit on Schedule 3 line 6f. 100 percent leaves
+        nothing on Schedule 3 line 6f, which is what the printed line 11 routing says:
+        "entered 100% on line 10, stop here. Otherwise, go to Part III below"
+        (https://www.irs.gov/pub/irs-pdf/f8936sa.pdf, page 2).
+
+        IT IS NOT the Form 4562 column (c) percentage, which is a different vehicle's box in a
+        different computation; nothing here reads or writes
+        form4562 /form4562ListedProperties/*/writableBusinessUsePercentage.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>0</Int>
+        </Limit>
+        <Limit type="Max">
+          
+          <Int>100</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleQualifiesForCredit">
+      <Name>New clean vehicle: the taxpayer affirms every non-computable Part II/III gate</Name>
+      <Description>TRUE only if the taxpayer affirms ALL of the Schedule A Part II gates this
+        dictionary cannot derive: line 5 (the VIN belongs to a new clean vehicle ACQUIRED BEFORE
+        OCTOBER 1, 2025 — the OBBBA termination date — and placed in service during the tax year),
+        line 8a (not resold within 30 days of the placed-in-service date), and line 8e (acquired for
+        use or to lease to others, and not for resale, and not leased from another person).
+
+        TWO SUBSECTION (f) CONDITIONS ARE ALSO AFFIRMED HERE: the taxpayer uses the vehicle
+        primarily in the United States (IRC 30D(f)(4); the 2025 Instructions for Form 8936 list it
+        among the additional requirements that must be met to qualify for the credit), and no
+        clean vehicle credit has already been allowed for this VIN (IRC 30D(f)(8), one credit per
+        vehicle, determined by VIN). Neither can be computed on the return; a filer who cannot
+        affirm either answers No.
+
+        form3800 /form3800PartIiiLine1yCredit reads this module's Schedule A line 11
+        (/newCleanVehicleBusinessUsePartOfCredit) and carries it to Schedule 3 line 6a. Line 10 is
+        an optional intake, /writableNewCleanVehicleBusinessUsePercentage, and the credit
+        SPLITS as IRC 30D(c)(1) and (c)(2) say it does - the depreciable share to the general
+        business credit, the rest to Schedule 3 line 6f. A filer who
+        leaves line 10 blank is at 0 percent, wholly personal.
+
+        UNANSWERED MEANS NO CREDIT — see /writableUsedCleanVehicleQualifiesForCredit for why a
+        credit needs an affirmative answer while a repayment does not.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleMagiAllowsCredit">
+      <Name>Previously-owned clean vehicle credit: the MAGI both-years test allows the credit (Schedule A lines 13b/13c)</Name>
+      <Description>TRUE unless MAGI exceeds the §25E limit for BOTH 2024 and 2025 — the printed rule
+        on Form 8936 line 31, routed by Schedule A lines 13b and 13c: if 2025 MAGI is not more than
+        the limit you skip 13c entirely and go on, and only a filer over the limit in 2025 is asked
+        about 2024.
+
+        UNANSWERED 2024 MAGI DENIES, and the direction is deliberate on BOTH sides of this module.
+        /writableCleanVehiclePriorYearMagi is a safe-harbor input the single-year graph cannot
+        derive; the repayment facts read silence as "the prior year also exceeded" so that an
+        unknown lookback never rescues a filer from an addition to tax. The same reading here means
+        an unknown lookback never buys a credit. One convention, conservative in both directions,
+        rather than two readings of one fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <All>
+            <GreaterThan>
+              <Left><Dependency path="/cleanVehicleCurrentYearMagi" /></Left>
+              <Right><Dependency path="/usedCleanVehicleMagiThreshold" /></Right>
+            </GreaterThan>
+            <Any>
+              <Not>
+                <IsComplete><Dependency path="/cleanVehiclePriorYearMagi" /></IsComplete>
+              </Not>
+              <GreaterThan>
+                <Left><Dependency path="/cleanVehiclePriorYearMagi" /></Left>
+                <Right><Dependency path="/usedCleanVehiclePriorYearMagiThreshold" /></Right>
+              </GreaterThan>
+            </Any>
+          </All>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleMagiAllowsCredit">
+      <Name>New clean vehicle credit: the MAGI both-years test allows the credit (Schedule A lines 8c/8d)</Name>
+      <Description>The §30D twin of /usedCleanVehicleMagiAllowsCredit, measured against the
+        "Part II/III Limits" column of the same chart and routed by Schedule A lines 8c/8d instead of
+        13b/13c. Same both-years rule, same unanswered-denies reading.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <All>
+            <GreaterThan>
+              <Left><Dependency path="/cleanVehicleCurrentYearMagi" /></Left>
+              <Right><Dependency path="/newCleanVehicleMagiThreshold" /></Right>
+            </GreaterThan>
+            <Any>
+              <Not>
+                <IsComplete><Dependency path="/cleanVehiclePriorYearMagi" /></IsComplete>
+              </Not>
+              <GreaterThan>
+                <Left><Dependency path="/cleanVehiclePriorYearMagi" /></Left>
+                <Right><Dependency path="/newCleanVehiclePriorYearMagiThreshold" /></Right>
+              </GreaterThan>
+            </Any>
+          </All>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/acquisitionAndServiceDateQualifies">
+      <Name>This additional vehicle meets the §30D acquisition cutoff and 2025 placed-in-service year</Name>
+      <Description>Schedule A line 5's per-vehicle timing gate: the acquisition date is no later than
+        September 30, 2025, and the placed-in-service date falls in 2025. The acquisition date is
+        the binding-contract-plus-payment date defined in the Form 8936 instructions. Each input is
+        required; this derived Boolean is read only after the candidate checks both dates are
+        complete. September 30 is included and October 1 is excluded.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writableAcquisitionDate" /></IsComplete>
+          <LessThanOrEqual>
+            <Left><Dependency path="../writableAcquisitionDate" /></Left>
+            <Right><Day>2025-09-30</Day></Right>
+          </LessThanOrEqual>
+          <IsComplete><Dependency path="../writablePlacedInServiceDate" /></IsComplete>
+          <GreaterThanOrEqual>
+            <Left><Dependency path="../writablePlacedInServiceDate" /></Left>
+            <Right><Day>2025-01-01</Day></Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left><Dependency path="../writablePlacedInServiceDate" /></Left>
+            <Right><Day>2025-12-31</Day></Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/vinIsValidAndUnique">
+      <Name>This additional new vehicle has a valid VIN used for one credit only</Name>
+      <Description>The additional vehicle's VIN must be exactly 17 valid uppercase VIN
+        characters, appear once across the additional-new-vehicle records, and differ from the
+        primary Schedule A VIN when that VIN is answered. When a legacy clean-vehicle amount or
+        transfer is entered, the primary Schedule A VIN is required before an additional vehicle
+        can be claimed. A malformed or duplicate VIN leaves this item's candidate Incomplete;
+        it is never silently treated as a zero-credit vehicle.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writableVin" /></IsComplete>
+          <Equal>
+            <Left><Length><Dependency path="../writableVin" /></Length></Left>
+            <Right><Int>17</Int></Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Count>
+                <Equal>
+                  <Left><Dependency path="../writableVin" /></Left>
+                  <Right><Dependency path="/additionalNewCleanVehicles/*/writableVin" /></Right>
+                </Equal>
+              </Count>
+            </Left>
+            <Right><Int>1</Int></Right>
+          </Equal>
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/writableCleanVehicleVin" /></IsComplete>
+              <Equal>
+                <Left><ToUpper><Dependency path="../writableVin" /></ToUpper></Left>
+                <Right><ToUpper><Dependency path="/writableCleanVehicleVin" /></ToUpper></Right>
+              </Equal>
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <Any>
+                <All>
+                  <IsComplete><Dependency path="/writableNewCleanVehicleTentativeCredit" /></IsComplete>
+                  <GreaterThan>
+                    <Left><Dependency path="/writableNewCleanVehicleTentativeCredit" /></Left>
+                    <Right><Dollar>0</Dollar></Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete><Dependency path="/writableTransferredNewCleanVehicleCredit" /></IsComplete>
+                  <GreaterThan>
+                    <Left><Dependency path="/writableTransferredNewCleanVehicleCredit" /></Left>
+                    <Right><Dollar>0</Dollar></Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete><Dependency path="/writableUsedCleanVehicleSalePrice" /></IsComplete>
+                  <GreaterThan>
+                    <Left><Dependency path="/writableUsedCleanVehicleSalePrice" /></Left>
+                    <Right><Dollar>0</Dollar></Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete><Dependency path="/writableTransferredUsedCleanVehicleCredit" /></IsComplete>
+                  <GreaterThan>
+                    <Left><Dependency path="/writableTransferredUsedCleanVehicleCredit" /></Left>
+                    <Right><Dollar>0</Dollar></Right>
+                  </GreaterThan>
+                </All>
+              </Any>
+              <Not><IsComplete><Dependency path="/writableCleanVehicleVin" /></IsComplete></Not>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/personalUseCreditCandidate">
+      <Name>Additional new vehicle's capped personal-use credit before the taxpayer-level tax limit</Name>
+      <Description>The amount this distinct additional new vehicle contributes to Form 8936 line 9:
+        zero unless its VIN and required dates are answered, its non-computable personal-credit
+        attestation is Yes, its acquisition/service dates qualify, it passes the shared §30D MAGI
+        test, and it was not transferred to the dealer. Otherwise the contribution is the lesser of
+        that vehicle's seller-reported Schedule A line 9 amount or the §30D $7,500 per-vehicle cap.
+        Required item omissions remain Incomplete. A positive transfer is not also claimed at line
+        6f. The candidate does not apply the taxpayer's §26 tax limit; the aggregate does that once
+        after all per-vehicle caps are summed.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableVin" /></IsComplete>
+                <Equal>
+                  <Left><Length><Dependency path="../writableVin" /></Length></Left>
+                  <Right><Int>17</Int></Right>
+                </Equal>
+                <IsComplete><Dependency path="../vinIsValidAndUnique" /></IsComplete>
+                <Dependency path="../vinIsValidAndUnique" />
+                <IsComplete><Dependency path="../writableAcquisitionDate" /></IsComplete>
+                <IsComplete><Dependency path="../writablePlacedInServiceDate" /></IsComplete>
+                <IsComplete><Dependency path="../writableQualifiesForPersonalCredit" /></IsComplete>
+                <IsComplete><Dependency path="../writableTentativeCredit" /></IsComplete>
+                <IsComplete><Dependency path="../writableTransferredCredit" /></IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../writableTentativeCredit" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThanOrEqual>
+                <Dependency path="../writableQualifiesForPersonalCredit" />
+                <Dependency path="../acquisitionAndServiceDateQualifies" />
+                <IsComplete><Dependency path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+                <Dependency path="/newCleanVehicleMagiAllowsCredit" />
+                <Equal>
+                  <Left><Dependency path="../writableTransferredCredit" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="../writableTentativeCredit" />
+                <Dollar>7500</Dollar>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableVin" /></IsComplete>
+                <IsComplete><Dependency path="../writableAcquisitionDate" /></IsComplete>
+                <IsComplete><Dependency path="../writablePlacedInServiceDate" /></IsComplete>
+                <IsComplete><Dependency path="../writableQualifiesForPersonalCredit" /></IsComplete>
+                <IsComplete><Dependency path="../writableTentativeCredit" /></IsComplete>
+                <IsComplete><Dependency path="../writableTransferredCredit" /></IsComplete>
+                <IsComplete><Dependency path="../vinIsValidAndUnique" /></IsComplete>
+                <Dependency path="../vinIsValidAndUnique" />
+                <Any>
+                  <Not>
+                    <Equal>
+                      <Left><Length><Dependency path="../writableVin" /></Length></Left>
+                      <Right><Int>17</Int></Right>
+                    </Equal>
+                  </Not>
+                  <Not><Dependency path="../writableQualifiesForPersonalCredit" /></Not>
+                  <Not><Dependency path="../acquisitionAndServiceDateQualifies" /></Not>
+                  <Not>
+                    <GreaterThanOrEqual>
+                      <Left><Dependency path="../writableTentativeCredit" /></Left>
+                      <Right><Dollar>0</Dollar></Right>
+                    </GreaterThanOrEqual>
+                  </Not>
+                  <All>
+                    <IsComplete><Dependency path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+                    <Not><Dependency path="/newCleanVehicleMagiAllowsCredit" /></Not>
+                  </All>
+                  <All>
+                    <IsComplete><Dependency path="../writableTransferredCredit" /></IsComplete>
+                    <GreaterThan>
+                      <Left><Dependency path="../writableTransferredCredit" /></Left>
+                      <Right><Dollar>0</Dollar></Right>
+                    </GreaterThan>
+                  </All>
+                </Any>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehiclesCreditCandidateSum">
+      <Name>Sum of additional new-vehicle per-VIN candidates before the Form 8936 tax limit</Name>
+      <Description>Complete-safe zero when the additional-new-vehicle collection is unanswered or
+        empty. Once the collection is opened, every vehicle candidate must resolve; one incomplete
+        vehicle leaves the aggregate incomplete rather than dropping that vehicle. Each candidate
+        has already applied its own $7,500 statutory cap.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/additionalNewCleanVehicles" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/additionalNewCleanVehicles/*/personalUseCreditCandidate" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleVinOnReturnCondition">
+      <Name>The Schedule A line 2 VIN is on the return (condition of the legacy clean vehicle credits)</Name>
+      <Description>$0 when the Schedule A (Form 8936) line 2 VIN (/writableCleanVehicleVin) is answered, and Incomplete when it is not. Added to the computed amount of /newCleanVehiclePrimaryCreditBeforeTaxLimit and /usedCleanVehicleTentativeCreditAmount, so a return that claims either credit without a VIN is disclosed as unfinished instead of computing a credit the law does not allow. A transfer-only return (no credit claimed) never reaches it, and the repayment of a transferred credit does not read it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableCleanVehicleVin" /></IsComplete></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehiclePrimaryCreditBeforeTaxLimit">
+      <Name>Legacy root new vehicle's personal-use credit before the taxpayer-level tax limit</Name>
+      <Description>The legacy root writables continue to model at most one new vehicle, with that
+        vehicle's statutory $7,500 cap applied before it is added to the collection of additional
+        per-VIN amounts. Kept separate so old single-vehicle inputs and expected results remain
+        unchanged.
+
+        THIS IS SCHEDULE A LINE 12, THE PERSONAL HALF, AND IT SUBTRACTS LINE 11. The capped
+        line 9 less /newCleanVehicleBusinessUsePartOfCredit
+        is exactly the printed "Subtract line 11 from line 9 in Part II", and it foots with the
+        business half against the same capped base, so the two cannot claim the same dollar twice.
+        Every gate in this arm's When is also a gate of line 11, so the subtrahend resolves
+        wherever this arm is taken, and on a return that never answers the new line 10 intake the
+        subtrahend is $0 and this fact is the number it has always been.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableNewCleanVehicleTentativeCredit" /></IsComplete>
+                <IsComplete><Dependency path="/writableNewCleanVehicleQualifiesForCredit" /></IsComplete>
+                <Dependency path="/newCleanVehicleQualifiesForCreditCompleteSafe" />
+                <Dependency path="/newCleanVehicleMagiAllowsCredit" />
+                <Not>
+                  <All>
+                    <IsComplete><Dependency path="/writableTransferredNewCleanVehicleCredit" /></IsComplete>
+                    <GreaterThan>
+                      <Left><Dependency path="/newCleanVehicleTransferredCreditCompleteSafeForComparison" /></Left>
+                      <Right><Dollar>0</Dollar></Right>
+                    </GreaterThan>
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Add>
+              <Subtract>
+                <Minuend>
+                  <LesserOf>
+                    <GreaterOf><Dependency path="/writableNewCleanVehicleTentativeCredit" /><Dollar>0</Dollar> </GreaterOf>
+                    <Dollar>7500</Dollar>
+                  </LesserOf>
+                </Minuend>
+                <Subtrahends>
+                  <Dependency path="/newCleanVehicleBusinessUsePartOfCredit" />
+                </Subtrahends>
+              </Subtract>
+              <Dependency path="/cleanVehicleVinOnReturnCondition" />
+              </Add>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit">
+      <Name>New clean vehicle personal-use credits before the Form 8936 line 12 tax limit</Name>
+      <Description>The sum of the capped legacy root vehicle candidate and every additional vehicle's
+        individually capped candidate. This is the aggregate Schedule A line 12 amount that Form
+        8936 line 9 carries into the shared taxpayer-level line 12 tax limit.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/newCleanVehiclePrimaryCreditBeforeTaxLimit" />
+          <Dependency path="/additionalNewCleanVehiclesCreditCandidateSum" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleTentativeCreditAmount">
+      <Name>Previously-owned clean vehicle credit amount before the tax-liability limit (Schedule A (Form 8936) line 17)</Name>
+      <Description>Schedule A (Form 8936) line 17 = the smaller of line 15 (30% of the sales price)
+        and line 16 (the printed $4,000 maximum vehicle credit amount), and 0 unless every Part IV
+        gate is satisfied: the affirmative attestation, the MAGI both-years test, and the printed
+        line-13e ceiling that the sales price is not more than $25,000.
+
+        THE $25,000 TEST IS "MORE THAN", NOT "AT LEAST" — a vehicle sold for exactly $25,000
+        qualifies, and tests/nodes/ty2025/form8936/cvc-used-credit-price-at-25000-allows and
+        -price-over-25000-denies are the pair that pins it.
+
+        Whole-dollar HALF_UP rounding on the 30% product (this dictionary's standard rounding convention); the $4,000 cap
+        is exact.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableUsedCleanVehicleSalePrice" /></IsComplete>
+                <IsComplete><Dependency path="/writableUsedCleanVehicleQualifiesForCredit" /></IsComplete>
+                <Dependency path="/usedCleanVehicleQualifiesForCreditCompleteSafe" />
+                <Not>
+                  <GreaterThan>
+                    <Left><Dependency path="/usedCleanVehicleSalePriceCompleteSafeForComparison" /></Left>
+                    <Right><Dollar>25000</Dollar></Right>
+                  </GreaterThan>
+                </Not>
+                <Dependency path="/usedCleanVehicleMagiAllowsCredit" />
+              </All>
+            </When>
+            <Then>
+              <Add>
+              <LesserOf>
+                <Round>
+                  <Multiply>
+                    <Rational>3/10</Rational>
+                    <GreaterOf><Dependency path="/writableUsedCleanVehicleSalePrice" /><Dollar>0</Dollar> </GreaterOf>
+                  </Multiply>
+                </Round>
+                <Dollar>4000</Dollar>
+              </LesserOf>
+              <Dependency path="/cleanVehicleVinOnReturnCondition" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8936CreditsOrderedBeforeUsedCredit">
+      <Name>Personal credits ahead of the previously-owned clean vehicle credit (Form 8936 line 16)</Name>
+      <Description>Form 8936 line 16, whose instruction is "Enter the total, if any, credits from
+        Schedule 3 (Form 1040), lines 1 through 4, 5b, 6d, and 6I" — seven terms: the foreign tax
+        credit (line 1), the child and dependent care credit (line 2), the nonrefundable education
+        credits (line 3), the retirement savings contributions credit (line 4), the energy efficient
+        home improvement credit (line 5b), the credit for the elderly or the disabled (line 6d), and
+        the Form 8978 line-14 amount (line 6l, printed "6I" in the extraction).
+
+        NOTHING ELSE IS ON THE LIST, and the omissions are what make this acyclic: no CTC, no 5a,
+        no 6c, no 6f, no 6g, no 6h. Each of those is figured AFTER this credit and subtracts 6m in
+        its own limit worksheet (ctcOdc Credit Limit Worksheet A line 2 names 6f and 6m by
+        name). Non-circular, checked rather than assumed: none of the seven terms depends on
+        /sched3Line6f or /sched3Line6m (their only consumers are
+        Schedule 3 line 7, the ctcOdc Worksheet A line-2 sum, and the Form 5695 Part I / 8396 /
+        8839 limit worksheets, none of which is upstream of a term here).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/sched3Line1" />
+          <Dependency module="cdcc" path="/cdccTotalCredit" />
+          <Dependency module="schedule3" path="/sched3Line3" />
+          <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+          <Dependency module="schedule3" path="/sched3Line5b" />
+          <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+          <Dependency module="schedule3" path="/sched3Line6l" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCreditTaxLiabilityLimit">
+      <Name>Tax liability limit for the previously-owned clean vehicle credit (Form 8936 line 17)</Name>
+      <Description>Form 8936 line 17 = line 15 (Form 1040 line 18, taxCalculations
+        /totalTentativeTax) minus line 16 (/form8936CreditsOrderedBeforeUsedCredit), floored at 0:
+        "Subtract line 16 from line 15. If zero or less, enter -0- and stop here. You can't claim
+        the Part IV credit."</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8936CreditsOrderedBeforeUsedCredit" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCredit">
+      <Name>Credit for previously owned clean vehicles (Form 8936 line 18 → Schedule 3 line 6m)</Name>
+      <Description>Form 8936 line 18 = the smaller of line 14 (the Schedule A Part IV credit amount,
+        /usedCleanVehicleTentativeCreditAmount) and line 17 (the tax liability limit), "here and on
+        Schedule 3 (Form 1040), line 6m". Nonrefundable and NOT carried forward — "If you cannot use
+        part of the credit because of the tax liability limit, the unused credit is lost. The unused
+        credit cannot be carried back or forward to other tax years" — which is why the LesserOf is
+        the whole of the rule and no carryforward fact exists.
+
+        NOT CLAIMABLE ON A TRANSFERRED CREDIT. Schedule A line 13b routes a filer who transferred
+        the credit to the dealer away from line 13d and out of Part IV ("If you transferred the
+        credit amount to the dealer at the time of sale, stop here and see instructions"); that
+        filer's money already came off the purchase price and this module's
+        /usedCleanVehicleCreditRepayment owns their return.
+        AN ANSWERED ZERO IS NOT A TRANSFER: the gate denies only on an ANSWERED POSITIVE
+        transfer. tests/nodes/ty2025/form8936/cvc-new-credit-transferred-not-claimed-again pins the
+        positive case on the new-side twin and
+        tests/nodes/ty2025/form8936/cvc-new-credit-transfer-answered-zero-still-claims pins the
+        zero.
+
+        COMPLETE-SAFE by branch gate: with no sales price answered the else-0 branch is taken
+        without evaluating the limit chain (a branch-gate pattern used elsewhere in this
+        dictionary), so every committed scenario keeps
+        /sched3Line6m at Complete 0.00.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableUsedCleanVehicleSalePrice" /></IsComplete>
+                <Not>
+                  <All>
+                    <IsComplete><Dependency path="/writableTransferredUsedCleanVehicleCredit" /></IsComplete>
+                    <GreaterThan>
+                      <Left><Dependency path="/writableTransferredUsedCleanVehicleCredit" /></Left>
+                      <Right><Dollar>0</Dollar></Right>
+                    </GreaterThan>
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/usedCleanVehicleTentativeCreditAmount" />
+                <Dependency path="/usedCleanVehicleCreditTaxLiabilityLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8936CreditsOrderedBeforeNewCredit">
+      <Name>Personal credits ahead of the new clean vehicle credit (Form 8936 line 11)</Name>
+      <Description>Form 8936 line 11, whose instruction is "Enter the total, if any, credits from
+        Schedule 3 (Form 1040), lines 1 through 4, 5b, 6d, 6I, and 6m" — the line-16 list PLUS the
+        previously-owned clean vehicle credit at line 6m. That single extra term is the printed
+        proof that 6m is figured BEFORE 6f, and it is what
+        tests/nodes/ty2025/form8936/cvc-used-credit-ordered-ahead-of-new-credit exercises: on a
+        return whose tax capacity is smaller than the two credits together, the used credit takes
+        it and the new credit gets what is left.
+
+        The 6m term reads /usedCleanVehicleCredit directly rather than schedule3:/sched3Line6m,
+        which is that fact's only body — the same number, one hop shorter, and it keeps the ordering
+        inside the module that owns it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8936CreditsOrderedBeforeUsedCredit" />
+          <Dependency path="/usedCleanVehicleCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCreditTaxLiabilityLimit">
+      <Name>Tax liability limit for the personal-use part of the new clean vehicle credit (Form 8936 line 12)</Name>
+      <Description>Form 8936 line 12 = line 10 (Form 1040 line 18, taxCalculations
+        /totalTentativeTax) minus line 11 (/form8936CreditsOrderedBeforeNewCredit), floored at 0:
+        "Subtract line 11 from line 10. If zero or less, enter -0- and stop here. You can't claim the
+        personal use part of the credit."</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8936CreditsOrderedBeforeNewCredit" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCredit">
+      <Name>Clean vehicle credit, personal use part (Form 8936 line 13 → Schedule 3 line 6f)</Name>
+      <Description>Form 8936 line 13 = the smaller of line 9 (the total personal-use amount for the
+        new vehicles) and line 12 (the taxpayer-level tax-liability limit), "here and on Schedule 3
+        (Form 1040), line 6f". The candidate sum keeps the legacy root input as one vehicle and adds
+        every additional vehicle's Schedule A line-12 amount by its own VIN. Each vehicle's §30D(b)
+        $7,500 cap is applied before the sum; the line-12 liability limit is applied ONCE to that
+        aggregate, after the used credit at line 6m has consumed its printed priority. Nonrefundable
+        and NOT carried forward — any unused personal-use credit is lost.
+
+        This direct Schedule 3 path carries the PERSONAL half, which is what Schedule A line 12 is:
+        the legacy root vehicle's candidate
+        SUBTRACTS its Schedule A line 11 business/investment share, and that share goes to Form
+        3800 Part III line 1y rather than being denied. A vehicle on the
+        /additionalNewCleanVehicles collection is still wholly personal - that collection has no
+        line 10 of its own. A positive dealer transfer excludes that vehicle; an answered $0 transfer
+        still qualifies because only a positive transfer is a transfer. The multi-vehicle new-credit
+        collection requires VIN, dates, the seller amount and an affirmative qualification answer on
+        every opened item. Dates are checked per vehicle: acquisition on 2025-09-30 qualifies and
+        2025-10-01 does not. If an opened record is incomplete, this total stays Incomplete rather
+        than silently dropping the vehicle. An unanswered or empty collection adds a complete-safe
+        $0 and preserves the legacy single-vehicle route.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit" />
+                <Dependency path="/newCleanVehicleCreditTaxLiabilityLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit" /></IsComplete>
+                <Not>
+                  <GreaterThan>
+                    <Left><Dependency path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit" /></Left>
+                    <Right><Dollar>0</Dollar></Right>
+                  </GreaterThan>
+                </Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalCleanVehicleCreditRepayment">
+      <Name>Total transferred clean vehicle credit repaid (Schedule 2 lines 1b + 1c)</Name>
+      <Description>The sum of the new (line 1b) and previously-owned (line 1c) clean vehicle credit
+        repayments — the amount this unit adds to Schedule 2 line 1z. Complete-safe 0 on any return with no
+        transferred credit.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/newCleanVehicleCreditRepayment" />
+          <Dependency path="/usedCleanVehicleCreditRepayment" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/cleanVehicleCreditNotTransferredToDealer">
+      <Name>The credit was not transferred to the dealer at the time of sale (line 4a, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 4a: the negation of /cleanVehicleCreditTransferredToDealer, which the printed form routes on to line 5.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/cleanVehicleCreditTransferredToDealer" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleCreditTransferredToDealer">
+      <Name>The credit was transferred to the dealer at the time of sale (line 4a, Yes)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 4a: a transfer exists for this vehicle, which the graph reads as a positive line 4a amount. An ANSWERED ZERO IS NOT A TRANSFER, the same reading /newCleanVehicleCredit already applies to the transfer writables: a filer who answers $0.00 at the transfer question transferred nothing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+                <Dependency path="/transferredCleanVehicleCreditThisVehicle" />
+          </Left>
+          <Right>
+                <Dependency path="/scheduleACleanVehicleZeroDollars" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleCurrentYearAgi">
+      <Name>Form 8936 line 1a, the 2025 adjusted gross income the clean vehicle MAGI starts from</Name>
+      <Description>Form 8936 line 1a, printed “Enter the amount from line 11a of your 2025 Form 1040, 1040-SR, or 1040-NR” — the first term of the Part I MAGI addition. It is taxCalculations:/agi, the very fact this module's /cleanVehicleCurrentYearMagi already rounds as the first term of line 2, and the same fact IRS1040 prints at line 11a (f1_75[0]) and line 11b (f2_01[0]). /agi is whole dollar in the manifest, so the alias and the Round inside line 2 print the identical figure and the printed column foots. PRINT ONLY: line 2 already consumes /agi, so nothing new needs to read this fact; it exists to give the printed 1a cell a fact of its own instead of leaving it blank on a filed form.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="taxCalculations" path="/agi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleFilerCannotBeClaimedAsDependent">
+      <Name>No filer on the return can be claimed as a dependent (Schedule A (Form 8936) line 13g, No box)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 13g, "Can you be claimed as a dependent on another person's tax return, such as your parent's return?". The Yes box is the shipping fact filers:/eitherFilerCanBeClaimed, so this No box is its negation and no second attestation is collected. Taken across the return: on a joint return either spouse being claimable bars the previously owned clean vehicle credit, which is the conservative reading of IRC 25E(c)(3)(C). WHEN /eitherFilerCanBeClaimed IS INCOMPLETE, BOTH BOXES STAY BLANK. That happens when the return has a secondary filer whose canBeClaimed answer is not yet given; the schedule then prints neither box, which is the honest rendering of an unanswered question rather than a guessed No.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency module="filers" path="/eitherFilerCanBeClaimed" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleIsNotNewCleanVehicle">
+      <Name>The VIN on line 2 does not belong to a new clean vehicle (Schedule A (Form 8936) line 5, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 5: the negation of /writableCleanVehicleIsNewCleanVehicle, which the printed form routes on to line 6.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCleanVehicleIsNewCleanVehicle" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleIsNotPreviouslyOwnedCleanVehicle">
+      <Name>The VIN on line 2 does not belong to a previously owned clean vehicle (line 6, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 6: the negation of /writableCleanVehicleIsPreviouslyOwnedCleanVehicle, which the printed form routes on to line 7.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCleanVehicleIsPreviouslyOwnedCleanVehicle" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleIsNotQualifiedCommercial">
+      <Name>The VIN on line 2 does not belong to a qualified commercial clean vehicle (line 7, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 7: the negation of /writableCleanVehicleIsQualifiedCommercial. The printed form stops the schedule here, because a vehicle described on none of lines 5, 6 and 7 has no credit amount to figure.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCleanVehicleIsQualifiedCommercial" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleMagiForm2555Line45AddBack">
+      <Name>Form 8936 line 1c, the Form 2555 line 45 exclusion added back to 2025 MAGI</Name>
+      <Description>Form 8936 line 1c, printed “Enter any amount from Form 2555, line 45”. Line 2 consumes the PAIR of Form 2555 lines 45 and 50 through ctcOdc:/sched8812Line2bForm2555Exclusions, which is form2555 /form2555Lines45And50ForeignEarnedIncomeTaxWorksheetLine2a gated on form2555 /filesForm2555ForeignEarnedIncomeExclusion and $0 otherwise. Form 8936 prints the two amounts on separate rows, so this fact splits that pair back into its line 45 half and REPEATS THE SAME GATE deliberately: an ungated read would print an add back on a return whose AGI never carried the exclusion out, and 1c + 1d would then not foot to the line 2 total. Signed, with no floor, exactly as form2555 /form2555Line45ExclusionsNetOfAllocableDeductions is: line 45 prints no “if zero or less” instruction and a line 44 larger than line 43 carries a negative. PRINT ONLY. This fact is a direct alias of schedule1A:/schedule1ALine2bForm2555Line45Exclusions (Schedule 1-A line 2b, the same gated Form 2555 line 45 amount), which already computes the identical quantity.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="schedule1A" path="/schedule1ALine2bForm2555Line45Exclusions" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleMagiForm2555Line50AddBack">
+      <Name>Form 8936 line 1d, the Form 2555 line 50 housing deduction added back to 2025 MAGI</Name>
+      <Description>Form 8936 line 1d, printed “Enter any amount from Form 2555, line 50” — the housing DEDUCTION half of the pair line 2 consumes through ctcOdc:/sched8812Line2bForm2555Exclusions. Same gate as its line 45 twin and for the same reason: the two halves must foot to the single line 2 term. form2555 /form2555Line50HousingDeduction is itself complete safe ($0 when unanswered), so this fact resolves on every return. PRINT ONLY. This fact is a direct alias of schedule1A:/schedule1ALine2cForm2555Line50HousingDeduction (Schedule 1-A line 2c, the same gated Form 2555 line 50 amount), which already computes the identical quantity.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="schedule1A" path="/schedule1ALine2cForm2555Line50HousingDeduction" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleMagiPossessionAddBack">
+      <Name>Form 8936 line 1e, the Form 4563 line 15 possession exclusion added back to 2025 MAGI</Name>
+      <Description>Form 8936 line 1e, printed “Enter any amount from Form 4563, line 15” — the section 931 American Samoa add back term of the Part I MAGI addition. It is ctcOdc:/possessionIncomeExclusion931, the fourth term of this module's /cleanVehicleCurrentYearMagi (line 2), derived and complete safe. PRINT ONLY: line 2 already consumes the same fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="ctcOdc" path="/possessionIncomeExclusion931" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleMagiPuertoRicoAddBack">
+      <Name>Form 8936 line 1b, the excluded Puerto Rico income added back to 2025 MAGI</Name>
+      <Description>Form 8936 line 1b, printed “Enter any income from Puerto Rico you excluded” — the section 933 add back term of the Part I MAGI addition. It is ctcOdc:/puertoRicoIncomeExclusion933, the second term of this module's /cleanVehicleCurrentYearMagi (line 2). That fact is derived and complete safe ($0 when the filer is never asked), so this alias is complete on every return. PRINT ONLY: line 2 already consumes the same fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="ctcOdc" path="/puertoRicoIncomeExclusion933" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleNotResoldWithin30Days">
+      <Name>The vehicle was not resold within 30 days of the placed in service date (8a and 13a, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) lines 8a and 13a: the negation of /writableCleanVehicleResoldWithin30Days, which the printed form routes on to line 8b or line 13b.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCleanVehicleResoldWithin30Days" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleTransferredCreditMustBeRepaid">
+      <Name>The transferred clean vehicle credit must be repaid (Schedule A (Form 8936) line 4b)</Name>
+      <Description>The line 4b box, which a filer who transferred the credit checks when line 8a, 8d, 13a or 13c directs them to: the transferred amount is no longer allowed and is repaid on Schedule 2 (Form 1040) line 1b or 1c. The graph already computes exactly that outcome, so the box reads /totalCleanVehicleCreditRepayment rather than re asking. BROADER THAN THE FOUR PRINTED REFERENCES, and named rather than hidden: the repayment facts are disqualified by the collapsed categorical attestations, which fold in lines 8e, 13d, 13e and 13g as well as the resale and MAGI grounds the four references name. Every ground that fires here is a ground the printed schedule also stops on, and a filer stopped on one of them who transferred the credit does owe the repayment; the box is checked on the graph's own answer to the question line 4b asks.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+                <Dependency path="/totalCleanVehicleCreditRepayment" />
+          </Left>
+          <Right>
+                <Dependency path="/scheduleACleanVehicleZeroDollars" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8936TaxBeforeCredits">
+      <Name>Form 8936 lines 10 and 15, the Form 1040 line 18 tax the clean vehicle credits are limited by</Name>
+      <Description>Form 8936 lines 10 and 15, both printed “Enter the amount from Form 1040, 1040-SR, or 1040-NR, line 18” — one row in Part III for the new clean vehicle credit, one in Part IV for the previously owned credit, and the SAME figure on both: taxCalculations:/totalTentativeTax, which IRS1040 prints at line 18 (f2_10[0]). This module already reads that fact twice: /newCleanVehicleCreditTaxLiabilityLimit (line 12) and /usedCleanVehicleCreditTaxLiabilityLimit (line 17) each subtract their ordering sum from it. One alias serves both printed cells, exactly as IRS1040 maps /agi to both its line 11a and line 11b boxes. PRINT ONLY: the two limit facts already consume /totalTentativeTax.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="taxCalculations" path="/totalTentativeTax" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleBusinessUsePartOfCredit">
+      <Name>Business or investment use part of the new clean vehicle credit (line 11)</Name>
+      <Description>Schedule A (Form 8936) line 11, the capped line 9 tentative credit multiplied by
+        the line 10 business and investment use percentage, which the printed form routes to Form
+        8936 Part II line 6, then line 8, then Form 3800, Part III, line 1y.
+        form3800 /form3800PartIiiLine1yCredit takes this
+        fact as its first addend whenever the Schedule A copy collection is absent. IRC 30D(c)(1) and (c)(2) SPLIT the credit between the section 38(b) business credit
+        and the subpart A personal credit; neither half is denied.
+
+        COMPLETE SAFE, AND THE ORDER OF THE ARMS IS THE PROOF. The percentage question is optional
+        and brand new, so the FIRST arm is the one every return in the tree takes: line 10
+        unanswered resolves $0 without reading the attestation, the MAGI test or anything else, and
+        an unanswered line 9 does the same. Only a return that has ANSWERED line 10 reaches the
+        gates, so no existing fixture can be made Incomplete by this fact.
+
+        THE GATES ARE THE PERSONAL SIDE'S GATES, deliberately. The printed schedule stops a filer
+        at line 5, 8a, 8d or 8e before they ever reach line 10, so a return that fails the
+        collapsed attestation or the both years MAGI test has NO line 11 amount either, and the
+        business half must not escape a limit the personal half obeys. A transferred credit is
+        likewise $0 on both sides. A computed line 11 also needs the Schedule A line 2 VIN on the
+        return, as line 12 does (IRC 30D(f)(9) allows no credit under the section without it): with
+        the VIN unanswered this line is Incomplete, not a credit. An attested filer whose MAGI cannot be decided leaves this line
+        Incomplete rather than $0, exactly as /newCleanVehiclePrimaryCreditBeforeTaxLimit does.
+
+        THE BASE IS THE CAPPED LINE 9, so line 11 and line 12 foot to the same number the section
+        30D(b) per vehicle ceiling allows, and 100 percent business use leaves line 12 at $0.
+
+        PER VEHICLE RESIDUAL, NAMED RATHER THAN SILENT: the /additionalNewCleanVehicles collection
+        on this module has no percentage of its own and is still wholly personal, because form3800
+        line 1y reads only this scalar fact and a per item aggregate would have no consumer. A
+        filer with business use on a SECOND vehicle belongs on the Schedule A copy collection,
+        whose own line 10 and line 11 boxes are form8936sa /form8936Vehicles/*/writableBoxf220 and
+        writableBoxf230.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableNewCleanVehicleBusinessUsePercentage" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableNewCleanVehicleTentativeCredit" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete><Dependency path="/writableNewCleanVehicleQualifiesForCredit" /></IsComplete>
+                  <Dependency path="/writableNewCleanVehicleQualifiesForCredit" />
+                </All>
+              </Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/newCleanVehicleMagiAllowsCredit" />
+                <Not>
+                  <All>
+                    <IsComplete><Dependency path="/writableTransferredNewCleanVehicleCredit" /></IsComplete>
+                    <GreaterThan>
+                      <Left><Dependency path="/newCleanVehicleTransferredCreditCompleteSafeForComparison" /></Left>
+                      <Right><Dollar>0</Dollar></Right>
+                    </GreaterThan>
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Add>
+              <Dependency path="/cleanVehicleVinOnReturnCondition" />
+              <Round>
+                <Multiply>
+                  <LesserOf>
+                    <GreaterOf><Dependency path="/writableNewCleanVehicleTentativeCredit" /><Dollar>0</Dollar> </GreaterOf>
+                    <Dollar>7500</Dollar>
+                  </LesserOf>
+                  <Divide>
+                    <Dividend>
+                      <Dependency path="/newCleanVehicleBusinessUsePercentage" />
+                    </Dividend>
+                    <Divisors>
+                      
+                      <Int>100</Int>
+                    </Divisors>
+                  </Divide>
+                </Multiply>
+              </Round>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleBusinessUsePercentage">
+      <Name>Business or investment use percentage of the new clean vehicle (line 10)</Name>
+      <Description>Schedule A (Form 8936) line 10, the business and investment use percentage of
+        the vehicle on this module's legacy single vehicle (scalar) path: the filer's
+        /writableNewCleanVehicleBusinessUsePercentage where they have answered it, and 0 percent
+        where they have not. THE STRUCTURAL 0 IS GONE and its stated reason was stale: it read
+        "because Form 3800 is deferred by this module's own scope ledger row", and Form 3800 is
+        built - form3800 /form3800PartIiiLine1yCredit reads this line's product
+        (/newCleanVehicleBusinessUsePartOfCredit) as its first addend on the scalar path. See that
+        fact for the split, the gates and the per vehicle residual.
+
+        UNANSWERED IS 0 PERCENT, NOT INCOMPLETE, and that is what keeps every committed return
+        exactly where it was: a wholly personal use vehicle is the reading the printed line gets
+        from a filer who drove no business miles, and it is the reading this module gave every
+        return before the intake existed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableNewCleanVehicleBusinessUsePercentage" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableNewCleanVehicleBusinessUsePercentage" /><Int>0</Int></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Int>0</Int></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCurrentYearMagiExceedsLimit">
+      <Name>2025 MAGI exceeds the new clean vehicle limit (Schedule A (Form 8936) line 8c, Yes)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 8c: Form 8936 line 2 (2025 modified AGI) is more than the Part II and Part III limit shown on the chart below Form 8936 line 5 for the 2025 filing status. Both operands already exist, so the box is a comparison rather than a question: /cleanVehicleCurrentYearMagi against /newCleanVehicleMagiThreshold.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+                <Dependency path="/cleanVehicleCurrentYearMagi" />
+          </Left>
+          <Right>
+                <Dependency path="/newCleanVehicleMagiThreshold" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleCurrentYearMagiWithinLimit">
+      <Name>2025 MAGI is within the new clean vehicle limit (line 8c, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 8c: the negation of /newCleanVehicleCurrentYearMagiExceedsLimit. The printed form skips line 8d for this filer, which is why the line 8d boxes below carry the line 8c answer as a conjunct.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/newCleanVehicleCurrentYearMagiExceedsLimit" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleMagiDeniesCredit">
+      <Name>2024 MAGI also exceeds the new clean vehicle limit (Schedule A (Form 8936) line 8d, Yes)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 8d: the filer was over the Part II and Part III limit in 2025 (line 8c) and is over it for 2024 as well, so the credit is denied and a transferred amount is repaid. It is the negation of /newCleanVehicleMagiAllowsCredit, which already encodes the printed both years rule and the skip routing, so the two cannot disagree. AN UNANSWERED 2024 MAGI CHECKS THIS BOX, and that is disclosed rather than silent: this module reads a missing prior year as also exceeding the limit in both directions, so the printed box shows the graph's own belief where a filer might instead leave line 8d blank until they look up their 2024 return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/newCleanVehicleMagiAllowsCredit" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehicleNotAcquiredForUseOrLease">
+      <Name>The new clean vehicle was not acquired for use or lease (line 8e, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 8e: the negation of /writableNewCleanVehicleAcquiredForUseOrLease. The printed form stops Part II here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableNewCleanVehicleAcquiredForUseOrLease" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehiclePersonalUsePartOfCredit">
+      <Name>Personal use part of the new clean vehicle credit (Schedule A (Form 8936) line 12)</Name>
+      <Description>Schedule A (Form 8936) line 12, line 9 minus line 11, the Part III personal use credit amount that Form 8936 line 9 carries into the section 30D credit. Written as the printed subtraction rather than as an alias of line 9 so that it keeps footing when line 11 is nonzero: /newCleanVehicleBusinessUsePartOfCredit is the line 10 percentage times the capped line 9 whenever the filer answers /writableNewCleanVehicleBusinessUsePercentage. The credit chain subtracts the same amount at /newCleanVehiclePrimaryCreditBeforeTaxLimit, off the capped line 9, so this printed line and the amount that reaches Schedule 3 line 6f agree on every return; they differ only if a line 9 above $7,500 were ever accepted, which the intake's own Limit forbids.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="/writableNewCleanVehicleTentativeCredit" /><Dollar>0</Dollar> </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/newCleanVehicleBusinessUsePartOfCredit" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/newCleanVehiclePriorYearMagiAllowsCredit">
+      <Name>2024 MAGI is within the new clean vehicle limit (line 8d, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 8d: the filer reached line 8d because 2025 MAGI exceeded the Part II and Part III limit, and their 2024 MAGI does not exceed it, so the both years test does not deny the credit. Both conjuncts are required because a filer whose 2025 MAGI is within the limit never answers line 8d at all.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/newCleanVehicleCurrentYearMagiExceedsLimit" />
+          <Dependency path="/newCleanVehicleMagiAllowsCredit" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/returnIsIndividualIncomeTaxReturn">
+      <Name>This Form 8936 is filed with an individual income tax return (line 8b)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 8b. A return that carries one of the five Form 1040 filing statuses IS an individual income tax return, so the answer is the disjunction of the filing status facts rather than a question put to the taxpayer. This is a product scope derivation and it is exact for every return this dictionary can represent: the estate, trust and entity filers line 8b routes to line 8e are outside the Form 1040 perimeter entirely. The eighteen sweep templates carry no constant Bool, and an Any() over the statuses says what a literal True would say without asserting anything the graph does not know.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+          <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/returnIsNotIndividualIncomeTaxReturn">
+      <Name>This Form 8936 is not filed with an individual income tax return (line 8b, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 8b: the negation of /returnIsIndividualIncomeTaxReturn, which the printed form routes past lines 8c and 8d straight to line 8e. On a Form 1040 return with a filing status answered it is false.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/returnIsIndividualIncomeTaxReturn" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/scheduleACleanVehicleZeroDollars">
+      <Name>Zero dollars, the comparison floor for the Schedule A (Form 8936) yes or no boxes</Name>
+      <Description>A structural $0 used as the right hand side of the Schedule A (Form 8936) comparisons that ask whether an amount exists at all: line 4a (was a credit transferred to the dealer) and line 4b (is a transferred credit being repaid). It encodes no statutory figure and prints nowhere.</Description>
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/transferredCleanVehicleCreditThisVehicle">
+      <Name>Clean vehicle credit transferred to the dealer for this vehicle (line 4a amount)</Name>
+      <Description>The amount printed on Schedule A (Form 8936) line 4a: the credit the taxpayer transferred to a registered dealer at the time of sale, from the seller's report, for the vehicle this Schedule A covers. A Schedule A is filed per vehicle and the two transfer intakes are split by credit type, so the printed box is the NEW transfer when line 5 says the VIN belongs to a new clean vehicle and the PREVIOUSLY OWNED transfer otherwise, which is the routing the printed schedule itself uses (line 5 to Part II, line 6 to Part IV).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/cleanVehicleIsNewCleanVehicleCompleteSafe" />
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableTransferredNewCleanVehicleCredit" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableTransferredUsedCleanVehicleCredit" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCreditRateDenominator">
+      <Name>Denominator of the 30 percent previously owned clean vehicle credit rate</Name>
+      <Description>The constant 100, the percent denominator that turns /usedCleanVehicleCreditRateNumerator into the 0.30 rate Schedule A (Form 8936) line 15 prints as "30% (0.30)". A rate encoding, declared structural. It is never zero, so the ratable shape's zero whole guard cannot fire and line 15 is always the rounded product.</Description>
+      <Derived>
+        <Dollar>100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCreditRateNumerator">
+      <Name>Numerator of the 30 percent previously owned clean vehicle credit rate</Name>
+      <Description>The constant 30, the numerator of the 30% rate Schedule A (Form 8936) line 15 applies to the sales price on line 14. A rate encoding, declared structural: it is not a statutory dollar amount, it is half of the fraction /usedCleanVehicleThirtyPercentOfSalePrice divides by /usedCleanVehicleCreditRateDenominator. It exists only because the ratable shape takes its part and whole as facts.</Description>
+      <Derived>
+        <Dollar>30</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCurrentYearMagiExceedsLimit">
+      <Name>2025 MAGI exceeds the previously owned clean vehicle limit (line 13b, Yes)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 13b: Form 8936 line 2 (2025 modified AGI) is more than the Part IV limit shown on the chart below Form 8936 line 5 for the 2025 filing status. The section 25E twin of /newCleanVehicleCurrentYearMagiExceedsLimit, measured against /usedCleanVehicleMagiThreshold.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+                <Dependency path="/cleanVehicleCurrentYearMagi" />
+          </Left>
+          <Right>
+                <Dependency path="/usedCleanVehicleMagiThreshold" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleCurrentYearMagiWithinLimit">
+      <Name>2025 MAGI is within the previously owned clean vehicle limit (line 13b, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 13b: the negation of /usedCleanVehicleCurrentYearMagiExceedsLimit. The printed form skips line 13c for this filer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/usedCleanVehicleCurrentYearMagiExceedsLimit" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleMagiDeniesCredit">
+      <Name>2024 MAGI also exceeds the previously owned clean vehicle limit (line 13c, Yes)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 13c: the filer was over the Part IV limit in 2025 (line 13b) and is over it for 2024 as well, so the credit is denied and a transferred amount is repaid on Schedule 2 line 1c. It is the negation of /usedCleanVehicleMagiAllowsCredit, which already encodes the printed both years rule and the skip routing. AN UNANSWERED 2024 MAGI CHECKS THIS BOX, the same disclosed convention as the section 30D twin.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/usedCleanVehicleMagiAllowsCredit" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleMaximumCreditAmount">
+      <Name>Maximum previously owned clean vehicle credit amount (Schedule A (Form 8936) line 16)</Name>
+      <Description>Schedule A (Form 8936) line 16, the printed "Maximum vehicle credit amount . . . $4,000". The statutory ceiling of IRC 25E(a)(1), carried on param ledger row used-clean-vehicle-max-credit, which is the same ledger id the shipping fact /usedCleanVehicleTentativeCreditAmount annotates on its own $4,000 literal. A constant with no dependencies: it prints on every rendered copy of Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dollar>4000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleNotAcquiredForUseNotResale">
+      <Name>Previously owned clean vehicle was not acquired for use (Schedule A (Form 8936) line 13f, No box)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 13f, printed "No. Stop here. You can't claim a credit amount for a vehicle you didn't acquire for use or acquired for resale." It is the exact negation of the Yes box, so it is derived rather than collected: two independent attestations of one question could disagree, and the schedule offers a single Yes/No pair. Incomplete while the attestation is unanswered, so neither box prints until the taxpayer answers. IRC 25E(c)(3)(B) makes purchase for use and not for resale a condition of being a qualified buyer, which is why a No here stops the Part IV credit.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableUsedCleanVehicleAcquiredForUseNotResale" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleNotClaimedInThreeYearLookback">
+      <Name>No previously owned clean vehicle credit was claimed in the 3 year lookback (13d, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 13d: the negation of /writableUsedCleanVehicleClaimedInThreeYearLookback, which the printed form routes on to line 13e.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableUsedCleanVehicleClaimedInThreeYearLookback" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehiclePriorYearMagiAllowsCredit">
+      <Name>2024 MAGI is within the previously owned clean vehicle limit (line 13c, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 13c: the filer reached line 13c because 2025 MAGI exceeded the Part IV limit, and their 2024 MAGI does not exceed it, so the both years test does not deny the credit. Both conjuncts are required because a filer whose 2025 MAGI is within the limit never answers line 13c at all.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/usedCleanVehicleCurrentYearMagiExceedsLimit" />
+          <Dependency path="/usedCleanVehicleMagiAllowsCredit" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleSalePriceCeiling">
+      <Name>Previously owned clean vehicle sales price ceiling (Schedule A (Form 8936) line 13e)</Name>
+      <Description>The $25,000 sales price ceiling Schedule A (Form 8936) line 13e prints: a previously owned clean vehicle sold for more than this amount does not qualify for the Part IV credit. The figure is already carried as the param ledger id used clean vehicle sale price ceiling inside /usedCleanVehicleTentativeCreditAmount; this fact names it so the printed line 13e boxes can compare against it.</Description>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleSalePriceExceedsCeiling">
+      <Name>The sales price of the vehicle is more than $25,000 (line 13e, Yes)</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 13e, which stops the Part IV credit. Computed from /writableUsedCleanVehicleSalePrice rather than attested, exactly as /usedCleanVehicleTentativeCreditAmount already computes the same ceiling: line 13e and line 14 read one figure, and asking the taxpayer a second time would let the two answers disagree. The test is MORE THAN, not at least, so a vehicle sold for exactly $25,000 leaves this box unchecked.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+                <Dependency path="/writableUsedCleanVehicleSalePrice" />
+          </Left>
+          <Right>
+                <Dependency path="/usedCleanVehicleSalePriceCeiling" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleSalePriceWithinCeiling">
+      <Name>The sales price of the vehicle is not more than $25,000 (line 13e, No)</Name>
+      <Description>The No box of Schedule A (Form 8936) line 13e: the negation of /usedCleanVehicleSalePriceExceedsCeiling, which the printed form routes on to line 13f. A vehicle sold for exactly $25,000 checks this box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/usedCleanVehicleSalePriceExceedsCeiling" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usedCleanVehicleThirtyPercentOfSalePrice">
+      <Name>30 percent of the previously owned clean vehicle sales price (Schedule A (Form 8936) line 15)</Name>
+      <Description>Schedule A (Form 8936) line 15, "Multiply line 14 by 30% (0.30)": the sales price on line 14 times 30 over 100, rounded to whole dollars, which is the same product and the same rounding the shipping fact /usedCleanVehicleTentativeCreditAmount computes inside its line 17 lesser of. THIS LINE IS DELIBERATELY UNGATED. Line 17 applies the Part IV qualification gates and the $4,000 cap; line 15 is the bare arithmetic the schedule prints, so it reads only the sales price and stays Incomplete, printing nothing, until line 14 is answered. No obligation is declared because nothing has to be rewired: line 17's fact already recomputes this product internally, so this fact adds a printed line, not a missing input.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                <Dependency path="/usedCleanVehicleCreditRateDenominator" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                  <Dependency path="/usedCleanVehicleCreditRateDenominator" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <GreaterOf><Dependency path="/writableUsedCleanVehicleSalePrice" /><Dollar>0</Dollar> </GreaterOf>
+                  <Divide>
+                    <Dividend>
+                      <Dependency path="/usedCleanVehicleCreditRateNumerator" />
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/usedCleanVehicleCreditRateDenominator" />
+                    </Divisors>
+                  </Divide>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleIsNewCleanVehicle">
+      <Name>The VIN on line 2 belongs to a new clean vehicle (Schedule A (Form 8936) line 5)</Name>
+      <Description>TRUE if the vehicle identified in Part I is a NEW clean vehicle acquired before October 1, 2025 (the OBBBA termination date) and placed in service during the tax year, which is the Yes answer to Schedule A (Form 8936) line 5 and routes the schedule to Part II. The graph cannot derive it: only the taxpayer and the seller's report know what the VIN is. PRINT ONLY UNTIL THE ATTESTATION CONSUMES IT: line 5 is today one conjunct of the collapsed /writableNewCleanVehicleQualifiesForCredit, so this fact prints the box while that attestation still gates the credit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleIsPreviouslyOwnedCleanVehicle">
+      <Name>The VIN on line 2 belongs to a previously owned clean vehicle (Schedule A (Form 8936) line 6)</Name>
+      <Description>TRUE if the vehicle identified in Part I is a PREVIOUSLY OWNED clean vehicle acquired after 2022 and before October 1, 2025 and placed in service during the tax year, which is the Yes answer to Schedule A (Form 8936) line 6 and routes the schedule to Part IV. The graph cannot derive it. PRINT ONLY UNTIL THE ATTESTATION CONSUMES IT: line 6 is today one conjunct of the collapsed /writableUsedCleanVehicleQualifiesForCredit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleIsQualifiedCommercial">
+      <Name>The VIN on line 2 belongs to a qualified commercial clean vehicle (line 7)</Name>
+      <Description>TRUE if the vehicle identified in Part I is a QUALIFIED COMMERCIAL clean vehicle acquired after 2022 and before October 1, 2025 and placed in service during the tax year, which is the Yes answer to Schedule A (Form 8936) line 7 and routes the schedule to Part V. form3800 /form3800PartIiiLine1aaOwnVehicleCredit reads this answer IsComplete-first as the Part V routing gate: Yes, with the line 18b and 18c answers also Yes, carries the Schedule A line 26 credit to Form 3800 Part III line 1aa and on to Schedule 3 line 6a; No carries $0; unanswered on a return whose Schedule A line 26 resolves above $0 leaves Schedule 3 line 6a Incomplete, because the routing answer is owed. This module's own Part V facts still figure the line 26 amount without reading it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleMake">
+      <Name>Clean vehicle make (Schedule A (Form 8936) line 1b)</Name>
+      <Description>The make (manufacturer) of the clean vehicle this Schedule A covers, printed on Schedule A (Form 8936) line 1b. A Part I identifying detail the fact graph cannot derive; the taxpayer transcribes it. Optional.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleModel">
+      <Name>Clean vehicle model (Schedule A (Form 8936) line 1c)</Name>
+      <Description>The model of the clean vehicle this Schedule A covers, printed on Schedule A (Form 8936) line 1c. A Part I identifying detail the fact graph cannot derive; the taxpayer transcribes it. Optional.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleModelYear">
+      <Name>Clean vehicle model year (Schedule A (Form 8936) line 1a)</Name>
+      <Description>The model year of the clean vehicle this Schedule A covers, printed on Schedule A (Form 8936) line 1a. Part I identifies the vehicle; nothing on the return computes a year, so the taxpayer transcribes it from the seller's report or the title. Optional: absent means no Schedule A vehicle has been described.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePlacedInServiceDate">
+      <Name>Date the clean vehicle was placed in service (Schedule A (Form 8936) line 3)</Name>
+      <Description>The date the clean vehicle was placed in service, printed on Schedule A (Form 8936) line 3. A Day, not a String: it is the date lines 8a and 13a measure their 30 day resale window from, and the date the vehicle must fall inside the tax year for. Optional.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePriorYearFilingStatusCode">
+      <Name>Form 8936 line 5, the taxpayer's 2024 filing status code (S, MFS, HOH, MFJ, QSS)</Name>
+      <Description>Form 8936 line 5, printed “Enter your 2024 filing status (S, MFS, etc., see chart below)”. The code the filer writes here selects the row of the line 5 chart their 2024 MAGI is measured against. THE GRAPH HAS ONLY THE 2025 FILING STATUS: /filingStatus is this year's election, and an enum_code over it would print the 2025 code in a cell the form labels 2024 — wrong for anyone who married, divorced or was widowed during the year, which is precisely the population the prior year prong exists for. So this is a taxpayer supplied String, the same safe harbor shape /writableCleanVehiclePriorYearMagi already uses for the prior year amount. Expected values are the five codes the chart prints: S, MFS, HOH, MFJ, QSS. CONSUMED: /newCleanVehiclePriorYearMagiThreshold and /usedCleanVehiclePriorYearMagiThreshold switch the 2024 chart row on this code, and the both years MAGI tests measure the prior year MAGI against them, so a filer whose status changed between 2024 and 2025 is measured against the row the form prints. This intake stays OPTIONAL: unanswered, both prior year threshold facts fall back to the 2025 filing status threshold, so no return that never saw the line 5 question changes value. This is a live intake and the only source of the 2024 chart row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePriorYearForm2555Line45AddBack">
+      <Name>Form 8936 line 3c, the prior year (2024) Form 2555 line 45 amount</Name>
+      <Description>Form 8936 line 3c, printed “Enter any amount from Form 2555, line 45” — the prior year (2024) twin of line 1c. The single year fact graph cannot derive any 2024 figure, so like /writableCleanVehiclePriorYearMagi this is a taxpayer supplied safe harbor input. It is PRINT ONLY until the obligation below is met: nothing computes from it today, because the prior year prong of the both years MAGI test reads /writableCleanVehiclePriorYearMagi directly. SIGNED, NO FLOOR, matching form2555 /form2555Line45ExclusionsNetOfAllocableDeductions: Form 2555 line 45 prints no ‘if zero or less’ instruction, so a prior year line 44 larger than line 43 carries a negative and flooring it here would invent a rule the form does not print. Answering this row does NOT change any credit or repayment; print-only until a derived Form 8936 line 4 total exists. Today /writableCleanVehiclePriorYearMagi IS the prior year figure the both years test consumes (/usedCleanVehicleMagiAllowsCredit, /newCleanVehicleMagiAllowsCredit, /newCleanVehicleCreditRepayment and /usedCleanVehicleCreditRepayment all compare it against the line 5 chart threshold), and line 4 is mapped to it. Line 4 CANNOT be a dollar_add over these intakes yet for two reasons: an Add over optional writables is Incomplete whenever any term is unanswered, and the safe harbor semantics of /writableCleanVehiclePriorYearMagi depend on its own incompleteness (unanswered is read as ‘the prior year also exceeded’). The rewire owed is a complete safe derived line 4 total — the safe harbor input guarded by IsComplete plus these four add backs guarded the same way — read by those four facts; when it lands the line 4 MAPPING moves from /writableCleanVehiclePriorYearMagi to that new total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePriorYearForm2555Line50AddBack">
+      <Name>Form 8936 line 3d, the prior year (2024) Form 2555 line 50 amount</Name>
+      <Description>Form 8936 line 3d, printed “Enter any amount from Form 2555, line 50” — the prior year (2024) twin of line 1d. The single year fact graph cannot derive any 2024 figure, so like /writableCleanVehiclePriorYearMagi this is a taxpayer supplied safe harbor input. It is PRINT ONLY until the obligation below is met: nothing computes from it today, because the prior year prong of the both years MAGI test reads /writableCleanVehiclePriorYearMagi directly. Nonnegative: an excluded amount cannot be less than zero. Answering this row does NOT change any credit or repayment; print-only until a derived Form 8936 line 4 total exists. Today /writableCleanVehiclePriorYearMagi IS the prior year figure the both years test consumes (/usedCleanVehicleMagiAllowsCredit, /newCleanVehicleMagiAllowsCredit, /newCleanVehicleCreditRepayment and /usedCleanVehicleCreditRepayment all compare it against the line 5 chart threshold), and line 4 is mapped to it. Line 4 CANNOT be a dollar_add over these intakes yet for two reasons: an Add over optional writables is Incomplete whenever any term is unanswered, and the safe harbor semantics of /writableCleanVehiclePriorYearMagi depend on its own incompleteness (unanswered is read as ‘the prior year also exceeded’). The rewire owed is a complete safe derived line 4 total — the safe harbor input guarded by IsComplete plus these four add backs guarded the same way — read by those four facts; when it lands the line 4 MAPPING moves from /writableCleanVehiclePriorYearMagi to that new total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePriorYearPossessionAddBack">
+      <Name>Form 8936 line 3e, the prior year (2024) Form 4563 line 15 amount</Name>
+      <Description>Form 8936 line 3e, printed “Enter any amount from Form 4563, line 15” — the prior year (2024) twin of line 1e. The single year fact graph cannot derive any 2024 figure, so like /writableCleanVehiclePriorYearMagi this is a taxpayer supplied safe harbor input. It is PRINT ONLY until the obligation below is met: nothing computes from it today, because the prior year prong of the both years MAGI test reads /writableCleanVehiclePriorYearMagi directly. Nonnegative: an excluded amount cannot be less than zero. Answering this row does NOT change any credit or repayment; print-only until a derived Form 8936 line 4 total exists. Today /writableCleanVehiclePriorYearMagi IS the prior year figure the both years test consumes (/usedCleanVehicleMagiAllowsCredit, /newCleanVehicleMagiAllowsCredit, /newCleanVehicleCreditRepayment and /usedCleanVehicleCreditRepayment all compare it against the line 5 chart threshold), and line 4 is mapped to it. Line 4 CANNOT be a dollar_add over these intakes yet for two reasons: an Add over optional writables is Incomplete whenever any term is unanswered, and the safe harbor semantics of /writableCleanVehiclePriorYearMagi depend on its own incompleteness (unanswered is read as ‘the prior year also exceeded’). The rewire owed is a complete safe derived line 4 total — the safe harbor input guarded by IsComplete plus these four add backs guarded the same way — read by those four facts; when it lands the line 4 MAPPING moves from /writableCleanVehiclePriorYearMagi to that new total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehiclePriorYearPuertoRicoAddBack">
+      <Name>Form 8936 line 3b, excluded Puerto Rico income for the prior year (2024)</Name>
+      <Description>Form 8936 line 3b, printed “Enter any income from Puerto Rico you excluded” — the prior year (2024) twin of line 1b. The single year fact graph cannot derive any 2024 figure, so like /writableCleanVehiclePriorYearMagi this is a taxpayer supplied safe harbor input. It is PRINT ONLY until the obligation below is met: nothing computes from it today, because the prior year prong of the both years MAGI test reads /writableCleanVehiclePriorYearMagi directly. Nonnegative: an excluded amount cannot be less than zero. Answering this row does NOT change any credit or repayment; print-only until a derived Form 8936 line 4 total exists. Today /writableCleanVehiclePriorYearMagi IS the prior year figure the both years test consumes (/usedCleanVehicleMagiAllowsCredit, /newCleanVehicleMagiAllowsCredit, /newCleanVehicleCreditRepayment and /usedCleanVehicleCreditRepayment all compare it against the line 5 chart threshold), and line 4 is mapped to it. Line 4 CANNOT be a dollar_add over these intakes yet for two reasons: an Add over optional writables is Incomplete whenever any term is unanswered, and the safe harbor semantics of /writableCleanVehiclePriorYearMagi depend on its own incompleteness (unanswered is read as ‘the prior year also exceeded’). The rewire owed is a complete safe derived line 4 total — the safe harbor input guarded by IsComplete plus these four add backs guarded the same way — read by those four facts; when it lands the line 4 MAPPING moves from /writableCleanVehiclePriorYearMagi to that new total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleResoldWithin30Days">
+      <Name>The vehicle was resold within 30 days of the placed in service date (lines 8a and 13a)</Name>
+      <Description>TRUE if the taxpayer resold the vehicle within 30 days of the placed in service date shown on line 3. Schedule A (Form 8936) asks the identical question twice, at line 8a for a new clean vehicle and at line 13a for a previously owned one, so one fact answers both printed boxes. A Yes stops the credit and, when the credit was transferred, sends the line 4a amount to Schedule 2. PRINT ONLY UNTIL THE ATTESTATIONS CONSUME IT: 8a and 13a are today conjuncts of the two collapsed attestations.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleVin">
+      <Name>Clean vehicle identification number (Schedule A (Form 8936) line 2)</Name>
+      <Description>The vehicle identification number (VIN) of the clean vehicle this Schedule A covers, printed on Schedule A (Form 8936) line 2. The VIN is the identifier the IRS matches against the seller's report, and lines 5, 6 and 7 all ask what kind of vehicle this VIN belongs to. A String, not a number: a VIN is alphanumeric and its leading characters are significant. Required on a return that claims the new or previously-owned credit through the legacy single-vehicle inputs: unanswered there, the credit is Incomplete (/cleanVehicleVinOnReturnCondition). Not required for a transfer-only return.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleAcquiredForUseOrLease">
+      <Name>The new clean vehicle was acquired for use or lease and not for resale (line 8e)</Name>
+      <Description>TRUE if the taxpayer acquired the NEW clean vehicle for use or to lease to others, and not for resale, which is the Yes answer to Schedule A (Form 8936) line 8e. The printed line directs a No answer for a vehicle the taxpayer is leasing from another person. PRINT ONLY UNTIL THE ATTESTATION CONSUMES IT: line 8e is today one conjunct of the collapsed /writableNewCleanVehicleQualifiesForCredit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableUsedCleanVehicleAcquiredForUseNotResale">
+      <Name>The previously owned clean vehicle was acquired for use and not for resale (line 13f)</Name>
+      <Description>TRUE if the taxpayer acquired the PREVIOUSLY OWNED clean vehicle for use and not for resale, which is the Yes answer to Schedule A (Form 8936) line 13f. Unlike the new vehicle question at line 8e, the used line does not allow acquisition to lease to others, and it directs a No answer for a vehicle leased from another person, so this is a separate fact rather than a second reading of the same one. PRINT ONLY UNTIL THE ATTESTATION CONSUMES IT: line 13f is today one conjunct of the collapsed /writableUsedCleanVehicleQualifiesForCredit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableUsedCleanVehicleClaimedInThreeYearLookback">
+      <Name>A previously owned clean vehicle credit was claimed in the 3 year lookback (line 13d)</Name>
+      <Description>TRUE if the taxpayer has claimed a previously owned clean vehicle credit for another vehicle purchased in the 3 year period ending on the date they purchased the vehicle identified in Part I, which is the Yes answer to Schedule A (Form 8936) line 13d and stops the Part IV credit. PRINT ONLY UNTIL THE ATTESTATION CONSUMES IT: line 13d is today one conjunct of the collapsed /writableUsedCleanVehicleQualifiesForCredit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/commercialCleanVehicleBasisAfterSection179">
+      <Name>Schedule A (Form 8936) line 21, basis less the section 179 expense deduction</Name>
+      <Description>Schedule A (Form 8936) line 21: line 19 minus line 20, the basis the line 22 percentage applies to. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="/writableCommercialCleanVehicleBasis" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableCommercialCleanVehicleSection179Deduction" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleBasisPercentageAmount">
+      <Name>Schedule A (Form 8936) line 22, the applicable percentage of the line 21 basis</Name>
+      <Description>Schedule A (Form 8936) line 22: 15 percent of line 21 when the line 18d answer is Yes, 30 percent when it is No, exactly as section 45W(b)(1)(A) splits the rate. The condition reads the line 18d intake directly, so an unanswered line 18d leaves line 22 blank rather than guessing a rate. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/writableCommercialCleanVehiclePoweredByGasOrDiesel" />
+            </When>
+            <Then>
+              <Dependency path="/commercialCleanVehicleFifteenPercentOfBasis" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/commercialCleanVehicleThirtyPercentOfBasis" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleCreditAmount">
+      <Name>Schedule A (Form 8936) line 26, the credit amount for this qualified commercial clean vehicle</Name>
+      <Description>Schedule A (Form 8936) line 26: the smaller of line 24 and line 25, the section 45W(b) per vehicle credit amount, which the printed form carries to line 19 in Part V of Form 8936 and from there to Form 3800, Part III, line 1aa. CONSUMED: Form 3800 is modeled and form3800:/form3800PartIiiLine1aaOwnVehicleCredit reads this amount, which carries through Form 3800 line 38 to Schedule 3 line 6a, so it does change tax on the return; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/commercialCleanVehicleCreditBeforeMaximum" />
+          <Dependency path="/commercialCleanVehicleMaximumCredit" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleCreditBeforeMaximum">
+      <Name>Schedule A (Form 8936) line 24, the smaller of line 22 or line 23</Name>
+      <Description>Schedule A (Form 8936) line 24: the lesser of the line 22 percentage of basis and the line 23 incremental cost, which is the section 45W(b)(1) per vehicle amount before the paragraph (4) dollar limitation. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/commercialCleanVehicleBasisPercentageAmount" />
+          <GreaterOf><Dependency path="/writableCommercialCleanVehicleIncrementalCost" /><Dollar>0</Dollar></GreaterOf>
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleFifteenPercentOfBasis">
+      <Name>15 percent of the Schedule A (Form 8936) line 21 basis</Name>
+      <Description>The 15 percent leg of Schedule A (Form 8936) line 22, the section 45W(b)(1)(A) rate for a vehicle that is also powered in part by a gasoline or diesel internal combustion engine. A fixed rate, so it is a Rational multiply rounded once, not a proration. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>15/100</Rational>
+            <Dependency path="/commercialCleanVehicleBasisAfterSection179" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleMaximumCredit">
+      <Name>Schedule A (Form 8936) line 25, the maximum section 45W credit for this vehicle</Name>
+      <Description>Schedule A (Form 8936) line 25: $40,000 when the vehicle's gross vehicle weight rating is 14,000 pounds or more, otherwise $7,500, which is the section 45W(b)(4) limitation. The condition is the line 18e attestation rather than a comparison against the line 18e Int, because the supported templates compare only Dollar facts. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/writableCommercialCleanVehicleGvwrIsAtLeast14000Pounds" />
+            </When>
+            <Then>
+              <Dependency path="/commercialCleanVehicleMaximumCreditHeavyVehicle" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/commercialCleanVehicleMaximumCreditLightVehicle" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleMaximumCreditHeavyVehicle">
+      <Name>The $40,000 section 45W maximum for a vehicle rated at 14,000 pounds or more</Name>
+      <Description>The section 45W(b)(4)(B) per vehicle ceiling for a qualified commercial clean vehicle that is not described in subparagraph (A), that is one whose gross vehicle weight rating is 14,000 pounds or more, the heavy vehicle leg of Schedule A (Form 8936) line 25. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Derived>
+        <Dollar>40000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleMaximumCreditLightVehicle">
+      <Name>The $7,500 section 45W maximum for a vehicle rated under 14,000 pounds</Name>
+      <Description>The section 45W(b)(4)(A) per vehicle ceiling for a qualified commercial clean vehicle with a gross vehicle weight rating of less than 14,000 pounds, the light vehicle leg of Schedule A (Form 8936) line 25. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Derived>
+        <Dollar>7500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleNotAcquiredForUseOrLease">
+      <Name>Schedule A (Form 8936) line 18c No, the vehicle was not acquired for use or lease</Name>
+      <Description>The No box of Schedule A (Form 8936) line 18c, the negation of /writableCommercialCleanVehicleAcquiredForUseOrLease. The printed form stops Part V here. Named for the commercial vehicle so that it does not collide with /newCleanVehicleNotAcquiredForUseOrLease, which carries the section 30D line 8e box. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCommercialCleanVehicleAcquiredForUseOrLease" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleNotPoweredByGasOrDiesel">
+      <Name>Schedule A (Form 8936) line 18d No, the vehicle is not also powered by gas or diesel</Name>
+      <Description>The No box of Schedule A (Form 8936) line 18d, the negation of /writableCommercialCleanVehiclePoweredByGasOrDiesel. This is the answer that raises the line 22 rate from 15 percent to 30 percent under section 45W(b)(1)(A). CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCommercialCleanVehiclePoweredByGasOrDiesel" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleNotSubjectToDepreciation">
+      <Name>Schedule A (Form 8936) line 18b No, the vehicle is not of a character subject to the allowance for depreciation</Name>
+      <Description>The No box of Schedule A (Form 8936) line 18b, the negation of /writableCommercialCleanVehicleSubjectToDepreciation. The printed form stops Part V here: the vehicle is not a qualified commercial clean vehicle unless the tax exempt entity exception applies. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableCommercialCleanVehicleSubjectToDepreciation" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/commercialCleanVehicleThirtyPercentOfBasis">
+      <Name>30 percent of the Schedule A (Form 8936) line 21 basis</Name>
+      <Description>The 30 percent leg of Schedule A (Form 8936) line 22, the section 45W(b)(1)(A) rate for a vehicle not powered by a gasoline or diesel internal combustion engine. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>30/100</Rational>
+            <Dependency path="/commercialCleanVehicleBasisAfterSection179" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8936BusinessUsePartOfNewCleanVehicleCredit">
+      <Name>Form 8936 line 8, the business and investment use part of the new clean vehicle credit</Name>
+      <Description>Form 8936 line 8: line 6 plus line 7, the business and investment use part of the section 30D credit. Line 6 is /newCleanVehicleBusinessUsePartOfCredit, which is Schedule A (Form 8936) line 11 and is the line 10 percentage times the capped line 9 - it is $0 on every return that leaves the /writableNewCleanVehicleBusinessUsePercentage intake unanswered. Line 7 is the pass through intake, so this total is nonzero for a filer who enters a Schedule K-1 amount or who answers /writableNewCleanVehicleBusinessUsePercentage. The printed form routes this amount to Form 3800, Part III, line 1y. Form 3800 does not read this fact: it never resolves on a return that leaves the line 7 intake unanswered, so form3800 /form3800PartIiiLine1yCredit reads line 6 and line 7 itself and applies the modified AGI limit to line 7.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/newCleanVehicleBusinessUsePartOfCredit" />
+          <GreaterOf><Dependency path="/writableNewCleanVehicleCreditFromPassThroughEntities" /><Dollar>0</Dollar></GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8936CommercialCleanVehicleCreditFromScheduleA">
+      <Name>Form 8936 line 19, the total section 45W credit figured in Part V of Schedule(s) A</Name>
+      <Description>Form 8936 line 19: the total credit amount figured in Part V of Schedule(s) A (Form 8936), which is /commercialCleanVehicleCreditAmount, the Schedule A line 26 amount. The alias exists so that the Form 8936 line carries its own name and so that line 21 adds two Form 8936 level facts. SINGLE VEHICLE: the module models one clean vehicle, so this total is one Schedule A copy rather than a sum over several, the same simplification the section 30D and section 25E arms already carry. The printed form routes this amount to Form 3800, Part III, line 1aa. Form 3800 does not read this alias: form3800 /form3800PartIiiLine1aaOwnVehicleCredit reads /commercialCleanVehicleCreditAmount (or the Schedule A collection aggregate) itself and applies the Schedule A line 7, 18b and 18c stops. This alias is read by /form8936QualifiedCommercialCleanVehicleCredit as its line 19 term and by form8936 /form8936PartVCreditFromScheduleA as that fact's arm for an explicitly empty vehicle collection.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/commercialCleanVehicleCreditAmount" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8936QualifiedCommercialCleanVehicleCredit">
+      <Name>Form 8936 line 21, the total qualified commercial clean vehicle credit</Name>
+      <Description>Form 8936 line 21: line 19 plus line 20, the section 45W credit the printed form routes to Form 3800, Part III, line 1aa. Form 3800 does not read this fact: it never resolves while the line 20 intake is unanswered, and line 19 carries the Schedule A line 26 amount whatever the Schedule A line 7, 18b and 18c answers say. form3800 /form3800PartIiiLine1aaCredit reads the two terms itself and applies those three printed stops.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8936CommercialCleanVehicleCreditFromScheduleA" />
+          <GreaterOf><Dependency path="/writableCommercialCleanVehicleCreditFromPassThroughEntities" /><Dollar>0</Dollar></GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleAcquiredForUseOrLease">
+      <Name>Schedule A (Form 8936) line 18c Yes, the vehicle was acquired for use or to lease to others and not for resale</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 18c: the filer acquired the vehicle for use or to lease to others and not for resale, which is the section 45W(c)(1) condition. The printed form directs a No answer for a vehicle the filer is leasing from another person, and stops Part V there. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleBasis">
+      <Name>Schedule A (Form 8936) line 19, the cost or other basis of the qualified commercial clean vehicle</Name>
+      <Description>The cost or other basis of the vehicle the filer enters on Schedule A (Form 8936) line 19. It is the basis the section 45W(b)(1)(A) percentage applies to, after the line 20 section 179 expense deduction is subtracted on line 21. Floored at zero because a basis cannot be negative. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleCreditFromPassThroughEntities">
+      <Name>Form 8936 line 20, qualified commercial clean vehicle credit from partnerships and S corporations</Name>
+      <Description>The section 45W qualified commercial clean vehicle credit passed through to the filer on a Schedule K-1 from a partnership or an S corporation, which Form 8936 line 20 asks for. A writable Dollar floored at zero: the single filer perimeter (invariant #7) models no pass through entity. CONSUMED, NOT PRINT ONLY: /form8936QualifiedCommercialCleanVehicleCredit, the printed line 21 total of lines 19 and 20, reads this intake as its line 20 term, and the printed form routes it on to Form 3800, Part III, line 1aa, where form3800 /form3800PartIiiLine1aaCredit reads this intake itself, and form3800 /form3800K1CodeAzCarriedByForm8936 reads it to release the Schedule K-1 code AZ knockout slot. The elective payment and the recapture (Form 4255) legs of this credit are not computed here. The pass through amount is the filer's only source for printed line 20, and the single filer perimeter (invariant #7) is what keeps it an attestation rather than a computed leg.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleCreditPassThroughEntityEin">
+      <Name>EIN of the partnership or S corporation that passed through the qualified commercial clean vehicle credit (Form 3800 Part III line 1aa column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership or S corporation that passed the qualified commercial clean vehicle credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 that reports the credit. Asked when /writableCommercialCleanVehicleCreditFromPassThroughEntities is more than $0. Unanswered: Form 3800 Part III line 1aa column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine1aaColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleGrossVehicleWeightRating">
+      <Name>Schedule A (Form 8936) line 18e, the vehicle's gross vehicle weight rating in pounds</Name>
+      <Description>The gross vehicle weight rating the filer enters on Schedule A (Form 8936) line 18e, in pounds. An Int because the printed box is a weight, not a dollar amount. Section 45W(b)(4) turns on whether it is less than 14,000 pounds, and line 25 carries that test in a separate Bool because no supported template compares Int facts. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleGvwrIsAtLeast14000Pounds">
+      <Name>The vehicle's gross vehicle weight rating is 14,000 pounds or more (the line 25 maximum credit test)</Name>
+      <Description>TRUE when the line 18e gross vehicle weight rating is 14,000 pounds or more, which is the section 45W(b)(4) test that raises the line 25 maximum credit from $7,500 to $40,000. It is an attestation rather than a comparison because the supported templates compare only Dollar facts, and the line 18e rating is an Int. The obligation records that debt: a filer could answer this in a way that contradicts line 18e. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleIncrementalCost">
+      <Name>Schedule A (Form 8936) line 23, the incremental cost of the vehicle</Name>
+      <Description>The incremental cost of the vehicle the filer enters on Schedule A (Form 8936) line 23: the excess of the purchase price of the qualified commercial clean vehicle over the price of a comparable gasoline or diesel vehicle. Line 24 caps the credit at this amount. Floored at zero. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehiclePoweredByGasOrDiesel">
+      <Name>Schedule A (Form 8936) line 18d Yes, the vehicle is also powered in part by gas or diesel</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 18d: the vehicle is also powered in part by a gasoline or diesel internal combustion engine. It selects the line 22 rate: 15 percent of basis for such a vehicle, 30 percent for a vehicle not powered by one. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleRegistrationNumber">
+      <Name>Schedule A (Form 8936) line 18a, the IRS issued registration number for an elective payment election</Name>
+      <Description>The IRS issued registration number the filer enters on Schedule A (Form 8936) line 18a when they make an elective payment election for the section 45W qualified commercial clean vehicle credit. A String rather than an EIN or a TIN: the number is issued by the IRS pre filing registration portal and is not a taxpayer identification number. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleSection179Deduction">
+      <Name>Schedule A (Form 8936) line 20, the section 179 expense deduction taken on the vehicle</Name>
+      <Description>The section 179 expense deduction the filer enters on Schedule A (Form 8936) line 20, which line 21 subtracts from the line 19 basis before the line 22 percentage applies. Floored at zero. Section 179 is not vendored under sources, so this intake is anchored to the section 45W basis rule it feeds. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableCommercialCleanVehicleSubjectToDepreciation">
+      <Name>Schedule A (Form 8936) line 18b Yes, the vehicle is of a character subject to the allowance for depreciation</Name>
+      <Description>The Yes box of Schedule A (Form 8936) line 18b: the vehicle is of a character subject to the allowance for depreciation, which is the section 45W(c)(4) condition, or the tax exempt entity exception of section 45W(d)(2) applies. The printed form says a No answer stops Part V. CONSUMED, NOT PRINT ONLY: this Part V chain reaches tax. Its terminus /commercialCleanVehicleCreditAmount is read by form3800:/form3800PartIiiLine1aaOwnVehicleCredit and carries through Form 3800 line 38 to Schedule 3 line 6a; witnessed at tests/nodes/ty2025/cleanVehicleCreditRepayment/cvc-form3800-line1aa-reaches-schedule3-line6a. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleCreditFromPassThroughEntities">
+      <Name>Form 8936 line 7, new clean vehicle credit from partnerships and S corporations</Name>
+      <Description>The section 30D new clean vehicle credit passed through to the filer on a Schedule K-1 from a partnership or an S corporation, which Form 8936 line 7 asks for. A writable Dollar floored at zero: the single filer perimeter (invariant #7) models no pass through entity, so the graph cannot derive it. CONSUMED, NOT PRINT ONLY: /form8936BusinessUsePartOfNewCleanVehicleCredit, the printed line 8 total of lines 6 and 7, reads it as its line 7 term, and the printed form routes it on to Form 3800, Part III, line 1y, where form3800 /form3800PartIiiLine1yCredit reads this intake itself and applies the modified AGI limit to it (/newCleanVehicleMagiAllowsCredit false carries $0), and form3800 /form3800K1CodeAyCarriedByForm8936 reads it to release the Schedule K-1 code AY knockout slot. The elective payment and the recapture (Form 4255) legs of this credit are not computed here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableNewCleanVehicleCreditPassThroughEntityEin">
+      <Name>EIN of the partnership or S corporation that passed through the new clean vehicle credit (Form 3800 Part III line 1y column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership or S corporation that passed the new clean vehicle credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 that reports the credit. Asked when /writableNewCleanVehicleCreditFromPassThroughEntities is more than $0. Unanswered: Form 3800 Part III line 1y column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine1yColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm3800Line1aaColumnG">
+      <Name>Form 3800 clean vehicle line 1aa column (g)</Name>
+      <Description>Post-passive-limitation section 45W credit in Form 3800 Part III line 1aa column (g), from the prepared credit worksheet. This is not the pre-limitation Form 8936 line 21 amount. Enter the aggregate for this credit line only, not all Form 3800 credits. Any opened elective-payment worksheet requires all three amounts and the qualification answer; incomplete or inconsistent input does not produce a payment.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm3800Line1aaColumnH">
+      <Name>Form 3800 clean vehicle line 1aa column (h)</Name>
+      <Description>Gross section 45W elective payment election in Form 3800 Part III line 1aa column (h), before Part II tax limitations. Must not exceed column (g). This is not the dealer transfer election under sections 30D or 25E. Any opened elective-payment worksheet requires all three amounts and the qualification answer; incomplete or inconsistent input does not produce a payment.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm3800Line1aaColumnI">
+      <Name>Form 3800 clean vehicle line 1aa column (i)</Name>
+      <Description>Amount of line 1aa column (g) applied against tax in Form 3800 Part II, after the required ordering of credits. Enter an explicit zero if none was applied. Must not exceed column (g); this module does not compute the Part II allocation. Any opened elective-payment worksheet requires all three amounts and the qualification answer; incomplete or inconsistent input does not produce a payment.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleElectivePaymentQualified">
+      <Name>Section 45W elective payment qualification verified</Name>
+      <Description>Affirmative attestation that the claimant is an applicable entity eligible for a section 45W elective payment, the elected properties have the required IRS pre-filing registrations, and the election requirements have been met. An ordinary individual does not qualify merely by buying a commercial vehicle. The application must verify these conditions from the source documents. False or unanswered on an opened worksheet leaves the proposed payment Incomplete. This attestation does not certify a filing or attach Forms 8936 or 3800.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm4255Line1hColumnJ">
+      <Name>Form 4255 clean vehicle row 1h column j</Name>
+      <Description>Column (j): portion of recapture attributable to non-EPE credit previously applied against regular tax. Enter only the aggregate section 45W / Form 8936 Part V row 1h component from the recapture workpapers, not the entire Form 4255 total. The recapture trigger, percentage, prior-year allocation, and excessive-payment determination are not computed here. When this row is opened, enter all six components, including explicit zeros. No section 6418 transfer or prevailing-wage/apprenticeship penalty is represented by this clean-vehicle row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm4255Line1hColumnK">
+      <Name>Form 4255 clean vehicle row 1h column k</Name>
+      <Description>Column (k): portion of recapture attributable to gross EPE previously applied against regular tax. Enter only the aggregate section 45W / Form 8936 Part V row 1h component from the recapture workpapers, not the entire Form 4255 total. The recapture trigger, percentage, prior-year allocation, and excessive-payment determination are not computed here. When this row is opened, enter all six components, including explicit zeros. No section 6418 transfer or prevailing-wage/apprenticeship penalty is represented by this clean-vehicle row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm4255Line1hColumnL">
+      <Name>Form 4255 clean vehicle row 1h column l</Name>
+      <Description>Column (l): portion of recapture attributable to net EPE. Enter only the aggregate section 45W / Form 8936 Part V row 1h component from the recapture workpapers, not the entire Form 4255 total. The recapture trigger, percentage, prior-year allocation, and excessive-payment determination are not computed here. When this row is opened, enter all six components, including explicit zeros. No section 6418 transfer or prevailing-wage/apprenticeship penalty is represented by this clean-vehicle row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm4255Line1hColumnN1">
+      <Name>Form 4255 clean vehicle row 1h column n1</Name>
+      <Description>Column (n)(1): excessive payment attributable to the net EPE portion. Enter only the aggregate section 45W / Form 8936 Part V row 1h component from the recapture workpapers, not the entire Form 4255 total. The recapture trigger, percentage, prior-year allocation, and excessive-payment determination are not computed here. When this row is opened, enter all six components, including explicit zeros. No section 6418 transfer or prevailing-wage/apprenticeship penalty is represented by this clean-vehicle row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm4255Line1hColumnN2">
+      <Name>Form 4255 clean vehicle row 1h column n2</Name>
+      <Description>Column (n)(2): excessive payment not included in column (n)(1), excluding the 20 percent addition. Enter only the aggregate section 45W / Form 8936 Part V row 1h component from the recapture workpapers, not the entire Form 4255 total. The recapture trigger, percentage, prior-year allocation, and excessive-payment determination are not computed here. When this row is opened, enter all six components, including explicit zeros. No section 6418 transfer or prevailing-wage/apprenticeship penalty is represented by this clean-vehicle row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleForm4255Line1hColumnN3">
+      <Name>Form 4255 clean vehicle row 1h column n3</Name>
+      <Description>Column (n)(3): the determined 20 percent excessive-payment addition actually owed, after any reasonable-cause relief. Enter zero explicitly if waived or not owed. This is a source-document amount, not a new determination of reasonable cause. Enter only the aggregate section 45W / Form 8936 Part V row 1h component from the recapture workpapers, not the entire Form 4255 total. The recapture trigger, percentage, prior-year allocation, and excessive-payment determination are not computed here. When this row is opened, enter all six components, including explicit zeros. No section 6418 transfer or prevailing-wage/apprenticeship penalty is represented by this clean-vehicle row.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm3800HasInputs">
+      <Name>Elective-payment worksheet has supplied inputs</Name>
+      <Description>True when any component of this worksheet has been supplied. An entirely untouched worksheet contributes zero; an opened worksheet must be completed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Any><IsComplete><Dependency path="/writableCleanVehicleForm3800Line1aaColumnG" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm3800Line1aaColumnH" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm3800Line1aaColumnI" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleElectivePaymentQualified" /></IsComplete></Any></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm3800InputsValid">
+      <Name>Elective-payment worksheet inputs are complete and consistent</Name>
+      <Description>Requires every input and nonnegative amounts. This local validation checks the worksheet contract only; it does not certify source-document accuracy or integrate return totals.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><All><IsComplete><Dependency path="/writableCleanVehicleForm3800Line1aaColumnG" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm3800Line1aaColumnH" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm3800Line1aaColumnI" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleElectivePaymentQualified" /></IsComplete><Not><LessThan><Left><Dependency path="/writableCleanVehicleForm3800Line1aaColumnG" /></Left><Right><Dollar>0</Dollar></Right></LessThan></Not><Not><LessThan><Left><Dependency path="/writableCleanVehicleForm3800Line1aaColumnH" /></Left><Right><Dollar>0</Dollar></Right></LessThan></Not><Not><LessThan><Left><Dependency path="/writableCleanVehicleForm3800Line1aaColumnI" /></Left><Right><Dollar>0</Dollar></Right></LessThan></Not><Dependency path="/writableCleanVehicleElectivePaymentQualified" /><Not><GreaterThan><Left><Dependency path="/writableCleanVehicleForm3800Line1aaColumnH" /></Left><Right><Dependency path="/writableCleanVehicleForm3800Line1aaColumnG" /></Right></GreaterThan></Not><Not><GreaterThan><Left><Dependency path="/writableCleanVehicleForm3800Line1aaColumnI" /></Left><Right><Dependency path="/writableCleanVehicleForm3800Line1aaColumnG" /></Right></GreaterThan></Not></All></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm4255HasInputs">
+      <Name>Elective-payment worksheet has supplied inputs</Name>
+      <Description>True when any component of this worksheet has been supplied. An entirely untouched worksheet contributes zero; an opened worksheet must be completed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Any><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnJ" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnK" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnL" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnN1" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnN2" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnN3" /></IsComplete></Any></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm4255InputsValid">
+      <Name>Elective-payment worksheet inputs are complete and consistent</Name>
+      <Description>Requires every input, a nonnegative column (j), and $0 in columns (k), (l), (n)(1), (n)(2) and (n)(3). Those five columns recapture or repay an elective payment election amount, and an individual cannot make an elective payment election for the section 45W credit: section 45W is an applicable credit only for a tax-exempt entity described in section 168(h)(2)(A)(i), (ii) or (iv), and the elections open to any other taxpayer reach only sections 45V, 45Q and 45X. A nonzero entry in any of the five is inconsistent, and the worksheet columns (q) through (t) are then Incomplete. This local validation checks the worksheet contract only; it does not certify source-document accuracy or integrate return totals.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><All><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnJ" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnK" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnL" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnN1" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnN2" /></IsComplete><IsComplete><Dependency path="/writableCleanVehicleForm4255Line1hColumnN3" /></IsComplete><Not><LessThan><Left><Dependency path="/writableCleanVehicleForm4255Line1hColumnJ" /></Left><Right><Dollar>0</Dollar></Right></LessThan></Not><Equal><Left><Dependency path="/writableCleanVehicleForm4255Line1hColumnK" /></Left><Right><Dollar>0</Dollar> </Right></Equal><Equal><Left><Dependency path="/writableCleanVehicleForm4255Line1hColumnL" /></Left><Right><Dollar>0</Dollar> </Right></Equal><Equal><Left><Dependency path="/writableCleanVehicleForm4255Line1hColumnN1" /></Left><Right><Dollar>0</Dollar> </Right></Equal><Equal><Left><Dependency path="/writableCleanVehicleForm4255Line1hColumnN2" /></Left><Right><Dollar>0</Dollar> </Right></Equal><Equal><Left><Dependency path="/writableCleanVehicleForm4255Line1hColumnN3" /></Left><Right><Dollar>0</Dollar> </Right></Equal></All></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm3800Line1aaNetElectivePayment">
+      <Name>Form 3800 line 1aa column (j), net elective payment</Name>
+      <Description>The smaller of column (h) and column (g) less column (i). One section 45W component of Part III line 6 column (j), which ultimately feeds Schedule 3 line 13c. It is not the whole return's elective payment. Entirely unanswered is $0. An opened worksheet with any missing, negative, or inconsistent input is Incomplete. Downstream component export only: no existing return total consumes this fact; a successor fact must replace the corresponding prepared-total intake without double counting.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case><When><Not><Dependency path="/cleanVehicleForm3800HasInputs" /></Not></When><Then><Dollar>0</Dollar></Then></Case>
+<Case><When><Dependency path="/cleanVehicleForm3800InputsValid" /></When><Then><LesserOf><GreaterOf><Dependency path="/writableCleanVehicleForm3800Line1aaColumnH" /><Dollar>0</Dollar></GreaterOf><Subtract><Minuend><GreaterOf><Dependency path="/writableCleanVehicleForm3800Line1aaColumnG" /><Dollar>0</Dollar></GreaterOf></Minuend><Subtrahends><GreaterOf><Dependency path="/writableCleanVehicleForm3800Line1aaColumnI" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract></LesserOf></Then></Case>
+      </Switch></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm4255Line1hColumnQ">
+      <Name>Form 4255 line 1h column (q)</Name>
+      <Description>Column (q): sum of excessive payments in (n)(1), (n)(2), and the addition in (n)(3), which can be reduced by nonrefundable credits. Entirely unanswered is $0. An opened worksheet with any missing, negative, or inconsistent input is Incomplete. Downstream component export only: no existing return total consumes this fact; a successor fact must replace the corresponding prepared-total intake without double counting.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case><When><Not><Dependency path="/cleanVehicleForm4255HasInputs" /></Not></When><Then><Dollar>0</Dollar></Then></Case>
+<Case><When><Dependency path="/cleanVehicleForm4255InputsValid" /></When><Then><Add><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnN1" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnN2" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnN3" /><Dollar>0</Dollar></GreaterOf></Add></Then></Case>
+      </Switch></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm4255Line1hColumnR">
+      <Name>Form 4255 line 1h column (r)</Name>
+      <Description>Column (r): recapture portions (j) plus (k) plus (l), which cannot be reduced by nonrefundable credits. Row 1h recapture belongs here, not in column (q). Entirely unanswered is $0. An opened worksheet with any missing, negative, or inconsistent input is Incomplete. Downstream component export only: no existing return total consumes this fact; a successor fact must replace the corresponding prepared-total intake without double counting.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case><When><Not><Dependency path="/cleanVehicleForm4255HasInputs" /></Not></When><Then><Dollar>0</Dollar></Then></Case>
+<Case><When><Dependency path="/cleanVehicleForm4255InputsValid" /></When><Then><Add><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnJ" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnK" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnL" /><Dollar>0</Dollar></GreaterOf></Add></Then></Case>
+      </Switch></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm4255Line1hColumnS">
+      <Name>Form 4255 line 1h column (s)</Name>
+      <Description>Column (s): net EPE repaid, column (l) plus column (n)(1). This overlaps the type totals and must not be added to them again. Entirely unanswered is $0. An opened worksheet with any missing, negative, or inconsistent input is Incomplete. Downstream component export only: no existing return total consumes this fact; a successor fact must replace the corresponding prepared-total intake without double counting.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case><When><Not><Dependency path="/cleanVehicleForm4255HasInputs" /></Not></When><Then><Dollar>0</Dollar></Then></Case>
+<Case><When><Dependency path="/cleanVehicleForm4255InputsValid" /></When><Then><Add><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnL" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnN1" /><Dollar>0</Dollar></GreaterOf></Add></Then></Case>
+      </Switch></Derived>
+    </Fact>
+
+    <Fact path="/cleanVehicleForm4255Line1hColumnT">
+      <Name>Form 4255 line 1h column (t)</Name>
+      <Description>Column (t): the section 45W row's column (n)(3) excessive-payment addition. Section 45W has no PWA penalty component. This is a reporting subtotal, not an additional tax on top of column (q). Entirely unanswered is $0. An opened worksheet with any missing, negative, or inconsistent input is Incomplete. Downstream component export only: no existing return total consumes this fact; a successor fact must replace the corresponding prepared-total intake without double counting.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case><When><Not><Dependency path="/cleanVehicleForm4255HasInputs" /></Not></When><Then><Dollar>0</Dollar></Then></Case>
+<Case><When><Dependency path="/cleanVehicleForm4255InputsValid" /></When><Then><GreaterOf><Dependency path="/writableCleanVehicleForm4255Line1hColumnN3" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+      </Switch></Derived>
+    </Fact>
+
+    <Fact path="/writableCleanVehicleCreditRecaptureMayApply">
+      <Name>A clean vehicle credit may have to be recaptured because the vehicle no longer qualifies</Name>
+      <Description>SCREEN. Did a clean vehicle for which you claimed the credit, or transferred it
+        to the dealer, stop qualifying for the credit, so that you may have to recapture part or
+        all of it? Leave unanswered or answer No if no clean vehicle credit applies to you.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/knockoutCleanVehicleRepaymentOrRecaptureUnmodeled">
+      <Name>Knockout: a clean vehicle repayment or recapture this return does not compute</Name>
+      <Description>SCREEN. Your clean vehicle answers include a credit repayment or recapture that
+        this return cannot yet figure: a credit transferred to the dealer for an additional new
+        vehicle that you no longer qualify for, a separate Schedule A (Form 8936) repayment that
+        does not reach Schedule 2 line 1b or 1c, or a vehicle that stopped qualifying so that part
+        or all of the credit must be recaptured. This return cannot be filed here.
+        True on any of three arms, each Complete false while its inputs are unanswered:
+        (1) an /additionalNewCleanVehicles item with a positive transferred credit whose vehicle is
+        answered as not qualifying or whose filer fails the shared new-vehicle MAGI test (Schedule
+        2 line 1b reads only the single-vehicle transfer); (2) Schedule A (Form 8936) vehicle copies
+        with the repayment box checked on two or more copies, or on one copy while the
+        single-vehicle repayment total is $0, or on a copy whose line 4a transferred amount is
+        larger than the Schedule 2 line 1b plus line 1c repayment total; (3) the recapture attestation answered Yes.
+        DUAL-WIRED: BlockSubmissionOnTrue plus membership in flow:/flowIsKnockedOut.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/additionalNewCleanVehicles" /></IsComplete>
+            <GreaterThan>
+              <Left><Count><Dependency path="/additionalNewCleanVehicles/*/transferredCreditRepaymentUnmodeled" /></Count></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+            <IsComplete><Count><Dependency module="form8936sa" path="/form8936Vehicles/*/writableBoxc120" /></Count></IsComplete>
+            <Any>
+              <GreaterThan>
+                <Left><Count><Dependency module="form8936sa" path="/form8936Vehicles/*/writableBoxc120" /></Count></Left>
+                <Right><Int>1</Int></Right>
+              </GreaterThan>
+              <All>
+                <GreaterThan>
+                  <Left><Count><Dependency module="form8936sa" path="/form8936Vehicles/*/writableBoxc120" /></Count></Left>
+                  <Right><Int>0</Int></Right>
+                </GreaterThan>
+                <IsComplete><Dependency path="/totalCleanVehicleCreditRepayment" /></IsComplete>
+                <Equal>
+                  <Left><Dependency path="/totalCleanVehicleCreditRepayment" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </Equal>
+              </All>
+              <All>
+                <IsComplete><Dependency path="/totalCleanVehicleCreditRepayment" /></IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter module="form8936sa" path="/form8936Vehicles">
+                        <All>
+                          <IsComplete><Dependency module="form8936sa" path="writableBoxc120" /></IsComplete>
+                          <Dependency module="form8936sa" path="writableBoxc120" />
+                          <IsComplete><Dependency module="form8936sa" path="writableBoxf180" /></IsComplete>
+                          <GreaterThan>
+                            <Left><Dependency module="form8936sa" path="writableBoxf180" /></Left>
+                            <Right><Dependency path="/totalCleanVehicleCreditRepayment" /></Right>
+                          </GreaterThan>
+                        </All>
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right><Int>0</Int> </Right>
+                </GreaterThan>
+              </All>
+            </Any>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableCleanVehicleCreditRecaptureMayApply" /></IsComplete>
+            <Dependency path="/writableCleanVehicleCreditRecaptureMayApply" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalNewCleanVehicles/*/transferredCreditRepaymentUnmodeled">
+      <Name>This additional vehicle's transferred credit would have to be repaid</Name>
+      <Description>True when this additional new vehicle's credit was transferred to the dealer
+        (a positive amount) and the vehicle is answered as not qualifying or the filer fails the
+        shared new-vehicle MAGI test. Complete false while any of those inputs is unanswered.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writableTransferredCredit" /></IsComplete>
+          <GreaterThan>
+            <Left><Dependency path="../writableTransferredCredit" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <Any>
+            <All>
+              <IsComplete><Dependency path="../writableQualifiesForPersonalCredit" /></IsComplete>
+              <Not><Dependency path="../writableQualifiesForPersonalCredit" /></Not>
+            </All>
+            <All>
+              <IsComplete><Dependency path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+              <Not><Dependency path="/newCleanVehicleMagiAllowsCredit" /></Not>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

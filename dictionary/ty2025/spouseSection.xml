@@ -1,0 +1,823 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/spouseSection.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/spouseSectionSecondaryFiler">
+      <Description>The secondary filer used by spouse-section completion guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseSectionCompleted">
+      <Name>Spouse Section is Completed</Name>
+      <Description>The user has finished filling out the spouse section</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Switch>
+            <Case>
+              <When>
+                <Not>
+                  <IsComplete>
+                    <Dependency module="filers" path="/maritalStatus" />
+                  </IsComplete>
+                </Not>
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <Any>
+                  <All>
+                    <Not>
+                      <Dependency module="filers" path="/isMarried" />
+                    </Not>
+                    <Not>
+                      <Dependency module="filers" path="/isWidowed" />
+                    </Not>
+                  </All>
+                  <Dependency module="filers" path="/widowedBeforeTaxYearMinusTwo" />
+                </Any>
+              </When>
+              <Then>
+                <True />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <Dependency module="filers" path="/widowedCouldQualifyForQSS" />
+              </When>
+              <Then>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/canFileJointlyYearOfSpouseDeath" />
+                  </IsComplete>
+                </All>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filingStatus" path="/filingStatus" />
+                  </IsComplete>
+                  <Not>
+                    <Dependency module="filingStatus" path="/isFilingStatusValid" />
+                  </Not>
+                </All>
+              </When>
+              <Then>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/livedTogetherAllYearWithSpouse" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency module="filers" path="/livedApartLastSixMonths" />
+                  </IsComplete>
+                  <Any>
+                    <All>
+                      <Not>
+                        <Dependency module="filers" path="/livedApartLastSixMonths" />
+                      </Not>
+                      <IsComplete>
+                        <Dependency module="filers" path="/separationAgreement" />
+                      </IsComplete>
+                    </All>
+                    <Dependency module="filers" path="/livedApartLastSixMonths" />
+                  </Any>
+                  <IsComplete>
+                    <Dependency module="filers" path="/secondaryFilerResidencyEligibleForMFJ" />
+                  </IsComplete>
+                </All>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <Any>
+                  <Dependency path="/NRASpouseTryingForHoh" />
+                  <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+                </Any>
+              </When>
+              <Then>
+                <Switch>
+                  <Case>
+                    <When>
+                      <Not>
+                        <Dependency module="filingStatus" path="/maritalStatusAllowsFilingMarried" />
+                      </Not>
+                    </When>
+                    <Then>
+                      <True />
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <All>
+                        <Dependency module="filers" path="/livedTogetherApartFlowIsComplete" />
+                        <IsComplete>
+                          <Dependency module="filers" path="/secondaryFilerResidencyEligibleForMFJ" />
+                        </IsComplete>
+                      </All>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Dependency module="filingStatus" path="/eligibleForMFJ" />
+                  <Dependency module="filers" path="/livedApartLastSixMonths" />
+                  <Dependency module="filingStatus" path="/wantsHeadOfHousehold" />
+                  <Any>
+                    <Not>
+                      <IsComplete>
+                        <Dependency module="filingStatus" path="/filingStatus" />
+                      </IsComplete>
+                    </Not>
+                    <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+                  </Any>
+                </All>
+              </When>
+              <Then>
+                <True />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Dependency module="filingStatus" path="/maritalStatusAllowsFilingMarried" />
+                  <Dependency module="filingStatus" path="/wantsSeparateReturn" />
+                </All>
+              </When>
+              <Then>
+                <All>
+                  <Dependency module="filers" path="/livedTogetherApartFlowIsComplete" />
+                  <Dependency path="/mfsSectionCompleted" />
+                </All>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Dependency module="filingStatus" path="/eligibleForMFJ" />
+                  <Dependency module="filingStatus" path="/wantsJointReturn" />
+                </All>
+              </When>
+              <Then>
+                <All>
+                  <Dependency module="filers" path="/livedTogetherApartFlowIsComplete" />
+                  <Dependency path="/mfjSectionCompleted" />
+                  <IsComplete>
+                    <Dependency module="filers" path="/allSpouseFormsInScopedState" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency module="filers" path="/spouseReceivedAlaskaPfd" />
+                  </IsComplete>
+                </All>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency module="filers" path="/hasCompletedRegisteredDomesticPartnerIfApplicable" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/NRASpouseTryingForHoh">
+      <Name>Nonresident alien spouse try for HoH completed</Name>
+      <Description>The taxpayer has entered a nonresident alien spouse and is going to try for HoH
+        status</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filers" path="/secondaryFilerResidencyEligibleForMFJ" />
+          </Not>
+          <Not>
+            <IsComplete>
+              <Dependency module="filingStatus" path="/filingStatus" />
+            </IsComplete>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/readyToEnterSpouseInformation">
+      <Name>Ready to enter Spouse Information</Name>
+      <Description>The user is ready to enter spouse information</Description>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/maritalStatusAllowsFilingMarried" />
+          <Not>
+            <Dependency path="/NRASpouseTryingForHoh" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfsSectionCompleted">
+      <Name>MFS Section Completed</Name>
+      <Description>The MFS section of the spouse section has been completed</Description>
+      <Derived>
+        <All>
+          <Any>
+            <Dependency module="filers" path="/MFSSpouseProvidesNoBenefits" />
+            <All>
+              <Not>
+                <Dependency module="filers" path="/MFSSpouseProvidesNoBenefits" />
+              </Not>
+              <IsComplete>
+                <Dependency module="filers" path="/MFSSpouse65OrOlder" />
+              </IsComplete>
+              <IsComplete>
+                <Dependency path="/spouseSectionSecondaryFiler/isBlind" />
+              </IsComplete>
+            </All>
+          </Any>
+          <Any>
+            <IsComplete>
+              <Dependency path="/spouseSectionSecondaryFiler/tin" />
+            </IsComplete>
+            <Not>
+              <Dependency module="filers" path="/MFSNeedSpouseTaxId" />
+            </Not>
+          </Any>
+          <IsComplete>
+            <Dependency module="standardDeduction" path="/filerMFSAndSpouseIsEligibleForStandardDeductions" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjSectionCompleted">
+      <Name>MFJ Section Completed</Name>
+      <Description>The MFJ section of the spouse section has been completed</Description>
+      <Derived>
+        <All>
+          <Any>
+            <Not>
+              <Dependency module="filers" path="/flowMFJSpouseFilingRequirementSubsection" />
+            </Not>
+            <Dependency module="filers" path="/MFJRequiredToFile" />
+            <All>
+              <IsComplete>
+                <Dependency module="filers" path="/MFJClaimingRefundOnly" />
+              </IsComplete>
+              <Any>
+                <Not>
+                  <Dependency module="filers" path="/MFJClaimingRefundOnly" />
+                </Not>
+                <All>
+                  <Dependency path="/mfjDependentChoiceA" />
+                  <Any>
+                    <Not>
+                      <Dependency path="/spouseSectionSecondaryFiler/canBeClaimed" />
+                    </Not>
+                    <IsComplete>
+                      <Dependency path="/spouseSectionSecondaryFiler/willBeClaimed" />
+                    </IsComplete>
+                  </Any>
+                </All>
+              </Any>
+            </All>
+          </Any>
+          <IsComplete>
+            <Dependency path="/spouseSectionSecondaryFiler/tin" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/spouseSectionSecondaryFiler/hasIpPin" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/spouseSectionSecondaryFiler/dateOfBirth" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/spouseSectionSecondaryFiler/occupation" />
+          </IsComplete>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency module="filers" path="/isWidowed" />
+                  <Equal>
+                    <Left>
+                      <Dependency module="filers" path="/yearOfSpouseDeath" />
+                    </Left>
+                    <Right>
+                      <Enum optionsPath="/yearOfSpouseDeathOptions">taxYear</Enum>
+                    </Right>
+                  </Equal>
+                </All>
+              </When>
+              <Then>
+                <IsComplete>
+                  <Dependency module="filers" path="/secondaryFilerDateOfDeath" />
+                </IsComplete>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <True />
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency module="filers" path="/secondaryFilerSocialSecurityNumberRestrictionsAreComplete" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/needsMoreMFSSpouseInfo">
+      <Description>
+        The user needs to enter more info about an MFS spouse
+      </Description>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          <Not>
+            <Dependency path="/mfsSectionCompleted" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/needsMoreMFJSpouseInfo">
+      <Description>
+        The user needs to enter more info about an MFJ spouse
+      </Description>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/mfjSectionCompleted" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isMFJWithLivingSpouse">
+      <Description>
+        The user is married filing jointly and was not widowed in the tax year. We need to create a
+        disjunction to handle cases where widows filing jointly see different screens from non-widows filing jointly.
+      </Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency module="filers" path="/isMarried" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/MFJDepedentsEnrolledMarketplacePlan">
+      <Description>
+        Whether the MFJ filer who is treated like a dependent was in enrolled in a marketplace plan for at
+        least one month.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/advancedPTCPaymentsMade">
+      <Description>
+        Whether advance payments of the Premium Tax Credit (PTC) were made to help pay for the coverage
+        primary, secondary or anyone they enrolled.
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/MFJDNotEnrolledMarketplacePlanAndNoAdvancedPTCPaymentsMade">
+      <Description>
+        If TP was NOT enrolled in a marketplace plan and NO advance payments of the Premium Tax Credit (PTC)
+        were made to help pay for the coverage primary, secondary or anyone they enrolled.
+      </Description>
+
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path="/MFJDepedentsEnrolledMarketplacePlan" />
+          </Not>
+          <Not>
+            <Dependency path="/advancedPTCPaymentsMade" />
+          </Not>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/refundOnlyAndMFJDEnrolledMarketplacePlanAndAdvancedPTCPaymentsMade">
+      <Description>
+        If TP chose the redund only option, was NOT enrolled in a marketplace plan and NO advance payments of
+        the Premium Tax Credit (PTC) were made to help pay for the coverage primary, secondary or anyone they enrolled.
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency module='filers' path="/MFJClaimingRefundOnly" />
+          <Dependency path="/MFJDepedentsEnrolledMarketplacePlan" />
+          <Dependency path="/advancedPTCPaymentsMade" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdEnrolleesOptions">
+      <Description>MFJ Dependent Enrollees options</Description>
+
+      <Derived>
+        <EnumOptions>
+          <String>primary</String>
+          <String>secondary</String>
+          <String>someoneElseThatPrimaryOrSecondaryEnrolled</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdEnrollees">
+      <Description>MFJ Dependent Enrollees</Description>
+
+      <Writable>
+        <MultiEnum optionsPath="/mfjdEnrolleesOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/mfjdEnrolleeHasSelf">
+      <Description>
+        Was the primary TP enrolled in a qualified Marketplace health plan with advance payments of the
+        Premium Tax Credit (PTC)?
+      </Description>
+
+      <Derived>
+        <EnumOptionsContains>
+          <Options>
+            <Dependency path="/mfjdEnrollees" />
+          </Options>
+          <Value>
+            <Enum optionsPath="/mfjdEnrolleesOptions">primary</Enum>
+          </Value>
+        </EnumOptionsContains>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdEnrolleeHasSpouse">
+      <Description>
+        Was the spouse enrolled in a qualified Marketplace health plan with advance payments of the Premium
+        Tax Credit (PTC)?
+      </Description>
+
+      <Derived>
+        <EnumOptionsContains>
+          <Options>
+            <Dependency path="/mfjdEnrollees" />
+          </Options>
+          <Value>
+            <Enum optionsPath="/mfjdEnrolleesOptions">secondary</Enum>
+          </Value>
+        </EnumOptionsContains>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdEnrolleeHasOther">
+      <Description>
+        Someone else was enrolled in a qualified Marketplace health plan with Advance Premium Tax Credit
+        (PTC) payments were made
+      </Description>
+
+      <Derived>
+        <EnumOptionsContains>
+          <Options>
+            <Dependency path="/mfjdEnrollees" />
+          </Options>
+          <Value>
+            <Enum optionsPath="/mfjdEnrolleesOptions">someoneElseThatPrimaryOrSecondaryEnrolled</Enum>
+          </Value>
+        </EnumOptionsContains>
+      </Derived>
+    </Fact>
+
+    <Fact path="/refundOnlyMFJDEnrollMarketPlanAPTCPaymentsMadeEnrolleeIsOther">
+      <Description>
+        If TP chose the redund only option, was enrolled in a marketplace plan and Advance Premium Tax Credit
+        (PTC) payments were made were made to help pay for enrollment for someone else.
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/refundOnlyAndMFJDEnrolledMarketplacePlanAndAdvancedPTCPaymentsMade" />
+          <Dependency path="/mfjdEnrolleeHasOther" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/refundOnlyMFJDEnrollMarketPlanAPTCPaymentsMadeEnrolleeIsNotOther">
+      <Description>
+        If TP chose the redund only option, was enrolled in a marketplace plan and Advance Premium Tax Credit
+        (PTC) payments were made were made to help pay for enrollment for themselves only.
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency path='/refundOnlyAndMFJDEnrolledMarketplacePlanAndAdvancedPTCPaymentsMade' />
+          <Not>
+            <Dependency path='/mfjdEnrolleeHasOther' />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdOtherTaxFamily">
+      <Description>
+        If the person enrolled by primary TP or spouse is part of some other family
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/mfjdOneOrBothTPEnrolledThemselves">
+      <Description>
+        If one or both TP enrolled themselves
+      </Description>
+
+      <Derived>
+        <Any>
+          <Dependency path='/mfjdEnrolleeHasSelf' />
+          <Dependency path='/mfjdEnrolleeHasSpouse' />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdBothTPEnrolledThemselves">
+      <Description>
+        If one or both TP enrolled themselves
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency path='/mfjdEnrolleeHasSelf' />
+          <Dependency path='/mfjdEnrolleeHasSpouse' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdOK">
+      <Description>
+        Some MFJ (primary, secondary or both) considering to be dependent, second instance of the same screen
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency path='/refundOnlyMFJDEnrollMarketPlanAPTCPaymentsMadeEnrolleeIsOther' />
+          <Dependency path='/mfjdOtherTaxFamily' />
+          <Not>
+            <Dependency path='/mfjdOneOrBothTPEnrolledThemselves' />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerHasMarketplacePlanAndIsNotClaimedAsDependent">
+      <Description>
+        The primary filer is enrolled in a qualified Marketplace health plan, and not claimed by anyone as a
+        dependent.
+      </Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filers" path="/primaryFilerIsClaimedAsDependent" />
+          </Not>
+          <Dependency path='/mfjdEnrolleeHasSelf' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerHasMarketplacePlanAndIsNotClaimedAsDependent">
+      <Description>
+        The secondary filer is enrolled in a qualified Marketplace health plan, and is not claimed by anyone
+        as a dependent.
+      </Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filers" path="/secondaryFilerIsClaimedAsDependent" />
+          </Not>
+          <Dependency path='/mfjdEnrolleeHasSpouse' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eitherFilerHasMarketplacePlanAndIsNotClaimedAsDependent">
+      <Description>
+        Either the primary or the secondary filer is enrolled in a qualified Marketplace health plan, and the
+        enrolled filer is not claimed by anyone as a dependent.
+      </Description>
+
+      <Derived>
+        <Any>
+          <Dependency path='/primaryFilerHasMarketplacePlanAndIsNotClaimedAsDependent' />
+          <Dependency path='/secondaryFilerHasMarketplacePlanAndIsNotClaimedAsDependent' />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdSwitchNotDependentTP">
+      <Description>
+        Switch to NOT Depenent TP : You can't prepare federal tax return as independent taxpayers. There are
+        3 ways one can set this fact true. 1. The TP enrolled did NOT enroll someone else AND no one else is claiming
+        the TP as a dependent, 2. The TP did enroll someone else along with either themselves and/or their spouse AND
+        APTC were made AND no one else is claiming the TP as a dependent, 3. The TP did enroll someone else along with
+        either themselves and/or their spouse AND APTC were not made.
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency path='/refundOnlyAndMFJDEnrolledMarketplacePlanAndAdvancedPTCPaymentsMade' />
+          <Any>
+            <All>
+              <Not>
+                <Dependency path='/mfjdEnrolleeHasOther' />
+              </Not>
+              <Dependency path="/eitherFilerHasMarketplacePlanAndIsNotClaimedAsDependent" />
+            </All>
+            <All>
+              <Dependency path='/mfjdEnrolleeHasOther' />
+              <Dependency path='/mfjdOtherTaxFamily' />
+              <Dependency path='/mfjdOneOrBothTPEnrolledThemselves' />
+              <Dependency path="/eitherFilerHasMarketplacePlanAndIsNotClaimedAsDependent" />
+            </All>
+            <All>
+              <Dependency path='/mfjdEnrolleeHasOther' />
+              <Not>
+                <Dependency path='/mfjdOtherTaxFamily' />
+              </Not>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjdOkFormNotRequired">
+      <Description>
+        MFJD OK form not required
+      </Description>
+
+      <Derived>
+        <Any>
+          <All>
+            <Not>
+              <Dependency path='/mfjdEnrolleeHasOther' />
+            </Not>
+            <Not>
+              <Dependency path="/eitherFilerHasMarketplacePlanAndIsNotClaimedAsDependent" />
+            </Not>
+          </All>
+          <All>
+            <Dependency path='/mfjdOneOrBothTPEnrolledThemselves' />
+            <Dependency path='/mfjdEnrolleeHasOther' />
+            <Dependency path='/mfjdOtherTaxFamily' />
+            <Not>
+              <Dependency path="/eitherFilerHasMarketplacePlanAndIsNotClaimedAsDependent" />
+            </Not>
+          </All>
+
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjDependentChoiceA">
+      <Description>
+        MFJ Dependent Choice A
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency module='filers' path='/MFJClaimingRefundOnly' />
+          <Any>
+            <Dependency path='/MFJDNotEnrolledMarketplacePlanAndNoAdvancedPTCPaymentsMade' />
+            <Dependency path='/mfjdOK' />
+            <Dependency path='/mfjdOkFormNotRequired' />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/notDependentNotOtherTaxFamily">
+      <Description>
+        Not dependent and not other tax family
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/refundOnlyMFJDEnrollMarketPlanAPTCPaymentsMadeEnrolleeIsOther" />
+          <Not>
+            <Dependency path='/mfjdOtherTaxFamily' />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentClaimedAndEnrolleeIsSelf">
+      <Description>
+        Not dependent and not other tax family
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/eitherFilerIsClaimedAsDependent" />
+          <Dependency path='/mfjdEnrolleeHasSelf' />
+          <Not>
+            <Dependency path='/mfjdEnrolleeHasSpouse' />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentClaimedAndEnrolleeIsSpouse">
+      <Description>
+        Not dependent and not other tax family
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/eitherFilerIsClaimedAsDependent" />
+          <Dependency path='/mfjdEnrolleeHasSpouse' />
+          <Not>
+            <Dependency path='/mfjdEnrolleeHasSelf' />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentClaimedAndEnrolleeIsBoth">
+      <Description>
+        Not dependent and not other tax family
+      </Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/eitherFilerIsClaimedAsDependent" />
+          <Dependency path='/mfjdBothTPEnrolledThemselves' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/showMFJDChoiceBDynamic">
+      <Description>
+        Whether to show the dynamic content. It's your choice because you are filing jointly with you
+        spouse...
+      </Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <True />
+      </Placeholder>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

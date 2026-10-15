@@ -1,0 +1,61 @@
+# IRS1098C — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1098C/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 89ab160f486b94fca64d462bf5b24c1041ad040c06a37d34a543bc0308702d7c
+# boxes: 27   acroform fields: 79   boxes with a fact: 27
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].CopyC[0].CopyHeader[0].CalendarYear[0].f1_1[0]	/form1098Cs/*/writableCalendarYear	String		
+void		VOID checkbox	void checkbox	topmostSubform[0].CopyA[0].c1_1[0]	/form1098Cs/*/writableVoid	Bool		
+corrected		CORRECTED checkbox	corrected checkbox	topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].CopyB[0].c1_1[0]|topmostSubform[0].CopyC[0].c1_1[0]	/form1098Cs/*/writableCorrected	Bool		
+donee-name		DONEE'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no.	donee's name, street address, city or town, state or province, country, zip or foreign postal code, and telephone no	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_2[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_2[0]	/form1098Cs/*/writableDoneeNameAndAddress	String		
+donee-tin		DONEE'S TIN	donee's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_3[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_3[0]	/form1098Cs/*/writableDoneeTin	EIN		
+donor-tin		DONOR'S TIN	donor's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_4[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_4[0]	/form1098Cs/*/donorTin	TIN		
+donor-name		DONOR'S name	donor's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_5[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_5[0]	/form1098Cs/*/writableDonorName	String		
+donor-address		Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_6[0]	/form1098Cs/*/writableDonorStreetAddress	String		
+donor-city		City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_7[0]	/form1098Cs/*/writableDonorCityStateZip	String		
+1		Date of contribution	date of contribution	topmostSubform[0].CopyA[0].RghtCol[0].f1_8[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_8[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_8[0]	/form1098Cs/*/writableDateOfContribution	Day		
+2a		Odometer mileage	odometer mileage	topmostSubform[0].CopyA[0].RghtCol[0].f1_9[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_9[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_9[0]	/form1098Cs/*/writableOdometerMileage	Int		
+2b		Year	year	topmostSubform[0].CopyA[0].RghtCol[0].f1_10[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_10[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_10[0]	/form1098Cs/*/writableYear	String		
+2c		Make	make	topmostSubform[0].CopyA[0].RghtCol[0].f1_11[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_11[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_11[0]	/form1098Cs/*/writableMake	String		
+2d		Model	model	topmostSubform[0].CopyA[0].RghtCol[0].f1_12[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_12[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_12[0]	/form1098Cs/*/writableModel	String		
+3		Vehicle or other identification number	vehicle or other identification number	topmostSubform[0].CopyA[0].RghtCol[0].f1_13[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_13[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_13[0]	/form1098Cs/*/writableVehicleOrOtherIdentificationNumber	String		
+4a		Donee certifies that vehicle was sold in arm's length transaction to unrelated party	donee certifies that vehicle was sold in arm's length transaction to unrelated party	topmostSubform[0].CopyA[0].RghtCol[0].c1_2[0]|topmostSubform[0].CopyB[0].RghtCol[0].c1_2[0]|topmostSubform[0].CopyC[0].RghtCol[0].c1_2[0]	/form1098Cs/*/writableDoneeCertifiesVehicleSoldInArmsLengthTransaction	Bool		
+4b		Date of sale	date of sale	topmostSubform[0].CopyA[0].RghtCol[0].f1_14[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_14[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_14[0]	/form1098Cs/*/writableDateOfSale	Day		
+4c		Gross proceeds from sale (see instructions)	gross proceeds from sale	topmostSubform[0].CopyA[0].RghtCol[0].f1_15[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_15[0]|topmostSubform[0].CopyC[0].RghtCol[0].f1_15[0]	/form1098Cs/*/writableGrossProceedsFromSale	Dollar		
+5a		Donee certifies that vehicle will not be transferred for money, other property, or services before completion of material improvements or significant intervening use	donee certifies that vehicle will not be transferred for money, other property, or services before completion of material improvements or significant intervening use	topmostSubform[0].CopyA[0].c1_3[0]|topmostSubform[0].CopyB[0].c1_3[0]|topmostSubform[0].CopyC[0].c1_3[0]	/form1098Cs/*/writableDoneeCertifiesNoTransferBeforeImprovementsOrUse	Bool		
+5b		Donee certifies that vehicle is to be transferred to a needy individual for significantly below fair market value in furtherance of donee's charitable purpose	donee certifies that vehicle is to be transferred to a needy individual for significantly below fair market value in furtherance of donee's charitable purpose	topmostSubform[0].CopyA[0].c1_4[0]|topmostSubform[0].CopyB[0].c1_4[0]|topmostSubform[0].CopyC[0].c1_4[0]	/form1098Cs/*/writableDoneeCertifiesTransferToNeedyIndividual	Bool		
+5c		Donee certifies the following detailed description of material improvements or significant intervening use and duration of use	donee certifies the following detailed description of material improvements or significant intervening use and duration of use	topmostSubform[0].CopyA[0].f1_16[0]|topmostSubform[0].CopyB[0].f1_16[0]|topmostSubform[0].CopyC[0].f1_16[0]	/form1098Cs/*/writableDetailedDescriptionOfImprovementsOrUse	String		
+6a	1	Did you provide goods or services in exchange for the vehicle? Yes	did you provide goods or services in exchange for the vehicle? yes	topmostSubform[0].CopyA[0].c1_5[0]|topmostSubform[0].CopyB[0].c1_5[0]|topmostSubform[0].CopyC[0].c1_5[0]	/form1098Cs/*/writableGoodsOrServicesProvidedYes	Bool		
+6a	2	No	no	topmostSubform[0].CopyA[0].c1_5[1]|topmostSubform[0].CopyB[0].c1_5[1]|topmostSubform[0].CopyC[0].c1_5[1]	/form1098Cs/*/writableGoodsOrServicesProvidedNo	Bool		
+6b		Value of goods and services provided in exchange for the vehicle	value of goods and services provided in exchange for the vehicle	topmostSubform[0].CopyA[0].f1_17[0]|topmostSubform[0].CopyB[0].f1_17[0]|topmostSubform[0].CopyC[0].f1_17[0]	/form1098Cs/*/writableValueOfGoodsAndServicesProvided	Dollar		
+6c	1	If this box is checked, donee certifies that the goods and services consisted solely of intangible religious benefits	if this box is checked, donee certifies that the goods and services consisted solely of intangible religious benefits	topmostSubform[0].CopyA[0].c1_6[0]|topmostSubform[0].CopyB[0].c1_6[0]|topmostSubform[0].CopyC[0].c1_6[0]	/form1098Cs/*/writableGoodsAndServicesSolelyIntangibleReligiousBenefits	Bool		
+6c	2	Describe the goods and services, if any, that were provided	describe the goods and services, if any, that were provided	topmostSubform[0].CopyA[0].f1_18[0]|topmostSubform[0].CopyB[0].f1_18[0]|topmostSubform[0].CopyC[0].f1_18[0]	/form1098Cs/*/writableGoodsAndServicesDescription	String		
+7		Under the law, the donor may not claim a deduction of more than $500 for this vehicle if this box is checked	under the law, the donor may not claim a deduction of more than $500 for this vehicle if this box is checked	topmostSubform[0].CopyA[0].c1_7[0]|topmostSubform[0].CopyB[0].c1_7[0]|topmostSubform[0].CopyC[0].c1_7[0]	/form1098Cs/*/writableDeductionLimitedTo500	Bool		

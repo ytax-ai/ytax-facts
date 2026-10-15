@@ -1,0 +1,2720 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/saversCredits.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/saversCreditsPrimaryFiler">
+      <Description>The primary filer used by Saver's Credit attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isPrimaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditsSecondaryFiler">
+      <Description>The secondary filer used by Saver's Credit attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxIncomeLimitForMFJ">
+      <Description>max income before becoming ineligible as MFJ
+        IRS Notice 2024-80, adjusted limitation under
+        25B(b)(1)(C) and 25B(b)(1)(D)
+      </Description>
+      
+      <Derived>
+        <Dollar>79000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxIncomeLimitForHOH">
+      <Description>max income before becoming ineligible as HoH
+        IRS Notice 2024-80, adjusted limitation under
+        25B(b)(1)(C) and 25B(b)(1)(D)
+      </Description>
+      
+      <Derived>
+        <Dollar>59250</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxIncomeLimitForOther">
+      <Description>max income before becoming ineligible as other filing statuses (non HoH or MFJ)
+        IRS Notice 2024-80,
+        adjusted limitation under 25B(b)(1)(C) and 25B(b)(1)(D)
+      </Description>
+      
+      <Derived>
+        <Dollar>39500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditMaxAgiLimit">
+      <Description>Maximum AGI before becoming ineligible for the Saver's Credit</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dependency path="/maxIncomeLimitForMFJ"></Dependency>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dependency path="/maxIncomeLimitForHOH"></Dependency>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/maxIncomeLimitForOther"></Dependency>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditAgiLimitForFiftyPercent">
+      <Description>Maximum income at which the applicable percentage is 50%
+        IRS Notice 2024-80, adjusted limitation under
+        25B(b)(1)(A)
+      </Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>47500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dollar>35625</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>23750</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditAgiLimitForTwentyPercent">
+      <Description>Maximum income at which the applicable percentage is 20%
+        IRS Notice 2024-80, adjusted limitation under
+        25B(b)(1)(B)
+      </Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>51000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dollar>38250</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>25500</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isHohAgiEligibleForSaversCredit">
+      <Description>Is HoH AGI eligible for savers credit</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+          <LessThanOrEqual>
+            <Left>
+              <Dependency module="taxCalculations" path="/agi" />
+            </Left>
+            <Right>
+              <Dependency path="/maxIncomeLimitForHOH" />
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isMfjAgiEligibleForSaversCredit">
+      <Description>Is MFJ AGI eligible for savers credit</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <LessThanOrEqual>
+            <Left>
+              <Dependency module="taxCalculations" path="/agi" />
+            </Left>
+            <Right>
+              <Dependency path="/maxIncomeLimitForMFJ" />
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOtherAgiEligibleForSaversCredit">
+      <Description>Is other (not HoH or MFJ) AGI eligible for savers credit</Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+          </Not>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency module="taxCalculations" path="/agi" />
+            </Left>
+            <Right>
+              <Dependency path="/maxIncomeLimitForOther" />
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isAgiEligibleForSaversCredit">
+      <Description>Is AGI eligible for Savers Credit</Description>
+
+      <Derived>
+        <Any>
+          <Dependency path="/isHohAgiEligibleForSaversCredit" />
+          <Dependency path="/isMfjAgiEligibleForSaversCredit" />
+          <Dependency path="/isOtherAgiEligibleForSaversCredit" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/eligibleForSaversCredit">
+      <Description>Whether the TP(s) are eligible for the Saver's credit</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filers" path="/isMFJDependent" />
+          </Not>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              </When>
+              <Then>
+                <Any>
+                  <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+                  <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+                </Any>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/isAgiEligibleForSaversCredit" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/onlyPrimaryFilerEligibleForSaversCredit">
+      <Description>Is the primary taxpayer the only taxpayer eligible?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/eligibleForSaversCredit" />
+          <Dependency path="/saversCreditsPrimaryFiler/isEligibleForSaversCredit" />
+          <Any>
+            <Not>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </Not>
+            <Not>
+              <Dependency path="/saversCreditsSecondaryFiler/isEligibleForSaversCredit" />
+            </Not>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/onlySecondaryFilerEligibleForSaversCredit">
+      <Description>Is the secondary taxpayer the only taxpayer eligible?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/eligibleForSaversCredit" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/saversCreditsSecondaryFiler/isEligibleForSaversCredit" />
+          <Not>
+            <Dependency path="/saversCreditsPrimaryFiler/isEligibleForSaversCredit" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/bothFilersEligibleForSaversCredit">
+      <Description>Are both taxpayers eligible?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/eligibleForSaversCredit" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/saversCreditsPrimaryFiler/isEligibleForSaversCredit" />
+          <Dependency path="/saversCreditsSecondaryFiler/isEligibleForSaversCredit" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditMultiplierOptions">
+      <Description>Enum for the decimal multiplier used on Form 8880, line 9</Description>
+      <Derived>
+        <EnumOptions>
+          <String>fifty</String>
+          <String>twenty</String>
+          <String>ten</String>
+          <String>zero</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfSaversCreditMultiplierAsInt">
+      <Description>The savers credit multiplier as an int, used for the PDF output for Form 8880, line 9</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/saversCreditMultiplier" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/saversCreditMultiplierOptions">fifty</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>5</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/saversCreditMultiplier" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/saversCreditMultiplierOptions">twenty</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>2</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/saversCreditMultiplier" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/saversCreditMultiplierOptions">ten</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>1</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Int>0</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditMultiplierAsRational">
+      <Description>The savers credit multiplier as a rational number so that we can multiply it for Form 8880 line 10
+        calculations</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/saversCreditMultiplier" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/saversCreditMultiplierOptions">fifty</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>5/10</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/saversCreditMultiplier" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/saversCreditMultiplierOptions">twenty</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>2/10</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/saversCreditMultiplier" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/saversCreditMultiplierOptions">ten</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>1/10</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Rational>0/10</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditMultiplier">
+      <Description>Mulitiplier used on Form 8880, line 9</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/agi" />
+                </Left>
+                <Right>
+                  <Dependency path="/saversCreditAgiLimitForFiftyPercent"></Dependency>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Enum optionsPath="/saversCreditMultiplierOptions">fifty</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/agi" />
+                </Left>
+                <Right>
+                  <Dependency path="/saversCreditAgiLimitForTwentyPercent"></Dependency>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Enum optionsPath="/saversCreditMultiplierOptions">twenty</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency module="taxCalculations" path="/agi" />
+                </Left>
+                <Right>
+                  <Dependency path="/saversCreditMaxAgiLimit" />
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Enum optionsPath="/saversCreditMultiplierOptions">ten</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Enum optionsPath="/saversCreditMultiplierOptions">zero</Enum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerIsEligibleForSaversCredit">
+      <Description>Whether the secondary filer is actually applicable and eligible for the saver's credit</Description>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/saversCreditsSecondaryFiler/isEligibleForSaversCredit" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePrimaryFilerIraAndAbleContributions">
+      <Description>Form 8880 line 1 column (a): the primary filer's traditional and Roth IRA contributions and
+        the ABLE account contributions made as the designated beneficiary, for 2025, with rollover contributions
+        left out. Self reported, because no information return this dictionary holds carries them.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerIraAndAbleContributions">
+      <Description>Form 8880 line 1 column (b): the same IRA and ABLE contributions leg on the spouse's side of a
+        joint return. Column (b) is completed only on a joint return.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/unfilteredPrimaryFilerIraAndAbleContributions">
+      <Description>Total IRA and ABLE account contributions for the primary filer, not filtered by eligibility</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasSelfReportedContributions" />
+                </IsComplete>
+                <Dependency path="/hasSelfReportedContributionsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerIraAndAbleContributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writablePrimaryFilerIraAndAbleContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerIraAndAbleContributions">
+      <Description>Total IRA and ABLE account contributions for the primary filer, used in Form 8880 Line 1a</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+            </When>
+            <Then>
+              <Dependency path="/unfilteredPrimaryFilerIraAndAbleContributions"></Dependency>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unfilteredSecondaryFilerIraAndAbleContributions">
+      <Description>Total IRA and ABLE account contributions for the secondary filer, not filtered by eligibility</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasSelfReportedContributions" />
+                </IsComplete>
+                <Dependency path="/hasSelfReportedContributionsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerIraAndAbleContributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSecondaryFilerIraAndAbleContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerIraAndAbleContributions">
+      <Description>Total IRA and ABLE account contributions for the secondary filer, used in Form 8880 Line 1b</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/secondaryFilerIsEligibleForSaversCredit" />
+            </When>
+            <Then>
+              <Dependency path="/unfilteredSecondaryFilerIraAndAbleContributions" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+        <Fact path="/writablePrimaryFilerVoluntaryEmployeeContributions">
+      <Name>Your voluntary employee contributions to a qualified retirement plan for 2025</Name>
+      <Description>Form 8880 line 2 column (a): the voluntary employee contributions the primary filer made for 2025 to a qualified
+        retirement plan as defined in section 4974(c), including the federal Thrift Savings Plan. These are after-tax
+        contributions the employee chose to make; no Form W-2 box 12 code carries them, so they are asked here and added
+        to the box 12 elective deferrals on line 2.
+        Question: "Did you make voluntary (after-tax) employee contributions to a
+        qualified retirement plan for 2025? If so, how much?"
+        Help: "Include voluntary employee contributions to a qualified retirement plan, as defined in section 4974(c)
+        (including the federal TSP). Do not include elective deferrals already shown in box 12 of your Form W-2.
+        Contributions designated under section 414(h)(2) (employer pick-up contributions) are treated as employer
+        contributions and are not voluntary employee contributions; do not include them." (2025 Instructions for Form
+        8880, Line 2).
+        Asked when: the filer said there were contributions not shown on a Form W-2 (/hasSelfReportedContributions)
+        .
+        Unanswered: read as $0 (line 2 is the Form W-2 box 12 total alone), which understates the credit for a filer who
+        has such contributions; nothing is refused.
+        Validation: dollars, not less than $0. Feeds /unfilteredPrimaryFilersDeferralsAndContributions, Form 8880 line 2
+        column (a).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerVoluntaryEmployeeContributions">
+      <Name>Primary filer's voluntary employee contributions counted on Form 8880 line 2</Name>
+      <Description>/writablePrimaryFilerVoluntaryEmployeeContributions when the filer said there were contributions not
+        shown on a Form W-2 and answered the amount, floored at $0; $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasSelfReportedContributions" />
+                </IsComplete>
+                <Dependency path="/hasSelfReportedContributionsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerVoluntaryEmployeeContributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writablePrimaryFilerVoluntaryEmployeeContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerVoluntaryEmployeeContributions">
+      <Name>Your spouse's voluntary employee contributions to a qualified retirement plan for 2025</Name>
+      <Description>Form 8880 line 2 column (b): the voluntary employee contributions the spouse made for 2025 to a qualified
+        retirement plan as defined in section 4974(c), including the federal Thrift Savings Plan. These are after-tax
+        contributions the employee chose to make; no Form W-2 box 12 code carries them, so they are asked here and added
+        to the box 12 elective deferrals on line 2.
+        Question: "Did your spouse make voluntary (after-tax) employee contributions to a
+        qualified retirement plan for 2025? If so, how much?"
+        Help: "Include voluntary employee contributions to a qualified retirement plan, as defined in section 4974(c)
+        (including the federal TSP). Do not include elective deferrals already shown in box 12 of your Form W-2.
+        Contributions designated under section 414(h)(2) (employer pick-up contributions) are treated as employer
+        contributions and are not voluntary employee contributions; do not include them." (2025 Instructions for Form
+        8880, Line 2).
+        Asked when: the filer said there were contributions not shown on a Form W-2 (/hasSelfReportedContributions)
+        and the return is married filing jointly.
+        Unanswered: read as $0 (line 2 is the Form W-2 box 12 total alone), which understates the credit for a filer who
+        has such contributions; nothing is refused.
+        Validation: dollars, not less than $0. Feeds /unfilteredSecondaryFilersDeferralsAndContributions, Form 8880 line 2
+        column (b).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryFilerVoluntaryEmployeeContributions">
+      <Name>Secondary filer's voluntary employee contributions counted on Form 8880 line 2</Name>
+      <Description>/writableSecondaryFilerVoluntaryEmployeeContributions when the filer said there were contributions not
+        shown on a Form W-2 and answered the amount, floored at $0; $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasSelfReportedContributions" />
+                </IsComplete>
+                <Dependency path="/hasSelfReportedContributionsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerVoluntaryEmployeeContributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSecondaryFilerVoluntaryEmployeeContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+<Fact path="/unfilteredPrimaryFilersDeferralsAndContributions">
+      <Description>Form 8880 line 2 column (a) before the eligibility filter: the Form W-2 box 12 elective deferrals plus the voluntary employee contributions to a qualified retirement plan.</Description>
+      <Derived>
+        <Add>
+          <Round>
+            <CollectionSum>
+              <Dependency module="formW2s" path="/primaryFilerW2s/*/totalDeferralsAndContributions" />
+            </CollectionSum>
+          </Round>
+          <Dependency path="/primaryFilerVoluntaryEmployeeContributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilersDeferralsAndContributions">
+      <Description>The total sum of deferrals and contributions for the Primary TP, used on Line 2a of Form 8880</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+            </When>
+            <Then>
+              <Dependency path="/unfilteredPrimaryFilersDeferralsAndContributions" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unfilteredSecondaryFilersDeferralsAndContributions">
+      <Description>Form 8880 line 2 column (b) before the eligibility filter: the Form W-2 box 12 elective deferrals plus the voluntary employee contributions to a qualified retirement plan.</Description>
+      <Derived>
+        <Add>
+          <Round>
+            <CollectionSum>
+              <Dependency module="formW2s" path="/secondaryFilerW2s/*/totalDeferralsAndContributions" />
+            </CollectionSum>
+          </Round>
+          <Dependency path="/secondaryFilerVoluntaryEmployeeContributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilersDeferralsAndContributions">
+      <Description>The total sum of deferrals and contributions for the secondary TP, used on Line 2b of Form 8880</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/secondaryFilerIsEligibleForSaversCredit" />
+            </When>
+            <Then>
+              <Dependency path="/unfilteredSecondaryFilersDeferralsAndContributions" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerUnfilteredTotalContributions">
+      <Description>Primary Filers total contributions not based on eligibility</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/unfilteredPrimaryFilersDeferralsAndContributions" />
+          <Dependency path="/unfilteredPrimaryFilerIraAndAbleContributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerUnfilteredTotalContributions">
+      <Description>Secondary filers total contributions not based on eligibility</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/unfilteredSecondaryFilersDeferralsAndContributions" />
+          <Dependency path="/unfilteredSecondaryFilerIraAndAbleContributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerTotalContributions">
+      <Description>Used for Form 8880 Line 3a, summation of line 1a and 2a</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/primaryFilerIraAndAbleContributions" />
+          <Dependency path="/primaryFilersDeferralsAndContributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerTotalContributions">
+      <Description>Used for Form 8880 Line 3b, summation of line 1b and 2b</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/secondaryFilerIraAndAbleContributions" />
+          <Dependency path="/secondaryFilersDeferralsAndContributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerTotalContributionsLessDistributions">
+      <Description>The total contributions by the primary filer minus the distributions, used on Form 8880 Line 5a</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/primaryFilerTotalContributions" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/primaryFilerGrossDistributions" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/submittedPrimaryFilerTotalContributionsLessDistributions">
+      <Description>Copy of /primaryFilerTotalContributionsLessDistributions but modified to be used specifically for
+        MeF/PDF to provide the incomplete value when the primary filer is not eligible or doesn't have eligible
+        contributions</Description>
+      <Export mef="true" />
+      <ExportZero />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/primaryFilerTotalContributions" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerTotalContributionsLessDistributions">
+      <Description>The total contributions by the secondary filer minus the distributions, used on Form 8880 Line 5b</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/secondaryFilerTotalContributions" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/secondaryFilerGrossDistributions" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/submittedSecondaryFilerTotalContributionsLessDistributions">
+      <Description>Copy of /secondaryFilerTotalContributionsLessDistributions but modified to be used specifically for
+        MeF/PDF to provide the incomplete value when spouse is not eligible or doesn't have eligible contributions</Description>
+      <Export mef="true" />
+      <ExportZero />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/secondaryFilerTotalContributions" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePrimaryFiler2023Distributions">
+      <Description>Form 8880 line 4 column (a), the primary filer's eligible distributions received in 2023.
+        Kept separate from 2024 because IRC 25B(d)(2)(D) tests joint filing status in each year of receipt.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePrimaryFiler2024Distributions">
+      <Description>Form 8880 line 4 column (a), the primary filer's eligible distributions received in 2024.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFiler2023Distributions">
+      <Description>Form 8880 line 4 column (b), the secondary filer's eligible distributions received in 2023.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFiler2024Distributions">
+      <Description>Form 8880 line 4 column (b), the secondary filer's eligible distributions received in 2024.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableFiledJointReturnFor2023">
+      <Description>On a 2025 joint return, whether the filers also filed jointly for 2023.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writableFiledJointReturnFor2024">
+      <Description>On a 2025 joint return, whether the filers also filed jointly for 2024.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writablePrimaryFilerPostYearEndDistributions">
+      <Description>Form 8880 line 4 column (a), the IRC 25B(d)(2)(B)(iii) sub period: the primary filer's
+        distributions received after the close of 2025 and before the due date, including extensions, of the 2025
+        return. No 2026 information return exists on a TY2025 return, so this is self reported.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerPostYearEndDistributions">
+      <Description>Form 8880 line 4 column (b), the IRC 25B(d)(2)(B)(iii) sub period on the spouse's side: the
+        secondary filer's own distributions received after the close of 2025 and before the extended due date of the
+        2025 return, before any joint return combining.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFiler2023Distributions">
+      <Description>The primary filer's complete-safe 2023 amount for Form 8880 line 4.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasDistributionsInLastThreeYears" />
+                </IsComplete>
+                <Dependency path="/hasDistributionsInLastThreeYearsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFiler2023Distributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writablePrimaryFiler2023Distributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFiler2024Distributions">
+      <Description>The primary filer's complete-safe 2024 amount for Form 8880 line 4.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasDistributionsInLastThreeYears" />
+                </IsComplete>
+                <Dependency path="/hasDistributionsInLastThreeYearsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFiler2024Distributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writablePrimaryFiler2024Distributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler2023Distributions">
+      <Description>The secondary filer's complete-safe 2023 amount for Form 8880 line 4.</Description>
+      <Derived><Switch><Case><When><All><IsComplete><Dependency path="/hasDistributionsInLastThreeYears" /></IsComplete><Dependency path="/hasDistributionsInLastThreeYearsCompleteSafe" /><IsComplete><Dependency path="/writableSecondaryFiler2023Distributions" /></IsComplete></All></When><Then><GreaterOf><Dependency path="/writableSecondaryFiler2023Distributions" />
+<Dollar>0</Dollar>
+</GreaterOf></Then></Case><Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler2024Distributions">
+      <Description>The secondary filer's complete-safe 2024 amount for Form 8880 line 4.</Description>
+      <Derived><Switch><Case><When><All><IsComplete><Dependency path="/hasDistributionsInLastThreeYears" /></IsComplete><Dependency path="/hasDistributionsInLastThreeYearsCompleteSafe" /><IsComplete><Dependency path="/writableSecondaryFiler2024Distributions" /></IsComplete></All></When><Then><GreaterOf><Dependency path="/writableSecondaryFiler2024Distributions" />
+<Dollar>0</Dollar>
+</GreaterOf></Then></Case><Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerPriorTwoYearsDistributions">
+      <Description>The primary filer's 2023 and 2024 Form 8880 line 4 amounts.</Description>
+      <Derived><Add><Dependency path="/primaryFiler2023Distributions" /><Dependency path="/primaryFiler2024Distributions" /></Add></Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerPriorTwoYearsDistributions">
+      <Description>The secondary filer's 2023 and 2024 Form 8880 line 4 amounts.</Description>
+      <Derived><Add><Dependency path="/secondaryFiler2023Distributions" /><Dependency path="/secondaryFiler2024Distributions" /></Add></Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerPostYearEndDistributions">
+      <Description>The primary filer's post year end distributions as they enter Form 8880 line 4a: the writable when
+        the taxpayer said there were such distributions and answered the amount, zero otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasCurrentYearDistributions" />
+                </IsComplete>
+                <Dependency path="/hasCurrentYearDistributionsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerPostYearEndDistributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writablePrimaryFilerPostYearEndDistributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerPostYearEndDistributions">
+      <Description>The secondary filer's post year end distributions as they enter Form 8880 line 4b, gated the same
+        way as the primary filer's leg.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/hasCurrentYearDistributions" />
+                </IsComplete>
+                <Dependency path="/hasCurrentYearDistributionsCompleteSafe" />
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerPostYearEndDistributions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSecondaryFilerPostYearEndDistributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+        <Fact path="/form1099Qas/*/saversCreditPrimaryFilerDistribution">
+      <Name>This Form 1099-QA box 1 as a primary filer testing-period distribution</Name>
+      <Description>Box 1 of this Form 1099-QA, floored at $0, when the form belongs to the primary filer and is not
+        marked void; $0 otherwise. Box 1 does not include program-to-program transfers, and it does include amounts the
+        beneficiary intends to roll over and a return of excess contributions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="form5329" path="../belongsToPrimaryFiler" />
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency module="form5329" path="../writableVoid" />
+                    </IsComplete>
+                    <Dependency module="form5329" path="../writableVoid" />
+                  </All>
+                </Not>
+                <IsComplete>
+                  <Dependency module="form5329" path="../writableGrossDistribution" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency module="form5329" path="../writableGrossDistribution" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePrimaryFiler2025AbleDistributionsRolledOver">
+      <Name>Your 2025 ABLE account distributions rolled over to another ABLE account</Name>
+      <Description>The part of the 2025 Form 1099-QA box 1 distributions of the primary filer that
+        was rolled over to an ABLE account within 60 days, so it was not includible in gross income.
+        Question: "Box 1 of your Form 1099-QA includes amounts you intended to roll over to another ABLE
+        account. How much of the 2025 distributions did you roll over to an ABLE account within 60 days?"
+        Help: "Distributions that are not taxable because of a rollover or a trustee-to-trustee transfer are not included
+        on Form 8880 line 4 (2025 Instructions for Form 8880, Line 4). A program-to-program transfer is not in box 1 at
+        all. A return of excess contributions does count."
+        Asked when: a Form 1099-QA of this filer shows a box 1 amount.
+        Unanswered: read as $0, so the whole box 1 reduces line 4 (the credit is not overstated; a filer who did roll
+        over and does not answer gets less credit than the law allows).
+        Validation: dollars, not less than $0 and not more than the box 1 total. Feeds
+        /primaryFiler2025AbleDistributions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFiler2025AbleDistributions">
+      <Name>Primary filer's 2025 ABLE account distributions counted on Form 8880 line 4</Name>
+      <Description>The total of this filer's 2025 Form 1099-QA box 1 amounts, less the part rolled over to an ABLE account
+        within 60 days, floored at $0. $0 when no Form 1099-QA is entered. A 2025 testing-period distribution that no
+        Form 1099-R reports; added with the self-reported years at /primaryFilerSelfReportedTestingPeriodDistributions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form5329" path="/form1099Qas" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency module="form5329" path="/form1099Qas" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <CollectionSum>
+                      <Dependency path="/form1099Qas/*/saversCreditPrimaryFilerDistribution" />
+                    </CollectionSum>
+                  </Minuend>
+                  <Subtrahends>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <IsComplete>
+                            <Dependency path="/writablePrimaryFiler2025AbleDistributionsRolledOver" />
+                          </IsComplete>
+                        </When>
+                        <Then>
+                          <GreaterOf>
+                            <Dependency path="/writablePrimaryFiler2025AbleDistributionsRolledOver" />
+                            <Dollar>0</Dollar>
+                          </GreaterOf>
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Qas/*/saversCreditSecondaryFilerDistribution">
+      <Name>This Form 1099-QA box 1 as a secondary filer testing-period distribution</Name>
+      <Description>Box 1 of this Form 1099-QA, floored at $0, when the form belongs to the secondary filer and is not
+        marked void; $0 otherwise. Box 1 does not include program-to-program transfers, and it does include amounts the
+        beneficiary intends to roll over and a return of excess contributions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="form5329" path="../belongsToSecondaryFiler" />
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency module="form5329" path="../writableVoid" />
+                    </IsComplete>
+                    <Dependency module="form5329" path="../writableVoid" />
+                  </All>
+                </Not>
+                <IsComplete>
+                  <Dependency module="form5329" path="../writableGrossDistribution" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency module="form5329" path="../writableGrossDistribution" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSecondaryFiler2025AbleDistributionsRolledOver">
+      <Name>Your spouse's 2025 ABLE account distributions rolled over to another ABLE account</Name>
+      <Description>The part of the 2025 Form 1099-QA box 1 distributions of the spouse that
+        was rolled over to an ABLE account within 60 days, so it was not includible in gross income.
+        Question: "Box 1 of your spouse's Form 1099-QA includes amounts you intended to roll over to another ABLE
+        account. How much of the 2025 distributions did your spouse roll over to an ABLE account within 60 days?"
+        Help: "Distributions that are not taxable because of a rollover or a trustee-to-trustee transfer are not included
+        on Form 8880 line 4 (2025 Instructions for Form 8880, Line 4). A program-to-program transfer is not in box 1 at
+        all. A return of excess contributions does count."
+        Asked when: a Form 1099-QA of this filer shows a box 1 amount on a joint return.
+        Unanswered: read as $0, so the whole box 1 reduces line 4 (the credit is not overstated; a filer who did roll
+        over and does not answer gets less credit than the law allows).
+        Validation: dollars, not less than $0 and not more than the box 1 total. Feeds
+        /secondaryFiler2025AbleDistributions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryFiler2025AbleDistributions">
+      <Name>Secondary filer's 2025 ABLE account distributions counted on Form 8880 line 4</Name>
+      <Description>The total of this filer's 2025 Form 1099-QA box 1 amounts, less the part rolled over to an ABLE account
+        within 60 days, floored at $0. $0 when no Form 1099-QA is entered. A 2025 testing-period distribution that no
+        Form 1099-R reports; added with the self-reported years at /secondaryFilerSelfReportedTestingPeriodDistributions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form5329" path="/form1099Qas" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency module="form5329" path="/form1099Qas" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <CollectionSum>
+                      <Dependency path="/form1099Qas/*/saversCreditSecondaryFilerDistribution" />
+                    </CollectionSum>
+                  </Minuend>
+                  <Subtrahends>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <IsComplete>
+                            <Dependency path="/writableSecondaryFiler2025AbleDistributionsRolledOver" />
+                          </IsComplete>
+                        </When>
+                        <Then>
+                          <GreaterOf>
+                            <Dependency path="/writableSecondaryFiler2025AbleDistributionsRolledOver" />
+                            <Dollar>0</Dollar>
+                          </GreaterOf>
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+<Fact path="/primaryFilerSelfReportedTestingPeriodDistributions">
+      <Description>The primary filer's testing period distributions that no Form 1099-R in this return reports: the
+        IRC 25B(d)(2)(B)(ii) two preceding years plus the (iii) post year end stretch, plus the 2025 ABLE account distributions of Form 1099-QA. Added to the 1099-R sum at
+        /primaryFilerSaversEligibleGrossDistributions, never beside it.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/primaryFilerPriorTwoYearsDistributions" />
+          <Dependency path="/primaryFilerPostYearEndDistributions" />
+          <Dependency path="/primaryFiler2025AbleDistributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerSelfReportedTestingPeriodDistributions">
+      <Description>The secondary filer's testing period distributions that no Form 1099-R in this return reports, the
+        same sum on the spouse's side, the 2025 ABLE account distributions included.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/secondaryFilerPriorTwoYearsDistributions" />
+          <Dependency path="/secondaryFilerPostYearEndDistributions" />
+          <Dependency path="/secondaryFiler2025AbleDistributions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerEligible2023Distributions">
+      <Description>The primary filer's 2023 distributions as Form 8880 line 4 counts them. They are counted whether or not
+        the primary filer is an eligible individual: on a joint return they also reach the secondary filer's column when
+        the filers filed jointly for 2023.</Description>
+      <Derived><Dependency path="/primaryFiler2023Distributions" /></Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerEligible2024Distributions">
+      <Description>The primary filer's 2024 distributions as Form 8880 line 4 counts them. They are counted whether or not
+        the primary filer is an eligible individual: on a joint return they also reach the secondary filer's column when
+        the filers filed jointly for 2024.</Description>
+      <Derived><Dependency path="/primaryFiler2024Distributions" /></Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerEligible2023Distributions">
+      <Description>The secondary filer's 2023 distributions as Form 8880 line 4 counts them. They are counted whether or not
+        the secondary filer is an eligible individual: on a joint return they also reach the primary filer's column when
+        the filers filed jointly for 2023.</Description>
+      <Derived><Dependency path="/secondaryFiler2023Distributions" /></Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerEligible2024Distributions">
+      <Description>The secondary filer's 2024 distributions as Form 8880 line 4 counts them. They are counted whether or not
+        the secondary filer is an eligible individual: on a joint return they also reach the primary filer's column when
+        the filers filed jointly for 2024.</Description>
+      <Derived><Dependency path="/secondaryFiler2024Distributions" /></Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler2023DistributionsForPrimaryColumn">
+      <Description>The spouse's 2023 amount included in Form 8880 column (a) only when the filers filed jointly
+        for 2023. A positive amount with the filing-status answer missing stays incomplete.</Description>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="/secondaryFilerEligible2023Distributions" /></Left><Right><Dollar>0</Dollar></Right></Equal></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></All></When><Then><Dependency path="/secondaryFilerEligible2023Distributions" /></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></IsComplete><Not><Dependency path="/writableFiledJointReturnFor2023" /></Not></All></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler2024DistributionsForPrimaryColumn">
+      <Description>The spouse's 2024 amount included in Form 8880 column (a) only when the filers filed jointly for 2024.</Description>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="/secondaryFilerEligible2024Distributions" /></Left><Right><Dollar>0</Dollar></Right></Equal></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></All></When><Then><Dependency path="/secondaryFilerEligible2024Distributions" /></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></IsComplete><Not><Dependency path="/writableFiledJointReturnFor2024" /></Not></All></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/primaryFiler2023DistributionsForSecondaryColumn">
+      <Description>The primary filer's 2023 amount included in Form 8880 column (b) only when the filers filed jointly for 2023.</Description>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="/primaryFilerEligible2023Distributions" /></Left><Right><Dollar>0</Dollar></Right></Equal></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></All></When><Then><Dependency path="/primaryFilerEligible2023Distributions" /></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></IsComplete><Not><Dependency path="/writableFiledJointReturnFor2023" /></Not></All></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/primaryFiler2024DistributionsForSecondaryColumn">
+      <Description>The primary filer's 2024 amount included in Form 8880 column (b) only when the filers filed jointly for 2024.</Description>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="/primaryFilerEligible2024Distributions" /></Left><Right><Dollar>0</Dollar></Right></Equal></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></All></When><Then><Dependency path="/primaryFilerEligible2024Distributions" /></Then></Case><Case><When><All><IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></IsComplete><Not><Dependency path="/writableFiledJointReturnFor2024" /></Not></All></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerSaversEligibleGrossDistributions">
+      <Description>The primary filer's own testing-period distributions that Form 8880 line 4 counts (before the
+        spouse's amounts are added on a joint return). They are counted whether or not the primary filer is an
+        eligible individual, because on a joint return they also reduce the spouse's column; the primary filer's own
+        column is set to zero at /primaryFilerGrossDistributions when the primary filer is not eligible.</Description>
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+                  </IsComplete>
+                  <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+                  <IsComplete>
+                    <Dependency module="form1099Rs" path="/primaryFiler1099RsReportedOnSaversCredit" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Add>
+                  <CollectionSum>
+                    <Dependency module="form1099Rs"
+                      path="/primaryFiler1099RsReportedOnSaversCredit/*/grossDistribution" />
+                  </CollectionSum>
+                  <Dependency path="/primaryFilerSelfReportedTestingPeriodDistributions" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="form1099Rs" path="/primaryFiler1099RsReportedOnSaversCredit" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Add>
+                  <CollectionSum>
+                    <Dependency module="form1099Rs"
+                      path="/primaryFiler1099RsReportedOnSaversCredit/*/grossDistribution" />
+                  </CollectionSum>
+                  <Dependency path="/primaryFilerSelfReportedTestingPeriodDistributions" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerGrossDistributions">
+      <Description>Form 8880: line 4a the total of certain primary filer distributions according to the form
+        instructions. If MFJ, both secondary and primary distributions are added and the same for both line 5a and b
+        unless the primary filer is not eligible. The secondary filer's distributions count here whether or not the
+        secondary filer is eligible.
+        Defaulted to 0 when not eligible</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <IsComplete>
+                  <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+                </IsComplete>
+                <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/primaryFilerSaversEligibleGrossDistributions" />
+                <Subtract>
+                  <Minuend><Dependency path="/secondaryFilerSaversEligibleGrossDistributions" /></Minuend>
+                  <Subtrahends>
+                    <Dependency path="/secondaryFilerEligible2023Distributions" />
+                    <Dependency path="/secondaryFilerEligible2024Distributions" />
+                  </Subtrahends>
+                </Subtract>
+                <Dependency path="/secondaryFiler2023DistributionsForPrimaryColumn" />
+                <Dependency path="/secondaryFiler2024DistributionsForPrimaryColumn" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+                  </IsComplete>
+                  <Dependency module="filers" path="/primaryFiler/isEligibleForSaversCredit" />
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerSaversEligibleGrossDistributions" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerSaversEligibleGrossDistributions">
+      <Description>The secondary filer's own testing-period distributions that Form 8880 line 4 counts (before the
+        primary filer's amounts are added on a joint return). They are counted whether or not the secondary filer is
+        an eligible individual, because on a joint return they also reduce the primary filer's column; the secondary
+        filer's own column is set to zero at /secondaryFilerGrossDistributions when the secondary filer is not
+        eligible.</Description>
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+                  </IsComplete>
+                  <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+                  <IsComplete>
+                    <Dependency module="form1099Rs" path="/secondaryFiler1099RsReportedOnSaversCredit" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Add>
+                  <CollectionSum>
+                    <Dependency module="form1099Rs"
+                      path="/secondaryFiler1099RsReportedOnSaversCredit/*/grossDistribution" />
+                  </CollectionSum>
+                  <Dependency path="/secondaryFilerSelfReportedTestingPeriodDistributions" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency module="form1099Rs" path="/secondaryFiler1099RsReportedOnSaversCredit" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <Add>
+                  <CollectionSum>
+                    <Dependency module="form1099Rs"
+                      path="/secondaryFiler1099RsReportedOnSaversCredit/*/grossDistribution" />
+                  </CollectionSum>
+                  <Dependency path="/secondaryFilerSelfReportedTestingPeriodDistributions" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerGrossDistributions">
+      <Description>Form 8880: line 4b the total of certain secondary filer distributions according to the form
+        instructions. If MFJ, both secondary and primary distributions are added and the same for both line 5a and b
+        unless the secondary filer is not eligible. The primary filer's distributions count here whether or not the
+        primary filer is eligible. Defaulted to 0 when not eligible.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <IsComplete>
+                  <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+                </IsComplete>
+                <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/secondaryFilerSaversEligibleGrossDistributions" />
+                <Subtract>
+                  <Minuend><Dependency path="/primaryFilerSaversEligibleGrossDistributions" /></Minuend>
+                  <Subtrahends>
+                    <Dependency path="/primaryFilerEligible2023Distributions" />
+                    <Dependency path="/primaryFilerEligible2024Distributions" />
+                  </Subtrahends>
+                </Subtract>
+                <Dependency path="/primaryFiler2023DistributionsForSecondaryColumn" />
+                <Dependency path="/primaryFiler2024DistributionsForSecondaryColumn" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+                  </IsComplete>
+                  <Dependency module="filers" path="/secondaryFiler/isEligibleForSaversCredit" />
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerSaversEligibleGrossDistributions" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversMaxCreditAmountNotMFJ">
+      <Description>Max credit possible if not filing MFJ (50% of the max contribution)</Description>
+      <Derived>
+        <Dollar>1000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversMaxCreditLimit">
+      <Description>Max credit limit for line 6 on Form 8880</Description>
+      <Derived>
+        <Dollar>2000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerMaxCreditCalc">
+      <Description>Lesser of saversMaxCreditLimit or Line 5a, used on Form 8880 Line 6a</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/saversMaxCreditLimit" />
+          <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/submittedPrimaryFilerMaxCreditCalc">
+      <Description>Modification of /primaryFilerMaxCreditCalc, used for MeF/PDF to prevent value when the primary filer
+        is not eligible or doesn't have eligible contributions</Description>
+      <Export mef="true" />
+      <ExportZero />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/primaryFilerTotalContributions" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerMaxCreditCalc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerMaxCreditCalc">
+      <Description>Lesser of saversMaxCreditLimit or Line 5b, used on Form 8880 Line 6b</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/saversMaxCreditLimit" />
+          <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/submittedSecondaryFilerMaxCreditCalc">
+      <Description>Modification of /secondaryFilerMaxCreditCalc, used for MeF/PDF to prevent value when the spouse is
+        not eligible or doesn't have eligible contributions</Description>
+      <Export mef="true" />
+      <ExportZero />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/secondaryFilerTotalContributions" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerMaxCreditCalc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/combinedCreditLimit">
+      <Description>used on Form 8880 Line 7</Description>
+      <Export mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/primaryFilerMaxCreditCalc" />
+          <Dependency path="/secondaryFilerMaxCreditCalc" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ratioedCombinedCreditLimit">
+      <Description>the multiplier times the combinedCreditLimit, used for Form 8880 Line 10</Description>
+      <Export mef="true" />
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/saversCreditMultiplierAsRational" />
+            <Dependency path="/combinedCreditLimit" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/meetsOneDollarCombinedCreditLimit">
+      <Description>The combined credit limit is $1 and ratioed limit is $0</Description>
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path="/combinedCreditLimit" />
+            </Left>
+            <Right>
+              
+              <Dollar>1</Dollar>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="/ratioedCombinedCreditLimit" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/limitationBasedOnTaxLiability">
+      <Description>Limitation based on tax liability (Credit Limit Worksheet) Form 8880 Line 11</Description>
+      <Export mef="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Add>
+                <Dependency module="schedule3" path="/sched3Line1" />
+                <Dependency module="cdcc" path="/cdccTotalCredit" />
+                <Dependency module="schedule3" path="/sched3Line3" />
+                <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+                <Dependency module="schedule3" path="/sched3Line6l" />
+              </Add>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedSaverCreditAmount">
+      <Description>The amount the TP qualifies for, Form 8880 Line 12 and propagates to Form 1040 Schedule 3, Line 4</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/qualifiedForSaverCredit" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/ratioedCombinedCreditLimit"></Dependency>
+                <Dependency path="/limitationBasedOnTaxLiability"></Dependency>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingSaversCredit">
+      <Description>Whether the amount of the credit is greater than $0</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/qualifiedSaverCreditAmount" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedForSaverCreditWoTaxLiability">
+      <Description>Eligible and qualified for savers credit</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/eligibleForSaversCredit" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/combinedCreditLimit" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedForSaverCredit">
+      <Description>Eligible and qualified for savers credit</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/qualifiedForSaverCreditWoTaxLiability" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/limitationBasedOnTaxLiability"></Dependency>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/singleFilerQualifiedForSaversCredit">
+      <Description>Is the primary taxpayer the only taxpayer qualified?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/qualifiedForSaverCredit" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/onlyPrimaryFilerQualifiedForSaversCredit">
+      <Description>Is the primary taxpayer the only taxpayer qualified?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/qualifiedForSaverCredit" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Equal>
+            <Left>
+              <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/onlySecondaryFilerQualifiedForSaversCredit">
+      <Description>Is the secondary taxpayer the only taxpayer qualified?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/qualifiedForSaverCredit" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Equal>
+            <Left>
+              <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/bothFilersQualifiedForSaversCredit">
+      <Description>Are both taxpayers qualified?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/qualifiedForSaverCredit" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/onlyPrimaryFilerQualifiedForSaversCredit" />
+          </Not>
+          <Not>
+            <Dependency path="/onlySecondaryFilerQualifiedForSaversCredit" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/didPrimaryMakeEligibleContributions">
+      <Description>Did the primary TP make eligible contributions</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/primaryFilerUnfilteredTotalContributions" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/didSecondaryMakeEligibleContributions">
+      <Description>Did the secondary TP make eligible contributions</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/secondaryFilerUnfilteredTotalContributions" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/didSingleFilerMakeEligibleContributions">
+      <Description>Did the primary taxpayer (of a non-MFJ return) make Saver's Credit eligible contributions?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/didPrimaryMakeEligibleContributions" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/didOnlyPrimaryMakeEligibleContributions">
+      <Description>Was the primary taxpayer (of an MFJ return) the only filer to make Saver's Credit eligible
+        contributions?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/didPrimaryMakeEligibleContributions" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/didSecondaryMakeEligibleContributions" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/didOnlySecondaryMakeEligibleContributions">
+      <Description>Was the secondary taxpayer (of an MFJ return) the only filer to make Saver's Credit eligible
+        contributions?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/didSecondaryMakeEligibleContributions" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/didPrimaryMakeEligibleContributions" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/didNeitherFilerMakeEligibleContributions">
+      <Description>Did neither filer (of an MFJ return) make Saver's Credit eligible contributions?</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/didPrimaryMakeEligibleContributions" />
+          </Not>
+          <Not>
+            <Dependency path="/didSecondaryMakeEligibleContributions" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nameOfOnlyQualifier">
+      <Description>Name of person when only one person qualifies for the credit, may be undefined</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <Equal>
+                  <Left>
+                    <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/primaryFiler/firstName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <Equal>
+                  <Left>
+                    <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/secondaryFiler/firstName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasDistributionsInLastThreeYears">
+      <Description>Did primary or secondary have any distributions in the last 3 years</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasCurrentYearDistributions">
+      <Description>Will the primary or secondary have any distributions prior to the extension deadline?</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasSelfReportedContributions">
+      <Description>Did primary or secondary have any self-reported contributions</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasDistributionsInLastThreeYearsCompleteSafe">
+      <Description>Complete-safe Boolean view of the prior-three-years distribution gate; false when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/hasDistributionsInLastThreeYears" /></IsComplete></When>
+            <Then><Dependency path="/hasDistributionsInLastThreeYears" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/hasCurrentYearDistributionsCompleteSafe">
+      <Description>Complete-safe Boolean view of the current-year distribution gate; false when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/hasCurrentYearDistributions" /></IsComplete></When>
+            <Then><Dependency path="/hasCurrentYearDistributions" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/hasSelfReportedContributionsCompleteSafe">
+      <Description>Complete-safe Boolean view of the self-reported contributions gate; false when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/hasSelfReportedContributions" /></IsComplete></When>
+            <Then><Dependency path="/hasSelfReportedContributions" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSelfReportedDistributions">
+      <Description>Did primary or secondary have any self-reported distributions</Description>
+
+      <Derived>
+        <Any>
+          <Dependency path="/hasDistributionsInLastThreeYears" />
+          <Dependency path="/hasCurrentYearDistributions" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditJointFilingYearAnswerIncomplete">
+      <Description>Submission guard for a prior-year joint-filing answer that Form 8880 line 4 needs but the filer
+        has not supplied. It fires only when an eligible column must decide whether to include a positive amount
+        received by the other spouse in 2023 or 2024. Nothing on the 2025 return can infer that historical filing
+        status, so completing the intake is the only correct remedy.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Any>
+            <All><Dependency path="/saversCreditsPrimaryFiler/isEligibleForSaversCredit" /><GreaterThan><Left><Dependency path="/secondaryFilerEligible2023Distributions" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><Not><IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></IsComplete></Not></All>
+            <All><Dependency path="/saversCreditsSecondaryFiler/isEligibleForSaversCredit" /><GreaterThan><Left><Dependency path="/primaryFilerEligible2023Distributions" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><Not><IsComplete><Dependency path="/writableFiledJointReturnFor2023" /></IsComplete></Not></All>
+            <All><Dependency path="/saversCreditsPrimaryFiler/isEligibleForSaversCredit" /><GreaterThan><Left><Dependency path="/secondaryFilerEligible2024Distributions" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><Not><IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></IsComplete></Not></All>
+            <All><Dependency path="/saversCreditsSecondaryFiler/isEligibleForSaversCredit" /><GreaterThan><Left><Dependency path="/primaryFilerEligible2024Distributions" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><Not><IsComplete><Dependency path="/writableFiledJointReturnFor2024" /></IsComplete></Not></All>
+          </Any>
+        </All>
+      </Derived>
+      <BlockSubmissionOnTrue />
+    </Fact>
+
+    <Fact path="/flowShowSaversEligibleScreen">
+      <Description>Whether the TP had contributions / distributions and didn't have a zero credit value</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/hasSelfReportedDistributionsOrContributions" />
+          </Not>
+          <Not>
+            <Dependency path="/meetsOneDollarCombinedCreditLimit" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSelfReportedDistributionsOrContributions">
+      <Description>Did primary or secondary have any self-reported distributions or contributions</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Any>
+          <Dependency path="/hasSelfReportedDistributions" />
+          <Dependency path="/hasSelfReportedContributions" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isSingleFilerUnderAge">
+      <Description>Is the primary taxpayer (of a non-MFJ return) under 18?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsPrimaryFiler/isUnder18" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOnlyPrimaryFilerUnderAge">
+      <Description>Is the primary taxpayer (of an MFJ return) the only filer under 18?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsPrimaryFiler/isUnder18" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/saversCreditsSecondaryFiler/isUnder18" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOnlySecondaryFilerUnderAge">
+      <Description>Is the secondary taxpayer (of an MFJ return) the only filer under 18?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsSecondaryFiler/isUnder18" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/saversCreditsPrimaryFiler/isUnder18" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/areBothFilersUnderAge">
+      <Description>Are both taxpayers (of an MFJ return) under 18?</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/saversCreditsPrimaryFiler/isUnder18" />
+          <Dependency path="/saversCreditsSecondaryFiler/isUnder18" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/willSingleFilerBeClaimedAsDependent">
+      <Description>Will the primary taxpayer (of a non-MFJ return) be claimed as a dependent on a different return?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsPrimaryFiler/willBeClaimed" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/willOnlyPrimaryFilerBeClaimedAsDependent">
+      <Description>Will the primary taxpayer (of an MFJ return) be claimed as a dependent on a different return?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsPrimaryFiler/willBeClaimed" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/saversCreditsSecondaryFiler/willBeClaimed" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/willOnlySecondaryFilerBeClaimedAsDependent">
+      <Description>Will the secondary taxpayer (of an MFJ return) be claimed as a dependent on a different return?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsSecondaryFiler/willBeClaimed" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/saversCreditsPrimaryFiler/willBeClaimed" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/willBothFilersBeClaimedAsDependents">
+      <Description>Will both filers be claimed as dependents on another tax return?</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/saversCreditsPrimaryFiler/willBeClaimed" />
+          <Dependency path="/saversCreditsSecondaryFiler/willBeClaimed" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isSingleFilerFullTimeStudent">
+      <Description>Is the primary filer (of a non-MFJ return) the only filer that was a full-time student?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsPrimaryFiler/isStudent" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOnlyPrimaryFilerFullTimeStudent">
+      <Description>Is the primary filer (of an MFJ return) the only filer that was a full-time student?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsPrimaryFiler/isStudent" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/saversCreditsSecondaryFiler/isStudent" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOnlySecondaryFilerFullTimeStudent">
+      <Description>Is the secondary filer (of an MFJ return) the only filer that was a full-time student?</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/saversCreditsSecondaryFiler/isStudent" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/saversCreditsPrimaryFiler/isStudent" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/areBothFilersFullTimeStudents">
+      <Description>Are both filers full-time students?</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/saversCreditsPrimaryFiler/isStudent" />
+          <Dependency path="/saversCreditsSecondaryFiler/isStudent" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isSingleFilerFailsDistributionsTest">
+      <Description>Is the primary filer (of a non-MFJ return) the only filer that has distributions exceeding
+        contributions?</Description>
+
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOnlyPrimaryFilerFailsDistributionsTest">
+      <Description>Is the primary filer (of an MFJ return) the only filer that has distributions exceeding
+        contributions?</Description>
+
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Equal>
+              <Left>
+                <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </Equal>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isOnlySecondaryFilerFailsDistributionsTest">
+      <Description>Is the secondary filer (of an MFJ return) the only filer that that has distributions exceeding
+        contributions?</Description>
+
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Equal>
+              <Left>
+                <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </Equal>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/areBothFilersFailDistributionsTest">
+      <Description>Are both filers have distributions exceeding contributions?</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Equal>
+            <Left>
+              <Dependency path="/primaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="/secondaryFilerTotalContributionsLessDistributions" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/saversCreditLimitWorksheetLine2">
+      <Name>Form 8880 Credit Limit Worksheet line 2 (credits ordered before the saver's credit)</Name>
+      <Description>Form 8880 Credit Limit Worksheet line 2: the total of the credits Schedule 3 orders ahead of the saver's credit, namely Schedule 3 lines 1 (foreign tax credit), 2 (credit for child and dependent care expenses), 3 (nonrefundable education credits), 6d (credit for the elderly or the disabled) and 6l. It is the same five addends /limitationBasedOnTaxLiability already subtracts, lifted out of that fact's inline Add so the printed worksheet row has a fact of its own; /limitationBasedOnTaxLiability keeps its own arithmetic, so nothing downstream moves. NOTE FOR PROMOTION: this is the SECOND fact in saversCredits to anchor IRC 26, so scripts/test_lint_statute_anchor.py's _GENUINE_26 count and the module's row in scripts/statute_anchor_locked_modules.tsv (which records exactly one 26 co-cite) both need bumping when it lands. 25B cannot serve: former 25B(g) was struck in 2013, so 26(a) is the only section that supplies this ceiling, as the module's own row states.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/sched3Line1" />
+          <Dependency module="cdcc" path="/cdccTotalCredit" />
+          <Dependency module="schedule3" path="/sched3Line3" />
+          <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+          <Dependency module="schedule3" path="/sched3Line6l" />
+        </Add>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

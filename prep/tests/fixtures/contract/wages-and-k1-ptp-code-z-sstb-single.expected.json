@@ -1,0 +1,20 @@
+{
+  "comment": "Blessed from the pinned engine and hand-checked to the dollar. Re-blessed by it no longer records a coverage gap — it records the SSTB phase-in REACHING Form 1040 line 15. Wages 48,250 with a K-1 box 1 of 190,000 put taxable income before the deduction at 238,250 - 15,750 = 222,500, which is 25,200 above the 2025 section 199A threshold of 197,300 and inside the 50,000 phase-in range (upper threshold 247,300). With qualified_ptp_is_sstb true the engine works Schedule A (Form 8995-A) Part II exactly as printed: line 17 = 12,000, applicable percentage = (247,300 - 222,500) / 50,000 = 49.6%, line 24 = 12,000 x 0.496 = 5,952, so Form 8995 line 8 reads 5,952 instead of 12,000 and line 9 reads 12,000 x 0.496 x 20% = 1,190.40, rounded to 1,190, instead of 2,400. EARLIER NONE OF THAT REACHED A SERVED LINE: above the threshold the deduction took its $0 catch-all, because Form 8995's arm wants taxable income at or below the threshold and Form 8995-A's wants qbi:/claims8995A, whose writable this service emitted for nobody. The scaffold now sends that claim on every return over an EMPTY qbi:/qualifiedBusinesses, and the qualified REIT dividend / publicly traded partnership half of Form 8995-A (lines 28-32) needs no per-business detail — so Form 1040 line 13 is 1,190 here and the flag moves every line below it (K1QualifiedPtpCodeZGateTest.test_the_SSTB_flag_moves_a_FORM_line_AND_a_SERVED_line_which_is_this_tests_INVERSION holds that measurement, and the same return with the flag false deducts 2,400). The overall ceiling (20% x 222,500 = 44,500) does not bind. Taxable income 222,500 - 1,190 = 221,310; income tax 47,882 by the 2025 single rate schedule, not the table (over 100,000): 1,192.50 + 12% x 36,550 (4,386) + 22% x 54,875 (12,072.50) + 24% x 93,950 (22,548) = 40,199.00 through 197,300, then 32% x 24,010 (7,683.20), giving 47,882.20 — 47,882 to the dollar. Total tax is the same 47,882 — wages of 48,250 are below the 200,000 Additional Medicare Tax threshold, and the PTP's overall gain is nonpassive, so net investment income tax is 0. Withholding 30,000 is less than the tax, so the overpayment is 0. WHAT IS STILL NOT REACHED is Form 8995-A Part II: a business's own W-2 wage and property limitation has no intake here, and an above-threshold return whose Schedule C profit is auto-derived qualified business income is REFUSED rather than served short.",
+  "expected_lines": {
+    "1a": 4825000,
+    "1e": 0,
+    "6a": 0,
+    "6b": 0,
+    "8": 19000000,
+    "9": 23825000,
+    "11": 23825000,
+    "12": 1575000,
+    "15": 22131000,
+    "16": 4788200,
+    "24": 4788200,
+    "25d": 3000000,
+    "26": 0,
+    "33": 3000000,
+    "34": 0
+  }
+}

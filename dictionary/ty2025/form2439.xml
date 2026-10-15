@@ -1,0 +1,835 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form2439Forms">
+      <Name>Form 2439 shareholder notices</Name>
+      <Description>One item per Copy B of Form 2439 received for this return. Enter the amounts from each RIC or REIT notice; a shareholder can receive more than one notice. The collection is an intake because Copy B is issued by the RIC or REIT and attached to the shareholder return.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+    <Fact path="/form2439Forms/*/writableCalendarYear">
+      <Name>Form 2439 calendar year field</Name>
+      <Description>Transcribe the two-digit calendar year printed on this Form 2439 Copy B. The field identifies the issuer's reporting period and does not alter the return's tax year.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+      <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableOtherTaxYearBeginningMonthDay">
+      <Name>Form 2439 other tax year beginning month and day</Name>
+      <Description>Transcribe the beginning month and day when this Form 2439 reports an issuer tax year other than a calendar year. Preserve the printed digits.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+      <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableOtherTaxYearBeginningYear">
+      <Name>Form 2439 other tax year beginning year</Name>
+      <Description>Transcribe the two-digit year following the other-tax-year beginning date on this Form 2439 Copy B.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableOtherTaxYearEndingMonthDay">
+      <Name>Form 2439 other tax year ending month and day</Name>
+      <Description>Transcribe the ending month and day when this Form 2439 reports an issuer tax year other than a calendar year. Preserve the printed digits.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+      <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableOtherTaxYearEndingYear">
+      <Name>Form 2439 other tax year ending year</Name>
+      <Description>Transcribe the two-digit year following the other-tax-year ending date on this Form 2439 Copy B.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+      <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableIsVoid">
+      <Name>Form 2439 VOID indicator</Name>
+      <Description>Record whether the VOID checkbox is selected on this Copy B notice.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableIsCorrected">
+      <Name>Form 2439 CORRECTED indicator</Name>
+      <Description>Record whether the CORRECTED checkbox is selected on this Copy B notice.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableRicOrReitNameAddress">
+      <Name>Form 2439 RIC or REIT name and address</Name>
+      <Description>Transcribe the RIC or REIT name, street address, and ZIP code exactly as shown on this Form 2439 Copy B.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableRicOrReitEin">
+      <Name>Form 2439 RIC or REIT identification number</Name>
+      <Description>Transcribe the RIC or REIT employer identification number printed on this Form 2439 Copy B.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><EIN /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableShareholderTin">
+      <Name>Form 2439 shareholder identifying number</Name>
+      <Description>Transcribe the shareholder's identifying number printed on this Form 2439 Copy B, preserving any truncation as shown by the issuer.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><TIN /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority; no worksheet value to reconcile). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableShareholderNameAddress">
+      <Name>Form 2439 shareholder name and address</Name>
+      <Description>Transcribe the shareholder name, address, and ZIP code exactly as shown on this Form 2439 Copy B.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+          <!-- verified:ai-only — Form 2439 printed-box intake (the box is the authority). -->
+</Fact>
+    <Fact path="/form2439Forms/*/writableBox1a">
+      <Name>Form 2439 box 1a: total undistributed long-term capital gain</Name>
+      <Description>Enter box 1a from this shareholder Copy B of Form 2439. The writable is per notice; if more than one RIC or REIT issued a notice, add one collection item for each notice. Dollar amount in cents, nonnegative. The box remains an intake from the issuer's statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2439Forms/*/writableBox1b">
+      <Name>Form 2439 box 1b: unrecaptured section 1250 gain</Name>
+      <Description>Enter box 1b from this shareholder Copy B of Form 2439. The writable is per notice; if more than one RIC or REIT issued a notice, add one collection item for each notice. Dollar amount in cents, nonnegative. The box remains an intake from the issuer's statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2439Forms/*/writableBox1c">
+      <Name>Form 2439 box 1c: section 1202 gain</Name>
+      <Description>Enter box 1c from this shareholder Copy B of Form 2439. The writable is per notice; if more than one RIC or REIT issued a notice, add one collection item for each notice. Dollar amount in cents, nonnegative. The box remains an intake from the issuer's statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2439Forms/*/writableBox1d">
+      <Name>Form 2439 box 1d: collectibles (28%) gain</Name>
+      <Description>Enter box 1d from this shareholder Copy B of Form 2439. The writable is per notice; if more than one RIC or REIT issued a notice, add one collection item for each notice. Dollar amount in cents, nonnegative. The box remains an intake from the issuer's statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2439Forms/*/writableBox2">
+      <Name>Form 2439 box 2: tax paid by the RIC or REIT on the box 1a gains</Name>
+      <Description>Enter box 2 from this shareholder Copy B of Form 2439. The writable is per notice; if more than one RIC or REIT issued a notice, add one collection item for each notice. Dollar amount in cents, nonnegative. The box remains an intake from the issuer's statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2439ScheduleDLine11LongTermCapitalGain">
+      <Name>Schedule D line 11 long-term capital gain from Form 2439 box 1a</Name>
+      <Description>Schedule D line 11 long-term capital gain from Form 2439 box 1a. This export is the sum of that box over all Form 2439 Copy B notices in /form2439Forms. When the notice collection is unanswered the sum remains Incomplete, so a consumer must test completeness before reading it.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><GreaterOf><Dependency path="/form2439Forms/*/writableBox1a" /><Dollar>0</Dollar></GreaterOf></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2439UnrecapturedSection1250Gain">
+      <Name>Form 2439 box 1b gain export for the Schedule D Unrecaptured Section 1250 Gain Worksheet</Name>
+      <Description>Form 2439 box 1b gain export for the Schedule D Unrecaptured Section 1250 Gain Worksheet. This export is the sum of that box over all Form 2439 Copy B notices in /form2439Forms. When the notice collection is unanswered the sum remains Incomplete, so a consumer must test completeness before reading it.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><GreaterOf><Dependency path="/form2439Forms/*/writableBox1b" /><Dollar>0</Dollar></GreaterOf></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2439Section1202Gain">
+      <Name>Form 2439 box 1c section 1202 gain export</Name>
+      <Description>Form 2439 box 1c section 1202 gain export. This export is the sum of that box over all Form 2439 Copy B notices in /form2439Forms. When the notice collection is unanswered the sum remains Incomplete, so a consumer must test completeness before reading it.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><GreaterOf><Dependency path="/form2439Forms/*/writableBox1c" /><Dollar>0</Dollar></GreaterOf></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2439CollectiblesGain">
+      <Name>Form 2439 box 1d collectibles gain export for the Schedule D 28% Rate Gain Worksheet</Name>
+      <Description>Form 2439 box 1d collectibles gain export for the Schedule D 28% Rate Gain Worksheet. This export is the sum of that box over all Form 2439 Copy B notices in /form2439Forms. When the notice collection is unanswered the sum remains Incomplete, so a consumer must test completeness before reading it.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><GreaterOf><Dependency path="/form2439Forms/*/writableBox1d" /><Dollar>0</Dollar></GreaterOf></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2439Schedule3Line13aCredit">
+      <Name>Schedule 3 line 13a credit for tax paid by the RIC or REIT from Form 2439 box 2</Name>
+      <Description>Schedule 3 line 13a credit for tax paid by the RIC or REIT from Form 2439 box 2. This export is the sum of that box over all Form 2439 Copy B notices in /form2439Forms. When the notice collection is unanswered the sum remains Incomplete, so a consumer must test completeness before reading it.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><GreaterOf><Dependency path="/form2439Forms/*/writableBox2" /><Dollar>0</Dollar></GreaterOf></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form2439Forms/*/isVoid">
+      <Name>Form 2439 notice is VOID (complete safe)</Name>
+      <Description>TRUE when the VOID checkbox on this Copy B is recorded as selected; FALSE when it is recorded unselected or not recorded at all. An unanswered checkbox is an unselected checkbox: the printed box is either marked or it is not, and a transcription that never touched it reports a notice that is not void (printed-box intake: a question never reached never refuses). A VOID notice contributes nothing to any total below, whatever its boxes say.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableIsVoid" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableIsVoid" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/hasCalendarYearEntry">
+      <Name>Form 2439 notice has a calendar-year entry</Name>
+      <Description>TRUE when the calendar-year field of this notice is answered with something other than blanks. Blank-after-trim is treated as unanswered so that an application screen that writes an empty string into an untouched field does not count as a year.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableCalendarYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Length>
+                    <Trim>
+                      <Dependency path="../writableCalendarYear" />
+                    </Trim>
+                  </Length>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/hasOtherTaxYearEndingYearEntry">
+      <Name>Form 2439 notice has an other-tax-year ending-year entry</Name>
+      <Description>TRUE when the ending-year field of the other-tax-year line of this notice is answered with something other than blanks. Same blank-after-trim reading as /form2439Forms/*/hasCalendarYearEntry. The ending MONTH AND DAY are not read: for a calendar-year shareholder the only question is which calendar year the issuer's tax year ends in.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableOtherTaxYearEndingYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Length>
+                    <Trim>
+                      <Dependency path="../writableOtherTaxYearEndingYear" />
+                    </Trim>
+                  </Length>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/taxYearEndingYearEntry">
+      <Name>Form 2439 notice: the year the RIC's or REIT's tax year ends, as printed</Name>
+      <Description>The trimmed year text that identifies when this notice's issuer tax year ends: the calendar-year field when it alone is answered, the other-tax-year ending-year field when it alone is answered. The printed form offers the two as alternatives ("For calendar year 20 __, or other tax year ... ending __, 20 __"), so a notice with BOTH answered is malformed and this fact does not resolve, and a notice with NEITHER answered has not told the return which year it belongs to and does not resolve either. Neither state is a silent inclusion: an Incomplete here carries through /form2439Forms/*/isIncludedInReturnYear into every included total and from there into Schedule D line 15 and Schedule 3 line 13a (an entered document with a required box blank may block). Kept as text, not retyped: the printed field is a two-digit year and the box stays at its printed shape; the comparison downstream accepts the two-digit and the four-digit spelling.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../hasCalendarYearEntry" />
+                <Not>
+                  <Dependency path="../hasOtherTaxYearEndingYearEntry" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Trim>
+                <Dependency path="../writableCalendarYear" />
+              </Trim>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../hasOtherTaxYearEndingYearEntry" />
+                <Not>
+                  <Dependency path="../hasCalendarYearEntry" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Trim>
+                <Dependency path="../writableOtherTaxYearEndingYear" />
+              </Trim>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/taxYearEndsInReturnYear">
+      <Name>Form 2439 notice: the issuer's tax year ends in the return year</Name>
+      <Description>TRUE when /form2439Forms/*/taxYearEndingYearEntry names the return's tax year, in either the two-digit spelling the form prints ("25") or the four-digit spelling a filer may type ("2025"); FALSE for any other year. This is IRC 852(b)(3)(D)(i) applied to a calendar-year shareholder: the designated amount goes in the return for the shareholder's taxable year "in which the last day of the company's taxable year falls", and for a calendar-year individual that is the calendar year the issuer's year ENDS in. A fiscal-year RIC whose year ends March 31, 2026 therefore belongs to the 2026 return even though nine of its months are in 2025, and one whose year ended June 30, 2025 belongs here even though half of it was 2024. The two spellings are String literals ("2025", "25"), the one place this module names its tax year: the JS compiler accepts AsString only on a typed value, not on constants:/taxYear ("invalid child type: AsString"), so a TY2026 tree rewrites these two literals alongside its TaxYear tag. Incomplete when the year entry does not resolve (see that fact).</Description>
+      
+      <Derived>
+        <Any>
+          <Equal>
+            <Left>
+              <Dependency path="../taxYearEndingYearEntry" />
+            </Left>
+            <Right>
+              <String>2025</String>
+            </Right>
+          </Equal>
+          <Equal>
+            <Left>
+              <Dependency path="../taxYearEndingYearEntry" />
+            </Left>
+            <Right>
+              <String>25</String>
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/isIncludedInReturnYear">
+      <Name>Form 2439 notice is included in this return</Name>
+      <Description>TRUE when this notice is not VOID and its issuer tax year ends in the return year. The VOID test comes first and is complete-safe, so a voided notice with no year entered is excluded without asking which year it was for; a live notice with no resolvable year leaves this fact Incomplete, and with it every total the return reads. A CORRECTED notice passes this test like any other live notice: it IS the designation in force, and the notice it replaces must be entered VOID or left out (the graph cannot pair two live notices from the same payer and year; that check is the application's).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="../isVoid" />
+          </Not>
+          <Dependency path="../taxYearEndsInReturnYear" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/box1aIncluded">
+      <Name>Form 2439 box 1a as included in this return</Name>
+      <Description>Box 1a of this notice when the notice is included in this return, else $0. Box 1a is REQUIRED on an included notice: a live notice for this year with box 1a blank leaves this fact Incomplete rather than contributing nothing, because box 1a is the designated amount itself and a Copy B without it is not a usable notice.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../isIncludedInReturnYear" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableBox1a" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="../isIncludedInReturnYear" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/box1bIncluded">
+      <Name>Form 2439 box 1b as included in this return</Name>
+      <Description>Box 1b of this notice when the notice is included in this return and the box is answered; $0 when the notice is excluded or the box is blank. A blank sub-box is a printed blank: the Schedule D instructions route it conditionally ("If there is an amount in box 1b of Form 2439"), so no amount is no unrecaptured section 1250 gain, not a missing answer. Contrast box 1a and box 2, which are required.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="../isIncludedInReturnYear" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../isIncludedInReturnYear" />
+                <IsComplete>
+                  <Dependency path="../writableBox1b" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableBox1b" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../isIncludedInReturnYear" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="../writableBox1b" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/box1cIncluded">
+      <Name>Form 2439 box 1c as included in this return</Name>
+      <Description>Box 1c of this notice when the notice is included in this return and the box is answered; $0 when the notice is excluded or the box is blank, on the same conditional-routing reading as box 1b ("If there is an amount in box 1c of Form 2439, see Exclusion of Gain on Qualified Small Business (QSB) Stock"). Informational on this return: see /form2439IncludedSection1202Gain.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="../isIncludedInReturnYear" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../isIncludedInReturnYear" />
+                <IsComplete>
+                  <Dependency path="../writableBox1c" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableBox1c" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../isIncludedInReturnYear" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="../writableBox1c" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/box1dIncluded">
+      <Name>Form 2439 box 1d as included in this return</Name>
+      <Description>Box 1d of this notice when the notice is included in this return and the box is answered; $0 when the notice is excluded or the box is blank, on the same conditional-routing reading as box 1b ("If there is an amount in box 1d of Form 2439, include that amount on line 4 of the 28% Rate Gain Worksheet").</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="../isIncludedInReturnYear" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../isIncludedInReturnYear" />
+                <IsComplete>
+                  <Dependency path="../writableBox1d" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableBox1d" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../isIncludedInReturnYear" />
+                <Not>
+                  <IsComplete>
+                    <Dependency path="../writableBox1d" />
+                  </IsComplete>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/box2Included">
+      <Name>Form 2439 box 2 as included in this return</Name>
+      <Description>Box 2 of this notice when the notice is included in this return, else $0. Box 2 is REQUIRED on an included notice, like box 1a: it is the tax the shareholder is deemed to have paid, and a live notice for this year with box 2 blank leaves this fact Incomplete rather than claiming no credit. A RIC or REIT that paid no tax prints $0 there; a filer transcribes the $0.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../isIncludedInReturnYear" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableBox2" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="../isIncludedInReturnYear" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439Forms/*/shareBasisIncrease">
+      <Name>Form 2439 share-basis increase for this notice: box 1a minus box 2</Name>
+      <Description>The amount by which the shareholder's basis in the RIC or REIT shares this notice was designated on rises: box 1a as included in this return minus box 2 as included, and $0 when the notice is VOID or its issuer tax year does not end in the return year. The statute states the increase as the difference between the includible gain and the tax deemed paid, and the Schedule D instructions state the same difference as the excess of the amount included in income over the credit for the tax paid. NO RETURN LINE READS THIS FACT, and that is a declared boundary, not an omission: this dictionary holds no share basis and no multi-year state, so the figure is the filer's to carry to the later sale, where it raises the adjusted basis reported on Form 8949. What is computable from the notice alone is computed here, once, so the filer is not left to derive it from the two boxes by hand. Incomplete exactly when box 1a or box 2 of a live notice is Incomplete (and, like both of them, when a live notice has no resolvable year), the same posture as the two amounts it subtracts. NOT FLOORED AT $0: the statute states the increase as the difference between the includible gain and the tax deemed paid, and the tax of subparagraph (A) is imposed on that same designated gain, so box 2 can never lawfully exceed box 1a and a negative figure here is a mistyped notice, left visible rather than laundered into a plausible $0 the filer would carry to a later sale. The intake check that box 2 is no greater than box 1a belongs to the application, not to a dictionary clamp.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../box1aIncluded" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../box2Included" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasForm2439Notices">
+      <Name>The return lists at least one Form 2439 notice</Name>
+      <Description>TRUE when /form2439Forms is answered and holds at least one item, VOID or not, this year or not. This is the switch the consuming hubs read: when it is TRUE the per-notice list GOVERNS every Form 2439 amount on the return, and the older return-level scalars (scheduleD /writableUnrecapturedSection1250GainFromForm2439, /writableCollectiblesGainFromForm2439; schedule3 /writableSchedule3Line13aForm2439Credit) are read only to be checked against the list, never added. FALSE when the collection is unanswered or empty, in which case those scalars carry the amounts exactly as they do without the notices collection. IsComplete first, then the size test: a size test over an unanswered collection does not resolve.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/form2439Forms" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <CollectionSize>
+                <Dependency path="/form2439Forms" />
+              </CollectionSize>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm2439SharesSoldAtLossWithinSixMonths">
+      <Name>Shares covered by a Form 2439 notice were sold at a loss after being held 6 months or less</Name>
+      <Description>Did you sell or exchange, at a loss, any shares covered by a Form 2439 you received, after holding those shares for 6 months or less?</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutForm2439ShortHoldingPeriodLoss">
+      <Name>Knockout: a loss on Form 2439 shares held 6 months or less</Name>
+      <Description>You sold shares at a loss after holding them 6 months or less, and a Form 2439 designated undistributed long-term capital gain on those shares. Part or all of that loss must be treated as a long-term capital loss. This service cannot yet figure that adjustment, so this return cannot be filed here.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm2439SharesSoldAtLossWithinSixMonths" /></IsComplete></When>
+            <Then>
+              <All>
+                <Dependency path="/hasForm2439Notices" />
+                <Dependency path="/writableForm2439SharesSoldAtLossWithinSixMonths" />
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm2439SharesSoldAtLossWithinSixMonths" /></IsComplete></Not></When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439IncludedScheduleDLine11LongTermCapitalGain">
+      <Name>Schedule D line 11: Form 2439 box 1a over the notices included in this return</Name>
+      <Description>The sum of box 1a over every notice that is not VOID and whose issuer tax year ends in the return year. THIS is the figure Schedule D line 11 prints and line 15 combines, through /form2439ScheduleDLine11LongTermCapitalGainOrZero; the raw transcription total /form2439ScheduleDLine11LongTermCapitalGain adds every notice and is not read by the return. Incomplete when any live notice lacks a resolvable year or box 1a.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form2439Forms/*/box1aIncluded" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439ScheduleDLine11LongTermCapitalGainOrZero">
+      <Name>Schedule D line 11: Form 2439 box 1a, complete safe</Name>
+      <Description>/form2439IncludedScheduleDLine11LongTermCapitalGain when the return lists at least one notice, else $0. This is the addend scheduleD reads at the printed line 11 (/scheduleDLine11GainFromForm4797AndOtherForms) and at the line 15 combine (/longTermGainOrLossAfterCarryover), the same leg shape as form4797:/section1231LtcgPortion and form4684:/netLongTermCasualtyGainToScheduleD. Complete $0 on every return without a notice list, so every committed scenario is value-identical. NOT complete-safe past the list: a listed live notice whose year or box 1a is missing leaves this Incomplete, and line 15 with it, deliberately.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasForm2439Notices" />
+            </When>
+            <Then>
+              <Dependency path="/form2439IncludedScheduleDLine11LongTermCapitalGain" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439IncludedUnrecapturedSection1250Gain">
+      <Name>Unrecaptured Section 1250 Gain Worksheet line 11: Form 2439 box 1b over the notices included in this return</Name>
+      <Description>The sum of box 1b over every notice that is not VOID and whose issuer tax year ends in the return year, a blank box counting $0. Read by scheduleD /unrecapturedSection1250GainFromForm2439 whenever the return lists at least one notice; the raw transcription total /form2439UnrecapturedSection1250Gain is not read by the return.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form2439Forms/*/box1bIncluded" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439IncludedSection1202Gain">
+      <Name>Form 2439 box 1c over the notices included in this return (informational)</Name>
+      <Description>The sum of box 1c over every notice that is not VOID and whose issuer tax year ends in the return year, a blank box counting $0. NO RETURN LINE READS THIS FACT, and that is a declared boundary, not an omission. Box 1c is the part of box 1a that "may be eligible for the section 1202 exclusion"; the exclusion itself is the filer's figure, reported on Form 8949 Part II with code Q and, for the 28% Rate Gain Worksheet, entered with the 50/60/75 percent tier fractions already applied. This dictionary takes that figure at scheduleD /writableSection1202ExclusionFromForm8949, the part of worksheet line 2 that no Form 1099-DIV box 2c reported, which holds the allowable exclusion on a Form 2439 box 1c gain as well as the exclusion on a direct sale of QSB stock, and does not derive it from box 1c, because the eligible fraction and the tier depend on facts the notice does not carry. Box 1a already contains box 1c, so nothing is lost from line 11 by not routing this total.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form2439Forms" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form2439Forms/*/box1cIncluded" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439IncludedCollectiblesGain">
+      <Name>28% Rate Gain Worksheet line 4: Form 2439 box 1d over the notices included in this return</Name>
+      <Description>The sum of box 1d over every notice that is not VOID and whose issuer tax year ends in the return year, a blank box counting $0. Read by scheduleD /collectiblesGainFromForm2439 whenever the return lists at least one notice; the raw transcription total /form2439CollectiblesGain is not read by the return.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form2439Forms/*/box1dIncluded" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2439IncludedSchedule3Line13aCredit">
+      <Name>Schedule 3 line 13a: Form 2439 box 2 over the notices included in this return</Name>
+      <Description>The sum of box 2 over every notice that is not VOID and whose issuer tax year ends in the return year. Read by schedule3 /sched3Line13a whenever the return lists at least one notice; the raw transcription total /form2439Schedule3Line13aCredit is not read by the return. IRC 852(b)(3)(D)(ii) deems the tax paid "for his taxable year under clause (i)", the same year the gain is included, so the year test on the gain is the year test on the credit. Incomplete when any live notice lacks a resolvable year or box 2.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form2439Forms/*/box2Included" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2439IncludedShareBasisIncrease">
+      <Name>Form 2439 share-basis increase over the notices included in this return (informational)</Name>
+      <Description>The sum of box 1a minus box 2 over every notice that is not VOID and whose issuer tax year ends in the return year: the total increase in the shareholder's basis in the RIC and REIT shares those notices were designated on. NO RETURN LINE READS THIS FACT, and that is a declared boundary, not an omission: the increase changes no TY2025 line and matters when the shares are later sold, which this dictionary does not carry across years. Per-notice, /form2439Forms/*/shareBasisIncrease holds the figure for the shares of the single issuer that designated it, and that is the figure the filer needs at the sale; this total is the return-level view of the same amounts.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form2439Forms" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="/form2439Forms" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form2439Forms/*/shareBasisIncrease" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

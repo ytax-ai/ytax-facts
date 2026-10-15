@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/care_provider.schema.json",
+  "title": "Form 2441 line 1 (care provider)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "provider_type",
+    "is_household_employee",
+    "amount_paid_cents"
+  ],
+  "properties": {
+    "provider_type": {
+      "description": "Form 2441 line 1 column (c), as the instructions have the filer write it: an organization's EIN, \"Tax-Exempt\" for a tax-exempt organization, or an individual's SSN. Required. The provider's name, address and number themselves are identifiers and never cross — synthetic placeholders stand where the engine wants them, the way the W-2 employer's EIN does.",
+      "type": "string",
+      "enum": [
+        "organization",
+        "tax_exempt_organization",
+        "individual"
+      ]
+    },
+    "is_household_employee": {
+      "description": "Form 2441 line 1 column (d): “Was the care provider your household employee in 2025? For example, this generally includes nannies but not daycare centers.” Required. A yes is the dictionary's own knockout (Schedule H is not carried here), served with words.",
+      "type": "boolean"
+    },
+    "amount_paid_cents": {
+      "description": "Form 2441 line 1 column (e), the amount paid to this provider in 2025. Required. Carried onto line 1; the credit itself reads the per-person amounts on line 2 (persons[].care_expenses_cents), so this column changes no dollar at the pin.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

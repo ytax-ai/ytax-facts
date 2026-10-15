@@ -1,0 +1,77 @@
+# IRS5498 — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS5498/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 1260aca19a03327bb0b7ad7ae8e93faf0e072a63b835f847d26e7a7a12207cbc
+# boxes: 32   acroform fields: 63   boxes with a fact: 32
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (11): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box void-corrected row 1 `VOID / CORRECTED checkboxes`: shared spelling `void / corrected checkboxes` names 2 readings
+# unspelled: box void-corrected row 2 `VOID / CORRECTED checkboxes`: shared spelling `void / corrected checkboxes` names 2 readings
+# unspelled: box participant-address row 1 `Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code`: shared spelling `street address (including apt. no.); city or town, state or province, country, and zip or foreign postal code` names 2 readings
+# unspelled: box participant-address row 2 `Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code`: shared spelling `street address (including apt. no.); city or town, state or province, country, and zip or foreign postal code` names 2 readings
+# unspelled: box 7 row 1 `IRA / SEP / SIMPLE / Roth IRA checkboxes`: shared spelling `ira / sep / simple / roth ira checkboxes` names 4 readings
+# unspelled: box 7 row 2 `IRA / SEP / SIMPLE / Roth IRA checkboxes`: shared spelling `ira / sep / simple / roth ira checkboxes` names 4 readings
+# unspelled: box 7 row 3 `IRA / SEP / SIMPLE / Roth IRA checkboxes`: shared spelling `ira / sep / simple / roth ira checkboxes` names 4 readings
+# unspelled: box 7 row 4 `IRA / SEP / SIMPLE / Roth IRA checkboxes`: shared spelling `ira / sep / simple / roth ira checkboxes` names 4 readings
+# unspelled: box 13c `Code`: shared spelling `code` names 3 readings
+# unspelled: box 14b `Code`: shared spelling `code` names 3 readings
+# unspelled: box 15b `Code(s)`: shared spelling `code` names 3 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+void-corrected	1	VOID / CORRECTED checkboxes		topmostSubform[0].CopyA[0].c1_1[0]	/form5498s/*/writableVoid	Bool		
+void-corrected	2	VOID / CORRECTED checkboxes		topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].CopyB[0].c2_1[0]	/form5498s/*/writableCorrected	Bool		
+trustee-name		TRUSTEE'S or ISSUER'S name, street address, city or town, state or province, country, and ZIP or foreign postal code	trustee's or issuer's name, street address, city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_1[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_1[0]	/form5498s/*/writableTrusteeName	String		
+trustee-tin		TRUSTEE'S or ISSUER'S TIN	trustee's or issuer's tin	topmostSubform[0].CopyA[0].LeftCol[0].Trustee[0].f1_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]	/form5498s/*/writableTrusteeTin	EIN		
+participant-tin		PARTICIPANT'S TIN	participant's tin	topmostSubform[0].CopyA[0].LeftCol[0].Participant[0].f1_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]	/form5498s/*/participantTin	TIN		
+participant-name		PARTICIPANT'S name	participant's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]	/form5498s/*/writableParticipantName	String		
+participant-address	1	Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code		topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]	/form5498s/*/writableParticipantStreetAddress	String		
+participant-address	2	Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code		topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]	/form5498s/*/writableParticipantCityStateZip	String		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]	/form5498s/*/writableAccountNumber	String		
+1		IRA contributions	ira contributions	topmostSubform[0].CopyA[0].RightCol[0].f1_8[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_8[0]	/form5498s/*/writableIraContributions	Dollar		
+2		Rollover contributions	rollover contributions	topmostSubform[0].CopyA[0].RightCol[0].f1_9[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_9[0]	/form5498s/*/writableRolloverContributions	Dollar		
+3		Roth IRA conversion amount	roth ira conversion amount	topmostSubform[0].CopyA[0].RightCol[0].Box3_ReadOrder[0].f1_10[0]|topmostSubform[0].CopyB[0].RightCol[0].Box3_ReadOrder[0].f2_10[0]	/form5498s/*/writableRothConversionAmount	Dollar		
+4		Recharacterized contributions	recharacterized contributions	topmostSubform[0].CopyA[0].RightCol[0].f1_11[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_11[0]	/form5498s/*/writableRecharacterizedContributions	Dollar		
+5		FMV of account	fmv of account	topmostSubform[0].CopyA[0].RightCol[0].Box5_ReadOrder[0].f1_12[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5_ReadOrder[0].f2_12[0]	/form5498s/*/writableFairMarketValueOfAccount	Dollar		
+6		Life insurance cost included in box 1	life insurance cost included in box 1	topmostSubform[0].CopyA[0].RightCol[0].f1_13[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_13[0]	/form5498s/*/writableLifeInsuranceCostInBox1	Dollar		
+7	1	IRA / SEP / SIMPLE / Roth IRA checkboxes		topmostSubform[0].CopyA[0].RightCol[0].c1_3[0]|topmostSubform[0].CopyB[0].RightCol[0].c2_3[0]	/form5498s/*/writableAccountIsIra	Bool		
+7	2	IRA / SEP / SIMPLE / Roth IRA checkboxes		topmostSubform[0].CopyA[0].RightCol[0].c1_3[1]|topmostSubform[0].CopyB[0].RightCol[0].c2_3[1]	/form5498s/*/writableAccountIsSep	Bool		
+7	3	IRA / SEP / SIMPLE / Roth IRA checkboxes		topmostSubform[0].CopyA[0].RightCol[0].c1_3[2]|topmostSubform[0].CopyB[0].RightCol[0].c2_3[2]	/form5498s/*/writableAccountIsSimple	Bool		
+7	4	IRA / SEP / SIMPLE / Roth IRA checkboxes		topmostSubform[0].CopyA[0].RightCol[0].c1_3[3]|topmostSubform[0].CopyB[0].RightCol[0].c2_3[3]	/form5498s/*/writableAccountIsRothIra	Bool		
+8		SEP contributions	sep contributions	topmostSubform[0].CopyA[0].RightCol[0].Box8_ReadOrder[0].f1_14[0]|topmostSubform[0].CopyB[0].RightCol[0].Box8_ReadOrder[0].f2_14[0]	/form5498s/*/writableSepContributions	Dollar		
+9		SIMPLE contributions	simple contributions	topmostSubform[0].CopyA[0].RightCol[0].f1_15[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_15[0]	/form5498s/*/writableSimpleContributions	Dollar		
+10		Roth IRA contributions	roth ira contributions	topmostSubform[0].CopyA[0].RightCol[0].Box10_ReadOrder[0].f1_16[0]|topmostSubform[0].CopyB[0].RightCol[0].Box10_ReadOrder[0].f2_16[0]	/form5498s/*/writableRothIraContributions	Dollar		
+11		Check if RMD for 2026	check if rmd for 2026	topmostSubform[0].CopyA[0].RightCol[0].c1_4[0]|topmostSubform[0].CopyB[0].RightCol[0].c2_4[0]	/form5498s/*/writableRequiredMinimumDistributionForNextYear	Bool		
+12a		RMD date	rmd date	topmostSubform[0].CopyA[0].RightCol[0].f1_17[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_17[0]	/form5498s/*/writableRequiredMinimumDistributionDate	Day		
+12b		RMD amount	rmd amount	topmostSubform[0].CopyA[0].RightCol[0].f1_18[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_18[0]	/form5498s/*/writableRequiredMinimumDistributionAmount	Dollar		
+13a		Postponed/late contrib.	postponed/late contrib	topmostSubform[0].CopyA[0].RightCol[0].Box13a_ReadOrder[0].f1_19[0]|topmostSubform[0].CopyB[0].RightCol[0].Box13a_ReadOrder[0].f2_19[0]	/form5498s/*/writablePostponedOrLateContributions	Dollar		
+13b		Year	year	topmostSubform[0].CopyA[0].RightCol[0].f1_20[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_20[0]	/form5498s/*/writablePostponedContributionYear	String		
+13c		Code		topmostSubform[0].CopyA[0].RightCol[0].f1_21[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_21[0]	/form5498s/*/writablePostponedContributionCode	Enum	FD;PO;SC;EO13239;EO12744;PL115-97;EO13119;PL106-21	
+14a		Repayments	repayments	topmostSubform[0].CopyA[0].RightCol[0].Box14a_ReadOrder[0].f1_22[0]|topmostSubform[0].CopyB[0].RightCol[0].Box14a_ReadOrder[0].f2_22[0]	/form5498s/*/writableRepayments	Dollar		
+14b		Code		topmostSubform[0].CopyA[0].RightCol[0].f1_23[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_23[0]	/form5498s/*/writableRepaymentCode	Enum	QR;DD;BA;EP;DA;TI	
+15a		FMV of certain specified assets	fmv of certain specified assets	topmostSubform[0].CopyA[0].RightCol[0].Box15a_ReadOrder[0].f1_24[0]|topmostSubform[0].CopyB[0].RightCol[0].Box15a_ReadOrder[0].f2_24[0]	/form5498s/*/writableFairMarketValueOfCertainSpecifiedAssets	Dollar		
+15b		Code(s)		topmostSubform[0].CopyA[0].RightCol[0].f1_25[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_25[0]	/form5498s/*/writableSpecifiedAssetCodes	MultiEnum	A;B;C;D;E;F;G;H	

@@ -1,0 +1,1628 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form965ALiabilities">
+      <Name>Form 965-A liabilities, one row per inclusion, assumption or triggering year</Name>
+      <Description>Form 965-A liabilities, one row per inclusion, assumption or triggering year. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilitiesIsComplete">
+      <Name>Form 965-A liabilities, one row per inclusion, assumption or triggering year: all entries and applicable zero amounts have been entered</Name>
+      <Description>Form 965-A liabilities, one row per inclusion, assumption or triggering year: all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965AAmendedReport">
+      <Name>Form 965-A amended report</Name>
+      <Description>Form 965-A amended report. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/year">
+      <Name>Part I column a: liability year</Name>
+      <Description>Part I column a: liability year. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>2017</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>2025</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/taxWith965">
+      <Name>Part I column b: net tax with all section 965 amounts</Name>
+      <Description>Part I column b: net tax with all section 965 amounts. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/taxWithout965">
+      <Name>Part I column c: net tax without section 965 amounts</Name>
+      <Description>Part I column c: net tax without section 965 amounts. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part1ColumnD">
+      <Name>Part I column d: net section 965 tax liability</Name>
+      <Description>Part I column d: net section 965 tax liability. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../taxWith965" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../taxWithout965" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations">
+      <Name>Part III S corporation calculations for this liability year</Name>
+      <Description>Part III S corporation calculations for this liability year. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/name">
+      <Name>S corporation name</Name>
+      <Description>S corporation name. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/ein">
+      <Name>S corporation EIN</Name>
+      <Description>S corporation EIN. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/taxWithOnlyThisCorporation">
+      <Name>Part III column c: tax with only this corporation's section 965 amounts</Name>
+      <Description>Part III column c: tax with only this corporation's section 965 amounts. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/taxWithout965">
+      <Name>Part III column d: tax without section 965 amounts</Name>
+      <Description>Part III column d, the S corporation "without calculation": the taxpayer's net income tax for the year without regard to section 965. It is the same figure as Part I column c of the liability row this S corporation belongs to, so it is taken from that row rather than asked again.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="../../../taxWithout965" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/deferralElection">
+      <Name>Part III column f: section 965(i) deferral election</Name>
+      <Description>Part III column f: section 965(i) deferral election. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/part3ColumnE">
+      <Name>Part III column e: S corporation net liability</Name>
+      <Description>Part III column e: S corporation net liability. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../taxWithOnlyThisCorporation" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../taxWithout965" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/sCorporations/*/part3ColumnG">
+      <Name>Part III column g: deferred liability</Name>
+      <Description>Part III column g: deferred liability. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../deferralElection" />
+            </When>
+            <Then>
+              <Dependency path="../part3ColumnE" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part1ColumnE">
+      <Name>Part I column e: section 965(i) deferred amount</Name>
+      <Description>Part I column e: section 965(i) deferred amount. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../sCorporations" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../sCorporations/*/part3ColumnG" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/assumedOrTriggeredLiability">
+      <Name>Triggered deferred S corporation liability reported in Part I column f</Name>
+      <Description>A deferred S corporation-related net 965 tax liability triggered in the column a year and carried from Part IV into Part I column f (columns b through e skipped). An installment liability ASSUMED from a transferor does not go here: it is reported in column j of a row marked as a transfer in, and this amount is ignored on such a row.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part1ColumnF">
+      <Name>Part I column f: amount eligible for installments</Name>
+      <Description>Part I column f: amount eligible for installments. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../installmentLiabilityTransferredIn" /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not></When>
+            <Then>
+              <Add>
+                <Dependency path="../part1ColumnFMinimum1" />
+                <GreaterOf>
+                  <Dependency path="../assumedOrTriggeredLiability" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/installmentElection">
+      <Name>Part I column g: section 965(h) installment election</Name>
+      <Description>Part I column g: section 965(h) installment election. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/installmentElectionCompleteSafe">
+      <Name>Section 965 installment election, complete-safe Boolean</Name>
+      <Description>Passes the effective installment election through only once it resolves; an unanswered election resolves false so payment calculation takes its
+        existing complete-safe non-election path.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../installmentElectionEffective" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../installmentElectionEffective" />
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part1ColumnH">
+      <Name>Part I column h: liability payable in full</Name>
+      <Description>Part I column h: liability payable in full. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../installmentElectionEffective" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../part1ColumnF" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part1ColumnI">
+      <Name>Part I column i: liability payable in installments</Name>
+      <Description>Part I column i: liability payable in installments. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../installmentElectionEffective" />
+            </When>
+            <Then>
+              <Dependency path="../part1ColumnF" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/adjustmentsAndTransfers">
+      <Name>Part I column j: signed transfers and subsequent adjustments</Name>
+      <Description>Part I column j: signed transfers and subsequent adjustments. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/transfereeTin">
+      <Name>Part I column k: transferee or transferor TIN</Name>
+      <Description>Part I column k: transferee or transferor TIN. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/installmentLiabilityTransferredIn">
+      <Name>This row reports an installment liability assumed as transferee</Name>
+      <Description>True when this row reports the remaining section 965(h) installment liability of another taxpayer that you assumed as transferee under an agreement with the IRS. Columns b through i are skipped on such a row; the assumed amount goes in column j as a positive number and the transferor's identification number in column k.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/transferorOriginalLiability">
+      <Name>Transferor's original net 965 tax liability (installment base of an assumed liability)</Name>
+      <Description>For a row that reports an installment liability you assumed as transferee: the transferor's original net 965 tax liability for the column a year. The installment percentages for 2025 apply to this original amount, not to the remaining balance you assumed.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/triggeredByLiquidationOrCessation">
+      <Name>The 2025 trigger of this deferred S corporation liability is a liquidation, asset sale or cessation</Name>
+      <Description>For a row reporting a deferred S corporation-related liability triggered in 2025: true when the triggering event was a liquidation or sale of substantially all the assets of the S corporation, its cessation of business, its ceasing to exist, or a similar circumstance. Such a liability can be paid in installments only with the consent of the IRS.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/secretaryConsentToInstallments">
+      <Name>The IRS consented to paying this triggered liability in installments</Name>
+      <Description>For a liability triggered by a liquidation, asset sale or cessation: true when the IRS consented to the section 965(h) installment election. Without consent the column g answer is No and the whole triggered liability is payable in full (column h).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/installmentElectionEffective">
+      <Name>This row is paid under the section 965(h) installment schedule</Name>
+      <Description>True for an assumed installment liability (the transferee pays the remaining installments as if it were the transferor, and column g is skipped); otherwise the column g installment election, except that on a row triggered in 2025 by a liquidation, asset sale or cessation of the S corporation the election stands only with the consent of the IRS (without it the liability is payable in full).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../installmentLiabilityTransferredIn" /></When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When><All><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not><Not><Dependency path="../installmentElection" /></Not></All></When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><All><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not><Dependency path="../installmentElection" /><Not><Dependency path="../currentYearTaxInclusion" /></Not></All></When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When><All><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not><Dependency path="../installmentElection" /><Dependency path="../currentYearTaxInclusion" /><Not><Dependency path="../triggeredByLiquidationOrCessation" /></Not></All></When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When><All><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not><Dependency path="../installmentElection" /><Dependency path="../currentYearTaxInclusion" /><Dependency path="../triggeredByLiquidationOrCessation" /><Dependency path="../secretaryConsentToInstallments" /></All></When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When><All><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not><Dependency path="../installmentElection" /><Dependency path="../currentYearTaxInclusion" /><Dependency path="../triggeredByLiquidationOrCessation" /><Not><Dependency path="../secretaryConsentToInstallments" /></Not></All></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear1">
+      <Name>Part II: actual cumulative payment for installment year 1</Name>
+      <Description>Part II: actual cumulative payment for installment year 1. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear2">
+      <Name>Part II: actual cumulative payment for installment year 2</Name>
+      <Description>Part II: actual cumulative payment for installment year 2. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear3">
+      <Name>Part II: actual cumulative payment for installment year 3</Name>
+      <Description>Part II: actual cumulative payment for installment year 3. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear4">
+      <Name>Part II: actual cumulative payment for installment year 4</Name>
+      <Description>Part II: actual cumulative payment for installment year 4. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear5">
+      <Name>Part II: actual cumulative payment for installment year 5</Name>
+      <Description>Part II: actual cumulative payment for installment year 5. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear6">
+      <Name>Part II: actual cumulative payment for installment year 6</Name>
+      <Description>Part II: actual cumulative payment for installment year 6. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear7">
+      <Name>Part II: actual cumulative payment for installment year 7</Name>
+      <Description>Part II: actual cumulative payment for installment year 7. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidYear8">
+      <Name>Part II: actual cumulative payment for installment year 8</Name>
+      <Description>Part II: actual cumulative payment for installment year 8. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part2ColumnJ">
+      <Name>Part II column j: remaining unpaid liability</Name>
+      <Description>Part II column j: remaining unpaid liability. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Dependency path="../part1ColumnF" />
+                <Dependency path="../adjustmentsAndTransfers" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../paidYear1" />
+              <Dependency path="../paidYear2" />
+              <Dependency path="../paidYear3" />
+              <Dependency path="../paidYear4" />
+              <Dependency path="../paidYear5" />
+              <Dependency path="../paidYear6" />
+              <Dependency path="../paidYear7" />
+              <Dependency path="../paidYear8" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paidReportingYear">
+      <Name>Part II column k: actual section 965 payment for 2025</Name>
+      <Description>Part II column k: actual section 965 payment for 2025. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/installmentNumber">
+      <Name>2025 installment number on the original schedule (0 if outside the eight years)</Name>
+      <Description>Which of the eight section 965(h) installments falls in 2025 for this row, computed from the row's column (a) year: year 1 is the year of the section 965(a) inclusion, of the triggering event, or of the transferor's liability for an assumed installment liability, and each later installment falls in the following year. A 2018 row is in its 8th installment and a 2025 row in its 1st; a 2017 row has run past its eight installments and is 0.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../year" /></Left>
+                  <Right><Int>2018</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../year" /></Left>
+                  <Right><Int>2025</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Int>2026</Int></Minuend>
+                <Subtrahends><GreaterOf><Int>2017</Int> <Dependency path="../year" /></GreaterOf></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+              <All>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../year" /></Left>
+                  <Right><Int>2018</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../year" /></Left>
+                  <Right><Int>2025</Int></Right>
+                </LessThanOrEqual>
+              </All>
+              </Not>
+            </When>
+            <Then><Int>0</Int></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/installmentRate">
+      <Name>Normal eight-year installment rate</Name>
+      <Description>Normal eight-year installment rate. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>0/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>8/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>8/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>8/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>4</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>8/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>5</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>8/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>6</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>15/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>7</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>20/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../installmentNumber" />
+                </Left>
+                <Right>
+                  <Int>8</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>25/100</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/accelerated">
+      <Name>Remaining unpaid installments accelerated during 2025</Name>
+      <Description>Remaining unpaid installments accelerated during 2025. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/priorPayments">
+      <Name>Payments made before 2025, including excess payments applied by the IRS</Name>
+      <Description>Payments made before 2025, including excess payments applied by the IRS. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/currentYearAdjustment">
+      <Name>Part of column j that is a subsequent adjustment made in 2025</Name>
+      <Description>The part of this row's column j that is a subsequent adjustment to the net 965 tax liability made during 2025, such as an audit adjustment, as a positive number for an increase and a negative number for a decrease. Enter 0 when no adjustment was made this year; earlier years' adjustments stay in column j but are not entered here.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/priorInstallmentsRate">
+      <Name>Share of the liability scheduled in the installments due before 2025</Name>
+      <Description>The total of the installment percentages whose due dates arrived before the 2025 installment: 0 for installment 1, 8 percent for installment 2, rising by 8 points through installment 6 (40 percent), then 55 percent before installment 7 and 75 percent before installment 8. A row past its eight installments has every installment date already arrived, 100 percent.</Description>
+      <Derived>
+        <Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>1</Int></Right></Equal></When><Then><Rational>0/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>1</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>2</Int></Right></Equal></When><Then><Rational>8/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>2</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>3</Int></Right></Equal></When><Then><Rational>16/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>3</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>4</Int></Right></Equal></When><Then><Rational>24/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>4</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>5</Int></Right></Equal></When><Then><Rational>32/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>5</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>6</Int></Right></Equal></When><Then><Rational>40/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>6</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>7</Int></Right></Equal></When><Then><Rational>55/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>7</Int></Right></Equal></Not></When><Then><Switch><Case><When><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>8</Int></Right></Equal></When><Then><Rational>75/100</Rational></Then></Case><Case><When><Not><Equal><Left><Dependency path="../installmentNumber" /></Left><Right><Int>8</Int></Right></Equal></Not></When><Then><Rational>100/100</Rational></Then></Case></Switch></Then></Case></Switch></Then></Case></Switch></Then></Case></Switch></Then></Case></Switch></Then></Case></Switch></Then></Case></Switch></Then></Case></Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/catchUpDue">
+      <Name>Additional amount due for adjustments allocated to installments already due</Name>
+      <Description>The part of a 2025 adjustment prorated to installments whose due dates have already arrived: the 2025 adjustment times the share of the liability scheduled before the 2025 installment, and never below zero. The 2025 installment's own share of the adjustment is already in the normal installment on the adjusted liability. When the increase is a deficiency due to negligence, intentional disregard of rules and regulations, or fraud (../currentYearAdjustmentNotProrated), the proration does not apply and the whole increase is payable now: this is then the increase less the part the normal 2025 installment already carries, so the two together pay the entire increase.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../currentYearAdjustmentNotProrated" /></When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Minuend><Dependency path="../currentYearAdjustment" /></Minuend>
+                  <Subtrahends>
+                    <Multiply>
+                      <Dependency path="../currentYearAdjustment" />
+                      <Dependency path="../installmentRate" />
+                    </Multiply>
+                  </Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../currentYearAdjustmentNotProrated" /></Not></When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Multiply>
+                  <Dependency path="../currentYearAdjustment" />
+                  <Dependency path="../priorInstallmentsRate" />
+                </Multiply>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/writableCurrentYearAdjustmentDueToNegligenceOrFraud">
+      <Name>The 2025 increase is a deficiency due to negligence, intentional disregard, or fraud</Name>
+      <Description>QUESTION, asked only on a row with an installment election and a positive 2025 adjustment: "Is this 2025 increase a deficiency due to negligence, to intentional disregard of rules and regulations, or to fraud with intent to evade tax?" Yes means the increase is not prorated to the installments and is payable in full now. Unanswered or No means it is prorated, the general rule of the instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/currentYearAdjustmentNotProrated">
+      <Name>The 2025 increase is not prorated to the installments</Name>
+      <Description>True when the 2025 adjustment is an increase (more than zero) and the filer answers that it is a deficiency due to negligence, intentional disregard of rules and regulations, or fraud; the proration of section 965(h)(4) then does not apply. False when the question is unanswered or answered No, or when the adjustment is zero or a decrease. Complete whenever the adjustment is answered.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writableCurrentYearAdjustmentDueToNegligenceOrFraud" /></IsComplete>
+          <Dependency path="../writableCurrentYearAdjustmentDueToNegligenceOrFraud" />
+          <GreaterThan>
+            <Left><Dependency path="../currentYearAdjustment" /></Left>
+            <Right><Dollar>0</Dollar> </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/normalInstallmentDue">
+      <Name>Normal scheduled payment before acceleration</Name>
+      <Description>Normal scheduled payment before acceleration. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../normalInstallmentDueMinimum1" />
+          <Dependency path="../installmentRate" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paymentDue">
+      <Name>2025 payment required</Name>
+      <Description>2025 payment required. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../paymentDueMinimum1" />
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="../accelerated" />
+              </When>
+              <Then>
+                <Dependency path="../paymentDueMinimum2" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Switch>
+                  <Case>
+                    <When>
+                      <Dependency path="../installmentElectionCompleteSafe" />
+                    </When>
+                    <Then>
+                      <Add>
+                        <Dependency path="../normalInstallmentDue" />
+                        <GreaterOf>
+                          <Dependency path="../catchUpDue" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Add>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Switch>
+                        <Case>
+                          <When>
+                            <Equal>
+                              <Left>
+                                <Dependency path="../year" />
+                              </Left>
+                              <Right>
+                                <Int>2025</Int>
+                              </Right>
+                            </Equal>
+                          </When>
+                          <Then>
+                            <Dependency path="../part1ColumnH" />
+                          </Then>
+                        </Case>
+                        <Case>
+                          <When>
+                            <True />
+                          </When>
+                          <Then>
+                            <Dollar>0</Dollar>
+                          </Then>
+                        </Case>
+                      </Switch>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/currentYearTaxInclusion">
+      <Name>This row is a 2025 triggered deferred liability included in Form 1040 line 16</Name>
+      <Description>This row is a 2025 triggered deferred liability included in Form 1040 line 16. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/currentTax">
+      <Name>Current triggered section 965 tax inclusion</Name>
+      <Description>Current triggered section 965 tax inclusion. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../currentYearTaxInclusion" />
+            </When>
+            <Then>
+              <Dependency path="../part1ColumnF" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/currentDeferral">
+      <Name>Current tax inclusion payable in future years</Name>
+      <Description>Current tax inclusion payable in future years. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../currentYearTaxInclusion" />
+                <Dependency path="../installmentElectionEffective" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../currentDeferralMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ACurrentInstallment">
+      <Name>Actual current-year installment payment for Schedule 2 line 20 (memo only)</Name>
+      <Description>Actual current-year installment payment for Schedule 2 line 20 (memo only). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form965ALiabilities" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form965ALiabilities" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form965ALiabilitiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <GreaterOf>
+                              <Dependency path="/form965ALiabilities/*/paidReportingYear" />
+                              <Dollar>0</Dollar>
+                            </GreaterOf>
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965APaymentDue">
+      <Name>2025 section 965 payment due</Name>
+      <Description>2025 section 965 payment due. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form965ALiabilities" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form965ALiabilities" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form965ALiabilitiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form965ALiabilities/*/paymentDue" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965AUnpaidLiability">
+      <Name>Unpaid section 965 liability</Name>
+      <Description>Unpaid section 965 liability. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form965ALiabilities" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form965ALiabilities" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form965ALiabilitiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form965ALiabilities/*/part2ColumnJ" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ATriggeredTax">
+      <Name>Triggered section 965 tax for Form 1040 line 16</Name>
+      <Description>Triggered section 965 tax for Form 1040 line 16. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form965ALiabilities" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form965ALiabilities" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form965ALiabilitiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form965ALiabilities/*/currentTax" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/triggeredLiabilityAmount">
+      <Name>Part IV column (f) triggered amount, as a positive amount</Name>
+      <Description>The deferred S corporation-related liability this Part IV row reports as triggered during 2025, as a positive amount whichever sign the column (f) entry carries (the printed column shows it negative). $0 when the entry is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../triggeredLiability" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../triggeredLiability" />
+                <Subtract>
+                  <Minuend><Dollar>0</Dollar> </Minuend>
+                  <Subtrahends><Dependency path="../triggeredLiability" /></Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="../triggeredLiability" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965APartIVTriggeredTotal">
+      <Name>Part IV column (f): total deferred S corporation-related liability triggered during 2025</Name>
+      <Description>The total of every Part IV row's triggered amount, as a positive amount. $0 when Part IV is answered empty; Incomplete while Part IV is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form965ADeferredSCorporations" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form965ADeferredSCorporations/*/triggeredLiabilityAmount" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/partITriggeredThisYear">
+      <Name>Part I column (f) amount of a deferred S corporation liability triggered during 2025</Name>
+      <Description>On a Part I row whose column (a) year is 2025 and that is not an assumed installment liability, the triggered deferred S corporation-related amount carried into column (f); $0 on every other row and when the amount is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../year" /></IsComplete>
+                <Equal><Left><Dependency path="../year" /></Left><Right><Int>2025</Int></Right></Equal>
+                <Not><All><IsComplete><Dependency path="../installmentLiabilityTransferredIn" /></IsComplete><Dependency path="../installmentLiabilityTransferredIn" /></All></Not>
+                <IsComplete><Dependency path="../assumedOrTriggeredLiability" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../assumedOrTriggeredLiability" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete><Dependency path="../year" /></IsComplete>
+                  <Equal><Left><Dependency path="../year" /></Left><Right><Int>2025</Int></Right></Equal>
+                  <Not><All><IsComplete><Dependency path="../installmentLiabilityTransferredIn" /></IsComplete><Dependency path="../installmentLiabilityTransferredIn" /></All></Not>
+                  <IsComplete><Dependency path="../assumedOrTriggeredLiability" /></IsComplete>
+                </All>
+              </Not>
+            </When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965APartITriggeredThisYearTotal">
+      <Name>Part I column (f): total triggered deferred S corporation-related liability on the 2025 rows</Name>
+      <Description>The total of ../partITriggeredThisYear over every Part I row. $0 when Part I is answered empty; Incomplete while Part I is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form965ALiabilities" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form965ALiabilities/*/partITriggeredThisYear" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutForm965ATriggeredAmountNotCarriedToPartI">
+      <Name>Knockout: the 2025 triggered S corporation amounts in Part IV and Part I disagree</Name>
+      <Description>Refuses a return whose Part IV column (f) total of deferred S corporation-related liability triggered during 2025 differs from the triggered amounts carried to column (f) of the 2025 rows of Part I. The instructions transfer the Part IV amount to Part I as a positive number; the Part I row is what brings the triggered tax onto the return, and the Part IV row is what takes it out of the deferred balance, so a difference either drops tax or misstates the deferred balance. False while either part is unanswered; the filer corrects one of the two entries.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form965APartIVTriggeredTotal" /></IsComplete>
+          <IsComplete><Dependency path="/form965APartITriggeredThisYearTotal" /></IsComplete>
+          <Not>
+            <Equal>
+              <Left><Dependency path="/form965APartIVTriggeredTotal" /></Left>
+              <Right><Dependency path="/form965APartITriggeredThisYearTotal" /></Right>
+            </Equal>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ADeferredCurrentTax">
+      <Name>Net section 965 liability for future years; Schedule 3 line 13d</Name>
+      <Description>Net section 965 liability for future years; Schedule 3 line 13d. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form965ALiabilities" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form965ALiabilities" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form965ALiabilitiesIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form965ALiabilities/*/currentDeferral" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations">
+      <Name>Part IV annual report of outstanding S corporation deferrals</Name>
+      <Description>Part IV annual report of outstanding S corporation deferrals. See the cited form and instructions.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporationsIsComplete">
+      <Name>Part IV annual report of outstanding S corporation deferrals: all entries and applicable zero amounts have been entered</Name>
+      <Description>Part IV annual report of outstanding S corporation deferrals: all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/electionYear">
+      <Name>Election or transfer year</Name>
+      <Description>Election or transfer year. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>2017</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/name">
+      <Name>S corporation name</Name>
+      <Description>S corporation name. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/ein">
+      <Name>S corporation EIN</Name>
+      <Description>S corporation EIN. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/beginningLiability">
+      <Name>Beginning deferred net liability</Name>
+      <Description>Beginning deferred net liability. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/triggeredLiability">
+      <Name>Triggered liability (negative in printed column f)</Name>
+      <Description>The deferred liability triggered during 2025 (Part IV column f). The printed column shows it as a negative number; an entry of either sign is taken as the amount triggered and reduces the ending deferred balance. The same amount is reported as a positive number in Part I column f on the row for the triggering year.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/transfer">
+      <Name>Signed transfer out or in</Name>
+      <Description>Signed transfer out or in. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/transfereeTin">
+      <Name>Transferee or transferor TIN</Name>
+      <Description>Transferee or transferor TIN. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form965ADeferredSCorporations/*/remainingLiability">
+      <Name>Part IV ending deferred liability</Name>
+      <Description>Part IV column (i), the deferred liability at the end of 2025: column (d) plus column (f) plus column (g), as printed. Column (e) is reserved and carries no amount, so no other adjustment enters the ending balance.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Add>
+              <GreaterOf>
+                <Dependency path="../beginningLiability" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+              <Dependency path="../transfer" />
+            </Add>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="../triggeredLiability" />
+              <Subtract>
+                <Minuend><Dollar>0</Dollar> </Minuend>
+                <Subtrahends><Dependency path="../triggeredLiability" /></Subtrahends>
+              </Subtract>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ASection965iDeferredBalance">
+      <Name>Annual report: remaining section 965(i) liability</Name>
+      <Description>Annual report: remaining section 965(i) liability. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form965ADeferredSCorporations" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form965ADeferredSCorporations" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form965ADeferredSCorporationsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form965ADeferredSCorporations/*/remainingLiability" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/part1ColumnFMinimum1">
+      <Name>Part I column f: amount eligible for installments: intermediate minimum 1</Name>
+      <Description>Part I column f: amount eligible for installments: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../part1ColumnD" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../part1ColumnE" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/normalInstallmentDueMinimum1">
+      <Name>Normal scheduled payment before acceleration: intermediate minimum 1</Name>
+      <Description>Normal scheduled payment before acceleration: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../installmentLiabilityTransferredIn" /></When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Dependency path="../transferorOriginalLiability" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../installmentLiabilityTransferredIn" /></Not></When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Add>
+                  <Dependency path="../part1ColumnI" />
+                  <Dependency path="../adjustmentsAndTransfers" />
+                </Add>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paymentDueMinimum1">
+      <Name>2025 payment required: intermediate minimum 1</Name>
+      <Description>2025 payment required: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Dependency path="../part1ColumnF" />
+                <Dependency path="../adjustmentsAndTransfers" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../priorPayments" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/paymentDueMinimum2">
+      <Name>2025 payment required: intermediate minimum 2</Name>
+      <Description>2025 payment required: intermediate minimum 2. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Dependency path="../part1ColumnF" />
+                <Dependency path="../adjustmentsAndTransfers" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../priorPayments" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form965ALiabilities/*/currentDeferralMinimum1">
+      <Name>Current tax inclusion payable in future years: intermediate minimum 1</Name>
+      <Description>Current tax inclusion payable in future years: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../currentTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../paymentDue" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

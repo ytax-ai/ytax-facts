@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/operations/coverage.response.schema.json",
+  "title": "coverage response",
+  "allOf": [
+    {
+      "$ref": "../common/response-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported_forms",
+        "knockouts",
+        "exclusions",
+        "assumptions",
+        "constant_provenance"
+      ],
+      "properties": {
+        "supported_forms": {
+          "description": "Supported forms/lines/situations.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "knockouts": {
+          "description": "every submission knockout in the pinned dictionary \u2014 the fact path (the machine key a refusal's `boundary` carries), the dictionary module it lives in, and the words a person reads for it (the fact's own Name, else its Description's first sentence, else a service-authored line). Derived from the pinned XML with no engine and byte-checked at the pin; ordered by path.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "module",
+              "words"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "module": {
+                "type": "string"
+              },
+              "words": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "exclusions": {
+          "description": "Explicit exclusions (state returns, Form 2210, ...).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assumptions": {
+          "description": "What the service assumes about the taxpayer without asking (no estimated payments made, no Marketplace health plan, not blind, ...). Distinct from exclusions: an exclusion is refused, an assumption is computed on an unasked claim.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "constant_provenance": {
+          "description": "Per-year constant provenance summary (ty2026: announced vs pending).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "announced": {
+                "type": "integer"
+              },
+              "pending": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

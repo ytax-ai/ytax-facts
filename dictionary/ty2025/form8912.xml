@@ -1,0 +1,2712 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm8912Applies">
+      <Name>Form8912 is being completed</Name>
+      <Description>Form8912 is being completed. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Applies">
+      <Name>Form8912 is active</Name>
+      <Description>Form8912 is active. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableForm8912Applies" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/writableForm8912Applies" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+          </Switch>
+          <All>
+            <IsComplete>
+              <Dependency path="/form8912Bonds" />
+            </IsComplete>
+            <GreaterThan>
+              <Left>
+                <CollectionSize>
+                  <Dependency path="/form8912Bonds" />
+                </CollectionSize>
+              </Left>
+              <Right>
+                <Int>0</Int>
+              </Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds">
+      <Name>Tax credit bonds and pass-through interests</Name>
+      <Description>Tax credit bonds and pass-through interests. See the cited form and instructions.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912BondsIsComplete">
+      <Name>Tax credit bonds and pass-through interests: all entries and applicable zero amounts have been entered</Name>
+      <Description>Tax credit bonds and pass-through interests: all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/name">
+      <Name>Name on the source statement</Name>
+      <Description>Name on the source statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/identifyingNumber">
+      <Name>Identifying number on the source statement</Name>
+      <Description>Identifying number on the source statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/issuerAddress">
+      <Name>Bond issuer city and state</Name>
+      <Description>Bond issuer city and state. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/uniqueIdentifier">
+      <Name>Form 1097-BTC box 2b identifier</Name>
+      <Description>Form 1097-BTC box 2b identifier. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/cusip">
+      <Name>CUSIP or required payment dates</Name>
+      <Description>CUSIP or required payment dates. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/bondType">
+      <Name>Bond type (CREB, NCREB, QECB, QZAB, QSCB or BAB)</Name>
+      <Description>Bond type (CREB, NCREB, QECB, QZAB, QSCB or BAB). See the cited form and instructions.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/issueDate">
+      <Name>Bond issue date</Name>
+      <Description>Bond issue date. See the cited form and instructions.</Description>
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/issueDateCompleteSafe">
+      <Name>Bond issue date, complete-safe comparison value</Name>
+      <Description>Passes the bond issue date through when answered and uses a date after the
+        eligibility cutoff when unanswered, so an incomplete date cannot select the holder-credit
+        arm of the current-credit switch.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../issueDate" /></IsComplete></When>
+            <Then><Dependency path="../issueDate" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><Day>2018-01-01</Day></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/maturityDate">
+      <Name>Bond maturity date</Name>
+      <Description>Bond maturity date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/dispositionDate">
+      <Name>Disposition date, if any</Name>
+      <Description>Disposition date, if any. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/reportedOn1097Btc">
+      <Name>Credit reported on Form 1097-BTC</Name>
+      <Description>Credit reported on Form 1097-BTC. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/reportedOn1097BtcCompleteSafe">
+      <Name>Credit reported on Form 1097-BTC, complete-safe</Name>
+      <Description>Passes the Form 1097-BTC election through when answered and uses false when
+        unanswered, so an incomplete statement flag cannot select its reported-credit arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../reportedOn1097Btc" /></IsComplete></When>
+            <Then><Dependency path="../reportedOn1097Btc" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/reportedCredit">
+      <Name>Form 1097-BTC box 1 credit (applicable monthly amounts for a fiscal year)</Name>
+      <Description>Form 1097-BTC box 1 credit (applicable monthly amounts for a fiscal year). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/passThrough">
+      <Name>Credit received through a pass-through entity</Name>
+      <Description>Credit received through a pass-through entity. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/passThroughCompleteSafe">
+      <Name>Credit received through a pass-through entity, complete-safe</Name>
+      <Description>Passes the pass-through answer through when answered and uses false when
+        unanswered, so an incomplete answer cannot select the pass-through credit arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../passThrough" /></IsComplete></When>
+            <Then><Dependency path="../passThrough" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/passThroughCredit">
+      <Name>Credit from pass-through entity without Form 1097-BTC</Name>
+      <Description>Credit from pass-through entity without Form 1097-BTC. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/passThroughTaxableIncome">
+      <Name>Taxable income attributable to this pass-through interest</Name>
+      <Description>Taxable income attributable to this pass-through interest. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/carryforwardInput">
+      <Name>Unused qualified tax credit bond or BAB credit carried to 2025</Name>
+      <Description>Unused qualified tax credit bond or BAB credit carried to 2025. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/carryforwardEligible">
+      <Name>This bond permits a credit carryforward</Name>
+      <Description>This bond permits a credit carryforward. See the cited form and instructions.</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Equal>
+              <Left>
+                <Dependency path="../bondType" />
+              </Left>
+              <Right>
+                <String>CREB</String>
+              </Right>
+            </Equal>
+          </Not>
+          <Not>
+            <All>
+              <Equal>
+                <Left>
+                  <Dependency path="../bondType" />
+                </Left>
+                <Right>
+                  <String>QZAB</String>
+                </Right>
+              </Equal>
+              <LessThan>
+                <Left>
+                  <Dependency path="../issueDate" />
+                </Left>
+                <Right>
+                  <Day>2008-10-04</Day>
+                </Right>
+              </LessThan>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/carryforward">
+      <Name>Permitted prior-year carryforward</Name>
+      <Description>Permitted prior-year carryforward. A qualified tax credit bond or build America bond carries its entered amount; a clean renewable energy bond or a qualified zone academy bond issued before October 4, 2008 carries $0, because its credit cannot be carried forward.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="../carryforwardEligible" />
+                <Equal>
+                  <Left>
+                    <Dependency path="../carryforwardInput" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../carryforwardInput" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="../carryforwardEligible" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates">
+      <Name>Part IV credit allowance dates</Name>
+      <Description>Part IV credit allowance dates. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/principalOrInterest">
+      <Name>Outstanding principal (interest payable for BAB)</Name>
+      <Description>Outstanding principal (interest payable for BAB). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/rateNumerator">
+      <Name>Bond issuance-date credit rate numerator</Name>
+      <Description>Bond issuance-date credit rate numerator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/rateDenominator">
+      <Name>Bond issuance-date credit rate denominator</Name>
+      <Description>Bond issuance-date credit rate denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/ownershipNumerator">
+      <Name>Credit allowance percentage numerator: days held if prorated</Name>
+      <Description>Credit allowance percentage numerator: days held if prorated. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/ownershipDenominator">
+      <Name>Credit allowance percentage denominator</Name>
+      <Description>Credit allowance percentage denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/columnD">
+      <Name>Part IV column d: principal or interest times credit rate</Name>
+      <Description>Part IV line 18 column (d), column (b) times the column (c) credit rate. For a build America bond the rate is fixed at 35 percent and the entered rate is not read; every other bond type uses the entered Treasury-published rate. Unanswered bond type leaves the column incomplete.</Description>
+      <Derived>
+        <Multiply>
+          <GreaterOf>
+            <Dependency path="../principalOrInterest" />
+            <Dollar>0</Dollar>
+          </GreaterOf>
+          <Switch>
+            <Case>
+              <When><Equal><Left><Dependency path="../../../bondType" /></Left><Right><String>BAB</String></Right></Equal></When>
+              <Then><Rational>35/100</Rational></Then>
+            </Case>
+            <Case>
+              <When><Not><Equal><Left><Dependency path="../../../bondType" /></Left><Right><String>BAB</String></Right></Equal></Not></When>
+              <Then>
+            <Divide>
+              <Dividend>
+                <GreaterOf>
+                  <Dependency path="../rateNumerator" />
+                  <Int>0</Int>
+                </GreaterOf>
+              </Dividend>
+              <Divisors>
+                <GreaterOf>
+                  <Dependency path="../rateDenominator" />
+                  <Int>1</Int>
+                </GreaterOf>
+              </Divisors>
+            </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowanceDates/*/columnF">
+      <Name>Part IV column f: credit for the allowance period</Name>
+      <Description>Part IV line 18 column (f), column (d) times the column (e) percentage. The entered percentage is capped at 25 percent for each credit allowance date of a clean renewable energy bond or qualified tax credit bond, and at 100 percent for a build America bond or a qualified zone academy bond issued before October 4, 2008; proration for issuance, redemption or maturity only lowers it.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../columnD" />
+          <LesserOf>
+            <Divide>
+              <Dividend>
+                <GreaterOf>
+                  <Dependency path="../ownershipNumerator" />
+                  <Int>0</Int>
+                </GreaterOf>
+              </Dividend>
+              <Divisors>
+                <GreaterOf>
+                  <Dependency path="../ownershipDenominator" />
+                  <Int>1</Int>
+                </GreaterOf>
+              </Divisors>
+            </Divide>
+            <Switch>
+              <Case>
+                <When><Any>
+                <Equal><Left><Dependency path="../../../bondType" /></Left><Right><String>BAB</String></Right></Equal>
+                <All>
+                  <Equal><Left><Dependency path="../../../bondType" /></Left><Right><String>QZAB</String></Right></Equal>
+                  <LessThan><Left><Dependency path="../../../issueDateCompleteSafe" /></Left><Right><Day>2008-10-04</Day></Right></LessThan>
+                </All>
+              </Any></When>
+                <Then><Rational>1/1</Rational></Then>
+              </Case>
+              <Case>
+                <When><Not><Any>
+                <Equal><Left><Dependency path="../../../bondType" /></Left><Right><String>BAB</String></Right></Equal>
+                <All>
+                  <Equal><Left><Dependency path="../../../bondType" /></Left><Right><String>QZAB</String></Right></Equal>
+                  <LessThan><Left><Dependency path="../../../issueDateCompleteSafe" /></Left><Right><Day>2008-10-04</Day></Right></LessThan>
+                </All>
+              </Any></Not></When>
+                <Then><Rational>1/4</Rational></Then>
+              </Case>
+            </Switch>
+          </LesserOf>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/line19">
+      <Name>Part IV line 19: credit before bond-type factor</Name>
+      <Description>Part IV line 19: credit before bond-type factor. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../passThroughCompleteSafe" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../passThroughCredit" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../allowanceDates" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../allowanceDates/*/columnF" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/line20">
+      <Name>Part IV line 20: credit after bond-type factor</Name>
+      <Description>Part IV line 20: credit after bond-type factor. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../passThrough" />
+            </When>
+            <Then>
+              <Dependency path="../line19" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../line19" />
+                <Switch>
+                  <Case>
+                    <When>
+                      <Any>
+                        <Equal>
+                          <Left>
+                            <Dependency path="../bondType" />
+                          </Left>
+                          <Right>
+                            <String>NCREB</String>
+                          </Right>
+                        </Equal>
+                        <Equal>
+                          <Left>
+                            <Dependency path="../bondType" />
+                          </Left>
+                          <Right>
+                            <String>QECB</String>
+                          </Right>
+                        </Equal>
+                      </Any>
+                    </When>
+                    <Then>
+                      <Rational>70/100</Rational>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Rational>1/1</Rational>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/issueDateInBondTypeWindow">
+      <Name>Bond issue date falls inside its bond type's issuance window</Name>
+      <Description>True when the issue date lies inside the window that defines the entered bond type: a clean renewable energy bond issued after 2005 and before 2010; a new clean renewable energy bond or qualified energy conservation bond issued after October 3, 2008; a qualified zone academy bond issued after December 31, 1997; a qualified school construction bond issued after February 17, 2009; a build America bond issued after February 17, 2009 and before January 1, 2011. A bond issued outside its window is not a bond of that type and earns no credit as one. The general cutoff for bonds issued after 2017 is tested on the current-credit fact. An unanswered issue date reads as a date after that cutoff; an unanswered or unrecognized bond type leaves this incomplete.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../bondType" /></Left><Right><String>CREB</String></Right></Equal></When>
+            <Then><All><GreaterThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2005-12-31</Day></Right></GreaterThan><LessThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2010-01-01</Day></Right></LessThan></All></Then>
+          </Case>
+          <Case>
+            <When><Equal><Left><Dependency path="../bondType" /></Left><Right><String>NCREB</String></Right></Equal></When>
+            <Then><GreaterThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2008-10-03</Day></Right></GreaterThan></Then>
+          </Case>
+          <Case>
+            <When><Equal><Left><Dependency path="../bondType" /></Left><Right><String>QECB</String></Right></Equal></When>
+            <Then><GreaterThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2008-10-03</Day></Right></GreaterThan></Then>
+          </Case>
+          <Case>
+            <When><Equal><Left><Dependency path="../bondType" /></Left><Right><String>QZAB</String></Right></Equal></When>
+            <Then><GreaterThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>1997-12-31</Day></Right></GreaterThan></Then>
+          </Case>
+          <Case>
+            <When><Equal><Left><Dependency path="../bondType" /></Left><Right><String>QSCB</String></Right></Equal></When>
+            <Then><GreaterThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2009-02-17</Day></Right></GreaterThan></Then>
+          </Case>
+          <Case>
+            <When><Equal><Left><Dependency path="../bondType" /></Left><Right><String>BAB</String></Right></Equal></When>
+            <Then><All><GreaterThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2009-02-17</Day></Right></GreaterThan><LessThan><Left><Dependency path="../issueDateCompleteSafe" /></Left><Right><Day>2011-01-01</Day></Right></LessThan></All></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/currentCredit">
+      <Name>Current-year credit from this bond or pass-through interest</Name>
+      <Description>Current-year credit from this bond or pass-through interest: the Form 1097-BTC box 1 amount when the credit was reported on that form, else the Part IV line 20 amount. Zero unless the holder is eligible, the bond was issued no later than December 31, 2017, and the issue date falls inside the window that defines its bond type.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../holderCreditEligibleCompleteSafe" />
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="../issueDateCompleteSafe" />
+                  </Left>
+                  <Right>
+                    <Day>2017-12-31</Day>
+                  </Right>
+                </LessThanOrEqual>
+                <Dependency path="../issueDateInBondTypeWindow" />
+              </All>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Any>
+                      <Equal>
+                        <Left>
+                          <Dependency path="../bondType" />
+                        </Left>
+                        <Right>
+                          <String>CREB</String>
+                        </Right>
+                      </Equal>
+                      <Equal>
+                        <Left>
+                          <Dependency path="../bondType" />
+                        </Left>
+                        <Right>
+                          <String>NCREB</String>
+                        </Right>
+                      </Equal>
+                      <Equal>
+                        <Left>
+                          <Dependency path="../bondType" />
+                        </Left>
+                        <Right>
+                          <String>QECB</String>
+                        </Right>
+                      </Equal>
+                      <Equal>
+                        <Left>
+                          <Dependency path="../bondType" />
+                        </Left>
+                        <Right>
+                          <String>QZAB</String>
+                        </Right>
+                      </Equal>
+                      <Equal>
+                        <Left>
+                          <Dependency path="../bondType" />
+                        </Left>
+                        <Right>
+                          <String>QSCB</String>
+                        </Right>
+                      </Equal>
+                      <Equal>
+                        <Left>
+                          <Dependency path="../bondType" />
+                        </Left>
+                        <Right>
+                          <String>BAB</String>
+                        </Right>
+                      </Equal>
+                    </Any>
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="../reportedOn1097BtcCompleteSafe" />
+                        </When>
+                        <Then>
+                          <GreaterOf>
+                            <Dependency path="../reportedCredit" />
+                            <Dollar>0</Dollar>
+                          </GreaterOf>
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dependency path="../line20" />
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/part3Credit">
+      <Name>Part III reported credit</Name>
+      <Description>Part III reported credit. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../reportedOn1097Btc" />
+            </When>
+            <Then>
+              <Dependency path="../currentCredit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/part4Credit">
+      <Name>Part IV credit not reported on Form 1097-BTC</Name>
+      <Description>Part IV credit not reported on Form 1097-BTC. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../reportedOn1097Btc" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../currentCredit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/totalCredit">
+      <Name>Current and carried credit</Name>
+      <Description>Current and carried credit. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="../currentCredit" />
+          <Dependency path="../carryforward" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimit">
+      <Name>Credit after the separate CREB pass-through limitation</Name>
+      <Description>Credit after the separate CREB pass-through limitation. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../passThrough" />
+                <Equal>
+                  <Left>
+                    <Dependency path="../bondType" />
+                  </Left>
+                  <Right>
+                    <String>CREB</String>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThan>
+                      <Left>
+                        <Dependency path="/taxableIncome" module="taxCalculations" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </GreaterThan>
+                  </When>
+                  <Then>
+                    <Dependency path="../creditAfterPassThroughLimitMinimum6" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../totalCredit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/interestAlreadyReported">
+      <Name>Taxable interest corresponding to this credit already included in another income entry</Name>
+      <Description>Only current-year credit income. Prevents adding a second copy of income already included on a Form 1099, Schedule K-1, or another interest report.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/interestToReport">
+      <Name>Additional taxable interest from current-year bond credits</Name>
+      <Description>Additional taxable interest from current-year bond credits. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../currentCredit" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../interestAlreadyReported" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line1">
+      <Name>Form 8912 line 1</Name>
+      <Description>Form 8912 line 1. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/part3Credit" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line2">
+      <Name>Form 8912 line 2</Name>
+      <Description>Form 8912 line 2. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/part4Credit" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line3">
+      <Name>Form 8912 line 3</Name>
+      <Description>Form 8912 line 3. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/carryforward" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line4">
+      <Name>Form 8912 line 4</Name>
+      <Description>Form 8912 line 4. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/totalCredit" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line7">
+      <Name>Form 8912 line 7</Name>
+      <Description>Form 8912 line 7. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/outFormRegularTaxBeforeCredits" module="outFormCreditLimits" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line8">
+      <Name>Form 8912 line 8</Name>
+      <Description>Form 8912 line 8. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/alternativeMinimumTax" module="form6251" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line9">
+      <Name>Form 8912 line 9</Name>
+      <Description>Form 8912 line 9. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8912Line7" />
+          <Dependency path="/form8912Line8" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line10a">
+      <Name>Form 8912 line 10a</Name>
+      <Description>Form 8912 line 10a. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/sched3Line1" module="schedule3" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line10b">
+      <Name>Form 8912 line 10b</Name>
+      <Description>Form 8912 line 10b. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/outFormCreditsBefore8912" module="outFormCreditLimits" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line10c">
+      <Name>Form 8912 line 10c</Name>
+      <Description>Form 8912 line 10c. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/sched3Line6a" module="schedule3" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line10d">
+      <Name>Form 8912 line 10d</Name>
+      <Description>Form 8912 line 10d. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/sched3Line6b" module="schedule3" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line10e">
+      <Name>Form 8912 line 10e</Name>
+      <Description>Form 8912 line 10e. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8912Line10a" />
+          <Dependency path="/form8912Line10b" />
+          <Dependency path="/form8912Line10c" />
+          <Dependency path="/form8912Line10d" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line11">
+      <Name>Form 8912 line 11</Name>
+      <Description>Form 8912 line 11. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8912Line9" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8912Line10e" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912CreditAfterPassThroughLimits">
+      <Name>Bond credits after interest-by-interest pass-through limits</Name>
+      <Description>Bond credits after interest-by-interest pass-through limits. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/creditAfterPassThroughLimit" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line12">
+      <Name>Form 8912 line 12: allowed credit</Name>
+      <Description>Form 8912 line 12: allowed credit. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8912Line4" />
+          <Dependency path="/form8912Line12Minimum1" />
+          <Dependency path="/form8912CreditAfterPassThroughLimits" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Credit">
+      <Name>Tax credit bond credit allowed; Schedule 3 line 6k</Name>
+      <Description>Form 8912 line 12, the credit to holders of tax credit bonds allowed for the current year, carried to Schedule 3 (Form 1040) line 6k. Zero when no bond is entered. NOT COMPUTED, deliberately, when the return also owes a CURRENT-YEAR deduction of an unused CREB or pre-October-4-2008 QZAB credit: that deduction reduces taxable income, which lowers the line 11 tax liability limit, which lowers the allowed credit, which raises the unused credit again, and the instructions resolve the loop by iteration. This module does not iterate, so it refuses rather than filing a credit computed against a tax the return no longer owes.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form8912Applies" />
+                <Not>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/form8912UnusedCreditDeductionThisYear" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Dependency path="/form8912Line12" />
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/form8912Applies" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/knockoutForm8912CurrentYearDeductionRequiresRefigure" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutForm8912CurrentYearDeductionRequiresRefigure">
+      <Name>Knockout: Form 8912 current-year deduction of an unused CREB/pre-2008-QZAB credit requires an iterated refigure</Name>
+      <Description>Your return elects to deduct, for the CURRENT tax year, an unused credit from a
+        clean renewable energy bond (CREB) or a qualified zone academy bond issued before October 4,
+        2008. The instructions say a current-year deduction lowers taxable income, which lowers the
+        line 11 tax liability limit, which lowers the allowed credit, which raises the unused amount
+        again — a loop the instructions resolve only by "trial and error" (repeated refiguring until
+        the deduction and the unallowed credit agree). This return cannot iterate that computation,
+        so it cannot compute a current-year deduction here. Electing to deduct the SAME unused
+        credit in the NEXT tax year instead avoids the loop entirely (the next year's own tax
+        liability limit does not depend on this year's return) and is already computable.
+        IsComplete-first: an unanswered election makes this Complete false, not a refusal.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8912Applies" />
+                </IsComplete>
+                <Dependency path="/form8912Applies" />
+                <IsComplete>
+                  <Dependency path="/form8912UnusedCreditDeductionThisYear" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8912UnusedCreditDeductionThisYear" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/writableBoughtOrSoldBetweenAllowanceDates">
+      <Name>This bond was bought or sold between its credit allowance dates in 2025</Name>
+      <Description>Question: "Did you buy or sell this bond during 2025 on a date between its credit allowance dates (for a build America bond, between its interest payment dates)?" Help text: a seller reports part of the sales price as accrued interest; a buyer treats the deemed interest on the next allowance date as a return of capital to the extent of the interest accrued at purchase, which reduces the bond's basis. Asked for every bond entered. Unanswered: not refused (the bond is treated as held across its allowance dates). Yes: the return is refused by /knockoutForm8912AccruedInterestOrPriorYearDeductionUnbuilt, because this return does not figure the accrued interest or the basis reduction. Validation: Yes or No.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8912PriorYearElectedNextYearDeduction">
+      <Name>A 2024 return elected to deduct an unused CREB or pre-October 4, 2008 QZAB credit in 2025</Name>
+      <Description>Question: "On your 2024 return, did you choose to deduct an unused clean renewable energy bond credit, or an unused credit from a qualified zone academy bond issued before October 4, 2008, in 2025 (the next tax year) instead of 2024?" Asked when the filer holds or held such a bond (/writableForm8912Applies). Unanswered: not refused. Yes: the return is refused by /knockoutForm8912AccruedInterestOrPriorYearDeductionUnbuilt, because no form or instruction in hand names the 2025 line that takes that deduction. Validation: Yes or No.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutForm8912AccruedInterestOrPriorYearDeductionUnbuilt">
+      <Name>Knockout: a bond traded between allowance dates, or a prior-year elected deduction of an unused bond credit, this return does not compute</Name>
+      <Description>Your return includes a tax credit bond you bought or sold between its credit allowance dates, or a deduction of an unused clean renewable energy bond or pre-October 4, 2008 qualified zone academy bond credit that you chose on your 2024 return to take in 2025. This return does not figure the accrued interest on a bond traded between allowance dates, or the basis reduction that goes with it, and no instruction in hand names the 2025 line for the prior-year election's deduction, so it cannot be filed here. TRUE when any /form8912Bonds item answers ../writableBoughtOrSoldBetweenAllowanceDates Yes, or /writableForm8912PriorYearElectedNextYearDeduction is Yes; Complete false while those are unanswered. DUAL-WIRED: BlockSubmissionOnTrue plus membership in flow:/flowIsKnockedOut.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/form8912Bonds" /></IsComplete>
+            <GreaterThan>
+              <Left>
+                <CollectionSize>
+                  <Filter path="/form8912Bonds">
+                    <All>
+                      <IsComplete><Dependency path="writableBoughtOrSoldBetweenAllowanceDates" /></IsComplete>
+                      <Dependency path="writableBoughtOrSoldBetweenAllowanceDates" />
+                    </All>
+                  </Filter>
+                </CollectionSize>
+              </Left>
+              <Right><Int>0</Int> </Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableForm8912PriorYearElectedNextYearDeduction" /></IsComplete>
+            <Dependency path="/writableForm8912PriorYearElectedNextYearDeduction" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8912AdditionalInterestIncome">
+      <Name>Tax credit bond interest not already reported</Name>
+      <Description>Tax credit bond interest not already reported. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/interestToReport" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912UnusedCredit">
+      <Name>Unused bond credits requiring bond-specific carryforward or deduction treatment</Name>
+      <Description>Qualified tax credit bond and BAB amounts carry forward; CREB and pre-October 4, 2008 QZAB amounts are deductible in the current or following year. Allocate by bond and retain that election; a current-year deduction requires recomputing the tax limitation until consistent.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8912Line4" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8912Line12" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimitMinimum1">
+      <Name>Credit after the separate CREB pass-through limitation: intermediate minimum 1</Name>
+      <Description>Credit after the separate CREB pass-through limitation: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="/form8912Line11" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimitMinimum2">
+      <Name>Credit after the separate CREB pass-through limitation: intermediate minimum 2</Name>
+      <Description>Credit after the separate CREB pass-through limitation: intermediate minimum 2. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="../passThroughTaxableIncome" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimitMinimum3">
+      <Name>Credit after the separate CREB pass-through limitation: intermediate minimum 3</Name>
+      <Description>Credit after the separate CREB pass-through limitation: intermediate minimum 3. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="../passThroughTaxableIncome" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimitMinimum4">
+      <Name>Credit after the separate CREB pass-through limitation: intermediate minimum 4</Name>
+      <Description>Credit after the separate CREB pass-through limitation: intermediate minimum 4. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="../passThroughTaxableIncome" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimitMinimum5">
+      <Name>Credit after the separate CREB pass-through limitation: intermediate minimum 5</Name>
+      <Description>Credit after the separate CREB pass-through limitation: intermediate minimum 5. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="../creditAfterPassThroughLimitMinimum2" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="../creditAfterPassThroughLimitMinimum3" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/taxableIncome" module="taxCalculations" />
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <Dependency path="../creditAfterPassThroughLimitMinimum4" />
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <Dependency path="/taxableIncome" module="taxCalculations" />
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/creditAfterPassThroughLimitMinimum6">
+      <Name>Credit after the separate CREB pass-through limitation: intermediate minimum 6</Name>
+      <Description>Credit after the separate CREB pass-through limitation: intermediate minimum 6. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../totalCredit" />
+          <Multiply>
+            <Dependency path="../creditAfterPassThroughLimitMinimum1" />
+            <Dependency path="../creditAfterPassThroughLimitMinimum5" />
+          </Multiply>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Line12Minimum1">
+      <Name>Form 8912 line 12: allowed credit: intermediate minimum 1</Name>
+      <Description>Form 8912 line 12: allowed credit: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="/form8912Line11" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/limitationOrderOldQzab">
+      <Name>This bond is a qualified zone academy bond issued before October 4, 2008</Name>
+      <Description>TRUE when this bond is a qualified zone academy bond issued before October 4, 2008 (IRC 1397E), group 1 of 4 in the order the bond credits take the tax liability limit: pre-October 4, 2008 qualified zone academy bonds, then clean renewable energy bonds, then qualified tax credit bonds, then build America bonds.</Description>
+      <Derived><All><Equal><Left><Dependency path="../bondType" /></Left><Right><String>QZAB</String></Right></Equal><LessThan><Left><Dependency path="../issueDate" /></Left><Right><Day>2008-10-04</Day></Right></LessThan></All></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/creditInLimitationOrderOldQzab">
+      <Name>This bond's credit when it is a qualified zone academy bond issued before October 4, 2008</Name>
+      <Description>This bond's credit after the pass-through limit (../creditAfterPassThroughLimit) when it is a qualified zone academy bond issued before October 4, 2008 (IRC 1397E); $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../limitationOrderOldQzab" /></When>
+            <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../limitationOrderOldQzab" /></Not></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderOldQzabCredit">
+      <Name>Form 8912 credit of group 1 in the limitation order</Name>
+      <Description>The total credit, after the pass-through limit, of the bonds that are a qualified zone academy bond issued before October 4, 2008 (IRC 1397E). $0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSum><Dependency path="/form8912Bonds/*/creditInLimitationOrderOldQzab" /></CollectionSum></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Dollar>0</Dollar> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderOldQzabCount">
+      <Name>Number of bonds in group 1 of the limitation order</Name>
+      <Description>How many entered bonds are a qualified zone academy bond issued before October 4, 2008 (IRC 1397E). 0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSize><Filter path="/form8912Bonds"><Dependency path="limitationOrderOldQzab" /></Filter></CollectionSize></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Int>0</Int> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/limitationOrderCreb">
+      <Name>This bond is a clean renewable energy bond</Name>
+      <Description>TRUE when this bond is a clean renewable energy bond (IRC 54), group 2 of 4 in the order the bond credits take the tax liability limit: pre-October 4, 2008 qualified zone academy bonds, then clean renewable energy bonds, then qualified tax credit bonds, then build America bonds.</Description>
+      <Derived><Equal><Left><Dependency path="../bondType" /></Left><Right><String>CREB</String></Right></Equal></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/creditInLimitationOrderCreb">
+      <Name>This bond's credit when it is a clean renewable energy bond</Name>
+      <Description>This bond's credit after the pass-through limit (../creditAfterPassThroughLimit) when it is a clean renewable energy bond (IRC 54); $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../limitationOrderCreb" /></When>
+            <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../limitationOrderCreb" /></Not></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderCrebCredit">
+      <Name>Form 8912 credit of group 2 in the limitation order</Name>
+      <Description>The total credit, after the pass-through limit, of the bonds that are a clean renewable energy bond (IRC 54). $0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSum><Dependency path="/form8912Bonds/*/creditInLimitationOrderCreb" /></CollectionSum></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Dollar>0</Dollar> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderCrebCount">
+      <Name>Number of bonds in group 2 of the limitation order</Name>
+      <Description>How many entered bonds are a clean renewable energy bond (IRC 54). 0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSize><Filter path="/form8912Bonds"><Dependency path="limitationOrderCreb" /></Filter></CollectionSize></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Int>0</Int> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/limitationOrderQualifiedTaxCreditBond">
+      <Name>This bond is a qualified tax credit bond</Name>
+      <Description>TRUE when this bond is a qualified tax credit bond (IRC 54A: a new clean renewable energy bond, a qualified energy conservation bond, a qualified zone academy bond issued on or after October 4, 2008, or a qualified school construction bond), group 3 of 4 in the order the bond credits take the tax liability limit: pre-October 4, 2008 qualified zone academy bonds, then clean renewable energy bonds, then qualified tax credit bonds, then build America bonds.</Description>
+      <Derived><All><Not><All><Equal><Left><Dependency path="../bondType" /></Left><Right><String>QZAB</String></Right></Equal><LessThan><Left><Dependency path="../issueDate" /></Left><Right><Day>2008-10-04</Day></Right></LessThan></All></Not><Not><Equal><Left><Dependency path="../bondType" /></Left><Right><String>CREB</String></Right></Equal></Not><Not><Equal><Left><Dependency path="../bondType" /></Left><Right><String>BAB</String></Right></Equal></Not></All></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/creditInLimitationOrderQualifiedTaxCreditBond">
+      <Name>This bond's credit when it is a qualified tax credit bond</Name>
+      <Description>This bond's credit after the pass-through limit (../creditAfterPassThroughLimit) when it is a qualified tax credit bond (IRC 54A: a new clean renewable energy bond, a qualified energy conservation bond, a qualified zone academy bond issued on or after October 4, 2008, or a qualified school construction bond); $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../limitationOrderQualifiedTaxCreditBond" /></When>
+            <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../limitationOrderQualifiedTaxCreditBond" /></Not></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderQualifiedTaxCreditBondCredit">
+      <Name>Form 8912 credit of group 3 in the limitation order</Name>
+      <Description>The total credit, after the pass-through limit, of the bonds that are a qualified tax credit bond (IRC 54A: a new clean renewable energy bond, a qualified energy conservation bond, a qualified zone academy bond issued on or after October 4, 2008, or a qualified school construction bond). $0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSum><Dependency path="/form8912Bonds/*/creditInLimitationOrderQualifiedTaxCreditBond" /></CollectionSum></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Dollar>0</Dollar> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderQualifiedTaxCreditBondCount">
+      <Name>Number of bonds in group 3 of the limitation order</Name>
+      <Description>How many entered bonds are a qualified tax credit bond (IRC 54A: a new clean renewable energy bond, a qualified energy conservation bond, a qualified zone academy bond issued on or after October 4, 2008, or a qualified school construction bond). 0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSize><Filter path="/form8912Bonds"><Dependency path="limitationOrderQualifiedTaxCreditBond" /></Filter></CollectionSize></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Int>0</Int> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/limitationOrderBab">
+      <Name>This bond is a build America bond</Name>
+      <Description>TRUE when this bond is a build America bond (IRC 54AA), group 4 of 4 in the order the bond credits take the tax liability limit: pre-October 4, 2008 qualified zone academy bonds, then clean renewable energy bonds, then qualified tax credit bonds, then build America bonds.</Description>
+      <Derived><Equal><Left><Dependency path="../bondType" /></Left><Right><String>BAB</String></Right></Equal></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/creditInLimitationOrderBab">
+      <Name>This bond's credit when it is a build America bond</Name>
+      <Description>This bond's credit after the pass-through limit (../creditAfterPassThroughLimit) when it is a build America bond (IRC 54AA); $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../limitationOrderBab" /></When>
+            <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../limitationOrderBab" /></Not></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderBabCredit">
+      <Name>Form 8912 credit of group 4 in the limitation order</Name>
+      <Description>The total credit, after the pass-through limit, of the bonds that are a build America bond (IRC 54AA). $0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSum><Dependency path="/form8912Bonds/*/creditInLimitationOrderBab" /></CollectionSum></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Dollar>0</Dollar> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderBabCount">
+      <Name>Number of bonds in group 4 of the limitation order</Name>
+      <Description>How many entered bonds are a build America bond (IRC 54AA). 0 while the bond list is unanswered (no bonds).</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></When><Then><CollectionSize><Filter path="/form8912Bonds"><Dependency path="limitationOrderBab" /></Filter></CollectionSize></Then></Case><Case><When><Not><IsComplete><Dependency path="/form8912Bonds" /></IsComplete></Not></When><Then><Int>0</Int> </Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderOldQzabAllowed">
+      <Name>Form 8912 line 12 allowed to group 1 of the limitation order</Name>
+      <Description>The part of Form 8912 line 12 the bonds that are a qualified zone academy bond issued before October 4, 2008 (IRC 1397E) take: the smaller of their total credit and what line 12 leaves after the groups before them. Each section's limitation is reduced by the credits of the sections it does not exclude, so the pre-October 4, 2008 qualified zone academy bond credit is allowed first, then the clean renewable energy bond credit, then the qualified tax credit bond credit, and the build America bond credit last.</Description>
+      <Derived><LesserOf><Dependency path="/form8912LimitationOrderOldQzabCredit" /><Dependency path="/form8912Line12" /></LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderCrebAllowed">
+      <Name>Form 8912 line 12 allowed to group 2 of the limitation order</Name>
+      <Description>The part of Form 8912 line 12 the bonds that are a clean renewable energy bond (IRC 54) take: the smaller of their total credit and what line 12 leaves after the groups before them (OldQzab). Each section's limitation is reduced by the credits of the sections it does not exclude, so the pre-October 4, 2008 qualified zone academy bond credit is allowed first, then the clean renewable energy bond credit, then the qualified tax credit bond credit, and the build America bond credit last.</Description>
+      <Derived><LesserOf><Dependency path="/form8912LimitationOrderCrebCredit" /><Subtract><Minuend><Dependency path="/form8912Line12" /></Minuend><Subtrahends><Dependency path="/form8912LimitationOrderOldQzabAllowed" /></Subtrahends></Subtract></LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderQualifiedTaxCreditBondAllowed">
+      <Name>Form 8912 line 12 allowed to group 3 of the limitation order</Name>
+      <Description>The part of Form 8912 line 12 the bonds that are a qualified tax credit bond (IRC 54A: a new clean renewable energy bond, a qualified energy conservation bond, a qualified zone academy bond issued on or after October 4, 2008, or a qualified school construction bond) take: the smaller of their total credit and what line 12 leaves after the groups before them (OldQzab, Creb). Each section's limitation is reduced by the credits of the sections it does not exclude, so the pre-October 4, 2008 qualified zone academy bond credit is allowed first, then the clean renewable energy bond credit, then the qualified tax credit bond credit, and the build America bond credit last.</Description>
+      <Derived><LesserOf><Dependency path="/form8912LimitationOrderQualifiedTaxCreditBondCredit" /><Subtract><Minuend><Dependency path="/form8912Line12" /></Minuend><Subtrahends><Dependency path="/form8912LimitationOrderOldQzabAllowed" /><Dependency path="/form8912LimitationOrderCrebAllowed" /></Subtrahends></Subtract></LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/form8912LimitationOrderBabAllowed">
+      <Name>Form 8912 line 12 allowed to group 4 of the limitation order</Name>
+      <Description>The part of Form 8912 line 12 the bonds that are a build America bond (IRC 54AA) take: the smaller of their total credit and what line 12 leaves after the groups before them (OldQzab, Creb, QualifiedTaxCreditBond). Each section's limitation is reduced by the credits of the sections it does not exclude, so the pre-October 4, 2008 qualified zone academy bond credit is allowed first, then the clean renewable energy bond credit, then the qualified tax credit bond credit, and the build America bond credit last.</Description>
+      <Derived><LesserOf><Dependency path="/form8912LimitationOrderBabCredit" /><Subtract><Minuend><Dependency path="/form8912Line12" /></Minuend><Subtrahends><Dependency path="/form8912LimitationOrderOldQzabAllowed" /><Dependency path="/form8912LimitationOrderCrebAllowed" /><Dependency path="/form8912LimitationOrderQualifiedTaxCreditBondAllowed" /></Subtrahends></Subtract></LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/form8912Bonds/*/allocatedAllowedCredit">
+      <Name>Allowed-credit allocation for this bond when more than one bond is entered</Name>
+      <Description>Question: "How much of the allowed bond credit (Form 8912 line 12) do you assign to this bond?" Asked only when two or more bonds of the same kind share the kind of bond credit that line 12 covers only in part (pre-October 4, 2008 qualified zone academy bonds, clean renewable energy bonds, qualified tax credit bonds or build America bonds): the statutory order splits line 12 between the kinds, not between bonds of one kind. Allocation of the computed Form 8912 line 12, not an extra credit. All bond allocations must sum to line 12; apply bond-specific carryforward and deduction rules to the remainder.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/allowedCreditAllocation">
+      <Name>Allowed credit assigned to this bond</Name>
+      <Description>The part of Form 8912 line 12 assigned to this bond. With one bond, all of line 12. With more than one, line 12 is split in the statutory limitation order (/form8912LimitationOrderOldQzabAllowed through /form8912LimitationOrderBabAllowed): a bond whose group is wholly allowed takes its own credit; the only bond of a partly allowed group takes that group's allowed amount; and only where two or more bonds share the partly allowed group does the filer's ../allocatedAllowedCredit split it (no more than the bond's own credit), since the order is set between the sections and not within one.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <CollectionSize>
+                    <Dependency path="/form8912Bonds" />
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/form8912Line12" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderOldQzab" /><Equal><Left><Dependency path="/form8912LimitationOrderOldQzabAllowed" /></Left><Right><Dependency path="/form8912LimitationOrderOldQzabCredit" /></Right></Equal></All></When>
+                  <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderOldQzab" /><Equal><Left><Dependency path="/form8912LimitationOrderOldQzabCount" /></Left><Right><Int>1</Int></Right></Equal></All></When>
+                  <Then><Dependency path="/form8912LimitationOrderOldQzabAllowed" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderCreb" /><Equal><Left><Dependency path="/form8912LimitationOrderCrebAllowed" /></Left><Right><Dependency path="/form8912LimitationOrderCrebCredit" /></Right></Equal></All></When>
+                  <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderCreb" /><Equal><Left><Dependency path="/form8912LimitationOrderCrebCount" /></Left><Right><Int>1</Int></Right></Equal></All></When>
+                  <Then><Dependency path="/form8912LimitationOrderCrebAllowed" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderQualifiedTaxCreditBond" /><Equal><Left><Dependency path="/form8912LimitationOrderQualifiedTaxCreditBondAllowed" /></Left><Right><Dependency path="/form8912LimitationOrderQualifiedTaxCreditBondCredit" /></Right></Equal></All></When>
+                  <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderQualifiedTaxCreditBond" /><Equal><Left><Dependency path="/form8912LimitationOrderQualifiedTaxCreditBondCount" /></Left><Right><Int>1</Int></Right></Equal></All></When>
+                  <Then><Dependency path="/form8912LimitationOrderQualifiedTaxCreditBondAllowed" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderBab" /><Equal><Left><Dependency path="/form8912LimitationOrderBabAllowed" /></Left><Right><Dependency path="/form8912LimitationOrderBabCredit" /></Right></Equal></All></When>
+                  <Then><Dependency path="../creditAfterPassThroughLimit" /></Then>
+                </Case>
+                <Case>
+                  <When><All><Dependency path="../limitationOrderBab" /><Equal><Left><Dependency path="/form8912LimitationOrderBabCount" /></Left><Right><Int>1</Int></Right></Equal></All></When>
+                  <Then><Dependency path="/form8912LimitationOrderBabAllowed" /></Then>
+                </Case>
+                <Case>
+                  <When>
+                    <LessThanOrEqual>
+                      <Left>
+                        <Dependency path="../allocatedAllowedCredit" />
+                      </Left>
+                      <Right>
+                        <Dependency path="../creditAfterPassThroughLimit" />
+                      </Right>
+                    </LessThanOrEqual>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="../allocatedAllowedCredit" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912AllocatedCreditTotal">
+      <Name>Reconciliation of allowed credit allocations</Name>
+      <Description>Reconciliation of allowed credit allocations. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/allowedCreditAllocation" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/unusedCredit">
+      <Name>Bond-specific unused credit</Name>
+      <Description>Bond-specific unused credit. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8912AllocatedCreditTotal" />
+                </Left>
+                <Right>
+                  <Dependency path="/form8912Line12" />
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="../unusedCreditMinimum1" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/nextYearCarryforward">
+      <Name>Qualified bond or BAB credit carried to next year</Name>
+      <Description>Qualified bond or BAB credit carried to next year. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../carryforwardEligible" />
+            </When>
+            <Then>
+              <Dependency path="../unusedCredit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/deductUnusedCreditNextYear">
+      <Name>Elect next-year deduction of unused CREB or old QZAB credit</Name>
+      <Description>Elect next-year deduction of unused CREB or old QZAB credit. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/unusedCreditDeductionThisYear">
+      <Name>Unused CREB or old QZAB credit deduction for current-year supporting computation</Name>
+      <Description>Unused clean renewable energy bond or pre-October 4, 2008 qualified zone academy bond credit deducted in the current year: the bond's unused credit when the filer does not elect to deduct it next year. $0 for a bond whose credit carries forward, and $0 without reading the election when the bond has no unused credit. An unanswered election on a bond with unused credit leaves this unresolved.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../carryforwardEligible" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../unusedCredit" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="../deductUnusedCreditNextYear" />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dependency path="../unusedCredit" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/unusedCreditDeductionNextYear">
+      <Name>Unused CREB or old QZAB credit deduction elected for next year</Name>
+      <Description>Unused clean renewable energy bond or pre-October 4, 2008 qualified zone academy bond credit the filer elects to deduct next year. $0 for a bond whose credit carries forward, and $0 without reading the election when the bond has no unused credit. An unanswered election on a bond with unused credit leaves this unresolved.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../carryforwardEligible" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../unusedCredit" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="../deductUnusedCreditNextYear" />
+                  </When>
+                  <Then>
+                    <Dependency path="../unusedCredit" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912CarryforwardToNextYear">
+      <Name>CarryforwardToNextYear</Name>
+      <Description>CarryforwardToNextYear. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/nextYearCarryforward" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912UnusedCreditDeductionThisYear">
+      <Name>UnusedCreditDeductionThisYear</Name>
+      <Description>UnusedCreditDeductionThisYear. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/unusedCreditDeductionThisYear" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912UnusedCreditDeductionNextYear">
+      <Name>UnusedCreditDeductionNextYear</Name>
+      <Description>UnusedCreditDeductionNextYear. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8912Bonds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8912Bonds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8912BondsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8912Bonds/*/unusedCreditDeductionNextYear" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/unusedCreditMinimum1">
+      <Name>Bond-specific unused credit: intermediate minimum 1</Name>
+      <Description>Bond-specific unused credit: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../totalCredit" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../allowedCreditAllocation" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8912Bonds/*/holderCreditEligible">
+      <Name>Holder and bond meet the applicable eligibility rules; issuer has not elected a direct refundable subsidy</Name>
+      <Description>Includes qualified bond designation, holding on the credit allowance date, and special eligible S corporation pass-through treatment for an individual claiming a pre-October 4, 2008 QZAB credit. An issuer direct-payment election bars a holder credit.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8912Bonds/*/holderCreditEligibleCompleteSafe">
+      <Name>Holder and bond eligibility, complete-safe</Name>
+      <Description>Passes the holder eligibility answer through when answered and uses false when
+        unanswered, so an incomplete eligibility answer cannot select the holder-credit arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../holderCreditEligible" /></IsComplete></When>
+            <Then><Dependency path="../holderCreditEligible" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  
+
+    <Fact path="/form1097Btcs">
+      <Name>Form 1097-BTC documents</Name>
+      <Description>Source documents received on Form 1097-BTC, one item per received document. The collection records the printed document without computing or changing federal tax. Its items are available for state returns and document transcription.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/filer">
+      <Name>Form 1097-BTC document owner</Name>
+      <Description>The primary or secondary filer to whom this Form 1097-BTC is addressed as credit recipient. An unanswered owner is Incomplete; no primary-filer default is assumed. This link supplies ownership for the two attribution facts, not another copy of the printed identifying number.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <CollectionItem collection="/filers" />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/belongsToPrimaryFiler">
+      <Name>Form 1097-BTC belongs to primary filer</Name>
+      <Description>Whether this Form 1097-BTC belongs to the primary filer. The owner link and the corresponding filer must both be complete before they are compared. An unanswered owner or an absent primary filer produces false. No federal tax computation reads this attribution; it is exported for document ownership.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../filer" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="filers" path="/primaryFiler" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Equal>
+                <Left>
+                  <Dependency path="../filer" />
+                </Left>
+                <Right>
+                  <Dependency module="filers" path="/primaryFiler" />
+                </Right>
+              </Equal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form1097Btcs/*/belongsToSecondaryFiler">
+      <Name>Form 1097-BTC belongs to secondary filer</Name>
+      <Description>Whether this Form 1097-BTC belongs to the secondary filer. The owner link and the corresponding filer must both be complete before they are compared. An unanswered owner or an absent secondary filer produces false. No federal tax computation reads this attribution; it is exported for document ownership.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../filer" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="filers" path="/secondaryFiler" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Equal>
+                <Left>
+                  <Dependency path="../filer" />
+                </Left>
+                <Right>
+                  <Dependency module="filers" path="/secondaryFiler" />
+                </Right>
+              </Equal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form1097Btcs/*/recipientTin">
+      <Name>Form 1097-BTC RECIPIENT'S TIN</Name>
+      <Description>The RECIPIENT'S TIN box (https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1), derived from this document's own recipient (../filer): the primary filer's TIN on the primary filer's Form 1097-BTC, the secondary filer's on the spouse's. Never a writable (INPUT-FORMS.md c, identity boxes: this collection has a filer link, so the addressee's number is derived and not asked twice). Incomplete while ../filer is unanswered. Nothing federal reads it; it is exported so a reader and a state module can print the document back.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../belongsToPrimaryFiler" /></When>
+            <Then><Dependency module="filers" path="/primaryFiler/tin" /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../belongsToSecondaryFiler" /></When>
+            <Then><Dependency module="filers" path="/secondaryFiler/tin" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableVoid">
+      <Name>VOID</Name>
+      <Description>Form 1097-BTC, box VOID: VOID. An unchecked box is false; unanswered does not assert either state. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableCorrected">
+      <Name>CORRECTED</Name>
+      <Description>Form 1097-BTC, box CORRECTED: CORRECTED. An unchecked box is false; unanswered does not assert either state. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableCalendarYear">
+      <Name>For calendar year</Name>
+      <Description>Form 1097-BTC, box year: For calendar year. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+        <Limit type="Match">
+          <String>[0-9]{4}</String>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableIssuerNameAddressAndTelephoneNumber">
+      <Name>FORM 1097-B T C ISSUER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no</Name>
+      <Description>Form 1097-BTC, box issuer-name: FORM 1097-B T C ISSUER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no. One merged name, address and telephone cell for the issuer of this statement. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableIssuerTin">
+      <Name>FORM 1097-B T C ISSUER'S TIN</Name>
+      <Description>Form 1097-BTC, box issuer-TIN: FORM 1097-B T C ISSUER'S TIN. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableRecipientName">
+      <Name>RECIPIENT'S name</Name>
+      <Description>Form 1097-BTC, box recipient-name: RECIPIENT'S name. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableStreetAddress">
+      <Name>Street address (including apt. no.)</Name>
+      <Description>Form 1097-BTC, box recipient-street: Street address (including apt. no.). An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode">
+      <Name>City or town, state or province, country, and ZIP or foreign postal code</Name>
+      <Description>Form 1097-BTC, box recipient-city: City or town, state or province, country, and ZIP or foreign postal code. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableIssuerOfBondOrItsAgentFilingCurrentYearForm1097BtcForCreditBeingReported">
+      <Name>Issuer of bond or its agent filing current year Form 1097-BTC for credit being reported</Name>
+      <Description>Form 1097-BTC, box issuer-bond-agent: Issuer of bond or its agent filing current year Form 1097-BTC for credit being reported. An unchecked box is false; unanswered does not assert either state. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableEntityOrPersonDistributingPartOrAllOfCreditToOthers">
+      <Name>An entity or person distributing part or all of received credit to others</Name>
+      <Description>Form 1097-BTC, box issuer-distributor: An entity or person distributing part or all of received credit to others. The second independent checkbox in the issuer-is block; no single-choice Enum is substituted. An unchecked box is false; unanswered does not assert either state. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableTotal">
+      <Name>Total</Name>
+      <Description>Form 1097-BTC, box 1: Total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for claiming the credit subject to limitations (source lines 106–115). This is the reported annual total, not a sum or a second quarterly credit. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableCode">
+      <Name>Code</Name>
+      <Description>Form 1097-BTC, box 2a: Code. The printed identifier-type code; the accompanying number is separately transcribed in box 2b. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableUniqueIdentifier">
+      <Name>Unique identifier</Name>
+      <Description>Form 1097-BTC, box 2b: Unique identifier. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableBondType">
+      <Name>Bond type</Name>
+      <Description>Form 1097-BTC, box 3: Bond type. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableJanuary">
+      <Name>January</Name>
+      <Description>Form 1097-BTC, box 5a: January. The credit amount reported for January; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableFebruary">
+      <Name>February</Name>
+      <Description>Form 1097-BTC, box 5b: February. The credit amount reported for February; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableMarch">
+      <Name>March</Name>
+      <Description>Form 1097-BTC, box 5c: March. The credit amount reported for March; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableApril">
+      <Name>April</Name>
+      <Description>Form 1097-BTC, box 5d: April. The credit amount reported for April; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableMay">
+      <Name>May</Name>
+      <Description>Form 1097-BTC, box 5e: May. The credit amount reported for May; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableJune">
+      <Name>June</Name>
+      <Description>Form 1097-BTC, box 5f: June. The credit amount reported for June; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableJuly">
+      <Name>July</Name>
+      <Description>Form 1097-BTC, box 5g: July. The credit amount reported for July; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableAugust">
+      <Name>August</Name>
+      <Description>Form 1097-BTC, box 5h: August. The credit amount reported for August; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableSeptember">
+      <Name>September</Name>
+      <Description>Form 1097-BTC, box 5i: September. The credit amount reported for September; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableOctober">
+      <Name>October</Name>
+      <Description>Form 1097-BTC, box 5j: October. The credit amount reported for October; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableNovember">
+      <Name>November</Name>
+      <Description>Form 1097-BTC, box 5k: November. The credit amount reported for November; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableDecember">
+      <Name>December</Name>
+      <Description>Form 1097-BTC, box 5l: December. The credit amount reported for December; a separate monthly cell, not a derived share of the annual total. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. The recipient instructions refer to Form 8912 for the credit and warn against taking repeated quarterly amounts twice (source lines 106–115). No credit is claimed by this intake. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form1097Btcs/*/writableComments">
+      <Name>Comments</Name>
+      <Description>Form 1097-BTC, box 6: Comments. An unanswered box has not been transcribed; it is not an assertion of zero or an empty printed value. Unanswered is complete-safe: nothing reads this fact. No federal line; carried for state returns and source-document identification. The printed source is https://www.irs.gov/pub/irs-pdf/f1097btc.pdf, page 1.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

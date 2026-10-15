@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/ssa1099.schema.json",
+  "title": "Form SSA-1099 / RRB-1099",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "form_type",
+    "net_benefits_cents"
+  ],
+  "properties": {
+    "person": {
+      "description": "Index into persons[]. The filer this benefit statement belongs to — the primary, or the spouse on a joint return.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "form_type": {
+      "description": "Which statement reports the benefits: Form SSA-1099 (Social Security) or Form RRB-1099 (the Social Security equivalent portion of Railroad Retirement tier 1). The two number their boxes differently; the amounts below are named without a box number. Required: the engine keys each amount to the form.",
+      "type": "string",
+      "enum": ["ssa_1099", "rrb_1099"]
+    },
+    "net_benefits_cents": {
+      "description": "Net benefits for the year — SSA-1099 box 5 (box 3 benefits paid minus box 4 benefits repaid), or RRB-1099 box 5. Required: the statement is issued because benefits were paid, so a blank box is an unread box, not a benefit of nothing. Reaches Form 1040 lines 6a and 6b and, through them, line 9. Never negative here: repayments exceeding benefits open an itemized deduction (or the dictionary's own knockout above $3,000) that this service does not carry, so a negative is refused rather than served as a negative line 6a.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "federal_withholding_cents": {
+      "description": "Voluntary federal income tax withheld — SSA-1099 box 6, or RRB-1099 box 10. Optional: blank is an ordinary state of the box; absent is computed as zero and stated in the response. Reaches Form 1040 line 25b, inside line 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

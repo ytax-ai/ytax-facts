@@ -1,0 +1,3244 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableForm4835Line1ProductionIncome">
+      <Name>Form 4835 line 1: income from production of livestock, produce, grains and other crops (filer entry)</Name>
+      <Description>Form 4835 Part I line 1, the landowner's crop or livestock share converted to cash or its equivalent. The first of the eight right-column legs line 7 adds, and the only one with no left-column sibling.
+
+        The filer's own entry. Read only through /form4835Line1, which defaults it to $0 when unanswered, so a farm rental that has no line 1 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line1">
+      <Name>Form 4835 line 1: income from production of livestock, produce, grains and other crops</Name>
+      <Description>Line 1 as the form prints it: /writableForm4835Line1ProductionIncome when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line1ProductionIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line1ProductionIncome" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line2bTaxableCooperativeDistributions">
+      <Name>Form 4835 line 2b: taxable amount of cooperative distributions (filer entry)</Name>
+      <Description>Form 4835 Part I line 2b, the TAXABLE portion of the cooperative distributions Form 1099-PATR reports. Line 2a, the total distributions, is the left-column display figure the form never sums and is not modelled here.
+
+        The filer's own entry. Read only through /form4835Line2b, which defaults it to $0 when unanswered, so a farm rental that has no line 2b leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line2b">
+      <Name>Form 4835 line 2b: taxable amount of cooperative distributions</Name>
+      <Description>Line 2b as the form prints it: /writableForm4835Line2bTaxableCooperativeDistributions when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line2bTaxableCooperativeDistributions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line2bTaxableCooperativeDistributions" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line3bTaxableAgriculturalProgramPayments">
+      <Name>Form 4835 line 3b: taxable amount of agricultural program payments (filer entry)</Name>
+      <Description>Form 4835 Part I line 3b, the TAXABLE portion of the agricultural program payments received. Line 3a, the total payments, is the left-column display figure the form never sums and is not modelled here.
+
+        The filer's own entry. Read only through /form4835Line3b, which defaults it to $0 when unanswered, so a farm rental that has no line 3b leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line3b">
+      <Name>Form 4835 line 3b: taxable amount of agricultural program payments</Name>
+      <Description>Line 3b as the form prints it: /writableForm4835Line3bTaxableAgriculturalProgramPayments when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line3bTaxableAgriculturalProgramPayments" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line3bTaxableAgriculturalProgramPayments" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line4aCccLoansUnderElection">
+      <Name>Form 4835 line 4a: CCC loans reported under election (filer entry)</Name>
+      <Description>Form 4835 Part I line 4a, Commodity Credit Corporation loan proceeds the filer elected to report as income in the year received under section 77. A right-column leg in its own right, unlike the 4b/4c pair below it.
+
+        The filer's own entry. Read only through /form4835Line4a, which defaults it to $0 when unanswered, so a farm rental that has no line 4a leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line4a">
+      <Name>Form 4835 line 4a: CCC loans reported under election</Name>
+      <Description>Line 4a as the form prints it: /writableForm4835Line4aCccLoansUnderElection when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line4aCccLoansUnderElection" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line4aCccLoansUnderElection" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line4cTaxableCccLoansForfeited">
+      <Name>Form 4835 line 4c: taxable amount of CCC loans forfeited (filer entry)</Name>
+      <Description>Form 4835 Part I line 4c, the TAXABLE portion of the CCC loans forfeited. Line 4b, the full forfeited amount, is the left-column display figure the form never sums and is not modelled here.
+
+        The filer's own entry. Read only through /form4835Line4c, which defaults it to $0 when unanswered, so a farm rental that has no line 4c leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line4c">
+      <Name>Form 4835 line 4c: taxable amount of CCC loans forfeited</Name>
+      <Description>Line 4c as the form prints it: /writableForm4835Line4cTaxableCccLoansForfeited when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line4cTaxableCccLoansForfeited" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line4cTaxableCccLoansForfeited" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line5bTaxableCropInsuranceProceeds">
+      <Name>Form 4835 line 5b: taxable amount of crop insurance proceeds (filer entry)</Name>
+      <Description>Form 4835 Part I line 5b, the TAXABLE portion of the crop insurance proceeds and federal crop disaster payments received in 2025. Line 5a, the amount received, is the left-column display figure the form never sums and is not modelled here; neither is the 5c deferral election, which is a checkbox with no amount.
+
+        The filer's own entry. Read only through /form4835Line5b, which defaults it to $0 when unanswered, so a farm rental that has no line 5b leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835CropInsuranceDocumentsConsistent">
+      <Name>Form 4835 crop-insurance entries cover allocated Forms 1099-MISC</Name>
+      <Description>A zero allocated document total imposes no new question. A positive rental allocation requires a claimed farm-rental activity, answered gross line 5a and taxable line 5b, gross at least the allocated total, and taxable between zero and gross. Taxable below gross requires the existing attached-deferral election; an affirmative election requires an actual deferral. An unresolved allocation cannot fall through to approval. Correct the entries or complete the allocation to finish. Legal eligibility and the election statement remain the existing interview responsibility.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form1099MiscCropInsuranceProceedsToForm4835Total" module="form1099Misc" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency path="/form1099MiscCropInsuranceProceedsToForm4835Total" module="form1099Misc" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <True />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <All>
+                      <All>
+                        <IsComplete>
+                          <Dependency path="/claimsFarmRentalIncome" module="scheduleE" />
+                        </IsComplete>
+                        <Dependency path="/claimsFarmRentalIncome" module="scheduleE" />
+                      </All>
+                      <IsComplete>
+                        <Dependency path="/writableForm4835Line5aCropInsuranceReceived" />
+                      </IsComplete>
+                      <IsComplete>
+                        <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+                      </IsComplete>
+                    </All>
+                  </When>
+                  <Then>
+                    <All>
+                      <GreaterThanOrEqual>
+                        <Left>
+                          <Dependency path="/writableForm4835Line5aCropInsuranceReceived" />
+                        </Left>
+                        <Right>
+                          <Dependency path="/form1099MiscCropInsuranceProceedsToForm4835Total" module="form1099Misc" />
+                        </Right>
+                      </GreaterThanOrEqual>
+                      <GreaterThanOrEqual>
+                        <Left>
+                          <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+                        </Left>
+                        <Right>
+                          <Dollar>0</Dollar>
+                        </Right>
+                      </GreaterThanOrEqual>
+                      <LessThanOrEqual>
+                        <Left>
+                          <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+                        </Left>
+                        <Right>
+                          <Dependency path="/writableForm4835Line5aCropInsuranceReceived" />
+                        </Right>
+                      </LessThanOrEqual>
+                      <Switch>
+                        <Case>
+                          <When>
+                            <All>
+                              <IsComplete>
+                                <Dependency path="/writableForm4835Line5cCropInsuranceDeferralElectionAttached" />
+                              </IsComplete>
+                              <Dependency path="/writableForm4835Line5cCropInsuranceDeferralElectionAttached" />
+                            </All>
+                          </When>
+                          <Then>
+                            <LessThan>
+                              <Left>
+                                <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm4835Line5aCropInsuranceReceived" />
+                              </Right>
+                            </LessThan>
+                          </Then>
+                        </Case>
+                        <Case>
+                          <When>
+                            <True />
+                          </When>
+                          <Then>
+                            <Equal>
+                              <Left>
+                                <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm4835Line5aCropInsuranceReceived" />
+                              </Right>
+                            </Equal>
+                          </Then>
+                        </Case>
+                      </Switch>
+                    </All>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line5b">
+      <Name>Form 4835 line 5b: taxable amount of crop insurance proceeds</Name>
+      <Description>Line 5b as the form prints it: /writableForm4835Line5bTaxableCropInsuranceProceeds when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form4835CropInsuranceDocumentsConsistent" />
+                </IsComplete>
+                <Dependency path="/form4835CropInsuranceDocumentsConsistent" />
+              </All>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf><Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" /><Dollar>0</Dollar></GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line5dCropInsuranceDeferredFromPriorYear">
+      <Name>Form 4835 line 5d: crop insurance proceeds deferred from 2024 (filer entry)</Name>
+      <Description>Form 4835 Part I line 5d, the crop insurance proceeds a prior-year deferral election postponed out of 2024 and into this return. It is the mirror of the 5c election: a filer who checks 5c defers 2025 proceeds into 2026, and a filer who checked it on the 2024 form reports the deferred amount here.
+
+        The filer's own entry. Read only through /form4835Line5d, which defaults it to $0 when unanswered, so a farm rental that has no line 5d leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line5d">
+      <Name>Form 4835 line 5d: crop insurance proceeds deferred from 2024</Name>
+      <Description>Line 5d as the form prints it: /writableForm4835Line5dCropInsuranceDeferredFromPriorYear when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line5dCropInsuranceDeferredFromPriorYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line5dCropInsuranceDeferredFromPriorYear" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line6OtherIncome">
+      <Name>Form 4835 line 6: other farm rental income (filer entry)</Name>
+      <Description>Form 4835 Part I line 6, income not shown on lines 1 through 5d. NO Min 0 FENCE, and that is derived rather than assumed: line 6's own instruction routes the filer to Schedule F line 8, and Schedule F line 8 lists among its contents the gain OR LOSS on the sale of commodity futures contracts made to protect the farm from price changes. A negative line 6 is therefore a printed possibility, and it is the one leg of the eight that can pull line 7 down.
+
+        The filer's own entry. Read only through /form4835Line6, which defaults it to $0 when unanswered, so a farm rental that has no line 6 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Form4797Line35RecaptureAmount">
+      <Name>Form 4797 line 35 recapture allocated to Form 4835</Name>
+      <Description>The part of Form 4797 line 35 recapture attributable to property whose section
+        179 deduction or depreciation was taken on this Form 4835 farm-rental activity. This is a
+        filer-supplied allocation, not a calculation of the Form 4797 recapture amount. The
+        allocation is counted only when Schedule E confirms a Form 4835 activity.</Description>
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+          <!-- verified:ai-only (lint_trust_tags obligation A; the SOURCES row publishes ai-only). -->
+</Fact>
+
+    <Fact path="/form4797Line35RecaptureAllocated">
+      <Name>Form 4797 line 35 recapture allocated to Form 4835</Name>
+      <Description>The answered /writableForm4835Form4797Line35RecaptureAmount when the Schedule E
+        Form 4835 activity is claimed; otherwise $0. This is the Form 4835 term in
+        form4797:/partIVLine35RecaptureAllocatedTotal.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="scheduleE" path="/claimsFarmRentalIncome" />
+                <IsComplete><Dependency path="/writableForm4835Form4797Line35RecaptureAmount" /></IsComplete>
+              </All>
+            </When>
+            <Then><GreaterOf><Dependency path="/writableForm4835Form4797Line35RecaptureAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+          <!-- verified:ai-only (lint_trust_tags obligation A; the SOURCES row publishes ai-only). -->
+</Fact>
+
+    <Fact path="/form4797Line35RecaptureLeg">
+      <Name>Form 4797 line 35 recapture carried to Form 4835 line 6</Name>
+      <Description>/form4797Line35RecaptureAllocated when form4797:/partIVLine35RecaptureIsAllocated
+        is TRUE. If the Form 4835 activity is claimed but the return has not fully allocated line
+        35, the missing leg stays Incomplete rather than being omitted from line 6.
+
+        CORRECTION: the sentence above is withdrawn, for the reason its Schedule E twin
+        (scheduleE:/rentalProperties/*/form4797Line35RecaptureLeg) gives in full. An unconfirmed
+        allocation now contributes $0, which is what Form 4835 line 6 carried before this leg
+        existed; a pre-existing farm-rental return that had never been asked the new allocation
+        question keeps resolving line 6 and line 7 instead of going Incomplete. The refusal on an
+        unallocated line 35 is untouched and is not carried here:
+        form4797:/hasUnallocatedPartIVLine35Recapture reads true and the pre-existing Schedule 1
+        line 8z leg leaves /totalIncome Incomplete, so such a return still cannot be submitted. An
+        answered and reconciled allocation still carries the whole recapture onto line 6.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><Dependency module="scheduleE" path="/claimsFarmRentalIncome" /></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form4797" path="/partIVLine35RecaptureIsAllocated" /></IsComplete>
+                <Dependency module="form4797" path="/partIVLine35RecaptureIsAllocated" />
+              </All>
+            </When>
+            <Then><Dependency path="/form4797Line35RecaptureAllocated" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+          <!-- verified:ai-only (lint_trust_tags obligation A; the SOURCES row publishes ai-only). -->
+</Fact>
+
+    <Fact path="/form4835Line6WithForm4797Recapture">
+      <Name>Form 4835 line 6 other income including Form 4797 recapture</Name>
+      <Description>The filer's line 6 other income (/form4835Line6) plus the Form 4797 line 35
+        recapture carried by /form4797Line35RecaptureLeg. This is the line-6 amount for Form 4835
+        line 7 and print; the recapture remains separate from the filer's own other-income entry.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/form4835Line6" />
+            <Dependency path="/form4797Line35RecaptureLeg" />
+          </Add>
+        </Round>
+      </Derived>
+          <!-- verified:ai-only (lint_trust_tags obligation A; the SOURCES row publishes ai-only). -->
+</Fact>
+
+    <Fact path="/form4835Line6">
+      <Name>Form 4835 line 6: other farm rental income</Name>
+      <Description>Line 6 filer-entered other farm rental income: /writableForm4835Line6OtherIncome when the filer answered it, else $0. Defaults to $0 when not provided (complete-safe). SIGNED, unlike the other seven legs - see the writable for the printed reason. The printed line-6 total adds Form 4797 recapture through /form4835Line6WithForm4797Recapture.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line6OtherIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm4835Line6OtherIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form4835GrossFarmRentalIncome">
+      <Name>Form 4835 line 7: gross farm rental income</Name>
+      <Description>Form 4835 Part I line 7, "Gross farm rental income. Add amounts in the right
+        column for lines 1 through 6", rounded to whole dollars. Two arms:
+
+          1. the return claims a Form 4835 farm rental: the eight right-column legs added.
+          2. it does not: $0.
+
+        THE EIGHT LEGS ARE 1, 2b, 3b, 4a, 4c, 5b, 5d AND 6, and the dependency order below is the
+        printed order so a reader can check the addition against the paper. The printed line names
+        no members - it says only "lines 1 through 6" - so the set is derived from the form's own
+        Specific Instructions, each of which cross references a Schedule F line whose summand
+        status Schedule F line 9 prints inside its own parentheses. That chain is set out in full
+        in this module's header comment.
+
+        NO FLOOR, deliberately. The printed line says "Add" and prints no "enter -0-" instruction,
+        and line 6 can be negative because its instruction routes to Schedule F line 8, whose
+        contents include the gain or loss on commodity futures contracts. So a farm rental whose
+        only entry is a futures LOSS has a negative line 7, which the node test
+        form4835/line-6-futures-loss-drives-gross-negative pins. This is the same call
+        /scheduleFGrossIncome makes for Schedule F line 9.
+
+        THE GATE IS scheduleE:/claimsFarmRentalIncome, the population question Schedule E line 40
+        already asks, reused rather than duplicated. A return that has never entered a Form 4835
+        farm rental resolves Complete $0 here, which is what makes this module purely additive for
+        the existing corpus. A return that stray-answers a leg without claiming the form also gets
+        $0 - the gate is consulted first, and the node test
+        form4835/legs-answered-without-claim-resolves-zero pins that verdict rather than leaving it
+        latent.
+
+        WHAT CONSUMES IT, and it is no longer nothing. Two facts in this dictionary read this
+        line, and both of them move dollars on the return:
+          * Form 4835 line 32, the net, which is this line minus the Part II expense total on
+            line 31. Part II ships, so /form4835Line32BeforeGate is a computed net, and it reaches
+            Schedule E line 40 through /form4835Line40Amount whenever /form4835Line40Computed is
+            true. This line therefore reaches Schedule E line 41, Schedule 1 line 5, total income
+            and AGI.
+          * /form4835Section175GrossIncomeFromFarming, which adds this line to
+            scheduleF:/scheduleFGrossIncome to form the base the section 175(b) 25% conservation
+            expense ceiling applies against, capping /form4835Line10 inside the same line 31 total.
+
+        TWO PRINTED CONSUMERS REMAIN UNWIRED, and each keeps its own filer attestation.
+          * Schedule E line 42, whose first printed leg IS this line. The other two - a
+            /formK1s box 14 code B field, and the Schedule K-1 (Form 1120-S) and Schedule K-1
+            (Form 1041) collections this dictionary does not model at all - remain, so line 42
+            keeps its whole-line filer attestation and nothing here reaches it.
+          * The estimated-tax farmer/fisherman two-thirds test, whose Publication 505 numerator
+            map names Form 4835 line 7 as an item beside Schedule F line 9. That test is not built.
+
+        THE DOUBLE SURFACE THIS CREATES, named rather than left for a successor to find. The graph
+        holds a COMPUTED line 7 here and an ATTESTED line 32 net at
+        scheduleE:/writableFarmRentalNet, and the attested net contains this figure inside it. No
+        consistency check exists between them: the attestation is not retired, because it is the
+        only source on a return that never opened Form 4835, and scheduleE:/farmRentalNetIncome
+        chooses between the two on /form4835Line40Computed rather than reconciling them. A return
+        that answers BOTH surfaces has the computed figure win, and the attested one is then dead
+        weight the filer can still see.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency module="scheduleE" path="/claimsFarmRentalIncome" />
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form4835Line1" />
+                  <Dependency path="/form4835Line2b" />
+                  <Dependency path="/form4835Line3b" />
+                  <Dependency path="/form4835Line4a" />
+                  <Dependency path="/form4835Line4c" />
+                  <Dependency path="/form4835Line5b" />
+                  <Dependency path="/form4835Line5d" />
+                  <Dependency path="/form4835Line6WithForm4797Recapture" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form4835DidNotActivelyParticipate">
+      <Name>Form 4835 line A No: the filer did not actively participate in the farm</Name>
+      <Description>The printed No box of Form 4835 line A, "Did you actively participate in the operation of this farm during 2025?": the negation of scheduleE:/writableFarmRentalActiveParticipation, which is the Yes box. Incomplete while line A is unanswered, so a return that never saw the question prints NEITHER box rather than volunteering a No.
+
+WHY IT NEGATES THE WRITABLE AND NOT THE DERIVED /farmRentalActiveParticipation, which is the one mistake available here. /farmRentalActiveParticipation resolves TRUE when line A is unanswered, a deliberate adverse default its own prose defends, so negating it would print a No box on every silent return and printing its own value would print a Yes box on every silent return. The writable is the only input with an unanswered state, and that state is what the paper's blank pair of boxes means.
+
+PRINT ONLY. Nothing computes from it: the Part IV / Part V routing that line A actually drives reads /farmRentalActiveParticipation, not this negation.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency module="scheduleE" path="/writableFarmRentalActiveParticipation" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line10">
+      <Name>Form 4835 line 10: conservation expenses</Name>
+      <Description>Line 10 as the form prints it: LesserOf(/writableForm4835Line10ConservationExpenses, /form4835Section175ConservationExpenseCap) when the filer answered it and the return claims farm rental income (scheduleE:/claimsFarmRentalIncome), else $0. A return that does not claim the farm rental files no Form 4835 (its line 32 is gated the same way), so its line 10 answer takes nothing from the one section 175(b) ceiling the return shares with Schedule F line 12. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs. The section 175(b) 25% of gross income from farming ceiling is applied here — see /form4835Section175ConservationExpenseCap for the base and /form4835Section175ConservationExpenseDisallowedExcess for the amount the ceiling disallows.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="scheduleE" path="/claimsFarmRentalIncome" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/form4835Section175ExpendituresIncludingCarryIn" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form4835Section175ExpendituresIncludingCarryIn" />
+                <Dependency path="/form4835Section175ConservationExpenseCap" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Section175GrossIncomeFromFarming">
+      <Name>Gross income from farming for the section 175(b) 25% conservation expense limit (Form 4835 line 7 plus Schedule F line 9)</Name>
+      <Description>The base the section 175(b) 25% limit applies against: this farm rental's gross income (/form4835GrossFarmRentalIncome, Form 4835 line 7) plus the filer's Schedule F gross farm income (scheduleF:/scheduleFGrossIncome, Schedule F line 9). Form 4835 line 10's own instruction sends the filer to "the instructions for Schedule F (Form 1040), line 12" for the definition of the 25% test, and the Schedule F line 12 instructions state the base as "your gross income from farming (excluding certain gains from selling assets such as farm machinery and land)" — one combined concept for a filer who has both a farm rental and a farming trade or business, not the Form 4835 line 7 figure alone. Neither summand includes gains from selling farm assets (neither is built from a Form 4797 leg), so the exclusion the instruction names is already satisfied by construction and needs no separate term.
+
+NOT FLOORED HERE, deliberately: both summands can be negative (a Form 4835 line 6 futures loss; a Schedule F accrual-method loss), and the signed SUM is what section 175(b)'s "gross income derived from farming" means. The cap, not this base, is where a non-positive result is floored to $0 — see /form4835Section175ConservationExpenseCap.
+
+WHAT IS NOT IN THIS BASE, named rather than left to be discovered: the filer's share of gross farming income from a Schedule K-1 (Form 1065, 1120-S or 1041) and Form 4797 gains from the sale of draft, breeding, dairy or sporting livestock — both of which scheduleF:/scheduleFGrossIncome's own Description names as members of the broader "gross income from farming" concept used for the estimated-tax two-thirds test, and neither of which this dictionary computes. A filer with either has a broader true base than this fact supplies, so this fact can UNDERSTATE the section 175(b) ceiling for that filer; it never overstates it, since every summand it does include is a real leg of the same concept.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form4835GrossFarmRentalIncome" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form4835Section175NonproductionReceipts" />
+            </Subtrahends>
+          </Subtract>
+          <Subtract>
+            <Minuend>
+              <Dependency module="scheduleF" path="/scheduleFGrossIncome" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="scheduleF" path="/scheduleFSection175NonproductionReceipts" />
+            </Subtrahends>
+          </Subtract>
+          <Dependency path="/section175Form4797LivestockGains" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Section175ConservationExpenseCap">
+      <Name>Form 4835 line 10: the section 175(b) 25% ceiling on the conservation expense deduction</Name>
+      <Description>25% of /form4835Section175GrossIncomeFromFarming, floored at $0. Section 175(b)'s first sentence: "The amount deductible under subsection (a) for any taxable year shall not exceed 25 percent of the gross income derived from farming during the taxable year." Floored because the base can be negative (see that fact's own Description), and a negative ceiling would make a LesserOf(entry, ceiling) test return a negative number for a positive entry — not a printed possibility: a farm rental with no net farming income for the year gets no section 175 deduction, not a negative one.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <GreaterOf>
+          <Round>
+            <Multiply>
+              <Rational>25/100</Rational>
+              <Dependency path="/form4835Section175GrossIncomeFromFarming" />
+            </Multiply>
+          </Round>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Section175ConservationExpenseCapRemainingAfterForm4835Line10">
+      <Name>Section 175(b) shared conservation-expense ceiling remaining after Form 4835 line 10</Name>
+      <Description>The taxpayer-level section 175(b) ceiling remaining for Schedule F line 12 after the allowed Form 4835 line 10 amount: the combined ceiling less /form4835Line10, floored at $0. Form 4835 applies the cap first because its existing line 10 computation is the first half of the shared-cap graph; Schedule F line 12 consumes only this remainder. Thus the two printed deductions together cannot exceed the one statutory ceiling.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form4835Section175ConservationExpenseCap" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form4835Line10" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Section175ConservationExpenseDisallowedExcess">
+      <Name>Form 4835 line 10 conservation expenses disallowed by the section 175(b) 25% ceiling</Name>
+      <Description>The part of the filer's line 10 entry the section 175(b) ceiling disallows for 2025: /writableForm4835Line10ConservationExpenses minus /form4835Section175ConservationExpenseCap, floored at $0. $0 whenever the entry is unanswered or at or under the ceiling, so this is complete safe.
+
+OUTPUT ONLY, AND THE REASON IS THE ENGINE. Section 175(b)'s second sentence treats this excess as "deductible for succeeding taxable years in order of time", capped again each such year at 25% of that year's own gross income from farming — but this is a single year engine with no next year's return to carry it into, so the figure is REPORTED and not consumed. This is the same posture /form4835AtRiskSuspendedLoss already takes for its own section 465(a)(2) carryforward, which is why this fact carries an Export and no consumer.
+
+THE CARRY-IN IS NOW BUILT, and this fact is its output: /form4835Section175CarryForward is the excess of the year total, carry-in included, over the ceiling. The prior-year intake is /writableForm4835Section175PriorYearCarryIn and the capped total is /form4835Section175ExpendituresIncludingCarryIn. What is still NOT built is the statute's ordering across more than one unabsorbed prior year: a single carry-in amount cannot say which year's excess it came from, and in order of time only matters once two years' excess compete for one ceiling.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Dependency path="/form4835Section175CarryForward" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Section175PriorYearCarryIn">
+      <Name>Form 4835 prior-year conservation expense carried into 2025</Name>
+      <Description>Soil and water conservation expenditures an earlier year could not deduct because they exceeded that year section 175(b) ceiling, carried into this return against the farm rental activity. Unanswered contributes $0, so an ordinary return that never had an excess is unaffected. A negative answer is floored at $0 where it is read, because the engine does not enforce a writable Min limit on the resolution path.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Section175ExpendituresIncludingCarryIn">
+      <Name>Form 4835 conservation expenditures including the prior-year carry-in</Name>
+      <Description>This year entered conservation expenses plus the prior-year carry-in, each floored at $0 and each contributing $0 when unanswered. This is the total the section 175(b) ceiling is applied to, which is what the statute means by including the expenditures actually paid or incurred during the taxable year.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableForm4835Line10ConservationExpenses" />
+                  </IsComplete>
+                </Not>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableForm4835Line10ConservationExpenses" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableForm4835Section175PriorYearCarryIn" />
+                  </IsComplete>
+                </Not>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableForm4835Section175PriorYearCarryIn" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Section175CarryForward">
+      <Name>Form 4835 conservation expense carried forward out of 2025</Name>
+      <Description>The part of this year total, carry-in included, that the ceiling did not allow. It leaves this return for a later year in order of time. $0 when the ceiling allowed everything. On a return that does not claim the farm rental, line 10 is $0 and the whole total, carry-in included, is reported here as carried forward: a reading the sources leave open, recorded as TAX-INTERPRETATIONS IN-22.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form4835Section175ExpendituresIncludingCarryIn" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form4835Line10" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line11">
+      <Name>Form 4835 line 11: custom hire (machine work)</Name>
+      <Description>Line 11 as the form prints it: /writableForm4835Line11CustomHire when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line11CustomHire" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line11CustomHire" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Form4562CopyNumber">
+      <Name>The Form 4835 farm rental: which Form 4562 copy carries its depreciation</Name>
+      <Description>SCREEN: "Which of your Form 4562 copies (1 to 5) is for The Form 4835 farm rental?" HELP TEXT: file a separate Form 4562 for each business or activity; its line 22 is entered on this schedule's depreciation line. Leave it blank if you enter the depreciation yourself. ASKED WHEN: the return has Form 4562 property or amounts assigned to copies. UNANSWERED POSTURE: the depreciation line takes the amount you enter, as before. VALIDATION: a whole number from 1 to 5. WHAT IT FEEDS: /form4835Line12 (Form 4835 line 12).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>5</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line12">
+      <Name>Form 4835 line 12: depreciation and section 179 expense deduction</Name>
+      <Description>Line 12 as the form prints it: the linked Form 4562 copy's line 22 (form4562:/form4562Copy1Line22Total and its siblings) when /writableForm4835Form4562CopyNumber is answered; otherwise /writableForm4835Line12DepreciationAndSection179 when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm4835Form4562CopyNumber" /></IsComplete><Equal><Left><Dependency path="/writableForm4835Form4562CopyNumber" /></Left><Right><Int>1</Int></Right></Equal></All></When>
+            <Then><Dependency module="form4562" path="/form4562Copy1Line22Total" /></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm4835Form4562CopyNumber" /></IsComplete><Equal><Left><Dependency path="/writableForm4835Form4562CopyNumber" /></Left><Right><Int>2</Int></Right></Equal></All></When>
+            <Then><Dependency module="form4562" path="/form4562Copy2Line22Total" /></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm4835Form4562CopyNumber" /></IsComplete><Equal><Left><Dependency path="/writableForm4835Form4562CopyNumber" /></Left><Right><Int>3</Int></Right></Equal></All></When>
+            <Then><Dependency module="form4562" path="/form4562Copy3Line22Total" /></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm4835Form4562CopyNumber" /></IsComplete><Equal><Left><Dependency path="/writableForm4835Form4562CopyNumber" /></Left><Right><Int>4</Int></Right></Equal></All></When>
+            <Then><Dependency module="form4562" path="/form4562Copy4Line22Total" /></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writableForm4835Form4562CopyNumber" /></IsComplete><Equal><Left><Dependency path="/writableForm4835Form4562CopyNumber" /></Left><Right><Int>5</Int></Right></Equal></All></When>
+            <Then><Dependency module="form4562" path="/form4562Copy5Line22Total" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line12DepreciationAndSection179" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line12DepreciationAndSection179" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line13">
+      <Name>Form 4835 line 13: employee benefit programs other than on line 21</Name>
+      <Description>Line 13 as the form prints it: /writableForm4835Line13EmployeeBenefitPrograms when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line13EmployeeBenefitPrograms" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line13EmployeeBenefitPrograms" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line14">
+      <Name>Form 4835 line 14: feed</Name>
+      <Description>Line 14 as the form prints it: /writableForm4835Line14Feed when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line14Feed" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line14Feed" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line15">
+      <Name>Form 4835 line 15: fertilizers and lime</Name>
+      <Description>Line 15 as the form prints it: /writableForm4835Line15FertilizersAndLime when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line15FertilizersAndLime" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line15FertilizersAndLime" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line16">
+      <Name>Form 4835 line 16: freight and trucking</Name>
+      <Description>Line 16 as the form prints it: /writableForm4835Line16FreightAndTrucking when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line16FreightAndTrucking" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line16FreightAndTrucking" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line17">
+      <Name>Form 4835 line 17: gasoline, fuel, and oil</Name>
+      <Description>Line 17 as the form prints it: /writableForm4835Line17GasolineFuelAndOil when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line17GasolineFuelAndOil" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line17GasolineFuelAndOil" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line18">
+      <Name>Form 4835 line 18: insurance (other than health)</Name>
+      <Description>Line 18 as the form prints it: /writableForm4835Line18InsuranceOtherThanHealth when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line18InsuranceOtherThanHealth" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line18InsuranceOtherThanHealth" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line19a">
+      <Name>Form 4835 line 19a: mortgage interest paid to banks</Name>
+      <Description>Line 19a as the form prints it: /writableForm4835Line19aMortgageInterest when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line19aMortgageInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line19aMortgageInterest" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line19b">
+      <Name>Form 4835 line 19b: other interest</Name>
+      <Description>Line 19b as the form prints it: /writableForm4835Line19bOtherInterest when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line19bOtherInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line19bOtherInterest" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line20">
+      <Name>Form 4835 line 20: labor hired (less employment credits)</Name>
+      <Description>Line 20 as the form prints it: /writableForm4835Line20LaborHired when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line20LaborHired" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line20LaborHired" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line21">
+      <Name>Form 4835 line 21: pension and profit sharing plans</Name>
+      <Description>Line 21 as the form prints it: /writableForm4835Line21PensionAndProfitSharingPlans when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line21PensionAndProfitSharingPlans" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line21PensionAndProfitSharingPlans" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line22a">
+      <Name>Form 4835 line 22a: rent or lease of vehicles, machinery, and equipment</Name>
+      <Description>Line 22a as the form prints it: /writableForm4835Line22aRentOrLeaseVehiclesMachineryEquipment when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line22aRentOrLeaseVehiclesMachineryEquipment" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line22aRentOrLeaseVehiclesMachineryEquipment" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line22b">
+      <Name>Form 4835 line 22b: rent or lease of land, animals and other property</Name>
+      <Description>Line 22b as the form prints it: /writableForm4835Line22bRentOrLeaseOther when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line22bRentOrLeaseOther" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line22bRentOrLeaseOther" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line23">
+      <Name>Form 4835 line 23: repairs and maintenance</Name>
+      <Description>Line 23 as the form prints it: /writableForm4835Line23RepairsAndMaintenance when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line23RepairsAndMaintenance" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line23RepairsAndMaintenance" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line24">
+      <Name>Form 4835 line 24: seeds and plants</Name>
+      <Description>Line 24 as the form prints it: /writableForm4835Line24SeedsAndPlants when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line24SeedsAndPlants" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line24SeedsAndPlants" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line25">
+      <Name>Form 4835 line 25: storage and warehousing</Name>
+      <Description>Line 25 as the form prints it: /writableForm4835Line25StorageAndWarehousing when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line25StorageAndWarehousing" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line25StorageAndWarehousing" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line26">
+      <Name>Form 4835 line 26: supplies</Name>
+      <Description>Line 26 as the form prints it: /writableForm4835Line26Supplies when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line26Supplies" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line26Supplies" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line27">
+      <Name>Form 4835 line 27: taxes</Name>
+      <Description>Line 27 as the form prints it: /writableForm4835Line27Taxes when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line27Taxes" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line27Taxes" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line28">
+      <Name>Form 4835 line 28: utilities</Name>
+      <Description>Line 28 as the form prints it: /writableForm4835Line28Utilities when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line28Utilities" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line28Utilities" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line29">
+      <Name>Form 4835 line 29: veterinary, breeding, and medicine</Name>
+      <Description>Line 29 as the form prints it: /writableForm4835Line29VeterinaryBreedingAndMedicine when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line29VeterinaryBreedingAndMedicine" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line29VeterinaryBreedingAndMedicine" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30a">
+      <Name>Form 4835 line 30a: other expenses, slot a</Name>
+      <Description>Line 30a as the form prints it: /writableForm4835Line30aOtherExpensesA when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30aOtherExpensesA" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line30aOtherExpensesA" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30b">
+      <Name>Form 4835 line 30b: other expenses, slot b</Name>
+      <Description>Line 30b as the form prints it: /writableForm4835Line30bOtherExpensesB when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30bOtherExpensesB" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line30bOtherExpensesB" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30c">
+      <Name>Form 4835 line 30c: other expenses, slot c</Name>
+      <Description>Line 30c as the form prints it: /writableForm4835Line30cOtherExpensesC when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30cOtherExpensesC" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line30cOtherExpensesC" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30d">
+      <Name>Form 4835 line 30d: other expenses, slot d</Name>
+      <Description>Line 30d as the form prints it: /writableForm4835Line30dOtherExpensesD when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30dOtherExpensesD" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line30dOtherExpensesD" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30e">
+      <Name>Form 4835 line 30e: other expenses, slot e</Name>
+      <Description>Line 30e as the form prints it: /writableForm4835Line30eOtherExpensesE when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30eOtherExpensesE" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line30eOtherExpensesE" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30f">
+      <Name>Form 4835 line 30f: other expenses, slot f</Name>
+      <Description>Line 30f as the form prints it: /writableForm4835Line30fOtherExpensesF when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30fOtherExpensesF" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line30fOtherExpensesF" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line30g">
+      <Name>Form 4835 line 30g: other expenses, slot g</Name>
+      <Description>Line 30g as the form prints it: /writableForm4835Line30gOtherExpensesG when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line30gOtherExpensesG" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm4835Line30gOtherExpensesG" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line31">
+      <Name>Form 4835 line 31: total farm rental expenses</Name>
+      <Description>Form 4835 Part II line 31, "Total expenses. Add lines 8 through 30g". THIRTY ONE summands, in printed order: 8 through 20 down the left column, then 21 through 30g down the right. Every summand is a complete safe line fact that resolves $0 when its writable is unanswered, so this line is Complete for any subset of answered legs.
+
+THE LINE 30g FOOTNOTE NEEDS NO BRANCH, and that is derived rather than assumed. The instructions say "If you entered capitalized expenses on line 30g, your total expenses on line 31 will equal the total of lines 8 through 30f reduced by the amount on line 30g". That is a rule about PARENTHESES, not about arithmetic: line 30g is stored SIGNED here (a Dollar with no Min 0 fence, see /writableForm4835Line30gOtherExpensesG), so the printed mainline addition already produces total(8..30f) plus a negative capitalized amount, which is the figure the instruction describes. Adding a subtraction branch would negate twice.
+
+NOT GATED on scheduleE:/claimsFarmRentalIncome, deliberately and following scheduleF:/scheduleFLine33: it is a printed intermediate, and the gate sits once, downstream at /form4835Line32, so a return that answered an expense but never claimed a farm rental cannot manufacture a farm rental loss.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form4835Line8" />
+          <Dependency path="/form4835Line9" />
+          <Dependency path="/form4835Line10" />
+          <Dependency path="/form4835Line11" />
+          <Dependency path="/form4835Line12" />
+          <Dependency path="/form4835Line13" />
+          <Dependency path="/form4835Line14" />
+          <Dependency path="/form4835Line15" />
+          <Dependency path="/form4835Line16" />
+          <Dependency path="/form4835Line17" />
+          <Dependency path="/form4835Line18" />
+          <Dependency path="/form4835Line19a" />
+          <Dependency path="/form4835Line19b" />
+          <Dependency path="/form4835Line20" />
+          <Dependency path="/form4835Line21" />
+          <Dependency path="/form4835Line22a" />
+          <Dependency path="/form4835Line22b" />
+          <Dependency path="/form4835Line23" />
+          <Dependency path="/form4835Line24" />
+          <Dependency path="/form4835Line25" />
+          <Dependency path="/form4835Line26" />
+          <Dependency path="/form4835Line27" />
+          <Dependency path="/form4835Line28" />
+          <Dependency path="/form4835Line29" />
+          <Dependency path="/form4835Line30a" />
+          <Dependency path="/form4835Line30b" />
+          <Dependency path="/form4835Line30c" />
+          <Dependency path="/form4835Line30d" />
+          <Dependency path="/form4835Line30e" />
+          <Dependency path="/form4835Line30f" />
+          <Dependency path="/form4835Line30g" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line32">
+      <Name>Form 4835 line 32: net farm rental income or (loss)</Name>
+      <Description>Form 4835 line 32, "Net farm rental income or (loss). Subtract line 31 from line 7", the form's bottom line and the figure the printed text routes "on Schedule E (Form 1040), line 40" when it is income.
+
+GATED on scheduleE:/claimsFarmRentalIncome, the module's one gate on this arm and the shape scheduleF:/scheduleFPreAtRiskNetProfitOrLoss uses: a return that never claimed a farm rental resolves $0 here even if an expense writable somehow carries an amount, so no return can acquire a farm rental loss it did not claim. A return that DOES claim one and answers nothing resolves $0, the completeness convention /form4835GrossFarmRentalIncome already set.
+
+PRINT ONLY UNTIL scheduleE:/farmRentalNetIncome CONSUMES IT, which is the declared obligation on this candidate. Schedule E line 40 today reads scheduleE:/writableFarmRentalNet, a filer attestation of this very number that landed when Form 4835 was not yet vendored; until line 40 is rewired to read this fact the two figures are independent and the graph does not check that they agree.
+
+WHAT IS NOT MODELLED, named rather than left to be discovered. The printed Line 32 instructions say that a loss must pass the at risk rules and the passive activity loss rules before it is entered, and route the limited figure to line 34c instead. This fact applies NEITHER limitation: it is the raw difference. The section 465 boxes ship as /writableForm4835AllInvestmentAtRisk and /form4835SomeInvestmentNotAtRisk, and they now GATE a real limitation: box 34b caps the line 34c loss at /writableForm4835AmountAtRisk through /form4835Line34cDeductibleLossAfterAtRisk. That cap lands on line 34c, not here; this line is still the raw difference and applies neither the at risk nor the passive activity limitation. The post limitation deductible loss ships as /writableForm4835Line34cDeductibleLoss, a filer entry, read through the capped fact. Direction of the error if a reader took this line as the deductible loss: it OVERSTATES the loss, which under taxes. Schedule E line 40's own attestation is post limitation by construction, which is why the rewire obligation must be settled together with the line 34c route and not by aliasing line 32 alone.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="scheduleE" path="/claimsFarmRentalIncome" />
+            </When>
+            <Then>
+              <Dependency path="/form4835Line32BeforeGate" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line32BeforeGate">
+      <Name>Form 4835 line 32 before the farm rental claim gate: line 7 minus line 31, signed</Name>
+      <Description>Form 4835 line 32, "Net farm rental income or (loss). Subtract line 31 from line 7", BEFORE the population gate. SIGNED and deliberately not floored: a farm rental whose expenses exceed its gross income has a genuine loss and the printed line's own name is "income or (loss)".
+
+It exists as a separate fact because the gate and the subtraction cannot be written as one template: /form4835Line32 is the bool_switch that applies scheduleE:/claimsFarmRentalIncome to this difference. Read line 32, not this fact.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form4835GrossFarmRentalIncome" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form4835Line31" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line8">
+      <Name>Form 4835 line 8: car and truck expenses</Name>
+      <Description>Line 8 as the form prints it: /writableForm4835Line8CarAndTruckExpenses when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line8CarAndTruckExpenses" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line8CarAndTruckExpenses" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line9">
+      <Name>Form 4835 line 9: chemicals</Name>
+      <Description>Line 9 as the form prints it: /writableForm4835Line9Chemicals when the filer answered it, else $0. Defaults to $0 when not provided (complete safe), which is what lets line 31 add any subset of answered legs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line9Chemicals" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writableForm4835Line9Chemicals" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835SomeInvestmentNotAtRisk">
+      <Name>Form 4835 line 34b: some investment in this farm rental is not at risk</Name>
+      <Description>The printed box 34b of Form 4835 line 34: the negation of /writableForm4835AllInvestmentAtRisk. Incomplete while line 34 is unanswered, which is the ordinary case, since only a filer with a line 32 loss is asked, so a profitable or silent return prints NEITHER box.
+
+IT SWITCHES ON A REAL SECTION 465 LIMITATION. The sentence this paragraph replaces read "RECORD ONLY, exactly as its input is: nothing reads it and no computed line moves. In particular it switches on no section 465 limitation, because this module applies none", and it was true until the project owner ruled the GATING shape family wide. Checking this box now caps the line 34c deductible loss at /writableForm4835AmountAtRisk and carries the excess out as /form4835AtRiskSuspendedLoss. The gate the graph actually reads is /form4835AtRiskLimitationApplies, which takes the same negation off the input directly, so this printed twin stays what its Name says it is: the box on the paper. See /writableForm4835AllInvestmentAtRisk for the whole build.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableForm4835AllInvestmentAtRisk" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835AllInvestmentAtRisk">
+      <Name>Form 4835 line 34a: all investment in this farm rental is at risk</Name>
+      <Description>Form 4835 line 34, "If line 32 is a loss, check the box that describes your investment in this activity": TRUE here is the printed box 34a, "All investment is at risk", and false is box 34b, "Some investment is not at risk", whose No twin ships as /form4835SomeInvestmentNotAtRisk. Only a LOSS return answers it; the printed line says so in as many words.
+
+GATING NOW APPLIES. This box was RECORD ONLY and is not any more. The two paragraphs this replaces read "RECORD ONLY, and the gap is named rather than hidden. The three sibling instances of the section 465 pattern this dictionary does model ... each cap a loss at an amount at risk. This one does not" and "RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction", and both were true until this build. They stopped being true because the project owner ruled the family convention: the same Form 6198 question must not gate a limitation on Schedule C, Schedule F and the Schedule E rentals and decorate a page on Form 4835.
+
+WHAT ANSWERING IT NOW DOES. FALSE, printed box 34b, makes /form4835AtRiskLimitationApplies true, and the line 34c deductible loss is then capped at /writableForm4835AmountAtRisk by /form4835Line34cDeductibleLossAfterAtRisk, which is the figure /form4835Line40Amount routes to Schedule E line 40; the disallowed excess leaves as /form4835AtRiskSuspendedLoss, the section 465(a)(2) carryforward. TRUE, printed box 34a, and an UNANSWERED line 34 both leave every figure exactly where it was before this build, which is what makes the landing additive for every return committed before it.
+
+WHAT IS STILL NOT BUILT, named rather than hidden: Form 6198 itself. The amount at risk is a single input, the Part II line 10b simplified computation, exactly as it is on the three siblings; Parts I, III and the mid year change rules are not modelled. Form 8582 for the farm rental activity is not built either, so line 34c remains a filer entry and the at risk cap sits on top of it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835EmployerIdNumber">
+      <Name>Form 4835 header: employer identification number (EIN), if any</Name>
+      <Description>The employer identification number the Form 4835 header asks for above Part I. The form's own Specific Instructions bound the population tightly: "You need an EIN only if you had a qualified retirement plan or were required to file an employment, excise, estate, trust, partnership, or alcohol, tobacco, and firearms tax return", so most farm rental landlords leave the box blank and this fact unanswered.
+
+TYPED EIN RATHER THAN TIN OR String, and that is now expressible: the dictionary keeps &lt;EIN /&gt; and &lt;TIN /&gt; as separate writable element types, and the sweep's writable template offers EIN. The IRS1040SF round 8 review had to block the identical Schedule F box D for want of that type; the type exists now.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line10ConservationExpenses">
+      <Name>Form 4835 line 10: conservation expenses (filer entry)</Name>
+      <Description>Soil and water conservation, erosion prevention and endangered species recovery expenses. The 25% of gross income from farming ceiling (section 175(b)) is applied at /form4835Line10, on the combined Form 4835 line 7 / Schedule F line 9 base computed at /form4835Section175GrossIncomeFromFarming. The conservation-plan-approval condition (section 175(c)(3)(A)) is NOT separately gated: this entry is taken as already consistent with an approved plan, the same attestation-by-entry posture Schedule F line 12 takes for its own conservation expenses.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line10, which defaults it to $0 when unanswered, so a farm rental that has no line 10 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line11CustomHire">
+      <Name>Form 4835 line 11: custom hire (machine work) (filer entry)</Name>
+      <Description>Amounts paid for custom hire, that is machine work done for the farm by others.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line11, which defaults it to $0 when unanswered, so a farm rental that has no line 11 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line12DepreciationAndSection179">
+      <Name>Form 4835 line 12: depreciation and section 179 expense deduction (filer entry)</Name>
+      <Description>Depreciation and the section 179 expense deduction not claimed elsewhere. Taken as the filer's entry: this dictionary computes no depreciation schedule and files no Form 4562.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line12, which defaults it to $0 when unanswered, so a farm rental that has no line 12 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line13EmployeeBenefitPrograms">
+      <Name>Form 4835 line 13: employee benefit programs other than on line 21 (filer entry)</Name>
+      <Description>Employee benefit programs other than the pension and profit sharing plans line 21 carries.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line13, which defaults it to $0 when unanswered, so a farm rental that has no line 13 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line14Feed">
+      <Name>Form 4835 line 14: feed (filer entry)</Name>
+      <Description>Feed bought for the livestock the tenant produces on the rented farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line14, which defaults it to $0 when unanswered, so a farm rental that has no line 14 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line15FertilizersAndLime">
+      <Name>Form 4835 line 15: fertilizers and lime (filer entry)</Name>
+      <Description>Fertilizers and lime bought for the farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line15, which defaults it to $0 when unanswered, so a farm rental that has no line 15 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line16FreightAndTrucking">
+      <Name>Form 4835 line 16: freight and trucking (filer entry)</Name>
+      <Description>Freight and trucking paid for the farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line16, which defaults it to $0 when unanswered, so a farm rental that has no line 16 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line17GasolineFuelAndOil">
+      <Name>Form 4835 line 17: gasoline, fuel, and oil (filer entry)</Name>
+      <Description>Gasoline, fuel and oil bought for the farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line17, which defaults it to $0 when unanswered, so a farm rental that has no line 17 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line18InsuranceOtherThanHealth">
+      <Name>Form 4835 line 18: insurance (other than health) (filer entry)</Name>
+      <Description>Farm insurance other than health insurance, which is not a farm rental expense.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line18, which defaults it to $0 when unanswered, so a farm rental that has no line 18 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line19aMortgageInterest">
+      <Name>Form 4835 line 19a: mortgage interest paid to banks (filer entry)</Name>
+      <Description>Interest on a mortgage secured by the farm, paid to banks and similar lenders. The form's instructions warn that the deduction "could be limited" under the Form 8990 business interest rules and that interest must be allocated by type; NEITHER IS APPLIED HERE, so the entry is the filer's already allocated and already limited figure.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line19a, which defaults it to $0 when unanswered, so a farm rental that has no line 19a leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line19bOtherInterest">
+      <Name>Form 4835 line 19b: other interest (filer entry)</Name>
+      <Description>Farm interest other than the mortgage interest line 19a carries. Like 19a, this entry can be subject to the section 163(j) business interest limitation and must be allocated by type under the section 163(h) personal/investment/business interest rules; NEITHER IS APPLIED HERE, so the entry is the filer's already allocated and already limited figure.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line19b, which defaults it to $0 when unanswered, so a farm rental that has no line 19b leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line20LaborHired">
+      <Name>Form 4835 line 20: labor hired (less employment credits) (filer entry)</Name>
+      <Description>Wages paid to farm labour, REDUCED by the employment credits the printed line names. The filer enters the net figure; this module computes no employment credit.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line20, which defaults it to $0 when unanswered, so a farm rental that has no line 20 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line21PensionAndProfitSharingPlans">
+      <Name>Form 4835 line 21: pension and profit sharing plans (filer entry)</Name>
+      <Description>Employer contributions to pension and profit sharing plans for farm employees.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line21, which defaults it to $0 when unanswered, so a farm rental that has no line 21 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line22aRentOrLeaseVehiclesMachineryEquipment">
+      <Name>Form 4835 line 22a: rent or lease of vehicles, machinery, and equipment (filer entry)</Name>
+      <Description>The business portion of the rental cost of vehicles, machinery and equipment. The instructions warn that a vehicle leased for a term of 30 days or more may have to be reduced by a Pub. 463 inclusion amount; that reduction is the filer's to make before entering the figure.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line22a, which defaults it to $0 when unanswered, so a farm rental that has no line 22a leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line22bRentOrLeaseOther">
+      <Name>Form 4835 line 22b: rent or lease of land, animals and other property (filer entry)</Name>
+      <Description>Rent or lease of property other than the vehicles, machinery and equipment line 22a carries: land, animals and the like.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line22b, which defaults it to $0 when unanswered, so a farm rental that has no line 22b leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line23RepairsAndMaintenance">
+      <Name>Form 4835 line 23: repairs and maintenance (filer entry)</Name>
+      <Description>Repairs and maintenance on the farm rental property.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line23, which defaults it to $0 when unanswered, so a farm rental that has no line 23 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line24SeedsAndPlants">
+      <Name>Form 4835 line 24: seeds and plants (filer entry)</Name>
+      <Description>Seeds and plants bought for the farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line24, which defaults it to $0 when unanswered, so a farm rental that has no line 24 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line25StorageAndWarehousing">
+      <Name>Form 4835 line 25: storage and warehousing (filer entry)</Name>
+      <Description>Storage and warehousing paid for the farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line25, which defaults it to $0 when unanswered, so a farm rental that has no line 25 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line26Supplies">
+      <Name>Form 4835 line 26: supplies (filer entry)</Name>
+      <Description>Supplies bought for the farm.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line26, which defaults it to $0 when unanswered, so a farm rental that has no line 26 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line27Taxes">
+      <Name>Form 4835 line 27: taxes (filer entry)</Name>
+      <Description>Farm taxes: the real estate and personal property taxes on the rented farm and the employer share of employment taxes on farm labour.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line27, which defaults it to $0 when unanswered, so a farm rental that has no line 27 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line28Utilities">
+      <Name>Form 4835 line 28: utilities (filer entry)</Name>
+      <Description>Utilities used in the farm rental operation.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line28, which defaults it to $0 when unanswered, so a farm rental that has no line 28 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line29VeterinaryBreedingAndMedicine">
+      <Name>Form 4835 line 29: veterinary, breeding, and medicine (filer entry)</Name>
+      <Description>Veterinary fees, breeding fees and medicine for the livestock.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line29, which defaults it to $0 when unanswered, so a farm rental that has no line 29 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line2aCooperativeDistributions">
+      <Name>Form 4835 line 2a: total cooperative distributions (filer entry)</Name>
+      <Description>Form 4835 Part I line 2a, the TOTAL distributions from cooperatives as shown on Form 1099-PATR. The LEFT column display figure of the 2a / 2b pair: the form never adds it into line 7, which adds the right column only, and the taxable half already ships as /writableForm4835Line2bTaxableCooperativeDistributions read through /form4835Line2b.
+
+Mirrors scheduleF:/writableScheduleFLine3aCooperativeDistributions, the same printed pair on Schedule F lines 3a and 3b, which the Form 4835 instructions themselves cross reference.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30aOtherExpenseDescription">
+      <Name>Form 4835 line 30a: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30a, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30aOtherExpensesA, read through /form4835Line30a and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30aOtherExpensesA">
+      <Name>Form 4835 line 30a: other expenses, slot a (filer entry)</Name>
+      <Description>Form 4835 Part II line 30a, one of the seven blank "Other expenses (specify)" slots the form prints for expenses not listed on another line. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30aOtherExpenseDescription. Mirrors scheduleF:/writableScheduleFLine32aOtherExpensesA.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30a, which defaults it to $0 when unanswered, so a farm rental that has no line 30a leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30bOtherExpenseDescription">
+      <Name>Form 4835 line 30b: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30b, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30bOtherExpensesB, read through /form4835Line30b and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30bOtherExpensesB">
+      <Name>Form 4835 line 30b: other expenses, slot b (filer entry)</Name>
+      <Description>Form 4835 Part II line 30b, one of the seven blank "Other expenses (specify)" slots the form prints for expenses not listed on another line. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30bOtherExpenseDescription. Mirrors scheduleF:/writableScheduleFLine32bOtherExpensesB.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30b, which defaults it to $0 when unanswered, so a farm rental that has no line 30b leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30cOtherExpenseDescription">
+      <Name>Form 4835 line 30c: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30c, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30cOtherExpensesC, read through /form4835Line30c and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30cOtherExpensesC">
+      <Name>Form 4835 line 30c: other expenses, slot c (filer entry)</Name>
+      <Description>Form 4835 Part II line 30c, one of the seven blank "Other expenses (specify)" slots the form prints for expenses not listed on another line. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30cOtherExpenseDescription. Mirrors scheduleF:/writableScheduleFLine32cOtherExpensesC.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30c, which defaults it to $0 when unanswered, so a farm rental that has no line 30c leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30dOtherExpenseDescription">
+      <Name>Form 4835 line 30d: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30d, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30dOtherExpensesD, read through /form4835Line30d and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30dOtherExpensesD">
+      <Name>Form 4835 line 30d: other expenses, slot d (filer entry)</Name>
+      <Description>Form 4835 Part II line 30d, one of the seven blank "Other expenses (specify)" slots the form prints for expenses not listed on another line. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30dOtherExpenseDescription. Mirrors scheduleF:/writableScheduleFLine32dOtherExpensesD.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30d, which defaults it to $0 when unanswered, so a farm rental that has no line 30d leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30eOtherExpenseDescription">
+      <Name>Form 4835 line 30e: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30e, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30eOtherExpensesE, read through /form4835Line30e and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30eOtherExpensesE">
+      <Name>Form 4835 line 30e: other expenses, slot e (filer entry)</Name>
+      <Description>Form 4835 Part II line 30e, one of the seven blank "Other expenses (specify)" slots the form prints for expenses not listed on another line. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30eOtherExpenseDescription. Mirrors scheduleF:/writableScheduleFLine32eOtherExpensesE.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30e, which defaults it to $0 when unanswered, so a farm rental that has no line 30e leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30fOtherExpenseDescription">
+      <Name>Form 4835 line 30f: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30f, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30fOtherExpensesF, read through /form4835Line30f and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30fOtherExpensesF">
+      <Name>Form 4835 line 30f: other expenses, slot f (filer entry)</Name>
+      <Description>Form 4835 Part II line 30f, one of the seven blank "Other expenses (specify)" slots the form prints for expenses not listed on another line. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30fOtherExpenseDescription. Mirrors scheduleF:/writableScheduleFLine32fOtherExpensesF.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30f, which defaults it to $0 when unanswered, so a farm rental that has no line 30f leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30gOtherExpenseDescription">
+      <Name>Form 4835 line 30g: description of the other expense</Name>
+      <Description>Form 4835 Part II line 30g, the WRITE IN description beside the seven blank "Other expenses (specify)" slots. The amount half of the same slot ships as /writableForm4835Line30gOtherExpensesG, read through /form4835Line30g and summed into line 31. This fact is the other half, the label, and it is a String with no arithmetic role of its own: line 31 is unchanged by it.
+
+The instructions name this slot's own conventional label: a filer who capitalizes expenses under section 263A enters the capitalized total in parentheses on line 30g and writes "263A" on the line to the left of the entry space.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line30gOtherExpensesG">
+      <Name>Form 4835 line 30g: other expenses, slot g (filer entry)</Name>
+      <Description>Form 4835 Part II line 30g, the seventh of the seven blank "Other expenses (specify)" slots. A slot is a free form line: the paper asks for a description and an amount, and only the amount is arithmetic, so this fact models the amount alone and the label ships beside it as /writableForm4835Line30gOtherExpenseDescription.
+
+THE ONE SLOT THAT CARRIES A SIGN, and it is read off the printed instructions rather than assumed. NO Min 0 FENCE here, unlike 30a through 30f: the instructions designate line 30g the section 263A slot, telling the filer "Do not reduce your expenses on lines 8 through 30f by the expenses you must capitalize. Instead, enter the total amount capitalized in parentheses on line 30g", and confirming at Line 31 that "your total expenses on line 31 will equal the total of lines 8 through 30f reduced by the amount on line 30g". Parentheses are the paper's notation for a negative, so a signed Dollar stored here makes the printed mainline "Add lines 8 through 30g" produce total(8..30f) minus capitalized with no branch of its own; a Min 0 fence would forbid the exact use the instructions prescribe, and a subtraction branch would negate twice. Mirrors scheduleF:/writableScheduleFLine32fOtherExpensesF.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a RIGHT column line.
+
+The filer's own entry. Read only through /form4835Line30g, which defaults it to $0 when unanswered, so a farm rental that has no line 30g leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line34cDeductibleLoss">
+      <Name>Form 4835 line 34c: the deductible farm rental loss after the passive and at risk limitations</Name>
+      <Description>Form 4835 line 34c, the DEDUCTIBLE loss a filer with a line 32 loss carries "here and on Schedule E (Form 1040), line 40" after completing Form 8582, and Form 6198 first if box 34b was checked. A filer entry, because this dictionary builds neither Form 8582 for the farm rental activity nor Form 6198: /form4835Line32 is the raw difference and says so.
+
+SIGNED, WITH NO Min 0 FENCE, and the reason is the destination. The figure is a LOSS and Schedule E line 40 is "Net farm rental income or (loss)", combined into the line 41 total, so it reaches the return as a negative number. scheduleE:/writableFarmRentalNet, the attestation line 40 reads today, carries no Min 0 fence for the same reason.
+
+THE FIRST TESTED ARM OF /form4835Line40Amount, and it takes that arm only when it carries an ACTUAL LOSS. That fact and its guard /form4835Line40Computed test an answered 34c whose /form4835Line34cLossMagnitude is above $0 BEFORE they look at line 32's own sign, because a filer who followed the printed line 32 second bullet, applying a prior year unallowed passive activity loss and entering the resulting net loss here, has supplied the more specific figure. A 34c entered as zero or as income is contradictory intake on a line the form defines as a deductible loss: it does not take this arm, and the return keeps its computed line 32.
+
+WHAT SCHEDULE E ACTUALLY TAKES IS THE CAPPED FACT, not this entry raw. When printed box 34b is checked, /form4835Line34cDeductibleLossAfterAtRisk caps this entry's magnitude at /writableForm4835AmountAtRisk and /form4835Line40Amount routes the capped figure, with the disallowed excess leaving the form as /form4835AtRiskSuspendedLoss under section 465(a)(2); when box 34a is checked or line 34 is unanswered, the capped fact passes this entry through unchanged. /form4835Line40Computed still keys on THIS entry's completeness, not the cap's, because it is the entry that tells us whether the filer supplied a 34c figure at all. The Form 6198 sentence above is exact in both halves: this dictionary does not build Form 6198, and it does apply that form's Part IV line 21 smaller of test to the figure entered here.
+
+IT IS THE SAME NUMBER scheduleE:/writableFarmRentalNet attests on the loss side, entered on a different printed form, and BOTH are kept. This entry is the loss intake for a return that opened Form 4835; the attestation is the only source for a return that did not, where /form4835Line40Computed is false. scheduleE:/farmRentalNetIncome chooses between them on that guard rather than reconciling them, so the duplication is a fallback, not an unretired obligation.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line3aAgriculturalProgramPayments">
+      <Name>Form 4835 line 3a: total agricultural program payments (filer entry)</Name>
+      <Description>Form 4835 Part I line 3a, the TOTAL agricultural program payments received. The LEFT column display figure of the 3a / 3b pair: line 7 adds the right column only, and the taxable half already ships as /writableForm4835Line3bTaxableAgriculturalProgramPayments read through /form4835Line3b. Mirrors scheduleF:/writableScheduleFLine4aAgriculturalProgramPayments.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line4bCccLoansForfeited">
+      <Name>Form 4835 line 4b: CCC loans forfeited (filer entry)</Name>
+      <Description>Form 4835 Part I line 4b, the FULL amount of Commodity Credit Corporation loans forfeited, which the instructions say to report "even if you reported the loan proceeds as income". The LEFT column display figure of the 4b / 4c pair: line 7 adds the right column only, and the taxable half already ships as /writableForm4835Line4cTaxableCccLoansForfeited read through /form4835Line4c. Mirrors scheduleF:/writableScheduleFLine5bCccLoansForfeited.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line5aCropInsuranceReceived">
+      <Name>Form 4835 line 5a: crop insurance proceeds received in 2025 (filer entry)</Name>
+      <Description>Form 4835 Part I line 5a, the amount of crop insurance proceeds and federal crop disaster payments RECEIVED in 2025. The LEFT column display figure of the 5a / 5b pair: line 7 adds the right column only, and the taxable half already ships as /writableForm4835Line5bTaxableCropInsuranceProceeds read through /form4835Line5b. Mirrors scheduleF:/writableScheduleFLine6aCropInsuranceReceived.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line5cCropInsuranceDeferralElectionAttached">
+      <Name>Form 4835 line 5c: the election to defer crop insurance proceeds to 2026 is attached</Name>
+      <Description>Form 4835 Part I line 5c, "If election to defer to 2026 is attached, check here": true when the filer attaches the statement electing to postpone reporting eligible crop insurance proceeds and federal crop disaster payments received in 2025 until 2026. A single printed checkbox with no No box, so it has no negation twin.
+
+IT DOES NOT DRIVE LINE 5b OR LINE 5d. The amount deferred OUT of 2025 is a reduction the filer already makes when entering the line 5b taxable amount, and line 5d is the separate amount deferred IN from 2024, which already ships as /writableForm4835Line5dCropInsuranceDeferredFromPriorYear. Mirrors scheduleF:/writableScheduleFCropInsuranceDeferralElectionAttached, the same printed election on Schedule F line 6c.
+
+RECORD ONLY. Nothing in the fact graph reads this entry: no computed Form 4835 line moves when it is answered, and answering it neither creates nor limits a deduction. It exists so the printed box can carry the figure the filer reports.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line8CarAndTruckExpenses">
+      <Name>Form 4835 line 8: car and truck expenses (filer entry)</Name>
+      <Description>The cost of running the farm rental's cars and trucks. The printed line sends the filer to the Schedule F (Form 1040) instructions and to Form 4562; this module takes the resulting figure as the filer's entry rather than computing a standard mileage or actual expense split.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line8, which defaults it to $0 when unanswered, so a farm rental that has no line 8 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4835Line9Chemicals">
+      <Name>Form 4835 line 9: chemicals (filer entry)</Name>
+      <Description>Chemicals bought for the farm rental operation.
+
+Form 4835 Part II prints in TWO COLUMNS, lines 8 through 20 down the left and lines 21 through 30g down the right, and the pdftotext extraction interleaves them: one extracted line carries a left column line and an unrelated right column line. The authority below names this fact's column and anchors its printed half alone. This fact is a LEFT column line.
+
+The filer's own entry. Read only through /form4835Line9, which defaults it to $0 when unanswered, so a farm rental that has no line 9 leaves it blank.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Line40Computed">
+      <Name>Can this graph compute the Form 4835 figure Schedule E line 40 wants?</Name>
+      <Description>TRUE when Form 4835 Part I was answered (/form4835IncomeLinesAnswered) AND the
+        figure the printed form routes to Schedule E line 40 exists in this graph: either the filer
+        supplied the post limitation line 34c figure, which the printed line 34c says to "enter ...
+        here and on Schedule E (Form 1040), line 40", or line 32 is income, in which case the form
+        says "enter it here and on Schedule E (Form 1040), line 40". Lets scheduleE:/farmRentalNetIncome
+        take both arms with a single predicate and keep scheduleE:/writableFarmRentalNet as its
+        fallback.
+
+        THE 34c ANSWER IS CHECKED BEFORE LINE 32's SIGN, DELIBERATELY. /form4835Line32BeforeGate is
+        the RAW difference and applies neither the section 465 at risk limitation nor a prior year's
+        unallowed section 469 passive activity loss; the printed line 32 second bullet tells a filer
+        who has a prior-year unallowed passive loss to apply it before entering net farm rental
+        income, and if that leaves a net loss after applying it, to enter zero on line 32 and the net
+        loss on line 34c. A filer who follows that instruction has an ANSWERED 34c on a return whose
+        raw line 32 difference is still non-negative, so 34c is the more specific, filer-supplied
+        figure and must be read before line 32's raw sign is: reading line 32's sign first would take
+        the pre-PAL raw income and silently discard the 34c answer. Only when 34c is unanswered, or
+        is answered with something that is not a loss, does line 32's own sign decide the arm.
+
+        THE 34c ARM ALSO REQUIRES AN ACTUAL LOSS, /form4835Line34cLossMagnitude above $0. Line 34c is
+        by definition the DEDUCTIBLE LOSS, so a 34c entered as zero or as a positive figure is
+        contradictory intake rather than the more specific answer this arm exists to prefer. The
+        magnitude fact floors at $0 on exactly those entries and is complete safe on every return, so
+        this fact stays complete on every return too, and a non-loss 34c is sent to line 32's own
+        sign instead of displacing the computed line 32 and removing income from Schedule E line 40.
+        On a return whose raw line 32 is a LOSS, a non-loss 34c leaves no arm to take: this fact is
+        FALSE, and Schedule E line 40 keeps the attested scheduleE:/writableFarmRentalNet, which is
+        the right answer, because the only figure the filer supplied for the loss contradicts the
+        line it was entered on. When the filer records a Form 4835 loss and leaves 34c
+        blank this fact is FALSE, so line 40 keeps the attested scheduleE:/writableFarmRentalNet,
+        which that attestation's own prose says is already post limitation. Complete on every
+        return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form4835IncomeLinesAnswered" />
+                <IsComplete>
+                  <Dependency path="/writableForm4835Line34cDeductibleLoss" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/form4835Line34cLossMagnitude" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form4835IncomeLinesAnswered" />
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="/form4835Line32BeforeGate" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line40Amount">
+      <Name>The Form 4835 amount Schedule E line 40 takes, both signs (line 32 income or line 34c loss)</Name>
+      <Description>The single signed figure Form 4835 routes to Schedule E (Form 1040) line 40:
+        /form4835Line34cDeductibleLossAfterAtRisk (already SIGNED negative, with no Min 0 fence, by
+        the design of the entry underneath it) when the filer supplied a post limitation line 34c
+        LOSS, /form4835Line32BeforeGate when 34c carries no loss and line 32 is income, and $0 when
+        neither is available so the fact is complete safe.
+
+        THE 34c ARM IS CHECKED FIRST, for the reason /form4835Line40Computed's own Description
+        states in full: line 32's raw difference applies neither the section 465 at risk limitation
+        nor a prior year's unallowed section 469 passive loss, so a filer who followed the printed
+        line 32 second bullet and entered a PAL-adjusted loss on 34c has an answer that must be read
+        before line 32's own sign, not after it. It is checked first only for an ACTUAL LOSS: the arm
+        also tests /form4835Line34cLossMagnitude above $0, so a 34c entered as zero or as income is
+        contradictory intake, does not take this arm, and leaves the line 32 figure standing. The
+        guard is /form4835Line40Computed and the two
+        facts take their arms in the same order, so the amount is meaningful exactly when the guard
+        is true.
+
+        THE LOSS ARM READS THE CAPPED FACT, not /writableForm4835Line34cDeductibleLoss directly. The
+        capped fact passes that entry through unchanged unless box 34b is checked; when 34b IS
+        checked, what reaches Schedule E line 40 is the loss capped at /writableForm4835AmountAtRisk
+        and the excess leaves the form as /form4835AtRiskSuspendedLoss. /form4835Line40Computed still
+        keys on the raw entry's completeness, because it is the entry, not the cap, that tells us
+        whether the filer supplied a 34c figure at all.
+
+        WHY IT LIVES HERE AND NOT IN scheduleE. Both arms are Form 4835 quantities and the sign fork
+        between them is a Form 4835 rule; putting it in this module leaves scheduleE:
+        /farmRentalNetIncome a two arm Switch (this amount when /form4835Line40Computed, else the
+        attested scheduleE:/writableFarmRentalNet) instead of a four arm one. scheduleE:
+        /farmRentalNetIncome takes this amount behind /form4835Line40Computed and falls back to
+        scheduleE:/writableFarmRentalNet on a return that never opened Form 4835, which is why that
+        attestation is kept rather than retired. The Export stays because the consumer is in another
+        module.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/form4835IncomeLinesAnswered" />
+                  <IsComplete>
+                    <Dependency path="/writableForm4835Line34cDeductibleLoss" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/form4835Line34cLossMagnitude" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/form4835Line34cDeductibleLossAfterAtRisk" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/form4835IncomeLinesAnswered" />
+                  <GreaterThanOrEqual>
+                    <Left>
+                      <Dependency path="/form4835Line32BeforeGate" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/form4835Line32BeforeGate" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835IncomeLinesAnswered">
+      <Name>Form 4835 Part I was answered (any income line entered)</Name>
+      <Description>TRUE when the filer entered at least one of the Form 4835 Part I income lines (1, 2b, 3b, 4a, 4c, 5b, 5d, 6). Schedule E line 40 reads the computed line 32 (/form4835Line32BeforeGate) when this is true and falls back to the attested net (/writableFarmRentalNet) when the form was never opened; without this predicate the complete-safe line 32 would read $0 on a return that answered nothing and silently replace the attestation. Complete on every return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line1ProductionIncome" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line2bTaxableCooperativeDistributions" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line3bTaxableAgriculturalProgramPayments" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line4aCccLoansUnderElection" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line4cTaxableCccLoansForfeited" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line5bTaxableCropInsuranceProceeds" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line5dCropInsuranceDeferredFromPriorYear" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm4835Line6OtherIncome" />
+          </IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm4835AmountAtRisk">
+      <Name>Amount at risk in the farm rental activity (Form 6198 Part II line 10b)</Name>
+      <Description>The filer's amount at risk in the farm rental activity from the SIMPLIFIED computation, Form 6198 Part II line 10b carried to Part IV line 20, supplied as a single input. Consulted ONLY when /writableForm4835AllInvestmentAtRisk is answered AND false, which is printed box 34b, and printed line 34c says so in as many words: "If you checked box 34b, you must complete Form 6198 before going to Form 8582."
+
+ The project owner ruled SHAPE A, family wide. This intake is the fourth instance of the single amount convention and mirrors scheduleF:/writableScheduleFAmountAtRisk field for field; the line by line Part II build and the detailed Part III are not modelled here, exactly as they are not there.
+
+NO PRINTED CELL ON FORM 4835, and that is not an oversight. The amount at risk is a Form 6198 figure and this dictionary does not build Form 6198, so like its Schedule F twin this intake is register unmapped: the graph reads it, the paper form never shows it. interpretation:provisional.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835AtRiskLimitationApplies">
+      <Name>The section 465 at risk limitation applies to the Form 4835 farm rental loss</Name>
+      <Description>Gate: true only when /writableForm4835AllInvestmentAtRisk is answered AND false, which is the filer checking printed box 34b, so the amount at risk caps the deductible loss. When box 34a is checked, or line 34 is unanswered, this resolves false and NO limitation applies, which is what keeps this landing additive for every return already committed.
+
+THE INVERTED IsComplete GUARD, character for character the shape of scheduleF:/scheduleFAtRiskLimitationApplies and scheduleC:/scheduleCs/*/atRiskLimitationApplies. It deliberately does NOT also test that /writableForm4835AmountAtRisk was answered: a filer who checked 34b has answered the question, and the capped arm then reads the amount raw, so a 34b return with no amount at risk goes INCOMPLETE rather than silently uncapped. That is the shipped posture of the three sibling instances and the project owner's direction is family wide uniformity, so this fact does not invent a fifth variant of the same question.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835AllInvestmentAtRisk" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Not>
+                <Dependency path="/writableForm4835AllInvestmentAtRisk" />
+              </Not>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line34cLossMagnitude">
+      <Name>The Form 4835 line 34c loss as a positive amount (Form 6198 line 5 treated as positive)</Name>
+      <Description>The line 34c entry as a POSITIVE magnitude: zero minus /writableForm4835Line34cDeductibleLoss when that entry is answered and negative, and $0 otherwise. Because the Form 6198 line 21 test is stated in positive terms, "the smaller of the line 5 loss (treated as a positive number) or line 20", and both the cap and the carryforward need the same magnitude.
+
+COMPLETE SAFE ON EVERY RETURN: the IsComplete arm makes an unanswered 34c resolve $0, and the GreaterOf floor makes a 34c entered as income resolve $0 too, so the two facts that read this one can test "is there a loss here" with a plain comparison instead of a nested completeness guard. Mirrors scheduleF:/scheduleFRawLoss, which takes the same magnitude off its own pre limitation line 34.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4835Line34cDeductibleLoss" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dollar>0</Dollar>
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/writableForm4835Line34cDeductibleLoss" />
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835Line34cDeductibleLossAfterAtRisk">
+      <Name>Form 4835 line 34c after the section 465 cap: the deductible farm rental loss, signed</Name>
+      <Description>The line 34c figure Schedule E line 40 actually takes, SIGNED negative, after the section 465 at risk cap. Two arms, and each one's direction is stated because the sign is the whole point:
+
+  1. box 34b checked (/form4835AtRiskLimitationApplies) and line 34c is a LOSS: the loss capped at the amount at risk, entered NEGATIVE, zero minus LesserOf(/form4835Line34cLossMagnitude, /writableForm4835AmountAtRisk). The cap can only SHRINK the magnitude of a loss, never turn it into income; the excess it removes is /form4835AtRiskSuspendedLoss.
+  2. anything else, which is box 34a, an unanswered line 34, or a 34c that is not a loss: /writableForm4835Line34cDeductibleLoss unchanged, so every return already committed keeps the value it had.
+
+INCOMPLETE, NOT UNCAPPED, when the filer checks 34b and leaves /writableForm4835AmountAtRisk blank: the first arm reads the amount raw, exactly as scheduleF:/scheduleFNetProfitOrLoss does. That is the family posture and it is deliberate. A silent $0 cap would disallow the whole loss and a silent pass through would grant a loss the filer has told us is limited; the return is simply not finished until the amount is supplied.
+
+WHAT IS STILL NOT MODELLED, unchanged by this build: Form 8582. The printed 34c is the figure AFTER the passive activity limitation as well, and this dictionary builds no Form 8582 for the farm rental activity, so the filer's 34c entry is where that limitation enters. This fact adds the at risk cap on top of whatever the filer entered, which is the conservative order: the form tells a 34b filer to complete Form 6198 BEFORE Form 8582, so capping a post 8582 figure at the amount at risk can only reduce the deduction further, never restore one. Direction of the error: for a filer whose 8582 limitation already bit below the amount at risk this cap does nothing, and for a filer who entered the raw loss on 34c it now bites where before it did not.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form4835AtRiskLimitationApplies" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/form4835Line34cLossMagnitude" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <LesserOf>
+                    <Dependency path="/form4835Line34cLossMagnitude" />
+                    <GreaterOf>
+                      <Dependency path="/writableForm4835AmountAtRisk" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </LesserOf>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/writableForm4835Line34cDeductibleLoss" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4835AtRiskSuspendedLoss">
+      <Name>Farm rental loss disallowed by the section 465 at risk limitation, carried to 2026</Name>
+      <Description>The part of the Form 4835 line 34c loss the section 465 at risk limitation disallows for 2025: /form4835Line34cLossMagnitude minus /writableForm4835AmountAtRisk, floored at $0, and only on a return that answered Part I and checked box 34b. $0 on every other return, so this is complete safe wherever the amount at risk is answered.
+
+OUTPUT ONLY, AND THE REASON IS THE ENGINE. Section 465(a)(2) treats the disallowed loss as a deduction allocable to the activity in the first succeeding taxable year, but this is a single year engine with no 2026 return to carry it into, so the figure is REPORTED and not consumed. It is the same posture scheduleE:/rentalAtRiskSuspendedLoss and scheduleE:/formK1s/*/atRiskSuspendedLoss already take for the identical quantity on their own activities, which is why this fact carries an Export and no consumer.
+
+WHAT IT IS THE COMPLEMENT OF: /form4835Line34cDeductibleLossAfterAtRisk. The magnitude the filer entered on 34c splits in two, the part at risk (deducted this year, negative on Schedule E line 40) and this part (disallowed, carried). The two always sum to /form4835Line34cLossMagnitude, and the node fixture form4835/at-risk-cap-suspends-excess pins that identity.
+
+THE 8582 ORDERING COMPRESSION IS NAMED HERE TOO: the filer's 34c entry is already post Form 8582 in the printed order, so a carryforward computed off it is a carryforward off a possibly already limited figure. Form 4835 itself sends a 34b filer to Form 6198 FIRST, so a filer who followed the printed order entered the at risk limited number on 34c and this fact resolves $0 for them. The figure is therefore a floor on the section 465 carryforward, never an overstatement of it. interpretation:provisional.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form4835IncomeLinesAnswered" />
+                <Dependency path="/form4835AtRiskLimitationApplies" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/form4835Line34cLossMagnitude" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="/form4835Line34cLossMagnitude" />
+                  </Minuend>
+                  <Subtrahends>
+                    <GreaterOf>
+                      <Dependency path="/writableForm4835AmountAtRisk" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  
+
+    <Fact path="/form4797Section1231Sales/*/writableIsDraftBreedingOrDairyForSection175">
+      <Name>This livestock was held for draft, breeding, or dairy purposes (not sporting)</Name>
+      <Description>The Form 4797 PART I twin of the Part III question. Asked only on a Part I line 2 row the filer marked as livestock. Section 1231 livestock includes animals held for SPORTING purposes, but the section 175 base counts only livestock held for draft, breeding or dairy purposes, so the existing livestock flag cannot answer this. Pub. 225's own worked example of the section 175 base is exactly this row: cull RAISED breeding animals on Form 4797 line 2(g). Raised animals carry no depreciation and so never reach Part III; a base that read Part III alone would miss the IRS's example.</Description>
+      <Export downstreamFacts="true"/>
+      <Writable>
+        <Boolean/>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4797Section1231Sales/*/section175LivestockGain">
+      <Name>Qualifying Part I livestock gain for the conservation-expense limit</Name>
+      <Description>The positive gain on a Form 4797 Part I line 2 livestock row held for draft, breeding or dairy purposes, else $0. Mirrors /section1245Dispositions/*/section175LivestockGain case for case. A row that is not marked livestock, or whose livestock answer is blank, contributes $0 - the conservative direction, because a larger base only ENLARGES the deduction. A loss or zero gain contributes $0. The one Incomplete, deliberately, is a positive livestock gain whose draft/breeding/dairy question is unanswered: breeding cannot be told from sporting. That Incomplete reaches a return only through the conservation-expense cap, which is read only when the filer reports POSITIVE conservation expenses, so a farmer with no conservation expenses is never asked.</Description>
+      <Export downstreamFacts="true"/>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency module="form4797" path="../writableIsLivestock"/>
+                  </IsComplete>
+                  <Dependency module="form4797" path="../writableIsLivestock"/>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form4797" path="../gainOrLoss"/>
+                </IsComplete>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency module="form4797" path="../gainOrLoss"/>
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableIsDraftBreedingOrDairyForSection175"/>
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="../writableIsDraftBreedingOrDairyForSection175"/>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dollar>0</Dollar>
+                      <Dependency module="form4797" path="../gainOrLoss"/>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True/>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section1245Dispositions/*/writableIsDraftBreedingOrDairyForSection175">
+      <Name>Livestock used for draft, breeding or dairy purposes</Name>
+      <Description>Whether this Form 4797 livestock disposition concerns an animal used for draft, breeding or dairy purposes. Sporting use alone is not included. Ask for each livestock disposition when a conservation expense or carry-in is claimed. An unanswered answer on a positive livestock gain leaves the conservation base incomplete. No gain amount is entered here; the existing disposition computes it.</Description>
+      <Export downstreamFacts="true"/>
+      <Writable>
+        <Boolean/>
+      </Writable>
+    </Fact>
+
+    <Fact path="/section1245Dispositions/*/section175LivestockGain">
+      <Name>Qualifying livestock gain for the conservation-expense limit</Name>
+      <Description>The nonnegative total gain already computed for a Form 4797 livestock disposition, included only when its draft, breeding or dairy use is confirmed. Recapture and capital-gain character do not cause another addition. A nonlivestock item, zero gain or loss contributes zero. A positive livestock gain with unanswered qualifying use is incomplete. This is read only by the conservation-income aggregate.</Description>
+      <Export downstreamFacts="true"/>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency module="form4797" path="../isLivestockComplete"/>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form4797" path="../totalGain"/>
+                </IsComplete>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency module="form4797" path="../totalGain"/>
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableIsDraftBreedingOrDairyForSection175"/>
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="../writableIsDraftBreedingOrDairyForSection175"/>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dollar>0</Dollar>
+                      <Dependency module="form4797" path="../totalGain"/>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True/>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section175Form4797LivestockGains">
+      <Name>Qualifying Form 4797 draft, breeding and dairy livestock gains (Parts I and III)</Name>
+      <Description>The section 175 base's livestock leg: qualifying gains from BOTH Form 4797 disposition tables - Part I line 2 (raised animals, the Pub. 225 example) and Part III (purchased animals with depreciation recapture). The two tables hold different dispositions, so they add without double counting. An absent table contributes $0; an answered-empty table sums to $0.</Description>
+      <Export downstreamFacts="true"/>
+      <Derived>
+        <Add>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency module="form4797" path="/form4797Section1231Sales"/>
+                  </IsComplete>
+                </When>
+                <Then>
+                  <CollectionSum>
+                    <Dependency path="/form4797Section1231Sales/*/section175LivestockGain"/>
+                  </CollectionSum>
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True/>
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency module="form4797" path="/section1245Dispositions"/>
+                  </IsComplete>
+                </When>
+                <Then>
+                  <CollectionSum>
+                    <Dependency path="/section1245Dispositions/*/section175LivestockGain"/>
+                  </CollectionSum>
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True/>
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4835Line6NonproductionReceipts">
+      <Name>Form 4835 line 6 nonproduction receipts</Name>
+      <Description>Actual receipts already included in Form 4835 line 6 that are not from production of agricultural products or qualifying livestock, such as interest on a loan to another farmer. Enter the source receipts, not a computed conservation-income base. Include fuel-tax credits; exclude the separately computed Form 4797 recapture addition. An unanswered or negative amount contributes zero; the interview must ask whenever the other-income line includes these receipts. The conservation-base adjustment reads this amount.</Description>
+      <Export downstreamFacts="true"/>
+      <Writable>
+        <Dollar/>
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4835Section175NonproductionReceipts">
+      <Name>Form 4835 receipts outside the conservation-income base</Name>
+      <Description>Identified nonproduction receipts, including fuel-tax credits, plus the separate expense-recapture addition. No farm rental claim contributes zero. Unanswered source receipts contribute zero and negative category inputs are floored. This is a conservation-limit adjustment, not a change to Form 4835 line 7.</Description>
+      <Export downstreamFacts="true"/>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency module="scheduleE" path="/claimsFarmRentalIncome"/>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True/>
+            </When>
+            <Then>
+              <Add>
+                <Switch>
+                  <Case>
+                    <When>
+                      <Not>
+                        <IsComplete>
+                          <Dependency path="/writableForm4835Line6NonproductionReceipts"/>
+                        </IsComplete>
+                      </Not>
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True/>
+                    </When>
+                    <Then>
+                      <GreaterOf>
+                        <Dollar>0</Dollar>
+                        <Dependency path="/writableForm4835Line6NonproductionReceipts"/>
+                      </GreaterOf>
+                    </Then>
+                  </Case>
+                </Switch>
+                <GreaterOf>
+                  <Dollar>0</Dollar>
+                  <Dependency path="/form4797Line35RecaptureLeg"/>
+                </GreaterOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

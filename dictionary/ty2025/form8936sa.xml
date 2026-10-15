@@ -1,0 +1,522 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8936Vehicles">
+      <Name>Schedule A (Form 8936) vehicles</Name>
+      <Description>One item for each clean vehicle placed in service during 2025. The IRS instructs filers to complete a separate Schedule A for each vehicle. Each item carries the distinct per-vehicle inputs for its printed Schedule A boxes. Leave this collection empty when no vehicle Schedule A applies.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Collection /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf130">
+      <Name>Schedule A (Form 8936) f1_3[0]: Clean Vehicle Model Year</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f1_3[0]: Clean Vehicle Model Year. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Int /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf140">
+      <Name>Schedule A (Form 8936) f1_4[0]: Clean Vehicle Make</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f1_4[0]: Clean Vehicle Make. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf150">
+      <Name>Schedule A (Form 8936) f1_5[0]: Clean Vehicle Model</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f1_5[0]: Clean Vehicle Model. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf160">
+      <Name>Schedule A (Form 8936) f1_6[0]: Clean Vehicle Vin</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f1_6[0]: Clean Vehicle Vin. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf170">
+      <Name>Schedule A (Form 8936) f1_7[0]: Clean Vehicle Placed In Service Date</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f1_7[0]: Clean Vehicle Placed In Service Date. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc110">
+      <Name>Schedule A (Form 8936) c1_1[0]: clean Vehicle Credit Transferred To Dealer</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_1[0]: clean Vehicle Credit Transferred To Dealer. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf180">
+      <Name>Schedule A (Form 8936) f1_8[0]: transferred Clean Vehicle Credit This Vehicle</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f1_8[0]: transferred Clean Vehicle Credit This Vehicle. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc111">
+      <Name>Schedule A (Form 8936) c1_1[1]: clean Vehicle Credit Not Transferred To Dealer</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_1[1]: clean Vehicle Credit Not Transferred To Dealer. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc120">
+      <Name>Schedule A (Form 8936) c1_2[0]: clean Vehicle Transferred Credit Must Be Repaid</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_2[0]: clean Vehicle Transferred Credit Must Be Repaid. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc130">
+      <Name>Schedule A (Form 8936) c1_3[0]: Clean Vehicle Is New Clean Vehicle</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_3[0]: Clean Vehicle Is New Clean Vehicle. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc131">
+      <Name>Schedule A (Form 8936) c1_3[1]: clean Vehicle Is Not New Clean Vehicle</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_3[1]: clean Vehicle Is Not New Clean Vehicle. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc140">
+      <Name>Schedule A (Form 8936) c1_4[0]: Clean Vehicle Is Previously Owned Clean Vehicle</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_4[0]: Clean Vehicle Is Previously Owned Clean Vehicle. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc141">
+      <Name>Schedule A (Form 8936) c1_4[1]: clean Vehicle Is Not Previously Owned Clean Vehicle</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_4[1]: clean Vehicle Is Not Previously Owned Clean Vehicle. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc150">
+      <Name>Schedule A (Form 8936) c1_5[0]: Clean Vehicle Is Qualified Commercial</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_5[0]: Clean Vehicle Is Qualified Commercial. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc151">
+      <Name>Schedule A (Form 8936) c1_5[1]: clean Vehicle Is Not Qualified Commercial</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_5[1]: clean Vehicle Is Not Qualified Commercial. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc160">
+      <Name>Schedule A (Form 8936) c1_6[0]: Clean Vehicle Resold Within30 Days</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_6[0]: Clean Vehicle Resold Within30 Days. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc161">
+      <Name>Schedule A (Form 8936) c1_6[1]: clean Vehicle Not Resold Within30 Days</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_6[1]: clean Vehicle Not Resold Within30 Days. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc170">
+      <Name>Schedule A (Form 8936) c1_7[0]: return Is Individual Income Tax Return</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_7[0]: return Is Individual Income Tax Return. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc171">
+      <Name>Schedule A (Form 8936) c1_7[1]: return Is Not Individual Income Tax Return</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_7[1]: return Is Not Individual Income Tax Return. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc180">
+      <Name>Schedule A (Form 8936) c1_8[0]: new Clean Vehicle Current Year Magi Exceeds Limit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_8[0]: new Clean Vehicle Current Year Magi Exceeds Limit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc181">
+      <Name>Schedule A (Form 8936) c1_8[1]: new Clean Vehicle Current Year Magi Within Limit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_8[1]: new Clean Vehicle Current Year Magi Within Limit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc190">
+      <Name>Schedule A (Form 8936) c1_9[0]: new Clean Vehicle Magi Denies Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_9[0]: new Clean Vehicle Magi Denies Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc191">
+      <Name>Schedule A (Form 8936) c1_9[1]: new Clean Vehicle Prior Year Magi Allows Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c1_9[1]: new Clean Vehicle Prior Year Magi Allows Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc210">
+      <Name>Schedule A (Form 8936) c2_1[0]: New Clean Vehicle Acquired For Use Or Lease</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_1[0]: New Clean Vehicle Acquired For Use Or Lease. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc211">
+      <Name>Schedule A (Form 8936) c2_1[1]: new Clean Vehicle Not Acquired For Use Or Lease</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_1[1]: new Clean Vehicle Not Acquired For Use Or Lease. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf210">
+      <Name>Schedule A (Form 8936) f2_1[0]: New Clean Vehicle Tentative Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_1[0]: New Clean Vehicle Tentative Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf220">
+      <Name>Schedule A (Form 8936) f2_2[0]: new Clean Vehicle Business Use Percentage</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_2[0]: new Clean Vehicle Business Use Percentage. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Int /><Limit type="Min"><Int>0</Int></Limit><Limit type="Max"><Int>100</Int></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf230">
+      <Name>Schedule A (Form 8936) f2_3[0]: new Clean Vehicle Business Use Part Of Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_3[0]: new Clean Vehicle Business Use Part Of Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf240">
+      <Name>Schedule A (Form 8936) f2_4[0]: new Clean Vehicle Personal Use Part Of Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_4[0]: new Clean Vehicle Personal Use Part Of Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc230">
+      <Name>Schedule A (Form 8936) c2_3[0]: Clean Vehicle Resold Within30 Days</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_3[0]: Clean Vehicle Resold Within30 Days. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc231">
+      <Name>Schedule A (Form 8936) c2_3[1]: clean Vehicle Not Resold Within30 Days</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_3[1]: clean Vehicle Not Resold Within30 Days. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc240">
+      <Name>Schedule A (Form 8936) c2_4[0]: used Clean Vehicle Current Year Magi Exceeds Limit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_4[0]: used Clean Vehicle Current Year Magi Exceeds Limit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc241">
+      <Name>Schedule A (Form 8936) c2_4[1]: used Clean Vehicle Current Year Magi Within Limit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_4[1]: used Clean Vehicle Current Year Magi Within Limit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc250">
+      <Name>Schedule A (Form 8936) c2_5[0]: used Clean Vehicle Magi Denies Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_5[0]: used Clean Vehicle Magi Denies Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc251">
+      <Name>Schedule A (Form 8936) c2_5[1]: used Clean Vehicle Prior Year Magi Allows Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_5[1]: used Clean Vehicle Prior Year Magi Allows Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc260">
+      <Name>Schedule A (Form 8936) c2_6[0]: Used Clean Vehicle Claimed In Three Year Lookback</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_6[0]: Used Clean Vehicle Claimed In Three Year Lookback. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc261">
+      <Name>Schedule A (Form 8936) c2_6[1]: used Clean Vehicle Not Claimed In Three Year Lookback</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_6[1]: used Clean Vehicle Not Claimed In Three Year Lookback. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc270">
+      <Name>Schedule A (Form 8936) c2_7[0]: used Clean Vehicle Sale Price Exceeds Ceiling</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_7[0]: used Clean Vehicle Sale Price Exceeds Ceiling. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc271">
+      <Name>Schedule A (Form 8936) c2_7[1]: used Clean Vehicle Sale Price Within Ceiling</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_7[1]: used Clean Vehicle Sale Price Within Ceiling. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc280">
+      <Name>Schedule A (Form 8936) c2_8[0]: Used Clean Vehicle Acquired For Use Not Resale</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_8[0]: Used Clean Vehicle Acquired For Use Not Resale. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc281">
+      <Name>Schedule A (Form 8936) c2_8[1]: used Clean Vehicle Not Acquired For Use Not Resale</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_8[1]: used Clean Vehicle Not Acquired For Use Not Resale. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc290">
+      <Name>Schedule A (Form 8936) c2_9[0]: either Filer Can Be Claimed</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_9[0]: either Filer Can Be Claimed. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc291">
+      <Name>Schedule A (Form 8936) c2_9[1]: clean Vehicle Filer Cannot Be Claimed As Dependent</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c2_9[1]: clean Vehicle Filer Cannot Be Claimed As Dependent. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf250">
+      <Name>Schedule A (Form 8936) f2_5[0]: Used Clean Vehicle Sale Price</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_5[0]: Used Clean Vehicle Sale Price. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf260">
+      <Name>Schedule A (Form 8936) f2_6[0]: used Clean Vehicle Thirty Percent Of Sale Price</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_6[0]: used Clean Vehicle Thirty Percent Of Sale Price. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf270">
+      <Name>Schedule A (Form 8936) f2_7[0]: used Clean Vehicle Maximum Credit Amount</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_7[0]: used Clean Vehicle Maximum Credit Amount. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf280">
+      <Name>Schedule A (Form 8936) f2_8[0]: used Clean Vehicle Tentative Credit Amount</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f2_8[0]: used Clean Vehicle Tentative Credit Amount. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf310">
+      <Name>Schedule A (Form 8936) f3_1[0]: Commercial Clean Vehicle Registration Number</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_1[0]: Commercial Clean Vehicle Registration Number. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc310">
+      <Name>Schedule A (Form 8936) c3_1[0]: Commercial Clean Vehicle Subject To Depreciation</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c3_1[0]: Commercial Clean Vehicle Subject To Depreciation. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc311">
+      <Name>Schedule A (Form 8936) c3_1[1]: commercial Clean Vehicle Not Subject To Depreciation</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c3_1[1]: commercial Clean Vehicle Not Subject To Depreciation. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc320">
+      <Name>Schedule A (Form 8936) c3_2[0]: Commercial Clean Vehicle Acquired For Use Or Lease</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c3_2[0]: Commercial Clean Vehicle Acquired For Use Or Lease. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc321">
+      <Name>Schedule A (Form 8936) c3_2[1]: commercial Clean Vehicle Not Acquired For Use Or Lease</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c3_2[1]: commercial Clean Vehicle Not Acquired For Use Or Lease. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc330">
+      <Name>Schedule A (Form 8936) c3_3[0]: Commercial Clean Vehicle Powered By Gas Or Diesel</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c3_3[0]: Commercial Clean Vehicle Powered By Gas Or Diesel. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxc331">
+      <Name>Schedule A (Form 8936) c3_3[1]: commercial Clean Vehicle Not Powered By Gas Or Diesel</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget c3_3[1]: commercial Clean Vehicle Not Powered By Gas Or Diesel. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf320">
+      <Name>Schedule A (Form 8936) f3_2[0]: Commercial Clean Vehicle Gross Vehicle Weight Rating</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_2[0]: Commercial Clean Vehicle Gross Vehicle Weight Rating. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Int /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf330">
+      <Name>Schedule A (Form 8936) f3_3[0]: Commercial Clean Vehicle Basis</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_3[0]: Commercial Clean Vehicle Basis. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf340">
+      <Name>Schedule A (Form 8936) f3_4[0]: Commercial Clean Vehicle Section179 Deduction</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_4[0]: Commercial Clean Vehicle Section179 Deduction. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf350">
+      <Name>Schedule A (Form 8936) f3_5[0]: commercial Clean Vehicle Basis After Section179</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_5[0]: commercial Clean Vehicle Basis After Section179. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf360">
+      <Name>Schedule A (Form 8936) f3_6[0]: line 22, the line 21 basis multiplied by the credit rate</Name>
+      <Description>What amount is on line 22 of this vehicle's Schedule A (Form 8936)? Help: line 22 is the line 21 basis (cost or other basis less any section 179 deduction) multiplied by 15% when line 18d is Yes (the vehicle is also powered by a gasoline or diesel engine), or by 30% when line 18d is No (Schedule A line 22, https://www.irs.gov/pub/irs-pdf/f8936sa.pdf, page 3; Instructions for Form 8936, https://www.irs.gov/pub/irs-pdf/i8936.pdf, pages 4, 7). Asked for a vehicle whose copy completes Part V, the qualified commercial clean vehicle credit. Unanswered: the line 22 box prints blank; no computation reads this box, and the Form 8936 line 19 amount comes from this vehicle's line 26. Validation: a dollar amount in integer cents, not less than $0.00. Feeds: the printed Schedule A line 22; line 24 is the smaller of line 22 and line 23.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf370">
+      <Name>Schedule A (Form 8936) f3_7[0]: Commercial Clean Vehicle Incremental Cost</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_7[0]: Commercial Clean Vehicle Incremental Cost. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf380">
+      <Name>Schedule A (Form 8936) f3_8[0]: commercial Clean Vehicle Credit Before Maximum</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_8[0]: commercial Clean Vehicle Credit Before Maximum. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf390">
+      <Name>Schedule A (Form 8936) f3_9[0]: commercial Clean Vehicle Maximum Credit</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_9[0]: commercial Clean Vehicle Maximum Credit. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableBoxf3100">
+      <Name>Schedule A (Form 8936) f3_10[0]: commercial Clean Vehicle Credit Amount</Name>
+      <Description>Schedule A (Form 8936) printed box represented by AcroForm widget f3_10[0]: commercial Clean Vehicle Credit Amount. This is an item-scoped input for this vehicle's copy; enter the value shown on the taxpayer-prepared 2025 Schedule A. Integer cents for Dollar facts. This writable is distinct from every other vehicle and printed box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/writableScheduleAComplete">
+      <Name>Schedule A (Form 8936) vehicle copy fully transcribed</Name>
+      <Description>Have you recorded every field that applies on this vehicle's completed Schedule A (Form 8936), including the applicable line 11, 12, 17, and 26 amounts? Answer Yes only when this vehicle's copy is fully transcribed; enter $0.00 for any applicable total line with no credit. An unanswered or No answer keeps this vehicle's credit out of the return by making the Form 8936 roll-up Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/form8936VehicleScheduleAIsComplete">
+      <Name>This vehicle's Schedule A transcription is attested complete</Name>
+      <Description>The item-level Yes/No attestation read by the all-vehicles completion guard. It intentionally remains Incomplete until the filer answers, and returns false when the filer answers No.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Switch><Case><When><IsComplete><Dependency path="../writableScheduleAComplete" /></IsComplete></When><Then><Dependency path="../writableScheduleAComplete" /></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form8936Vehicles/*/form8936VehicleScheduleAHasAnsweredPrintedBox">
+      <Name>This vehicle copy carries at least one answered printed box</Name>
+      <Description>True when the filer has answered at least one of this vehicle copy's 63 printed Schedule A (Form 8936) boxes. The print selection reads it, so an item carrying no printed entry is a placeholder and does not produce a blank Schedule A copy. The transcription attestation is deliberately not one of the boxes tested: it is not a printed field, and an attested but otherwise empty item is exactly the placeholder this fact exists to exclude.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Any><IsComplete><Dependency path="../writableBoxf130" /></IsComplete><IsComplete><Dependency path="../writableBoxf140" /></IsComplete><IsComplete><Dependency path="../writableBoxf150" /></IsComplete><IsComplete><Dependency path="../writableBoxf160" /></IsComplete><IsComplete><Dependency path="../writableBoxf170" /></IsComplete><IsComplete><Dependency path="../writableBoxc110" /></IsComplete><IsComplete><Dependency path="../writableBoxf180" /></IsComplete><IsComplete><Dependency path="../writableBoxc111" /></IsComplete><IsComplete><Dependency path="../writableBoxc120" /></IsComplete><IsComplete><Dependency path="../writableBoxc130" /></IsComplete><IsComplete><Dependency path="../writableBoxc131" /></IsComplete><IsComplete><Dependency path="../writableBoxc140" /></IsComplete><IsComplete><Dependency path="../writableBoxc141" /></IsComplete><IsComplete><Dependency path="../writableBoxc150" /></IsComplete><IsComplete><Dependency path="../writableBoxc151" /></IsComplete><IsComplete><Dependency path="../writableBoxc160" /></IsComplete><IsComplete><Dependency path="../writableBoxc161" /></IsComplete><IsComplete><Dependency path="../writableBoxc170" /></IsComplete><IsComplete><Dependency path="../writableBoxc171" /></IsComplete><IsComplete><Dependency path="../writableBoxc180" /></IsComplete><IsComplete><Dependency path="../writableBoxc181" /></IsComplete><IsComplete><Dependency path="../writableBoxc190" /></IsComplete><IsComplete><Dependency path="../writableBoxc191" /></IsComplete><IsComplete><Dependency path="../writableBoxc210" /></IsComplete><IsComplete><Dependency path="../writableBoxc211" /></IsComplete><IsComplete><Dependency path="../writableBoxf210" /></IsComplete><IsComplete><Dependency path="../writableBoxf220" /></IsComplete><IsComplete><Dependency path="../writableBoxf230" /></IsComplete><IsComplete><Dependency path="../writableBoxf240" /></IsComplete><IsComplete><Dependency path="../writableBoxc230" /></IsComplete><IsComplete><Dependency path="../writableBoxc231" /></IsComplete><IsComplete><Dependency path="../writableBoxc240" /></IsComplete><IsComplete><Dependency path="../writableBoxc241" /></IsComplete><IsComplete><Dependency path="../writableBoxc250" /></IsComplete><IsComplete><Dependency path="../writableBoxc251" /></IsComplete><IsComplete><Dependency path="../writableBoxc260" /></IsComplete><IsComplete><Dependency path="../writableBoxc261" /></IsComplete><IsComplete><Dependency path="../writableBoxc270" /></IsComplete><IsComplete><Dependency path="../writableBoxc271" /></IsComplete><IsComplete><Dependency path="../writableBoxc280" /></IsComplete><IsComplete><Dependency path="../writableBoxc281" /></IsComplete><IsComplete><Dependency path="../writableBoxc290" /></IsComplete><IsComplete><Dependency path="../writableBoxc291" /></IsComplete><IsComplete><Dependency path="../writableBoxf250" /></IsComplete><IsComplete><Dependency path="../writableBoxf260" /></IsComplete><IsComplete><Dependency path="../writableBoxf270" /></IsComplete><IsComplete><Dependency path="../writableBoxf280" /></IsComplete><IsComplete><Dependency path="../writableBoxf310" /></IsComplete><IsComplete><Dependency path="../writableBoxc310" /></IsComplete><IsComplete><Dependency path="../writableBoxc311" /></IsComplete><IsComplete><Dependency path="../writableBoxc320" /></IsComplete><IsComplete><Dependency path="../writableBoxc321" /></IsComplete><IsComplete><Dependency path="../writableBoxc330" /></IsComplete><IsComplete><Dependency path="../writableBoxc331" /></IsComplete><IsComplete><Dependency path="../writableBoxf320" /></IsComplete><IsComplete><Dependency path="../writableBoxf330" /></IsComplete><IsComplete><Dependency path="../writableBoxf340" /></IsComplete><IsComplete><Dependency path="../writableBoxf350" /></IsComplete><IsComplete><Dependency path="../writableBoxf360" /></IsComplete><IsComplete><Dependency path="../writableBoxf370" /></IsComplete><IsComplete><Dependency path="../writableBoxf380" /></IsComplete><IsComplete><Dependency path="../writableBoxf390" /></IsComplete><IsComplete><Dependency path="../writableBoxf3100" /></IsComplete></Any></Derived>
+    </Fact>
+    <Fact path="/form8936VehicleSchedulesComplete">
+      <Name>All entered Schedule A (Form 8936) vehicle copies are attested complete</Name>
+      <Description>True only when every vehicle item has an answered Yes attestation that its applicable Schedule A boxes were transcribed. An empty, answered collection is false here and is handled by the no-vehicle compatibility arm; an unanswered collection stays Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8936Vehicles" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency path="/form8936Vehicles" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan></All></When>
+            <Then><Equal><Left><CollectionSize><Filter path="/form8936Vehicles"><Dependency path="form8936VehicleScheduleAIsComplete" /></Filter></CollectionSize></Left><Right><CollectionSize><Dependency path="/form8936Vehicles" /></CollectionSize></Right></Equal></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8936Vehicles" /></IsComplete><Equal><Left><CollectionSize><Dependency path="/form8936Vehicles" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal></All></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8936VehiclesToPrint">
+      <Name>Schedule A (Form 8936) vehicle copies to print</Name>
+      <Description>The submitted Schedule A vehicle items that contain at least one answered printed box. The form is included once for each selected item. A seeded empty collection yields no copies and a bare return does not print a blank Schedule A.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Filter path="/form8936Vehicles"><Dependency path="form8936VehicleScheduleAHasAnsweredPrintedBox" /></Filter></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

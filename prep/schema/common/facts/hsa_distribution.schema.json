@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/hsa_distribution.schema.json",
+  "title": "Form 1099-SA (HSA distribution)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "gross_distribution_cents",
+    "hsa_distribution_code",
+    "qualified_medical_expenses_cents"
+  ],
+  "properties": {
+    "person": {
+      "description": "Index into persons[]. The filer whose HSA this Form 1099-SA reports \u2014 the primary, or the spouse on a joint return. Form 8889 is filed per spouse.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "gross_distribution_cents": {
+      "description": "Box 1, gross distribution. Required. Reaches Form 8889 line 14a and, less the qualified medical expenses, line 16 \u2014 Schedule 1 line 8f, inside Form 1040 lines 8 and 9. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "hsa_distribution_code": {
+      "description": "Box 3, distribution code, as printed: 1 normal, 2 excess contributions, 3 disability, 4 death (other than code 6), 5 prohibited transaction, 6 death distribution after the year of death. Required. Codes 3 to 6 are served as the engine's own knockout (their treatment is not computed here); code 2 is refused by name (the withdrawn-excess route is not carried, and the engine would compute it as a normal distribution in silence).",
+      "type": "string",
+      "enum": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    "qualified_medical_expenses_cents": {
+      "description": "Unreimbursed qualified medical expenses paid with the distribution \u2014 Form 8889 line 15, the filer's own figure, on no box. Required: unanswered, the engine taxes the whole distribution. Never above box 1 (refused by name). The part of box 1 above it is taxable (line 16) and, unless the 20%-tax exception is attested on the filer's row, bears the additional 20% tax (line 17b, Schedule 2). Form 8889 Part I (contributions, the HDHP coverage grid) is not carried: the return is computed as one with no HSA contributions, published as an assumption.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

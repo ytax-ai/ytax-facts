@@ -1,0 +1,3226 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/socialSecurity.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/socialSecurityIncomeFormTypeOptions">
+      <Name>Social Security income form type Options</Name>
+      <Description>Options for form type</Description>
+      <Derived>
+        <EnumOptions>
+          <String>SSA-1099</String>
+          <String>RRB-1099</String>
+          <String>Treaty-Benefit</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityIncomeFormTypeOptionsLong">
+      <Name>Social Security income form type Options</Name>
+      <Description>Options for form type</Description>
+      <Derived>
+        <EnumOptions>
+          <String>socialSecurityBenefit</String>
+          <String>railroadRetirementBoardBenefit</String>
+          <String>canadianOrGermanTreatyBenefit</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefits">
+      <Name>Social security benefits</Name>
+      <Description>Social security benefits to report on line 6a of Form 1040. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+      <Derived>
+        <Round>
+          <Subtract>
+            <Minuend>
+              <CollectionSum>
+                <Dependency path="/socialSecurityReports/*/netBenefits" />
+              </CollectionSum>
+            </Minuend>
+            <Subtrahends>
+              <CollectionSum>
+                <Dependency path="/socialSecurityReports/*/terroristAttackDisabilityExclusionAmount" />
+              </CollectionSum>
+            </Subtrahends>
+          </Subtract>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlSocialSecurityBenefitCode">
+      <Name>Social security benefit code</Name>
+      <Description>The fact used to populate the socSecBnftCd XML attribute of the SocSecBnftAmt element in the MeF Form 1040 submission. Under IRC 86(c)(1)(C), a married-filing-separately filer who lived apart from their spouse the entire year uses the ordinary base amount rather than the zero base; "D" is the code that signals that condition. The printed 2025 Form 1040 carries the same condition as a separate checkbox, line 6d (see /isMfsAndLivedApartAllYear) — line 6a itself shows no visible indicator — but socSecBnftCd remains its own, separately transmitted MeF attribute.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                <Dependency path="/hasSocialSecurityBenefits" />
+                <Dependency module="filers" path="/livedApartAllYear" />
+              </All>
+            </When>
+            <Then>
+              <String>D</String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/hasSocialSecurityBenefits">
+      <Name>Has Social security benefits</Name>
+      <Description>Has social security benefits to report on line 6a of Form 1040 — the precondition for /xmlSocialSecurityBenefitCode's MFS-lived-apart code.</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/socialSecurityBenefits" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSocialSecurityReports">
+      <Name>Has listed any Social security benefits</Name>
+      <Description>Whether the TP has any social security benefits listed</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <CollectionSize>
+              <Dependency path="/socialSecurityReports" />
+            </CollectionSize>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsAreLossUpto3k">
+      <Name>Social security benefits are loss up to 3k</Name>
+      <Description>The TP repaid social security benefits to the point where benefits are a net loss of up to 3k
+        (between -3000 and 0)</Description>
+      <Derived>
+        <All>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/socialSecurityBenefits" />
+            </Left>
+            <Right>
+              <Dollar>-3000</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/socialSecurityBenefits" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsAreLossGreaterThan3k">
+      <Name>Repaid social security benefits count toward a section 1341 repayment over $3,000 with the earlier-year tax figures unanswered (disclosure)</Name>
+      <Description>A disclosure, not a refusal: TRUE once the filer has finished entering social security reports (/socialSecurityReportsIsDone), the part of the repayment included in an earlier year's income (/socialSecurityRepaymentIncludedInEarlierYearIncome) is more than $0, the whole return's claim-of-right repayment exceeds $3,000 (scheduleA:/claimOfRightRepaymentExceedsThreshold), and the earlier-year decrease in tax, unemployment:/claimOfRightRepaymentCreditSection1341, is not yet figured because an earlier-year tax figure is unanswered. It is not a member of flow:/flowIsKnockedOut.
+        It measures the same quantity the election is asked on: the included part on the whole-return threshold, not the box 5 loss, so a box 5 loss whose included part is $3,000 or less with no other repayment does not raise it. Incomplete while that included part is (box 5 below minus $3,000 with the part unanswered).
+        Both methods compute: the deduction on Schedule A line 16 (scheduleA:/claimOfRightRepaymentDeduction) and the credit on Schedule 3 line 13b (unemployment:/claimOfRightRepaymentCreditSection1341). The method is computed (taxCalculations:/claimOfRightDeductionGivesLesserTax) and needs the decrease either way; this flag names the return that still owes the two earlier-year figures.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/socialSecurityRepaymentIncludedInEarlierYearIncome" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Dependency module="scheduleA" path="/claimOfRightRepaymentExceedsThreshold" />
+          <Dependency path="/socialSecurityReportsIsDone" />
+          <Not>
+            <IsComplete>
+              <Dependency module="unemployment" path="/claimOfRightRepaymentCreditSection1341" />
+            </IsComplete>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerHasIncompleteSocialSecurityReports">
+      <Name>At least one of Primary Filer's social security reports are incomplete</Name>
+      <Description>Whether a primary-filer social security report is incomplete or has no assigned recipient.</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <All>
+                  <Dependency path="/socialSecurityReports/*/belongsToPrimaryFiler" />
+                  <Not><Dependency path="/socialSecurityReports/*/isComplete" /></Not>
+                </All>
+              </Count>
+            </Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <Not>
+                  <IsComplete><Dependency path="/socialSecurityReports/*/filer" /></IsComplete>
+                </Not>
+              </Count>
+            </Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerHasIncompleteSocialSecurityReports">
+      <Name>At least one of Secondary Filer's social security reports are incomplete</Name>
+      <Description>Whether a secondary-filer social security report is incomplete or, on a joint return, a social security report has no assigned recipient. The unassigned-recipient count reads filingStatus:/isFilingStatusMFJ IsComplete-first: only a joint return has a secondary filer, so on any other return, or while the filing status is unanswered, that count is Complete false here and the unassigned recipient is refused once, by /primaryFilerHasIncompleteSocialSecurityReports.</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <All>
+                  <Dependency path="/socialSecurityReports/*/belongsToSecondaryFiler" />
+                  <Not><Dependency path="/socialSecurityReports/*/isComplete" /></Not>
+                </All>
+              </Count>
+            </Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+          <All>
+            <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <GreaterThan>
+              <Left>
+                <Count>
+                  <Not>
+                    <IsComplete><Dependency path="/socialSecurityReports/*/filer" /></IsComplete>
+                  </Not>
+                </Count>
+              </Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maximumSocialSecurityBenefitsRepaidSupported">
+      <Name>Maximum Social Security Benefits Repaid Supported</Name>
+      <Description>The maximum dollar amount of social security benefits repaid that is supported.</Description>
+
+      <Derived>
+        <Dollar>3000</Dollar>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableSocialSecurityRepaymentIncludedInEarlierYearIncome">
+      <Name>Repaid social security benefits that were included in gross income in an EARLIER year (writable)</Name>
+      <Description>Question: "Your Forms SSA-1099 and RRB-1099 show more benefits repaid than received (a negative total in box 5). How much of that negative figure is benefits you included in gross income in an earlier year?" Help: "you may be able to deduct part of this negative figure that represents benefits you included in gross income in an earlier year, if the figure is more than $3,000" (2025 Publication 915, https://www.irs.gov/pub/irs-pdf/p915.pdf, page 15). Count only benefits that were taxed in an earlier year; nothing on either form says which year repaid benefits were taxed in, so the filer supplies the split.
+        Asked when /socialSecurityBenefits is negative and that negative figure together with the return's other claim-of-right repayments (unemployment:/totalAmountPaidBackForBenefitsBeforeTaxYear and scheduleA:/writableOtherClaimOfRightRepaymentIncludedInEarlierYearIncome) exceeds $3,000: the $3,000 test is on the total repaid on the return, so a negative box 5 of $3,000 or less can still carry a return over it. May be answered on any negative total.
+        Unanswered: when that sum exceeds $3,000, /socialSecurityRepaymentIncludedInEarlierYearIncome is Incomplete, and so are the whole-return total and threshold it feeds (scheduleA:/claimOfRightRepaymentTotal, scheduleA:/claimOfRightRepaymentExceedsThreshold), the Schedule A line 16 addend and Schedule 3 line 13b; never a silent $0 and never a refusal. When the sum is $3,000 or less it reads $0.
+        Validation: Dollar, minimum $0; capped downstream at the negative box 5 total. Feeds /socialSecurityRepaymentIncludedInEarlierYearIncome.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityRepaymentIncludedInEarlierYearIncome">
+      <Name>Repaid social security benefits included in an earlier year's gross income (complete-safe, capped at the negative box 5)</Name>
+      <Description>/writableSocialSecurityRepaymentIncludedInEarlierYearIncome when answered and the total box 5 (/socialSecurityBenefits) is negative, capped at the magnitude of that negative total: Publication 915's deductible amount is "part of this negative figure", so it cannot exceed it. $0 when box 5 is not negative, while box 5 is not yet resolved (a report still being entered), and when the writable is unanswered but the whole negative box 5 together with the return's other claim-of-right repayments (unemployment compensation repaid, and the other repayment scheduleA asks for) is $3,000 or less, so the split could not change the whole-return test. Incomplete when the writable is unanswered and that sum exceeds $3,000, because the part of the loss taxed in an earlier year then decides both section 1341 methods and is never defaulted.
+        SIGN: this fact is positive (a deduction amount) while /socialSecurityBenefits is the negative net figure; Subtract(0, benefits) turns one into the other.
+        Not gated on its own $3,000 test for the amount: the $3,000 test belongs to the whole return (scheduleA:/claimOfRightRepaymentExceedsThreshold), because Publication 525 says to "consider the total amount being repaid on the return" (https://www.irs.gov/pub/irs-pdf/p525.pdf, page 36). The same whole-return sum decides where an unanswered split must be asked.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/socialSecurityBenefits" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableSocialSecurityRepaymentIncludedInEarlierYearIncome" />
+                </IsComplete>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/socialSecurityBenefits" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="/writableSocialSecurityRepaymentIncludedInEarlierYearIncome" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dollar>0</Dollar>
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/socialSecurityBenefits" />
+                  </Subtrahends>
+                </Subtract>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/socialSecurityBenefits" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Add>
+                    <Subtract>
+                      <Minuend>
+                        <Dollar>0</Dollar>
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="/socialSecurityBenefits" />
+                      </Subtrahends>
+                    </Subtract>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <IsComplete>
+                            <Dependency module="unemployment" path="/totalAmountPaidBackForBenefitsBeforeTaxYear" />
+                          </IsComplete>
+                        </When>
+                        <Then>
+                          <Dependency module="unemployment" path="/totalAmountPaidBackForBenefitsBeforeTaxYear" />
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <IsComplete>
+                            <Dependency module="scheduleA" path="/writableOtherClaimOfRightRepaymentIncludedInEarlierYearIncome" />
+                          </IsComplete>
+                        </When>
+                        <Then>
+                          <GreaterOf>
+                            <Dependency module="scheduleA" path="/writableOtherClaimOfRightRepaymentIncludedInEarlierYearIncome" />
+                            <Dollar>0</Dollar>
+                          </GreaterOf>
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Add>
+                </Left>
+                <Right>
+                  <Dollar>3000</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports">
+      <Name>Social Security Income Reports</Name>
+      <Description>Reports of Social Security income.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasAtLeastOneSocialSecurityReport">
+      <Name>Has at least one social security report</Name>
+      <Description>Has at least one social security report</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <CollectionSize>
+              <Dependency path="/socialSecurityReports"></Dependency>
+            </CollectionSize>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/belongsToPrimaryFiler">
+      <Name>Social Security report belongs to primary filer</Name>
+      <Description>Whether the report belongs to the primary filer. It resolves false when no recipient
+        has been assigned; the collection guard separately refuses an unassigned recipient.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="/primaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Equal>
+              <Left><Dependency path="../filer" /></Left>
+              <Right><Dependency module="filers" path="/primaryFiler" /></Right>
+            </Equal></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/belongsToSecondaryFiler">
+      <Name>Social Security report belongs to secondary filer</Name>
+      <Description>Whether the report belongs to the secondary filer. It resolves false when no recipient
+        has been assigned; the collection guard separately refuses an unassigned recipient.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="/secondaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Equal>
+              <Left><Dependency path="../filer" /></Left>
+              <Right><Dependency module="filers" path="/secondaryFiler" /></Right>
+            </Equal></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/secondaryFilerUsedWithoutMFJ">
+      <Name>Secondary filer has Social Security reports when primary filer is not filing jointly</Name>
+      <Description>Whether secondary filer has Social Security reports when primary filer is not filing jointly</Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency module="filers" path="/secondaryFiler" />
+          </IsComplete>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <Dependency path="../belongsToSecondaryFiler" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/secondaryFilerUsedWithoutMFJ">
+      <Name>Secondary filer has Social Security reports when primary filer is not filing jointly</Name>
+      <Description>Whether secondary filer has Social Securityinterest reports when primary filer is not filing jointly</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/socialSecurityReports/*/secondaryFilerUsedWithoutMFJ" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReportsIsDone">
+      <Name>socialSecurityReports is Done</Name>
+      <Description>The user has clicked "Done" for their socialSecurityReports</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/hasSeenLastAvailableScreen">
+      <Name>Has seen last available screen</Name>
+      <Description>Whether the user has reached the end of a social security flow</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/isComplete">
+      <Name>Is complete</Name>
+      <Description>Whether the social security report is complete</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="../hasSeenLastAvailableScreen" />
+          <IsComplete>
+            <Dependency path="../netBenefits" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../federalTaxWithheld" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/filer">
+      <Name>Social Security Income Filer</Name>
+      <Description>The filer who received Social Security income for this report. Form SSA-1099 box 1 (Name), Form RRB-1099 box recipient-name (Recipient's Name, Street Address, City, State, and Zip Code).</Description>
+
+      <Writable>
+        <CollectionItem collection="/filers" />
+      </Writable>
+      <Placeholder>
+        <Dependency module="filers" path="/primaryFiler" />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/recipientTin">
+      <Description>The recipient's TIN. Defaults to the primary filer TIN since the ../filer placeholder corresponds to
+        the primary filer</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../filer" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="filers" path="../filer/tin" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency module="filers" path="/primaryFiler/tin" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaName">
+      <Name>SSA-1099 box 1 name</Name>
+      <Description>The beneficiary name printed in box 1 of this 2025 Form SSA-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaBenefitsPaid">
+      <Name>SSA-1099 box 3 benefits paid</Name>
+      <Description>The benefits paid in 2025 printed in box 3 of this Form SSA-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaBenefitsRepaid">
+      <Name>SSA-1099 box 4 benefits repaid</Name>
+      <Description>The benefits repaid to the SSA in 2025 printed in box 4 of this Form SSA-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaAddress">
+      <Name>SSA-1099 box 7 address</Name>
+      <Description>The address printed in box 7 of this 2025 Form SSA-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaClaimNumber">
+      <Name>SSA-1099 box 8 claim number</Name>
+      <Description>The claim number printed in box 8 of this 2025 Form SSA-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaBenefitsPaidIncludesEarlierYears">
+      <Name>SSA-1099 box 3 earlier-year asterisk</Name>
+      <Description>Whether an asterisk after the box 3 benefits-paid amount on this 2025 Form SSA-1099 indicates benefits for one or more earlier years.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaBenefitsPaidDetails">
+      <Name>SSA-1099 box 3 description lines</Name>
+      <Description>The printed lines under Description of Amount in Box 3 on this 2025 Form SSA-1099. Each line retains its printed description and any amount, including text-only lines and prior-year payment descriptions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaBenefitsPaidDetails/*/writableDescription">
+      <Name>SSA-1099 box 3 detail description</Name>
+      <Description>The complete printed description of this line in the box 3 detail panel of this 2025 Form SSA-1099, including any year, subtotal label, or none marker.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaBenefitsPaidDetails/*/writableAmount">
+      <Name>SSA-1099 box 3 detail amount</Name>
+      <Description>The amount printed on this line in the box 3 detail panel of this 2025 Form SSA-1099. A text-only line has no amount.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaBenefitsRepaidDetails">
+      <Name>SSA-1099 box 4 description lines</Name>
+      <Description>The printed lines under Description of Amount in Box 4 on this 2025 Form SSA-1099. Each line retains its printed description and any amount, including text-only lines and prior-year payment descriptions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaBenefitsRepaidDetails/*/writableDescription">
+      <Name>SSA-1099 box 4 detail description</Name>
+      <Description>The complete printed description of this line in the box 4 detail panel of this 2025 Form SSA-1099, including any year, subtotal label, or none marker.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaBenefitsRepaidDetails/*/writableAmount">
+      <Name>SSA-1099 box 4 detail amount</Name>
+      <Description>The amount printed on this line in the box 4 detail panel of this 2025 Form SSA-1099. A text-only line has no amount.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbPayerFederalIdentificationNumber">
+      <Name>RRB-1099 Payer federal identifying number</Name>
+      <Description>The payer federal identifying number printed on this 2025 Form RRB-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbClaimNumberAndPayeeCode">
+      <Name>RRB-1099 Box 1 claim number and payee code</Name>
+      <Description>The claim number and payee code printed together in box 1 of this 2025 Form RRB-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbRecipientNameAndAddress">
+      <Name>RRB-1099 Recipient name and address</Name>
+      <Description>The recipient name and mailing address printed in the unnumbered recipient block of this 2025 Form RRB-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbGrossBenefitsPaid">
+      <Name>RRB-1099 Box 3 gross SSEB tier 1 benefits paid</Name>
+      <Description>The gross Social Security Equivalent Benefit portion of tier 1 paid in 2025, printed in box 3 of this Form RRB-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbBenefitsRepaid">
+      <Name>RRB-1099 Box 4 SSEB tier 1 benefits repaid</Name>
+      <Description>The Social Security Equivalent Benefit portion of tier 1 repaid to the RRB in 2025, printed in box 4 of this Form RRB-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbWorkersCompensationOffset">
+      <Name>RRB-1099 Box 6 workers compensation offset</Name>
+      <Description>The workers compensation offset printed in box 6 of this 2025 Form RRB-1099. This amount is already included in boxes 3 and 5.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbBenefitsPaidForPriorYear">
+      <Name>RRB-1099 Box 7 SSEB benefits paid for 2024</Name>
+      <Description>The Social Security Equivalent Benefit portion of tier 1 paid in 2025 for 2024, printed in box 7 of this Form RRB-1099. This amount is included in box 3.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbBenefitsPaidForSecondPriorYear">
+      <Name>RRB-1099 Box 8 SSEB benefits paid for 2023</Name>
+      <Description>The Social Security Equivalent Benefit portion of tier 1 paid in 2025 for 2023, printed in box 8 of this Form RRB-1099. This amount is included in box 3.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbBenefitsPaidForEarlierYears">
+      <Name>RRB-1099 Box 9 SSEB benefits paid for years before 2023</Name>
+      <Description>The Social Security Equivalent Benefit portion of tier 1 paid in 2025 for 2022 and earlier years after 1983, printed as one amount in box 9 of this Form RRB-1099. This amount is included in box 3.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbMedicarePremiumTotal">
+      <Name>RRB-1099 Box 11 Medicare premium total</Name>
+      <Description>The total Part B, Part C, and Part D Medicare premiums deducted from railroad retirement annuity payments in 2025, printed in box 11 of this Form RRB-1099.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableFormType">
+      <Name>Form that reports this Social Security income (writable)</Name>
+      <Description>Which form reports this benefit: Form SSA-1099, Social Security Benefit Statement,
+        issued by the SSA; Form RRB-1099, Payments by the Railroad Retirement Board, issued by the
+        RRB and reporting the social security equivalent benefit (SSEB) portion of tier 1; or
+        Canadian or German social security benefits, paid directly by those countries' social
+        security systems rather than reported on either U.S. statement, and treated by U.S. tax
+        treaty as if paid under the U.S. Social Security Act — ask when the filer answers a
+        Canadian or German benefit received during the year, help text "Under tax treaties with
+        Canada and Germany, social security benefits those countries pay to U.S. residents are
+        taxed the same as U.S. social security benefits"; unanswered defaults this question's own
+        report to SSA-1099 (the back-compat posture below), so a filer who never opens this screen
+        reports nothing under the treaty option, which is correct — there is no benefit to add.
+
+        This is the writable optional fact. Can be left incomplete. Please use the derived fact
+        ../formType in downstream calculations.
+
+        IT DELIBERATELY CARRIES NO Placeholder, and that is the whole safety argument here
+        rather than an omission. A Placeholder resolves the fact to Result.Placeholder — not
+        Result.Complete — whenever the underlying writable is unanswered, and Switch's resultRecurse
+        then downgrades the CHOSEN branch of every reading Switch to Placeholder even when that
+        branch's own answer is genuinely complete. With a Placeholder here, ../isSsa1099 (an Equal on
+        ../formType), ../netBenefits and ../federalTaxWithheld would all go Placeholder for every
+        return that does not answer this question, ../isComplete's IsComplete legs would go false, and
+        /primaryFilerHasIncompleteSocialSecurityReports and its secondary twin — both
+        BlockSubmissionOnTrue — would fire for EVERY filer reporting Social Security benefits. The
+        IsComplete/Switch wrapper on ../formType is what prevents that; a Placeholder here would
+        reinstate it.</Description>
+      <Writable>
+        <Enum optionsPath="/socialSecurityIncomeFormTypeOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/formType">
+      <Name>Social Security Income Form Type</Name>
+      <Description>The type of form that reports this Social Security income — the answered
+        ../writableFormType when the filer has answered it, and SSA-1099 otherwise.
+
+        The inherited IRS Direct File body had its Writable
+        block commented out and hard-derived to SSA-1099, which made every RRB-1099 branch keyed off
+        this fact statically unreachable: formTypeLong's railroadRetirementBoardBenefit case and the
+        RRB arms of ../netBenefits (RRB-1099 box 5) and ../federalTaxWithheld (RRB-1099 box 10). All
+        four are now reachable, and each is pinned by a node test.
+
+        WHY THIS IS DICTIONARY SCOPE AND NOT THE APPLICATION REPO'S (invariant #7). The prior adjudication
+        called the blocker a SERVICE-owned intake question. The test invariant #7 actually states is
+        that a writable fact and its consumers are dictionary scope and only the UI/intake FLOW is
+        the application's, and this module already answers that question against itself: ../rrbNetBenefits and
+        ../writableRrbFederalTaxWithheld are RRB-1099-only &lt;Writable&gt; facts that have been
+        shipping in this very file all along, that no scenario answers and no UI collects. If those
+        are dictionary scope then so is this one, by the same test — a scope note reading "RRB-1099
+        support is unmodelled" was contradicted by two RRB writables on disk in the module it
+        described. The consumer is statutory, not a screen: section 86(d)(1) defines "social security
+        benefit" to mean any amount received by reason of entitlement to (A) a title II monthly
+        benefit OR (B) a tier 1 railroad retirement benefit, so the taxable-benefit computation this
+        module performs is owed to RRB tier-1 SSEB income on exactly the same terms.
+
+        WHY THE WRAPPER, which is the half the prior adjudication got right. Restoring a BARE Writable
+        here would have been the corpus-wide submission-blocking regression that adjudication
+        described, for exactly the reason it gave (Placeholder's operator plus Switch's resultRecurse
+        — see ../writableFormType's Description). Its error was the conclusion "there is no in-repo
+        escape", which enumerated only (a) ship a UI question in lockstep and (b) migrate every
+        fixture. There is a third, and this file already uses it twice: the IsComplete/Switch
+        completeness firewall below is the same shape as ../ssaFederalTaxWithheld over
+        ../writableSsaFederalTaxWithheld and ../rrbFederalTaxWithheld over
+        ../writableRrbFederalTaxWithheld, and a third time at ../recipientTin over ../filer.
+        IsComplete yields a COMPLETE boolean whether or not its operand is complete, so the Switch
+        condition is always complete, no chosen branch is ever downgraded, and an unanswered
+        writableFormType lands on the SSA-1099 literal exactly as the hard-derive did.
+
+        WORLD-1 SAFETY: additive and value-preserving. No committed scenario or fixture answers
+        ../writableFormType, so this fact resolves Complete SSA-1099 on every one of them, byte
+        identical to the hard-derive it replaces; pinned by node test
+        socialSecurity/ss-formtype-unanswered-complete-safe.
+
+        WHAT SUPPORTING RRB FILERS DOES AND DOES NOT BUY, stated precisely, because "RRB filers are supported"
+        would be an overclaim. The graph can now EXPRESS an RRB-1099 return and computes it correctly
+        once the form-type question is answered. An RRB filer who is never ASKED is not mis-computed
+        either: ../writableFormType stays unanswered, this fact lands on SSA-1099, ../netBenefits
+        reads ../ssaNetBenefits, which is unanswered and Placeholders to 0, so ../isComplete's
+        IsComplete leg goes false and /primaryFilerHasIncompleteSocialSecurityReports (or its
+        secondary twin) blocks submission. Blocked, not silently wrong. Shipping the question is the
+        intake FLOW, which is the application's — and that is the part of invariant #7 that genuinely applies
+        here, cleanly separated from the writable and its consumers, which are this repo's.
+
+        The RRB arm is pinned against Pub 915's own worked example by
+        socialSecurity/ss-rrb-1099-tier1-p915-example3, and paired against its SSA twin by
+        socialSecurity/ss-formtype-enum-domain-ssa-twin, which flips this one enum answer and moves
+        all four consumer arms while section 86(d)(1)'s equal treatment holds line 6b at the same
+        6,275.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableFormType" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableFormType" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Enum optionsPath="/socialSecurityIncomeFormTypeOptions">SSA-1099</Enum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/formTypeLong">
+      <Name>Social Security Income Form Type</Name>
+      <Description>The type of form that reports this Social Security income.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path='../isSsa1099' />
+            </When>
+            <Then>
+              <Enum optionsPath="/socialSecurityIncomeFormTypeOptionsLong">socialSecurityBenefit</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../formType" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/socialSecurityIncomeFormTypeOptions">RRB-1099</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/socialSecurityIncomeFormTypeOptionsLong">railroadRetirementBoardBenefit</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../formType" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/socialSecurityIncomeFormTypeOptions">Treaty-Benefit</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/socialSecurityIncomeFormTypeOptionsLong">canadianOrGermanTreatyBenefit</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Enum optionsPath="/socialSecurityIncomeFormTypeOptionsLong">socialSecurityBenefit</Enum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/isSsa1099">
+      <Name>Flow variable for Social Security income screens</Name>
+      <Description>Whether this Social Security income is reported on a SSA-1099.</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="../formType" />
+          </Left>
+          <Right>
+            <Enum optionsPath="/socialSecurityIncomeFormTypeOptions">SSA-1099</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaNetBenefits">
+      <Name>SSA net benefits</Name>
+      <Description>Box 5 of the SSA-1099</Description>
+
+      <Writable>
+        <Dollar />
+      </Writable>
+      <Placeholder>
+        <Dollar>0</Dollar>
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/rrbNetBenefits">
+      <Name>RRB net benefits</Name>
+      <Description>Box 5 of the RRB-1099</Description>
+
+      <Writable>
+        <Dollar />
+      </Writable>
+      <Placeholder>
+        <Dollar>0</Dollar>
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableSsaFederalTaxWithheld">
+      <Name>SSA federal tax withheld</Name>
+      <Description>Box 6 of the SSA-1099.
+
+        This is the writable optional fact. Can be left incomplete. Please use the
+        derived fact in downstream calculations.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/ssaFederalTaxWithheld">
+      <Name>SSA federal tax withheld</Name>
+      <Description>Box 6 of the SSA-1099</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableSsaFederalTaxWithheld" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableSsaFederalTaxWithheld" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableRrbFederalTaxWithheld">
+      <Name>RRB federal tax withheld</Name>
+      <Description>Box 10 of the RRB-1099.
+
+        This is the writable optional fact. Can be left incomplete. Please use the
+        derived fact in downstream calculations.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/rrbFederalTaxWithheld">
+      <Name>RRB federal tax withheld</Name>
+      <Description>Box 10 of the RRB-1099</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableRrbFederalTaxWithheld" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableRrbFederalTaxWithheld" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableTreatyBenefitAmount">
+      <Name>(Writable) Canadian or German social security benefit amount</Name>
+      <Description>The amount of social security benefits this report received from Canada or
+        Germany during the year, in U.S. dollars. Asked when the filer answers ../writableFormType
+        as Treaty-Benefit for this report. Help text: "Under U.S. tax treaties with Canada and
+        Germany, social security benefits those countries pay to a U.S. resident are treated the
+        same as U.S. social security benefits — enter the full amount received, before any
+        foreign tax withheld" (Pub. 915, "Canadian or German social security benefits paid to
+        U.S. residents": "If you receive social security benefits from Canada or Germany, include
+        them on line 1 of Worksheet 1", the same line SSA-1099 and RRB-1099 box 5 amounts are
+        combined on). Left unanswered on any report whose form type is not Treaty-Benefit, where
+        it Placeholders to $0 and contributes nothing — the ordinary complete-safe default for an
+        inapplicable question, not a taxpayer decision. Validation: dollar amount, no printed
+        ceiling. Feeds ../netBenefits (this arm) and, through it, /socialSecurityBenefits (Form
+        1040 line 6a) and every downstream provisional-income ladder on exactly the same terms as
+        an SSA-1099 box 5 amount.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+      <Placeholder>
+        <Dollar>0</Dollar>
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/writableTerroristAttackDisabilityExclusionAmount">
+      <Name>(Writable) Terrorist-attack disability exclusion, this report</Name>
+      <Description>The portion of this report's Social Security benefits that is a disability
+        payment (including SSDI) for injuries incurred as a direct result of a terrorist attack
+        directed against the United States or its allies, incorrectly included as taxable on the
+        Form SSA-1099 or RRB-1099 box 5 amount above. Ask on this report's screen, after the
+        benefit amount: "Is any part of this benefit a disability payment for a terrorist-attack
+        injury?" with help text "Don't include disability payments — including Social Security
+        Disability Insurance (SSDI) — that you received for injuries from a terrorist attack
+        against the United States or its allies. If your Form SSA-1099 or RRB-1099 incorrectly
+        reports these as taxable, enter the nontaxable portion here so it is left off your
+        return" (paraphrasing https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 31). Example from
+        the same instruction: a filer disabled by the September 11 attack who received $1,500 a
+        month and reached full retirement age partway through the year excludes only the months
+        before reaching full retirement age ($6,000 of an $18,000 total) and reports the
+        remainder ($12,000); this dictionary does not compute that month count — the filer or
+        preparer attests the dollar result of it here, the same way ../writableEdcSelfReportedNonTaxablePaymentAmount
+        attests a computed figure elsewhere in this product. Unanswered (the default; no screen
+        forces an answer) means no exclusion, $0; a filer never
+        asked about this reports the full box 5/box 5 amount, unchanged. Validation: dollar
+        amount, Min $0 (an exclusion cannot be negative); no schema-expressible Max against this
+        report's own benefit amount (Limit content is a literal per FactDictionaryModule.rng, not
+        a Dependency — the same constraint dividendReports.xml's box-12/box-13 pair states for the
+        identical shape), so a figure exceeding the benefit is accepted at intake — but an amount
+        entered above this report's net benefits is CAPPED at ../netBenefits by
+        ../terroristAttackDisabilityExclusionAmount, the fact downstream consumers read: a
+        disability payment cannot exclude more than the benefit itself contained, so an
+        over-attested figure cannot drive this report's contribution to line 6a negative. Feeds
+        /socialSecurityBenefits (Form 1040 line 6a) through that capped fact, subtracted from the
+        collection total there, not from ../netBenefits (which stays a faithful mirror of the
+        printed box 5/box 5 figures — the instruction's own word "incorrectly" says the SSA
+        statement is not reduced for this).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/terroristAttackDisabilityExclusionAmount">
+      <Name>Terrorist-attack disability exclusion, this report</Name>
+      <Description>The terrorist-attack disability exclusion for this report, limited to the greater of its net benefits and zero. An unanswered exclusion is zero. A negative box 5 remains available to offset other reports and for repayment relief.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableTerroristAttackDisabilityExclusionAmount" />
+              </IsComplete>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="../writableTerroristAttackDisabilityExclusionAmount" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <GreaterOf>
+                  <Dependency path="../netBenefits" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/netBenefits">
+      <Name>Net Benefits</Name>
+      <Description>Net Benefits - box 5 of the RRB-1099, Box 5 of the SSA-1099, or the attested
+        amount of a Canadian or German social security benefit.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../isSsa1099" />
+            </When>
+            <Then>
+              <Dependency path="../ssaNetBenefits" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../formType" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/socialSecurityIncomeFormTypeOptions">RRB-1099</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="../rrbNetBenefits" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../writableTreatyBenefitAmount" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityReports/*/federalTaxWithheld">
+      <Name>Federal Tax Withheld</Name>
+      <Description>The Federal tax withheld: box 10 of the RRB-1099 or box 6 of the SSA-1099. A Canadian or German
+        social security benefit carries none: it is paid by a foreign government, so no United States
+        income tax is withheld from it under chapter 24, and Form 1040 line 25b takes withholding only from
+        the Form 1099 boxes the instructions name.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <ExportZero />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../isSsa1099" />
+            </When>
+            <Then>
+              <Dependency path="../ssaFederalTaxWithheld" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../formType" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/socialSecurityIncomeFormTypeOptions">RRB-1099</Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="../rrbFederalTaxWithheld" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/taxableSocialSecurityBenefits">
+      <Name>Taxable Social security benefits</Name>
+      <Description>THIS PATH IS THE IRC 86(e) LUMP-SUM ELECTION WRAPPER: it is the regular-method answer
+        (/regularMethodTaxableSocialSecurityBenefits) unless /socialSecurityLumpSum is
+        true, in which case it is the LESSER of that answer and Pub. 915 Worksheet 4 line 21
+        (/lumpSumElectionWksht4Line21). The election can only ever LOWER line 6b — enforced twice,
+        once by the gate on /socialSecurityLumpSum (which requires Worksheet 4 line 21 to be strictly
+        smaller) and once by the LesserOf here. /socialSecurityLumpSum is false unless the writable
+        /writableSocialSecurityLumpSumElection is answered true, so the whole Worksheet 2/3/4 chain
+        including /socialSecurityLumpSumEarlierYears is unreachable until it is. The regular-method
+        computation this wrapper reads is described below and lives at
+        /regularMethodTaxableSocialSecurityBenefits; the description is kept here, undivided, rather
+        than duplicated at that path.
+
+        Taxable Social security benefits to report on line 6b of Form 1040, routed to Pub.
+        590-A Appendix B Worksheet 3 for the filer Appendix B applies to and to the ordinary Social
+        Security Benefits Worksheet for everybody else. We use the SSBW from instructions for 1040.
+        There is a similar worksheet in Pub 915 where the line numbers are different and will confuse
+        you.
+
+        THE TWO ARMS. Case 1, when iraDeduction:/appendixBSsIraWorksheetsApply (all four of Pub.
+        590-A's conditions: social security benefits received, taxable compensation, a traditional-IRA
+        contribution made, and either spouse covered by an employer retirement plan;
+        https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 13), the answer is
+        /appendixBWorksheet3TaxableBenefits, whose provisional income DOES subtract the Schedule 1
+        line 20 deduction. Case 2, everybody else, is /plainSsbwTaxableSocialSecurityBenefits.
+
+        IN EVERY EXCLUDED CASE THE ORDINARY ARM IS THE CORRECT COMPUTATION, not a fallback. No
+        compensation or no contribution makes Schedule 1 line 20 $0, so Worksheet 3 would subtract
+        nothing and the two worksheets coincide. Neither spouse covered puts the filer on Pub. 590-A
+        Table 1-3 ("any amount / a full deduction"), where there is no section 219(g) MAGI term, no
+        loop, and the reconstruction on SSBW line 6 already subtracts the real deduction. So the
+        Switch has no silently-wrong branch.
+
+        THE NEGATIVE-BENEFITS GUARD IS NOT DUPLICATED ONTO THE APPENDIX B ARM, and that is measured
+        rather than assumed: the gate conjoins /hasSocialSecurityBenefits, which is
+        /socialSecurityBenefits greater than zero, so a repayment return whose net benefits are
+        negative can never reach Case 1. It falls to the ordinary arm, where the guard lives.
+
+        THE ROUND IS KEPT HERE, wrapping the Switch, where it has always sat. It does the whole-dollar
+        rounding for the Appendix B arm (the Worksheet 3 ladder is deliberately unrounded, mirroring
+        the ordinary ladder) and is idempotent on the ordinary arm, which carries its own Round
+        inside /plainSsbwTaxableSocialSecurityBenefits. That inner Round is load-bearing and must not
+        be flattened into this one: taxCalculations:/magiForIraDeduction reads the ordinary arm
+        directly and has to reproduce income:/totalIncome's arithmetic cent for cent, and
+        /totalIncome sums an ALREADY-ROUNDED line 6b. Three of /totalIncome's twelve addends are not
+        top-level Rounded (/taxableIraDistributions, /taxablePensionsAndAnnuities and
+        /capitalGainsOrLosses), so cents genuinely can reach /socialSecurityBenefitsWkshtLine3 and
+        the placement is not inert.</Description>
+
+
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/socialSecurityLumpSum" />
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/regularMethodTaxableSocialSecurityBenefits" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/regularMethodTaxableSocialSecurityBenefits" />
+                <Dependency path="/lumpSumElectionWksht4Line21" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/regularMethodTaxableSocialSecurityBenefits">
+      <Name>Taxable social security benefits figured the REGULAR way, before any IRC 86(e) election</Name>
+      <Description>This fact is /taxableSocialSecurityBenefits's regular-method computation, held one level
+        down so that the path Form 1040 line 6b prints can be the section 86(e) election wrapper.
+        The two-arm reading (Pub. 590-A Appendix B Worksheet 3 for the four-condition Appendix B
+        population, the ordinary Social Security Benefits Worksheet for everybody else) and the
+        placement of the Round are described in full, with their history, in the Description and
+        block comment on /taxableSocialSecurityBenefits, which are kept there rather than
+        duplicated here.
+
+        THIS IS ALSO PUB. 915 WORKSHEET 1 LINE 19, the figure Worksheet 4's "Next" block compares
+        against: "Is line 21 above smaller than Worksheet 1, line 19?" That comparison is
+        /socialSecurityLumpSumElectionLowersTaxableBenefits, and this fact is its right-hand
+        side.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency module="iraDeduction" path="/appendixBSsIraWorksheetsApply" />
+              </When>
+              <Then>
+                <Dependency path="/appendixBWorksheet3TaxableBenefits" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dependency path="/plainSsbwTaxableSocialSecurityBenefits" />
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/plainSsbwTaxableSocialSecurityBenefits">
+      <Name>Pub. 590-A Appendix B Worksheet 1 line 17 — taxable benefits figured WITHOUT any traditional-IRA deduction</Name>
+      <Description>The taxable-social-security figure computed on a provisional income that subtracts
+        NO traditional-IRA deduction — "Taxable benefits to be included in modified AGI for
+        traditional IRA deduction purposes. Enter the smaller of line 15 or line 16"
+        (https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 54). This is NOT a new computation: it is the
+        regular-method body of /taxableSocialSecurityBenefits, moved down one level unchanged
+        so the Appendix B rebody above can choose between this and Worksheet 3.
+
+        WHY IT IS ITS OWN FACT rather than a second reading of /taxableSocialSecurityBenefits. That
+        path is now downstream of the traditional-IRA deduction, and the deduction is downstream of
+        the modified AGI that needs THIS value. Reading the rebodied path for the MAGI would close
+        the section 86 / section 219(g) cycle the whole three-worksheet sequence exists to break. One
+        fact, one meaning: this one is Worksheet 1's answer, and nothing reads Worksheet 3 upstream
+        of the return.
+
+        CONSUMERS: /taxableSocialSecurityBenefits above (the ordinary arm) and
+        taxCalculations:/magiForIraDeduction (Worksheet 1 line 19). Deliberately NOT
+        income:/totalIncome — Form 1040 line 6b is Worksheet 3's answer for an Appendix B filer, and
+        wiring /totalIncome here would put Worksheet 1's over-stated benefit back on the return.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (floored by the negative-benefits
+        guard it inherits), whole-dollar Round exactly where it sat before the move.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/socialSecurityBenefits" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThan>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/socialSecurityBenefitsWkshtLine16" />
+                  <Multiply>
+                    <Dependency path="/socialSecurityBenefits" />
+                    <Dollar>0.85</Dollar>
+                  </Multiply>
+                </LesserOf>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/appendixBWorksheet3ProvisionalIncome">
+      <Name>Pub. 590-A Appendix B Worksheet 3 line 8 — provisional income AFTER the traditional-IRA deduction</Name>
+      <Description>Worksheet 3 lines 1, 2, 3, 5, 6, 7 and 8 collapsed into the one provisional-income
+        figure the section 86 ladder consumes — the exact counterpart of /socialSecurityBenefitsWkshtLine7.
+        Verbatim (https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 56): line 1 "Adjusted gross income
+        (AGI) from Form 1040 or 1040-SR. (For purposes of this worksheet, figure your AGI without
+        taking into account any IRA deduction, any student loan interest deduction, or any social
+        security benefits ... or any exclusion of interest from savings bonds to be reported on Form
+        8815.)"; line 2 "Deduction(s) from line 7 of Worksheet(s) 2"; line 3 "Subtract line 2 from
+        line 1"; line 5 "Enter one-half of line 4"; line 6 the foreign/territory/adoption exclusions;
+        line 7 "Enter the amount of any tax-exempt interest reported on line 2a of Form 1040 or
+        1040-SR"; line 8 "Add lines 3, 5, 6, and 7".
+
+        THE ARITHMETIC IDENTITY THAT MAKES THIS ONE FACT INSTEAD OF A SECOND INCOME SUBTOTAL. W3 line
+        1 = /socialSecurityBenefitsWkshtLine3 (Form 1040 lines 1z, 2b, 3b, 4b, 5b, 7 and 8 — every
+        income line EXCEPT 6b) minus taxCalculations:/adjustmentsExcludingStudentLoanAndIra (Schedule
+        1 lines 11-19a, 23, 25 — every adjustment EXCEPT the IRA deduction and the student loan
+        interest deduction). W3 line 3 then subtracts Schedule 1 line 20, so lines 1 and 3 TOGETHER
+        are exactly /socialSecurityBenefitsWkshtLine3 minus
+        taxCalculations:/adjustmentsToIncomeExcludingStudentLoanInterest, which is a shipping fact
+        defined as /adjustmentsExcludingStudentLoanAndIra plus both filers'
+        /primaryFilerTraditionalIraDeduction and /secondaryFilerTraditionalIraDeduction. So this body
+        is /socialSecurityBenefitsWkshtLine7's with ONE substitution — the line-20-INCLUSIVE
+        adjustments subtotal in place of the IRA-free one plus the two /ssbwReconstructed* terms —
+        and that substitution is the entire content of Worksheet 3.
+
+        DO NOT WIRE LINE 1 TO THE WORKSHEET 1 MAGI. The vendored filled example shows 128,200 on this
+        line (https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 59), which is Worksheet 1 line 19 and
+        contradicts line 1's own printed definition; the correct figure for that example is 118,000,
+        and both roads reach the same 10,200 only because the 85%-of-benefits cap binds. See TRAP 3
+        in the banner comment above, and the divergence case
+        tests/nodes/ty2025/socialSecurity/appendix-b-w3-below-cap-divergence, where the cap does not
+        bind and the two roads give 3,000 and 7,445.
+
+        THE $0 FLOOR IS THE SHIPPING TWIN'S SHAPE, NOT A WORKSHEET 3 LINE. Worksheet 3 has no floor
+        at line 8; it reaches the same place at line 10 ("Subtract line 9 from line 8. If zero or
+        less, enter -0- on this line", https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 56). The GreaterOf
+        is kept here so the two ladders stay diffable against
+        /socialSecurityBenefitsWkshtLine7, which carries the same floor for the same reason.
+
+        CONSUMER: /appendixBWorksheet3Line10 and /appendixBWorksheet3Line17 below, and nothing else.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE by the floor. No Round at this node —
+        the shipping twin has none either, and the whole-dollar Round lives on
+        /taxableSocialSecurityBenefits.</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Multiply>
+                  <Dependency path="/socialSecurityBenefits" />
+                  <Dollar>0.50</Dollar>
+                </Multiply>
+                <Dependency path="/socialSecurityBenefitsWkshtLine3" />
+                <Dependency module="interest" path="/taxExemptInterest" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="taxCalculations" path="/adjustmentsToIncomeExcludingStudentLoanInterest" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/appendixBWorksheet3Line10">
+      <Name>Pub. 590-A Appendix B Worksheet 3 line 10 — provisional income over the base amount</Name>
+      <Description>"Subtract line 9 from line 8" (https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 56). The
+        mechanical mirror of /socialSecurityBenefitsWkshtLine9 with Worksheet 3's provisional income
+        substituted for the ordinary worksheet's. The line's own "If zero or less, enter -0-" is NOT
+        applied here but one level up, in /appendixBWorksheet3Line17's second Case, which returns $0
+        whenever provisional income is below the base amount — exactly how
+        /socialSecurityBenefitsWkshtLine16 handles the same early return for the ordinary
+        ladder.
+
+        THE BASE AMOUNT IS REUSED, NOT RE-MINTED. /socialSecurityBenefitsWkshtLine8 is a pure
+        filing-status Switch ($32,000 joint / $25,000 otherwise, IRC 86(c)(1)) with no
+        provisional-income input, so Worksheet 3 line 9 IS that fact.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/appendixBWorksheet3ProvisionalIncome" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/appendixBWorksheet3Line12">
+      <Name>Pub. 590-A Appendix B Worksheet 3 line 12 — the 85%-rate excess</Name>
+      <Description>"Subtract line 11 from line 10. If zero or less, enter -0-"
+        (https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 56). The mechanical mirror of
+        /socialSecurityBenefitsWkshtLine11. Line 11, the adjusted-base excess ($12,000 joint / $9,000
+        otherwise), is the shipping /socialSecurityBenefitsWkshtLine10 — another pure filing-status
+        Switch, reused rather than re-minted. Those two figures are the DIFFERENCE between IRC
+        86(c)(1)'s base amount and 86(c)(2)'s adjusted base amount ($44,000 - $32,000 and $34,000 -
+        $25,000).</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/appendixBWorksheet3Line10" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/socialSecurityBenefitsWkshtLine10" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/appendixBWorksheet3Line17">
+      <Name>Pub. 590-A Appendix B Worksheet 3 line 17 — the section 86 combine, before the 85% cap</Name>
+      <Description>Worksheet 3 lines 11 through 17 ("Add lines 15 and 16",
+        https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 56), the mechanical mirror of
+        /socialSecurityBenefitsWkshtLine16 with Worksheet 3's provisional income substituted. Case by
+        case, and deliberately the same three Cases in the same order as the shipping twin:
+
+        CASE 1 — THE FILING-STATUS BOX C COLLAPSE. Worksheet 3's box C is "Married filing separately
+        and lived with your spouse at any time during the year" (lines 3588-3589); it sets line 9 and
+        line 11 to $0, which collapses the whole ladder to 0.85 x line 8. The shipping twin encodes
+        exactly that as its first Case, keyed on filingStatus:/isFilingStatusMFS AND NOT
+        filers:/livedApartAllYear, and this mirrors it rather than inventing a new one. Pinned by the
+        boundary pair tests/nodes/ty2025/socialSecurity/appendix-b-mfs-lived-with-box-c-collapse and
+        ...appendix-b-mfs-lived-apart-ordinary-ladder.
+
+        CASE 2 — the line-11 early return, "If line 10 is zero, stop here. None of your social
+        security benefits are taxable" (lines 3613-3614), expressed as the shipping twin expresses
+        it: provisional income below the base amount gives $0. This is the arm that can only be
+        reached by SUBTRACTING the deduction, and it is where the correction is largest — for example, where Worksheet 1's
+        provisional income is 33,000 (above the $32,000 base, so it taxes 500 of the benefits) and
+        Worksheet 3's is 25,000 (below it, so NONE of the benefits are taxable).
+
+        CASE 3 — the ordinary combine: line 16 (0.85 x line 12) plus line 15 (the smaller of line 5,
+        one-half of gross benefits, and line 14, one-half of line 13, where line 13 is the smaller of
+        line 10 and line 11).
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE, unrounded — the whole-dollar Round
+        sits on /taxableSocialSecurityBenefits, matching where it sits for the ordinary
+        ladder.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                <Not>
+                  <Dependency module="filers" path="/livedApartAllYear" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/appendixBWorksheet3ProvisionalIncome" />
+                <Dollar>0.85</Dollar>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/appendixBWorksheet3ProvisionalIncome" />
+                </Left>
+                <Right>
+                  <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Add>
+                <Multiply>
+                  <Dependency path="/appendixBWorksheet3Line12" />
+                  <Dollar>0.85</Dollar>
+                </Multiply>
+                <LesserOf>
+                  <Multiply>
+                    <Dependency path="/socialSecurityBenefits" />
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                  <Multiply>
+                    <LesserOf>
+                      <Dependency path="/appendixBWorksheet3Line10" />
+                      <Dependency path="/socialSecurityBenefitsWkshtLine10" />
+                    </LesserOf>
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                </LesserOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/appendixBWorksheet3TaxableBenefits">
+      <Name>Pub. 590-A Appendix B Worksheet 3 line 19 — taxable social security benefits for an Appendix B filer</Name>
+      <Description>"Taxable social security benefits. Enter the smaller of line 17 or line 18"
+        (https://www.irs.gov/pub/irs-pdf/p590a.pdf, page 56), where line 18 is "Multiply line 4 by 0.85" —
+        the IRC 86(a)(2)(B) cap at 85% of gross benefits that both worksheets end on.
+
+        DIRECTION, AND IT IS THE WHOLE POINT OF THE CHAIN. Worksheet 3's provisional income subtracts
+        the Schedule 1 line 20 deduction and Worksheet 1's does not, and every later line of the
+        ladder is monotone in it, so this fact is NEVER greater than
+        /plainSsbwTaxableSocialSecurityBenefits. Reporting Worksheet 1's answer on line 6b would
+        OVER-state line 6b, AGI and tax for the Appendix B population, taxpayer-UNFAVOURABLE.
+
+        CONSUMER: /taxableSocialSecurityBenefits above, on the Appendix B arm, and nothing else.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE, unrounded here — the whole-dollar
+        Round sits on the terminal consumer, matching where it sits for the ordinary
+        ladder.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/appendixBWorksheet3Line17" />
+          <Multiply>
+            <Dependency path="/socialSecurityBenefits" />
+            <Dollar>0.85</Dollar>
+          </Multiply>
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine7">
+      <Name>Social Security Benefits Worksheet Line 7</Name>
+      <Description>Used for calculating taxable social security benefits. We use the SSBW from instructions for 1040.
+        There is a similar worksheet in Pub 915 where the line numbers are different and will confuse you. If no
+        benefits are taxable, this will return a 0, which will flow through to line 9, then line 16, and then onto 1040
+        line 6b.</Description>
+
+
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Multiply>
+                  <Dependency path="/socialSecurityBenefits" />
+                  <Dollar>0.50</Dollar>
+                </Multiply>
+                <Dependency path="/socialSecurityBenefitsWkshtLine3" />
+                <Dependency module="interest" path="/taxExemptInterest" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Add>
+                <Dependency module="taxCalculations" path="/adjustmentsExcludingStudentLoanAndIra" />
+                <Dependency module="iraDeduction" path="/ssbwReconstructedPrimaryIraDeduction" />
+                <Dependency module="iraDeduction" path="/ssbwReconstructedSecondaryIraDeduction" />
+                <Dependency module="iraDeduction" path="/ssbwReconstructedPrimarySection219f6DeductionTaken" />
+                <Dependency module="iraDeduction" path="/ssbwReconstructedSecondarySection219f6DeductionTaken" />
+              </Add>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine3">
+      <Description>Line 3 of the Social Security Benefits Worksheet found in the 1040 instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency module="income" path="/employerIncomeSubtotalDisregardingSection137" />
+          <Dependency module="form8839" path="/adoptionLine23TotalEmployerBenefits" />
+          <Dependency module="interest" path="/interestIncomeBeforeForm8815Exclusion" />
+          <Dependency module="income" path="/ordinaryDividends" />
+          <Dependency module="income" path="/taxableIraDistributions" />
+          <Dependency module="income" path="/taxablePensionsAndAnnuities" />
+          <Dependency module="income" path="/capitalGainsOrLosses" />
+          <Dependency module="income" path="/otherIncome" />
+          <Dependency module="scheduleC" path="/scheduleCNetProfitSubjectToUsTax" />
+          <Dependency module="scheduleC" path="/communityPropertyScheduleCAllocationAdjustmentUnrounded" />
+          <Dependency module="scheduleE" path="/scheduleETotalIncome" />
+          <Dependency module="alimony" path="/taxableAlimonyReceived" />
+          <Dependency module="form4797" path="/form4797OrdinaryIncome" />
+          <Dependency module="scheduleF" path="/scheduleFNetProfitOrLoss" />
+          <Dependency module="ctcOdc" path="/puertoRicoIncomeExclusion933" />
+          <Dependency module="ctcOdc" path="/sched8812Line2bForm2555Exclusions" />
+          <Dependency module="ctcOdc" path="/possessionIncomeExclusion931" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine16">
+      <Name>Social Security Benefits Worksheet Line 16</Name>
+      <Description>Per filing status ceilings on when social security benefits will start being taxed. We use the SSBW
+        from instructions for 1040. There is a similar worksheet in Pub 915 where the line numbers are different and
+        will confuse you.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                <Not>
+                  <Dependency module="filers" path="/livedApartAllYear" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/socialSecurityBenefitsWkshtLine7" />
+                <Dollar>0.85</Dollar>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/socialSecurityBenefitsWkshtLine7" />
+                </Left>
+                <Right>
+                  <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Add>
+                <Multiply>
+                  <Dependency path="/socialSecurityBenefitsWkshtLine11" />
+                  <Dollar>0.85</Dollar>
+                </Multiply>
+                <LesserOf>
+                  <Multiply>
+                    <Dependency path="/socialSecurityBenefits" />
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                  <Multiply>
+                    <LesserOf>
+                      <Dependency path="/socialSecurityBenefitsWkshtLine9" />
+                      <Dependency path="/socialSecurityBenefitsWkshtLine10" />
+                    </LesserOf>
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                </LesserOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine8">
+      <Name>Social Security Benefits Worksheet Line 8</Name>
+      <Description>Per filing status ceilings on when social security benefits will start being taxed. We use the SSBW
+        from instructions for 1040. There is a similar worksheet in Pub 915 where the line numbers are different and
+        will confuse you.
+
+        Values specified in §86(c)(1).</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>32000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>25000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine9">
+      <Name>Social Security Benefits Worksheet Line 9</Name>
+      <Description>Per filing status ceilings on when social security benefits will start being taxed. We use the SSBW
+        from instructions for 1040. There is a similar worksheet in Pub 915 where the line numbers are different and
+        will confuse you.</Description>
+
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/socialSecurityBenefitsWkshtLine7" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine10">
+      <Name>Social Security Benefits Worksheet Line 10</Name>
+      <Description>Social Security Benefits Worksheet Line 10
+
+        Values are equal to the difference between the base amount
+        specified in §86(c)(1) and the adjusted base amount specified in §86(c)(2).</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>12000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>9000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityBenefitsWkshtLine11">
+      <Name>Social Security Benefits Worksheet Line 11</Name>
+      <Description>Social Security Benefits Worksheet Line 11. We use the SSBW from instructions for 1040. There is a
+        similar worksheet in Pub 915 where the line numbers are different and will confuse you.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/socialSecurityBenefitsWkshtLine9" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/socialSecurityBenefitsWkshtLine10" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/nonTaxableSocialSecurityBenefits">
+      <Description>The total nontaxable social security benefits, used for Schedule R line 13a. This fact reads
+        the IRC 86(e) lump-sum election WRAPPER (/taxableSocialSecurityBenefits), so an election moves
+        Schedule R line 13a too, per IRC 86(f)(1) applying 22(c)(3)(A) to the elected figure the same as
+        the regular one. Floored at $0: IRC 22(c)(3)(A)'s reduction is "an amount equal to the sum of the
+        amounts received" (usc26-22:65), which cannot be negative, so a repayment return whose gross
+        benefits are a net loss (the -3000..0 band /socialSecurityBenefitsAreLossUpto3k allows) cannot
+        drive this fact, and the elderlyAndDisabled Schedule R line 13c total it feeds, below zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/socialSecurityBenefits" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/taxableSocialSecurityBenefits" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSum">
+      <Name>Form 1040 line 6c — the IRC 86(e) lump-sum election is MADE on this return</Name>
+      <Description>WHAT IT MEANS. The box 6c checkbox: the filer asked for the section 86(e) election
+        (/socialSecurityLumpSumElectionRequested), gave a complete earlier-year intake
+        (/socialSecurityLumpSumEarlierYearsAnswered), and the method actually produces a smaller
+        line 6b (/socialSecurityLumpSumElectionLowersTaxableBenefits). All three conditions live in
+        that last fact, so this one is its alias; it is kept as a separate path because the PDF
+        driver already maps this path to checkbox c1_41 on Form 1040 page 1, and because
+        "the election is made" is the name Form 1040 uses while "line 21 is smaller" is the name
+        Pub. 915 uses.
+
+        WHY IT IS NOT A BARE WRITABLE. The filer's own answer is
+        /writableSocialSecurityLumpSumElection. Box 6c is not that answer: Worksheet 4 tells the
+        filer to check 6c only on the "Yes" arm of "Is line 21 above smaller than Worksheet 1,
+        line 19?", so a return that asks for the election and finds it does not help must NOT print
+        the box. Printing it would claim a method the return did not use.
+
+        VALUES THAT MOVE: none, anywhere in the committed corpus. This fact is False on every return
+        that does not answer the new writable TRUE, and that writable did not exist before this
+        commit.</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Derived>
+        <Dependency path="/socialSecurityLumpSumElectionLowersTaxableBenefits" />
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableSocialSecurityLumpSumElection">
+      <Name>The filer elects the IRC 86(e) lump-sum election method (writable)</Name>
+      <Description>The filer's own answer to Form 1040 line 6c: does this return
+        elect to figure the taxable part of a lump-sum payment of benefits attributable to earlier
+        years under the section 86(e) method? IRC 86(e)(1)(B) makes the election an act of the
+        taxpayer, so this is an intake and not a derivation, and Pub. 915 makes it effectively
+        irrevocable ("you can revoke your election only with the consent of the IRS") — which is why
+        nothing in this dictionary elects on the filer's behalf. Answering TRUE opens the earlier-year
+        intake /socialSecurityLumpSumEarlierYears; it does NOT by itself check box 6c, because the
+        election is only available when it lowers the answer (Worksheet 4's own footer).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears">
+      <Name>Earlier years a 2025 lump-sum benefit payment is attributable to (one row per year)</Name>
+      <Description>One item per earlier taxable year for which this year's box 3
+        lump-sum payment carries benefits — "Complete a separate Worksheet 2 or Worksheet 3 for each
+        earlier year for which you received a lump-sum payment in 2025." The collection carries the
+        prior-year figures Worksheet 2 (a year after 1993) or Worksheet 3 (1993 or earlier) needs;
+        each is SELF-REPORTED because it is a cross-year boundary this dictionary does not hold,
+        the same posture saversCredits:/saversCreditSelfReportedTestingPeriodAmounts and
+        /writableSocialSecurityRepaymentIncludedInEarlierYearIncome already take. This collection
+        is absent on a return that has never requested the election, and every fact that reads it is
+        gated on /socialSecurityLumpSumElectionRequested first so that an absent root is never
+        reached.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYear">
+      <Name>Pub. 915 Worksheet 2 and 3, "Enter earlier year" — the year this row refigures</Name>
+      <Description>The earlier taxable year the lump-sum portion in this row is
+        attributable to. "The form will also show the year (or years) the payment is for." MIN 1984,
+        because "That part of any lump-sum payment for years before 1984 isn't taxed and won't be
+        shown on the form" — a pre-1984 portion has no refigure to do and is not part of box 3 in the
+        first place. MAX 2024, because a year that is not EARLIER than the filing year is not a prior
+        taxable year under 86(e)(1)(A). The year selects the worksheet: 1994 and later is Worksheet 2,
+        1993 and earlier is Worksheet 3.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1984</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>2024</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearLumpSumPortion">
+      <Name>The part of THIS year's lump-sum payment attributable to this earlier year</Name>
+      <Description>The portion of the 2025 lump-sum payment (inside box 3 of Form
+        SSA-1099 or RRB-1099) that is for this row's earlier year. It is the quantity IRC 86(e)(1)(A)
+        names, and it is used TWICE and in OPPOSITE directions: it is ADDED to that year's own
+        benefits on Worksheet 2/3 line 1, and it is SUBTRACTED from this year's box 5 total on
+        Worksheet 4 line 1. Self-reported: box 5 is one net figure and no box on either form splits
+        it by year.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearBenefitsReceived">
+      <Name>Pub. 915 Worksheet 2 and 3 line 1, first term — box 5 for the EARLIER year</Name>
+      <Description>"The total amount from box 5 of ALL your Forms SSA-1099 and
+        RRB-1099 for the earlier year" — the benefits the filer actually received IN that year, before
+        the lump sum paid later is added back. Zero is the ordinary answer for the population this
+        election exists for: the filer was denied benefits in the earlier year, appealed and won, so
+        the earlier year's own box 5 was nothing (the Pub. 915 example does exactly this).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearAdjustedGrossIncome">
+      <Name>Pub. 915 Worksheet 2 and 3 line 3 — the earlier year's adjusted gross income</Name>
+      <Description>"Enter your adjusted gross income for the earlier year." This is
+        the AGI as that year's return reported it, INCLUDING whatever taxable benefits that year
+        reported — which is precisely why line 7 subtracts those benefits back out on line 8, so the
+        refigure starts from a base with no benefits in it. Not floored at zero: an earlier year's
+        AGI can be negative.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearExclusions">
+      <Name>Pub. 915 Worksheet 2 and 3 line 4 — the earlier year's exclusions and adjustments add-back</Name>
+      <Description>"The total of any exclusions/adjustments you claimed in the
+        earlier year" — Worksheet 2's list is adoption benefits (Form 8839), qualified U.S. savings
+        bond interest (Form 8815), student loan interest, tuition and fees, domestic production
+        activities, foreign earned income or housing (Form 2555), and American Samoa (Form 4563) or
+        Puerto Rico income. Worksheet 3's list is the same minus adoption, student loan, tuition and
+        domestic production, none of which existed for a pre-1994 year; the difference costs nothing
+        here because the filer reports one total either way and a year that had no such item reports
+        $0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearTaxExemptInterest">
+      <Name>Pub. 915 Worksheet 2 and 3 line 5 — the earlier year's tax-exempt interest</Name>
+      <Description>"Enter any tax-exempt interest received in the earlier year." The
+        section 86(b)(2)(B) add-back, measured at the earlier year exactly as this year's ordinary
+        worksheet measures it at interest:/taxExemptInterest.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearTaxableBenefitsReported">
+      <Name>Pub. 915 Worksheet 2 line 7 and 20 (Worksheet 3 line 7 and 13) — benefits already taxed for that year</Name>
+      <Description>"Enter your taxable benefits for the earlier year that you
+        previously reported." Worksheet 2 line 7 and Worksheet 3 line 7: it strips the previously
+        taxed benefits out of the earlier year's AGI so the refigure starts benefit-free. It is also
+        line 20 (Worksheet 3 line 13) when the filer gives no refigured figure for the year
+        (../earlierYearWksht2Line20).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearTaxableBenefitsAsRefigured">
+      <Name>Pub. 915 Worksheet 2 line 20 (Worksheet 3 line 13): the earlier year's taxable benefits as refigured for a previous lump-sum payment (writable)</Name>
+      <Description>Question, on this earlier year's row after the taxable benefits previously reported: "Did you already refigure this year's taxable benefits because of an earlier lump-sum payment for the same year? If so, enter the refigured taxable benefits." Help: "Worksheet 2, line 20, asks for your taxable benefits for the earlier year (or as refigured due to a previous lump-sum payment for the year). If you elected the lump-sum method on an earlier return for a payment that belonged to this same year, enter the refigured taxable benefits from that election's worksheet (its line 19, or line 12 on Worksheet 3). Otherwise leave this blank." Optional: most filers never had an earlier lump-sum payment for the year and leave it blank; unanswered, line 20 is the figure previously reported (../writableEarlierYearTaxableBenefitsReported). It is not part of the row's required answers (../earlierYearIntakeAnswered). Validation: Dollar, minimum $0. Feeds ../earlierYearWksht2Line20 only.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWksht2Line20">
+      <Name>Pub. 915 Worksheet 2 line 20 (Worksheet 3 line 13): the earlier year's taxable benefits, or as refigured for a previous lump-sum payment</Name>
+      <Description>The taxable benefits for the earlier year that the refigured amount is measured against: the refigured figure the filer gives for a previous lump-sum payment for the same year (../writableEarlierYearTaxableBenefitsAsRefigured) when answered, and otherwise the taxable benefits previously reported (../writableEarlierYearTaxableBenefitsReported). Not below $0. Read by ../earlierYearAdditionalTaxableBenefits (line 21, Worksheet 3 line 14).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableEarlierYearTaxableBenefitsAsRefigured" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableEarlierYearTaxableBenefitsAsRefigured" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableEarlierYearTaxableBenefitsReported" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearFiledJointly">
+      <Name>The earlier year's return was a joint return</Name>
+      <Description>Whether the filer filed a JOINT return for this row's earlier
+        year. It selects that year's section 86(c) base amount and adjusted base amount on Worksheet 2
+        lines 9 and 11 (and Worksheet 3 line 9). The earlier year's filing status is asked separately
+        from this year's because they need not be the same — the whole point of the refigure is that
+        it is done "using that year's income" and that year's law.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/writableEarlierYearMfsLivedWithSpouse">
+      <Name>The earlier year was married filing separately AND living with the spouse at some time</Name>
+      <Description>Whether, for this row's earlier year, the filer was married
+        filing separately and lived with the spouse at any time during that year — the section
+        86(c)(1)(C) zero-base-amount case. On Worksheet 2 it does not merely zero the base: it SKIPS
+        lines 9 through 16 entirely and sends line 8 straight to 85%, which is a different ladder, not
+        a different constant. On Worksheet 3 it is genuinely a zero base amount ("-0- if married
+        filing separately for the earlier year and you lived with your spouse at any time during the
+        earlier year"). Both readings are implemented below, each on its own worksheet's arm.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearIntakeAnswered">
+      <Name>Every figure Pub. 915 Worksheet 2 or 3 needs for this earlier year has been answered</Name>
+      <Description>The "source answered" predicate for one earlier-year row — every
+        one of the nine intake facts on the item is complete. It is NOT an IsComplete on a
+        complete-safe fact: each conjunct names a raw Writable. A row that is only partly answered
+        contributes $0 to Worksheet 4 line 20 and, through
+        /socialSecurityLumpSumEarlierYearsAnswered, keeps the election from being made at all — the
+        data-completeness residue for this chain. It is FLAGGED rather than silently half-computed:
+        /socialSecurityLumpSumIntakeIncomplete carries the residue, and that fact's own Description
+        notes its BlockSubmissionOnTrue tag.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../writableEarlierYear" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearLumpSumPortion" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearBenefitsReceived" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearAdjustedGrossIncome" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearExclusions" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearTaxExemptInterest" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearTaxableBenefitsReported" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearFiledJointly" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEarlierYearMfsLivedWithSpouse" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearLumpSumPortion">
+      <Name>This earlier year's lump-sum portion, complete-safe</Name>
+      <Description>/writableEarlierYearLumpSumPortion when the row is fully
+        answered, $0 otherwise, so that the Worksheet 4 line 1 subtraction is complete on every
+        return that reaches it. A half-answered row subtracts nothing from this year's benefits,
+        which is the taxpayer-adverse direction and therefore the safe one.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../earlierYearIntakeAnswered" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableEarlierYearLumpSumPortion" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWkshtLine1">
+      <Name>Pub. 915 Worksheet 2 line 1 (= Worksheet 3 line 1) — the earlier year's benefits INCLUDING the lump sum</Name>
+      <Description>"Enter the total amount from box 5 of ALL your Forms SSA-1099 and
+        RRB-1099 for the earlier year, plus the lump-sum payment for the earlier year received after
+        that year." The two worksheets print the identical line, so one fact serves both. $0 on an
+        unanswered row.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../earlierYearIntakeAnswered" />
+            </When>
+            <Then>
+              <Add>
+                <GreaterOf>
+                  <Dependency path="../writableEarlierYearBenefitsReceived" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <GreaterOf>
+                  <Dependency path="../writableEarlierYearLumpSumPortion" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWkshtLine8">
+      <Name>Pub. 915 Worksheet 2 line 8 (= Worksheet 3 line 8) — the earlier year's modified base, benefits stripped out</Name>
+      <Description>Lines 2 through 8 in one fact, because no line between them is
+        read anywhere else: line 2 is 50% of line 1, line 6 is "Add lines 2 through 5" (half the
+        benefits, plus the earlier year's AGI, plus its exclusions add-back, plus its tax-exempt
+        interest), and line 8 is line 6 minus line 7, the taxable benefits that year already reported.
+        Subtracting line 7 is what makes the base benefit-FREE, so that lines 9 onward can put the
+        whole refigured benefit back on top of it. NOT floored: the worksheet floors nothing here, and
+        a negative line 8 is handled by line 10's "Is the amount on line 8 more than the amount on
+        line 9? No." branch. $0 on an unanswered row.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../earlierYearIntakeAnswered" />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Add>
+                    <Multiply>
+                      <Dependency path="../earlierYearWkshtLine1" />
+                      <Dollar>0.50</Dollar>
+                    </Multiply>
+                    <Dependency path="../writableEarlierYearAdjustedGrossIncome" />
+                    <GreaterOf>
+                      <Dependency path="../writableEarlierYearExclusions" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                    <GreaterOf>
+                      <Dependency path="../writableEarlierYearTaxExemptInterest" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Add>
+                </Minuend>
+                <Subtrahends>
+                  <GreaterOf>
+                    <Dependency path="../writableEarlierYearTaxableBenefitsReported" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWkshtLine9">
+      <Name>Pub. 915 Worksheet 2 line 9 and Worksheet 3 line 9 — the earlier year's IRC 86(c)(1) base amount</Name>
+      <Description>$32,000 if the earlier year's return was joint, $25,000
+        otherwise — the same statutory figures this year's /socialSecurityBenefitsWkshtLine8 carries,
+        because IRC 86(c)(1) is a fixed dollar amount with NO inflation adjustment and the worksheets
+        print it as a constant for every year after 1983. The married-filing-separately-living-together
+        case resolves $0 here, which is Worksheet 3 line 9's own instruction; on the WORKSHEET 2 arm
+        that $0 is never consumed, because /earlierYearWksht2Line17 takes the skip-to-85% branch
+        before it ever reads this fact.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../writableEarlierYearMfsLivedWithSpouse" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="../writableEarlierYearFiledJointly" />
+            </When>
+            <Then>
+              <Dollar>32000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>25000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWkshtLine10">
+      <Name>Pub. 915 Worksheet 2 line 10 (= Worksheet 3 line 10) — the earlier year's excess over the base amount</Name>
+      <Description>"Is the amount on line 8 more than the amount on line 9? Yes.
+        Subtract line 9 from line 8." The "No" branch sends the worksheet straight to a $0 result, and
+        this fact expresses that as a floor at zero rather than a jump, because every consumer of line
+        10 below (lines 12, 13 on Worksheet 2, line 11 on Worksheet 3) yields $0 from a $0 line 10 —
+        so the two spellings agree everywhere and the floor keeps the chain arithmetic rather than
+        control flow.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../earlierYearWkshtLine8" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../earlierYearWkshtLine9" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWksht2Line11">
+      <Name>Pub. 915 Worksheet 2 line 11 — the earlier year's 50%-bracket width (adjusted base amount less base amount)</Name>
+      <Description>$12,000 if the earlier year's return was joint, $9,000 otherwise
+        — the gap between the IRC 86(c)(2) adjusted base amount ($44,000 / $34,000) and the 86(c)(1)
+        base amount ($32,000 / $25,000), and identical to this year's
+        /socialSecurityBenefitsWkshtLine10 for the same reason: neither figure is indexed. Worksheet 3
+        has no counterpart, because the 85% tier did not exist before 1994.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../writableEarlierYearFiledJointly" />
+            </When>
+            <Then>
+              <Dollar>12000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>9000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearWksht2Line17">
+      <Name>Pub. 915 Worksheet 2 line 17 — the earlier year's 50%/85% ladder before the 85%-of-benefits cap</Name>
+      <Description>Lines 12 through 17 in one fact, with the SAME three-case shape
+        this module's /socialSecurityBenefitsWkshtLine16 already uses for the current year, because
+        Worksheet 2 is the current-year ladder run on the earlier year's figures:
+        (1) married filing separately and living with the spouse — skip lines 9 through 16 and take
+        85% of line 8 straight to line 17;
+        (2) line 8 below the base amount — nothing is taxable, line 17 is $0 (line 10's "No" branch,
+        spelled as a case here for diffability against the printed worksheet; the arithmetic below
+        would produce $0 anyway from a $0 line 10);
+        (3) otherwise the ladder: 85% of line 12 (the excess over the adjusted base amount) plus the
+        smaller of line 2 (half the benefits) and line 14 (half of line 13, which is the part of the
+        excess that falls inside the 50% bracket).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../writableEarlierYearMfsLivedWithSpouse" />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../earlierYearWkshtLine8" />
+                <Dollar>0.85</Dollar>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="../earlierYearWkshtLine8" />
+                </Left>
+                <Right>
+                  <Dependency path="../earlierYearWkshtLine9" />
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Add>
+                <Multiply>
+                  <GreaterOf>
+                    <Dollar>0</Dollar>
+                    <Subtract>
+                      <Minuend>
+                        <Dependency path="../earlierYearWkshtLine10" />
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="../earlierYearWksht2Line11" />
+                      </Subtrahends>
+                    </Subtract>
+                  </GreaterOf>
+                  <Dollar>0.85</Dollar>
+                </Multiply>
+                <LesserOf>
+                  <Multiply>
+                    <Dependency path="../earlierYearWkshtLine1" />
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                  <Multiply>
+                    <LesserOf>
+                      <Dependency path="../earlierYearWkshtLine10" />
+                      <Dependency path="../earlierYearWksht2Line11" />
+                    </LesserOf>
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                </LesserOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearRefiguredTaxableBenefits">
+      <Name>Pub. 915 Worksheet 2 line 19 / Worksheet 3 line 12 — "Refigured taxable benefits" for this earlier year</Name>
+      <Description>The earlier year's taxable benefits, recomputed at that year's
+        law with the lump sum included. Which worksheet applies is the row's own year: 1994 and later
+        takes Worksheet 2 line 19, "the smaller of line 17 or line 18", where line 18 is the 85%
+        statutory ceiling of IRC 86(a)(2)(B); 1993 and earlier takes Worksheet 3 line 12, "the smaller
+        of line 2 or line 11" — a single 50% tier with no 85% ceiling at all, which is section 86 as
+        it stood before the 1993 amendment. Zero-or-less line 1 short-circuits to $0 on both arms,
+        which is each worksheet's own line 1 Note. A row whose year is unanswered falls to the
+        Worksheet 2 arm, and it contributes nothing regardless because
+        /earlierYearAdditionalTaxableBenefits gates on the row being fully answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../earlierYearWkshtLine1" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../writableEarlierYear" />
+                </Left>
+                <Right>
+                  <Int>1993</Int>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <LesserOf>
+                <Multiply>
+                  <Dependency path="../earlierYearWkshtLine1" />
+                  <Dollar>0.50</Dollar>
+                </Multiply>
+                <Multiply>
+                  <Dependency path="../earlierYearWkshtLine10" />
+                  <Dollar>0.50</Dollar>
+                </Multiply>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="../earlierYearWksht2Line17" />
+                <Multiply>
+                  <Dependency path="../earlierYearWkshtLine1" />
+                  <Dollar>0.85</Dollar>
+                </Multiply>
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYears/*/earlierYearAdditionalTaxableBenefits">
+      <Name>Pub. 915 Worksheet 2 line 21 / Worksheet 3 line 14 — "Additional taxable benefits" from this earlier year</Name>
+      <Description>"Subtract line 20 from line 19" (Worksheet 3: "Subtract line 13
+        from line 12") — the refigured taxable benefits for the earlier year, less that year's taxable
+        benefits as reported or as refigured for a previous lump-sum payment (../earlierYearWksht2Line20). This is the per-year term the election adds to this year's income, and it is
+        the term Worksheet 4 line 20 totals.
+
+        FLOORED AT ZERO, which the printed line does not say and the statute does: IRC 86(e)(1) caps
+        the inclusion at "the sum of the INCREASES in gross income under this chapter for prior
+        taxable years", so a year that would produce a decrease contributes nothing rather than
+        subtracting from another year's increase. Without the floor a mis-entered earlier year could
+        pull this year's taxable benefits DOWN, which is the one direction this whole chain must never
+        move in.
+
+        $0 on a row that is not fully answered — the data-completeness residue. The residue is not
+        silent: /socialSecurityLumpSumIntakeIncomplete flags a return that elects and then leaves a
+        row half-filled, and such a return does not make the election at all — it stays on the regular
+        method. That flag is the carrier for the BlockSubmissionOnTrue; see its own
+        Description.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../earlierYearIntakeAnswered" />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="../earlierYearRefiguredTaxableBenefits" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="../earlierYearWksht2Line20" />
+                  </Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/socialSecurityLumpSumElectionRequested">
+      <Name>The filer answered Form 1040 line 6c "yes" — the election is requested</Name>
+      <Description>The election writable, answered and true. This is the ONLY gate in
+        the chain that touches no collection, and every other fact that reads
+        /socialSecurityLumpSumEarlierYears is guarded by it, so the new collection is never resolved
+        on a return that did not ask for the election. Requested is not the same as MADE: the election
+        is made only when it also lowers the answer (/socialSecurityLumpSum).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableSocialSecurityLumpSumElection" />
+          </IsComplete>
+          <Dependency path="/writableSocialSecurityLumpSumElection" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumEarlierYearsAnswered">
+      <Name>The election was requested and every earlier-year row is fully answered</Name>
+      <Description>True when the filer asked for the election, gave at least one
+        earlier year, and answered every figure on every row. The Count/CollectionSize spelling is the
+        module's own ("every item satisfies X" is not what All means — All is an AND over sibling
+        nodes; the collection quantifier is a Count, as
+        /primaryFilerHasIncompleteSocialSecurityReports already spells it). The scalar guard is the
+        FIRST case so that a return with no election never reaches the collection at all.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/socialSecurityLumpSumElectionRequested" />
+              </Not>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/socialSecurityLumpSumEarlierYears" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <All>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="/socialSecurityLumpSumEarlierYears" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+                <Not>
+                  <GreaterThan>
+                    <Left>
+                      <Count>
+                        <Not>
+                          <Dependency path="/socialSecurityLumpSumEarlierYears/*/earlierYearIntakeAnswered" />
+                        </Not>
+                      </Count>
+                    </Left>
+                    <Right>
+                      <Int>0</Int>
+                    </Right>
+                  </GreaterThan>
+                </Not>
+              </All>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumIntakeIncomplete">
+      <Name>The lump-sum election was requested but its earlier-year intake is not finished</Name>
+      <Description>THE DATA-COMPLETENESS RESIDUE OF THIS BUILD, and the only new
+        refusal it adds. A filer who checks "yes" to the section 86(e) question and then leaves the
+        earlier-year rows empty or half-filled cannot have the election computed, and silently taxing the whole lump sum under 86(a) without telling the filer the
+        election exists is exactly what the contract calls taxpayer-adverse. So the return is
+        refused rather than quietly falling back.
+
+        THIS REFUSAL CANNOT FIRE ON A RETURN THAT HAS NEVER ANSWERED THE ELECTION QUESTION: it conjoins
+        /socialSecurityLumpSumElectionRequested, which requires
+        /writableSocialSecurityLumpSumElection to be answered TRUE.
+        The unanswered case is not a refusal — a filer who never met the question is not in
+        error.
+
+        THE BlockSubmissionOnTrue TAG IS REGISTERED (sidecar row, flow membership, correct-refusal
+        verdict, trigger disposition). THE FLAG IS ALSO NOT INERT as a
+        flag: it is what /socialSecurityLumpSumEarlierYearsAnswered negates, so a half-answered
+        intake already fails to make the election - the return stays on the regular method rather
+        than being computed under a method it has not evidenced.</Description>
+      <BlockSubmissionOnTrue />
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/socialSecurityLumpSumElectionRequested" />
+          <Not>
+            <Dependency path="/socialSecurityLumpSumEarlierYearsAnswered" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/lumpSumElectionWksht4Line1">
+      <Name>Pub. 915 Worksheet 4 line 1 — this year's box 5 total MINUS the prior-year lump-sum portions</Name>
+      <Description>"Enter the total amount from box 5 of ALL your Forms SSA-1099 and
+        RRB-1099 for 2025, minus the lump-sum payment for years before 2025." /socialSecurityBenefits
+        is that box 5 total; the subtrahend is the sum of every row's
+        /earlierYearLumpSumPortion. This single substitution is the WHOLE of Worksheet 4: lines 3, 4,
+        5, 7, 9 and 11 are copied from Worksheet 1 unchanged, so every difference between the two
+        ladders flows from this one line. $0 subtracted when no election is requested, which makes
+        this fact equal to /socialSecurityBenefits on every unelected return.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/socialSecurityLumpSumElectionRequested" />
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/socialSecurityBenefits" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/socialSecurityBenefits" />
+                </Minuend>
+                <Subtrahends>
+                  <Round>
+                    <CollectionSum>
+                      <Dependency path="/socialSecurityLumpSumEarlierYears/*/earlierYearLumpSumPortion" />
+                    </CollectionSum>
+                  </Round>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lumpSumElectionWksht4Line8">
+      <Name>Pub. 915 Worksheet 4 line 8 — this year's provisional income with the prior-year lump sums removed</Name>
+      <Description>The exact mirror of /socialSecurityBenefitsWkshtLine7 (which is
+        Pub. 915 Worksheet 1 line 8 under the Form 1040 instructions' line numbering), with ONE
+        substitution: the 50%-of-benefits term uses /lumpSumElectionWksht4Line1 in place of
+        /socialSecurityBenefits. Worksheet 4 lines 3, 4, 5 and 7 say "Enter the amount from
+        Worksheet 1", so the other three terms — /socialSecurityBenefitsWkshtLine3, this year's
+        tax-exempt interest, and the same adjustments subtrahend including the two reconstructed IRA
+        deductions — are READ FROM the shipping chain rather than restated, which is what keeps the
+        two ladders diffable. For the Pub. 590-A Appendix B population (iraDeduction:/appendixBSsIraWorksheetsApply)
+        the "Worksheet 1" these lines read is Appendix B Worksheet 3, so line 7's IRA deduction is the
+        Appendix B Worksheet 2 line 7 deduction as claimed on Schedule 1 line 20, taken through the
+        line-20-inclusive subtotal /appendixBWorksheet3ProvisionalIncome uses; the reconstructed
+        deductions are $0 on that branch. The deduction itself is not refigured under the election:
+        Appendix B Worksheet 1 line 2 enters all of box 5. The GreaterOf floor at $0 is Worksheet 1 line 8's "Is the amount on
+        line 7 less than the amount on line 6? No. None of your social security benefits are taxable"
+        branch, carried across exactly as the shipping fact carries it.</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Multiply>
+                  <Dependency path="/lumpSumElectionWksht4Line1" />
+                  <Dollar>0.50</Dollar>
+                </Multiply>
+                <Dependency path="/socialSecurityBenefitsWkshtLine3" />
+                <Dependency module="interest" path="/taxExemptInterest" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency module="iraDeduction" path="/appendixBSsIraWorksheetsApply" />
+                  </When>
+                  <Then>
+                    <Dependency module="taxCalculations" path="/adjustmentsToIncomeExcludingStudentLoanInterest" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Add>
+                      <Dependency module="taxCalculations" path="/adjustmentsExcludingStudentLoanAndIra" />
+                      <Dependency module="iraDeduction" path="/ssbwReconstructedPrimaryIraDeduction" />
+                      <Dependency module="iraDeduction" path="/ssbwReconstructedSecondaryIraDeduction" />
+                      <Dependency module="iraDeduction" path="/ssbwReconstructedPrimarySection219f6DeductionTaken" />
+                      <Dependency module="iraDeduction" path="/ssbwReconstructedSecondarySection219f6DeductionTaken" />
+                    </Add>
+                  </Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lumpSumElectionWksht4Line17">
+      <Name>Pub. 915 Worksheet 4 line 17 — the 50%/85% ladder on the reduced benefits</Name>
+      <Description>The exact mirror of /socialSecurityBenefitsWkshtLine16, three
+        cases and all, with /lumpSumElectionWksht4Line8 in place of /socialSecurityBenefitsWkshtLine7
+        and /lumpSumElectionWksht4Line1 in place of /socialSecurityBenefits. Lines 9 and 11 are
+        "Enter the amount from Worksheet 1", so the base amount and bracket width are the SHIPPING
+        /socialSecurityBenefitsWkshtLine8 and /socialSecurityBenefitsWkshtLine10 rather than new
+        constants — this year's filing status is this year's filing status on both worksheets. The
+        married-filing-separately-living-together case is line 9's own Note: skip lines 9 through 16
+        and take 85% of line 8.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                <Not>
+                  <Dependency module="filers" path="/livedApartAllYear" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/lumpSumElectionWksht4Line8" />
+                <Dollar>0.85</Dollar>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/lumpSumElectionWksht4Line8" />
+                </Left>
+                <Right>
+                  <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Add>
+                <Multiply>
+                  <GreaterOf>
+                    <Dollar>0</Dollar>
+                    <Subtract>
+                      <Minuend>
+                        <Subtract>
+                          <Minuend>
+                            <Dependency path="/lumpSumElectionWksht4Line8" />
+                          </Minuend>
+                          <Subtrahends>
+                            <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+                          </Subtrahends>
+                        </Subtract>
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="/socialSecurityBenefitsWkshtLine10" />
+                      </Subtrahends>
+                    </Subtract>
+                  </GreaterOf>
+                  <Dollar>0.85</Dollar>
+                </Multiply>
+                <LesserOf>
+                  <Multiply>
+                    <Dependency path="/lumpSumElectionWksht4Line1" />
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                  <Multiply>
+                    <LesserOf>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency path="/lumpSumElectionWksht4Line8" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/socialSecurityBenefitsWkshtLine8" />
+                        </Subtrahends>
+                      </Subtract>
+                      <Dependency path="/socialSecurityBenefitsWkshtLine10" />
+                    </LesserOf>
+                    <Dollar>0.50</Dollar>
+                  </Multiply>
+                </LesserOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lumpSumElectionWksht4Line19">
+      <Name>Pub. 915 Worksheet 4 line 19 — this year's taxable benefits with the prior-year lump sums removed</Name>
+      <Description>"Enter the smaller of line 17 or line 18", where line 18 is 85%
+        of line 1 — the IRC 86(a)(2)(B) ceiling, applied to the REDUCED benefits. The mirror of
+        /plainSsbwTaxableSocialSecurityBenefits, negative-benefits guard and Round included, so a
+        repayment return whose net box 5 is negative lands at $0 here exactly as it does on the
+        regular ladder. Worksheet 4's own line 1 Note says "zero or less"; the LessThan spelling
+        agrees with it because a line 1 of exactly zero makes the 85% ceiling zero and the LesserOf
+        returns zero anyway.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/lumpSumElectionWksht4Line1" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThan>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/lumpSumElectionWksht4Line17" />
+                  <Multiply>
+                    <Dependency path="/lumpSumElectionWksht4Line1" />
+                    <Dollar>0.85</Dollar>
+                  </Multiply>
+                </LesserOf>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lumpSumElectionWksht4Line20">
+      <Name>Pub. 915 Worksheet 4 line 20 — the total additional taxable benefits from all earlier years</Name>
+      <Description>"Enter the total of the amounts from Worksheet 2, line 21, and
+        Worksheet 3, line 14, for all earlier years for which the lump-sum payment was received." The
+        collection sum, guarded by the scalar election request so that the new collection is never
+        resolved on a return that did not ask for the election — an absent collection root is a
+        Placeholder on the JVM, and Switch evaluates only the Then of the first Case whose When is
+        true.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/socialSecurityLumpSumEarlierYearsAnswered" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/socialSecurityLumpSumEarlierYears/*/earlierYearAdditionalTaxableBenefits" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lumpSumElectionWksht4Line21">
+      <Name>Pub. 915 Worksheet 4 line 21 — taxable benefits under the lump-sum election method</Name>
+      <Description>"Taxable benefits under lump-sum election method. Add lines 19
+        and 20." The candidate Form 1040 line 6b for a return that makes the section 86(e) election:
+        this year's benefits taxed WITHOUT the prior-year lump sums, plus the increase each earlier
+        year would have suffered had the lump sum been paid on time. When no election is requested
+        line 20 is $0 and line 19 is the ordinary ladder, so this fact equals
+        /plainSsbwTaxableSocialSecurityBenefits — which is why it is safe for the wrapper to read it
+        unconditionally.</Description>
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/lumpSumElectionWksht4Line19" />
+            <Dependency path="/lumpSumElectionWksht4Line20" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityLumpSumElectionLowersTaxableBenefits">
+      <Name>Pub. 915 Worksheet 4 "Next" — is line 21 smaller than Worksheet 1, line 19?</Name>
+      <Description>The favourability test the worksheet itself makes the last step
+        of the method: "Is line 21 above smaller than Worksheet 1, line 19? No. Don't use this method
+        to figure your taxable benefits." STRICTLY smaller — a tie is not an election, because an
+        election that changes nothing is a permanent, IRS-consent-to-revoke commitment bought for
+        nothing. Both sides are whole-dollar Rounded figures, so this is a comparison of the two
+        numbers that would actually print on line 6b and not of unrounded residues.
+
+        THIS IS WHERE THE SAFETY PROPERTY IS ENFORCED. Because /socialSecurityLumpSum is gated on this
+        fact, the elected branch of /taxableSocialSecurityBenefits can only ever be entered when it
+        LOWERS the answer; the LesserOf on the wrapper is then a second, redundant guarantee of the
+        same direction.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/socialSecurityLumpSumEarlierYearsAnswered" />
+              </Not>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <LessThan>
+                <Left>
+                  <Dependency path="/lumpSumElectionWksht4Line21" />
+                </Left>
+                <Right>
+                  <Dependency path="/regularMethodTaxableSocialSecurityBenefits" />
+                </Right>
+              </LessThan>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+
+
+
+    <Fact path="/communityPropertyAllocatedSocialSecurityBenefits">
+      <Name>Community-property allocated social security benefits (Form 8958 line 12) — $0, a disclosed non-allocation</Name>
+      <Description>THE CONTRACT PATH, and it resolves $0 on every return including a community
+        property allocation return. It is the amount this return ALLOCATES under Form 8958 line 12 for
+        social security benefits — the amount moved away from, or toward, the spouse who receives the
+        benefits — and that amount is ZERO.
+
+        IT IS NOT THE FORM 8958 LINE 12 COLUMN B FIGURE.
+        Column A of a Form 8958 row carries the item's WHOLE amount, separate income included
+        ("Enter the total amount of your community or separate income," /
+        "deductions, credits, and other return amounts on their respective" / "lines in column A.",
+        https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column of a two column extraction), and
+        columns B and C must sum back to it (lines 201-202, LEFT column). Column B is therefore
+        "half of all community income and all of your" separate income (line 124, LEFT column). Since
+        these benefits are the RECIPIENT'S separate income on the reading below, this taxpayer's
+        column B for the row is ALL of their own benefits — which is /socialSecurityBenefits, unmoved —
+        and column C is all of the spouse's. ZERO is the amount that CROSSES between the columns, which
+        is what this fact states and is the only figure the allocation itself produces.
+
+        WHY, IN THE ORDER THE SOURCES ACTUALLY READ. (1) Form 8958 line 12 names social security
+        benefits — "12 Other items such as social security benefits," (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 2) — but line 12 is the line for items the form does NOT characterise: its instruction
+        is "Identify any item not previously reported, such as social security" (line 203, RIGHT
+        column of a two column extraction), and the form hands the character question to the filer and
+        to state law, "You and your spouse or RDP must be able to identify your" community and
+        separate income (line 147, LEFT column). Contrast the wage rule, which characterises with no
+        qualifier at all: "sole proprietorship are community income and must be evenly split." (line
+        157). (2) TWO vendored sources characterise social security benefits, and BOTH characterise
+        them AGAINST a split, in the same sentence: "Social security benefits. Treat social
+        security and" / "equivalent railroad retirement benefits as the income of" / "the spouse who
+        receives the benefits." — at https://www.irs.gov/pub/irs-pdf/p555.pdf, page 9, LEFT column of a
+        two column extraction (the RIGHT column at those lines is the "Death of spouse" basis
+        paragraph), and again at https://www.irs.gov/pub/irs-pdf/p504.pdf, page 23, RIGHT column of a two
+        column extraction (the LEFT column at those lines is Publication 504's abuse/relief exception).
+
+        WHAT THIS FACT DOES NOT CLAIM, stated because the honest version of the argument is the
+        narrower one. It does NOT claim that Publication 555's sentence governs the population this
+        gate is true for. That sentence's printed scope is the "Spouses living apart all year"
+        section — the IRC 66(a) four condition population, on which
+        filers:/isCommunityPropertyAllocationReturn already reads FALSE — and the records contract at this
+        path says of the two rules that "Both are right in their own scope". The claim here is
+        narrower and is enough: NO vendored source supports a half for this item, and the only source
+        that speaks to it at all points the other way. A per item character writable was considered
+        and REJECTED for this collection, because it would invite a filer to attest a character that
+        the only printed rule contradicts. So the fail closed direction — no allocation — is what
+        ships, and it is disclosed rather than silent.
+
+        THE CONTRACT'S TWO OTHER DECLARED INPUTS ARE LEFT UNCONSUMED, WITH THE REASON. A $0
+        body reads neither, and that is not an oversight: the gate already excludes the 66(a)
+        population that the lived apart input exists to separate, and there is no allocation on either
+        side of that boundary for a box 5 figure to be halved into. Both remain the right inputs for a
+        successor that finds a source characterising these benefits as community income.
+
+        THE SECOND TRAP THE CONTRACT NAMED IS THEREFORE NEVER REACHED, and it is worth recording why
+        it would have been sharp. IRC 86's taxable portion is not linear in the benefit: the base
+        amount is ZERO for a married person filing separately who lived with their spouse at any time
+        in the year (IRC 86(c)(1)(C)), which is exactly the population this gate is true for. Half a
+        benefit is therefore not half a tax, and reasoning on
+        /taxableSocialSecurityBenefits rather than on box 5 would be wrong in both directions.
+        Nothing here touches either figure.
+
+        THE GUARD DOES NOT NARROW. /socialSecurityReports/secondaryFilerUsedWithoutMFJ keeps its
+        entire current scope — a spouse's SSA-1099 or RRB-1099 on a non joint return is still an input
+        contradiction with no line to sit on, and on this reading it is one on a community property
+        allocation return too. Example: a
+        gate TRUE California MFS return carrying both spouses' SSA-1099s and still refuses, with
+        /socialSecurityBenefits unmoved at 32,000.00.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isMfsAndLivedApartAllYear">
+      <Name>Form 1040 line 6d, married filing separately and lived apart the entire year</Name>
+      <Description>Whether the return is married filing separately and the filer lived apart from their spouse for the entire year, which is the conjunction the printed line 6d box reports. The dictionary already writes this conjunction inline wherever it needs it, for the line 6a code and for the benefits worksheet box C collapse, but never as one fact, so the printed box had nothing to map. Mapping the second conjunct alone would check the box for a filer who is not filing separately. Reaches the MeF submission as its own element, separate from the line 6a socSecBnftCd code (see /xmlSocialSecurityBenefitCode).</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          <Dependency module="filers" path="/livedApartAllYear" />
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

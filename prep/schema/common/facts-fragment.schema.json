@@ -1,0 +1,578 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts-fragment.schema.json",
+  "title": "Sparse fact fragment (derivative-only)",
+  "description": "A SPARSE overlay onto a fact set (deep-merged): the same derivative-only shape as facts.schema.json — additionalProperties:false at every level, so identifiers are IMPOSSIBLE here too — but with NO required fields (a fragment need not be a complete return). Reuses facts.schema.json's $defs so the two cannot drift. Used by estimate_2026's `scenario` overlay and the workspace PATCH facts fragment.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "filing_status": {
+      "enum": [
+        "single",
+        "mfj",
+        "mfs",
+        "hoh",
+        "qss"
+      ]
+    },
+    "persons": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/person"
+      }
+    },
+    "w2s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/w2"
+      }
+    },
+    "int1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/int1099"
+      }
+    },
+    "b1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/b1099"
+      }
+    },
+    "oid1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/oid1099"
+      }
+    },
+    "div1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/div1099"
+      }
+    },
+    "r1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/r1099"
+      }
+    },
+    "w2gs": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/w2g"
+      }
+    },
+    "ssa1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/ssa1099"
+      }
+    },
+    "g1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/g1099"
+      }
+    },
+    "misc1099s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/misc1099"
+      }
+    },
+    "ssa_lump_sum_years": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/ssa_lump_sum_year"
+      }
+    },
+    "hsa_distributions": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/hsa_distribution"
+      }
+    },
+    "care_providers": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/care_provider"
+      }
+    },
+    "f1095as": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/f1095a"
+      }
+    },
+    "schedule_c": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/schedule_c_activity"
+      }
+    },
+    "rentals": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/rental"
+      }
+    },
+    "k1s": {
+      "type": "array",
+      "items": {
+        "$ref": "facts.schema.json#/$defs/k1"
+      }
+    },
+    "elections": {
+      "$ref": "facts.schema.json#/$defs/elections"
+    },
+    "carryovers": {
+      "$ref": "facts.schema.json#/$defs/carryovers"
+    },
+    "lived_with_spouse_all_year": {
+      "type": "boolean",
+      "description": "Whether the filer lived with their spouse for the whole year. Asked on every married return (joint or separate); a true settles the lived-together questions. Formerly a separate return attested it true. Refused on an unmarried return."
+    },
+    "months_lived_with_spouse": {
+      "type": "string",
+      "enum": [
+        "apart_all_year",
+        "more_than_six_months",
+        "six_months_or_less"
+      ],
+      "description": "How long the filer lived with their spouse this year, asked once they did not live together all year: apart all year (the filer lived apart the last six months), together more than six months (they did not), or together six months or less (the next question decides). Refused anywhere the chain does not reach it."
+    },
+    "separation_agreement_on_last_day": {
+      "type": "boolean",
+      "description": "Whether, on the last day of the year, the filer was living apart from their spouse under a separation agreement. Asked once they lived together more than six months but not all year; it completes the spouse questions and moves no line. Refused anywhere the chain does not reach it."
+    },
+    "lived_apart_last_six_months": {
+      "type": "boolean",
+      "description": "Whether the filer lived apart from their spouse for the last six months of the year. Asked once they lived together six months or less; a true is what lets a married filer's household questions reach head-of-household ground (the keeping-up-home question for a claimed person). Refused anywhere the chain does not reach it."
+    },
+    "residence_state": {
+      "enum": [
+        "moreThanOne",
+        "al",
+        "ak",
+        "az",
+        "ar",
+        "ca",
+        "co",
+        "ct",
+        "de",
+        "dc",
+        "fl",
+        "ga",
+        "hi",
+        "id",
+        "il",
+        "in",
+        "ia",
+        "ks",
+        "ky",
+        "la",
+        "me",
+        "md",
+        "ma",
+        "mi",
+        "mn",
+        "ms",
+        "mo",
+        "mt",
+        "ne",
+        "nv",
+        "nh",
+        "nj",
+        "nm",
+        "ny",
+        "nc",
+        "nd",
+        "oh",
+        "ok",
+        "or",
+        "pa",
+        "ri",
+        "sc",
+        "sd",
+        "tn",
+        "tx",
+        "ut",
+        "vt",
+        "va",
+        "wa",
+        "wv",
+        "wi",
+        "wy",
+        "noneOfThese"
+      ],
+      "description": "The U.S. state, or the District of Columbia, the filer lived in and earned income in during the year — the dictionary's own list, in its order: the two-letter postal code, moreThanOne for income in several, noneOfThese for a filer with no U.S. jurisdiction to give. Asked on every return. No served line moves on it; it decides which state questions are asked (an Alaska answer reaches the Permanent Fund dividend questions) and two of the dictionary's own knockouts (noneOfThese; a community-property state on a separate return)."
+    },
+    "received_alaska_pfd": {
+      "type": "boolean",
+      "description": "Whether the filer received an Alaska Permanent Fund dividend during the year (reported on Form 1099-MISC). Asked on every return — the dictionary wants the answer on every return, though the dividend is possible in Alaska only. A yes is refused by name: Form 1099-MISC Alaska Permanent Fund dividend income is not a stream this service computes."
+    },
+    "spouse_received_alaska_pfd": {
+      "type": "boolean",
+      "description": "On a joint return: whether the spouse received an Alaska Permanent Fund dividend during the year. Asked on every joint return; refused on any other status; a yes is refused by name for the same reason."
+    },
+    "received_digital_assets": {
+      "type": "boolean",
+      "description": "Part (a) of the Form 1040 page-1 digital-assets question: whether, at any time during the year, the filer received a digital asset (or a financial interest in one) as a reward, award, or payment for property or services. Asked on every return. A yes is outside what this service computes: the return is served as knocked out, never as a computed figure."
+    },
+    "disposed_digital_assets": {
+      "type": "boolean",
+      "description": "Part (b) of the Form 1040 page-1 digital-assets question: whether, at any time during the year, the filer sold, exchanged, gifted, or otherwise disposed of a digital asset (or a financial interest in one). Asked on every return. A yes is outside what this service computes: the return is served as knocked out, never as a computed figure."
+    },
+    "foreign_financial_account": {
+      "type": "boolean",
+      "description": "Schedule B line 7a: whether, at any time during the year, the filer had a financial interest in or signature authority over a financial account (such as a bank account, securities account, or brokerage account) located in a foreign country. Asked on every return. A yes is outside what this service computes: the return is served as knocked out, never as a computed figure."
+    },
+    "foreign_trust_grantor": {
+      "type": "boolean",
+      "description": "Schedule B line 8, the grantor part: whether, during the year, the filer was the owner or grantor of a foreign trust. Asked on every return. A yes is outside what this service computes: the return is served as knocked out, never as a computed figure."
+    },
+    "foreign_trust_transactions": {
+      "type": "boolean",
+      "description": "Schedule B line 8, the transactions part: whether, during the year, the filer received a distribution from, or was a transferor to, a foreign trust. Asked on every return. A yes is outside what this service computes: the return is served as knocked out, never as a computed figure."
+    },
+    "eitc_reduced_or_disallowed": {
+      "type": "boolean",
+      "description": "Form 8862, Part II: whether the IRS reduced or disallowed an earned income credit the filer claimed in a prior year, for any reason other than a math or clerical error. Asked on every return. A yes on a return with an earned income credit in play is refused by name (Form 8862's further questions are not carried); a yes with no credit in play computes."
+    },
+    "ctc_odc_reduced_or_disallowed": {
+      "type": "boolean",
+      "description": "Form 8862, Part III: whether the IRS reduced or disallowed a child tax credit, additional child tax credit or credit for other dependents the filer claimed in a prior year, for any reason other than a math or clerical error. Asked on every return. A yes on a return with one of those credits in play is refused by name; a yes with none in play computes."
+    },
+    "qualifying_child_of_another": {
+      "type": "boolean",
+      "description": "Form 8862 line 4: whether the filer (or the spouse on a joint return) could be claimed as a qualifying child of another taxpayer for the year. Asked on every return. A yes on a return with an earned income credit in play is refused by name (the dictionary's follow-up questions are not carried); a yes with no credit in play computes."
+    },
+    "paid_estimated_taxes": {
+      "type": "boolean",
+      "description": "Form 1040 line 26: whether the filer made estimated tax payments for the year or applied an amount from last year's return. Asked on every return. A yes asks the amount and two follow-ups."
+    },
+    "estimated_tax_payments_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Form 1040 line 26, in cents: the total estimated tax payments made for the year plus any amount applied from last year's return. Asked once paid_estimated_taxes is yes; refused when answered otherwise. Reaches line 33 (measured: $1,000 moves it by $1,000)."
+    },
+    "section_1341_credit_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Schedule 3 line 13b, in integer cents: the credit for repayment of amounts included in income in an earlier year, under the IRC 1341(a)(5) credit method. OPTIONAL and self-reported \u2014 (a)(5) is a recomputation of a prior year's return this service does not hold; the figure is the filer's own, from Publication 525. Absent, no credit is claimed and that is stated. Refundable (IRC 1341(b)(1)), so it reaches total payments."
+    },
+    "alimony_received_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Schedule 1 line 2a, in integer cents: alimony or separate maintenance received during the year. OPTIONAL, invited on every return; absent, no alimony was received. Reaches alimony_received_pre2019_agreement, which decides includibility (TCJA sec. 11051)."
+    },
+    "alimony_received_pre2019_agreement": {
+      "type": "boolean",
+      "description": "Whether the divorce or separation instrument behind alimony_received_cents was entered into on or before December 31, 2018, and not later modified to end its inclusion in income. Asked once alimony_received_cents is answered; refused otherwise."
+    },
+    "alimony_paid_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Schedule 1 line 19a, in integer cents: alimony or separate maintenance paid during the year. OPTIONAL, invited on every return; absent, no alimony was paid. Reaches alimony_paid_pre2019_agreement, which decides deductibility (TCJA sec. 11051)."
+    },
+    "alimony_paid_pre2019_agreement": {
+      "type": "boolean",
+      "description": "Whether the divorce or separation instrument behind alimony_paid_cents was entered into on or before December 31, 2018, and not later modified to end its deductibility. Asked once alimony_paid_cents is answered; refused otherwise. The recipient's SSN is documentary and does not gate this deduction."
+    },
+    "alimony_paid_section_682_trust": {
+      "type": "boolean",
+      "description": "Schedule 1 line 19a follow-up: whether the alimony paid was distributed to the former spouse as the income of a trust described in IRC section 682, rather than paid directly under the divorce or separation instrument (IRC 215(d)). Asked once alimony_paid_cents is given and alimony_paid_pre2019_agreement is yes; refused when answered otherwise. Unanswered on a return claiming the deduction, the engine leaves line 19a incomplete."
+    },
+    "main_home_in_us_over_half_year": {
+      "type": "boolean",
+      "description": "Form 1040 page 1's main-home-in-the-U.S. checkbox. OPTIONAL, invited on every return; absent, the main home is treated as in the U.S. over half the year (the engine's favorable default). Publication 596 Rule 14, an eligibility condition for the earned income credit without a qualifying child."
+    },
+    "estimated_payments_under_different_name": {
+      "type": "boolean",
+      "description": "Line 26 follow-up: whether any of those payments were made under a name different from the one on this return. Asked once paid_estimated_taxes is yes. A yes is refused by name: the former name is an identifier this schema cannot carry."
+    },
+    "estimated_payments_with_former_spouse": {
+      "type": "boolean",
+      "description": "Line 26 follow-up: whether any of those payments were made jointly with a former spouse. Asked once paid_estimated_taxes is yes. A yes is refused by name: the former spouse's taxpayer identification number is an identifier this schema cannot carry."
+    },
+    "elects_lump_sum_benefits": {
+      "type": "boolean",
+      "description": "Form 1040 line 6c: whether the filer elects the lump-sum method for Social Security benefits received for an earlier year. Asked once the return carries a benefit statement (ssa1099s); refused where none exists. A true is served as the engine's own knockout, since the earlier-year figures the election needs are not carried here; a false is the regular method."
+    },
+    "only_business_is_trading_securities": {
+      "type": "boolean",
+      "description": "Form 8960: whether trading in financial instruments or commodities (section 475(e)(2)) is the filer's ONLY trade or business. One answer for the return. Asked once the return carries a Schedule C (schedule_c); refused where none exists. A false is the ordinary business and computes through Schedule SE. A true is refused: that business is figured off Schedule SE and through Form 8960 with a section 475(a) dealer question per business, a route outside the covered set. Unanswered on a return with a Schedule C profit or loss, the engine leaves net investment income and total tax incomplete."
+    },
+    "allocating_policy_or_alternative_calculation": {
+      "type": "boolean",
+      "description": "Form 8962 line 9: are you allocating policy amounts with another taxpayer, or using the alternative calculation for year of marriage? Asked once a Form 1095-A is entered; a yes is refused by name (Parts IV and V are not carried)."
+    },
+    "marketplace_estimated_income_at_least_100_fpl": {
+      "type": "boolean",
+      "description": "Form 8962 instructions (household income below 100% of the federal poverty line, advance payments made): when you enrolled, did the Marketplace estimate your household income at or above 100% of the federal poverty line? Asked once a Form 1095-A with advance payments (column C) is entered; inert above the poverty line."
+    },
+    "below_poverty_line_not_eligible_for_medicaid_due_to_immigration": {
+      "type": "boolean",
+      "description": "Form 8962 instructions (household income below 100% of the federal poverty line, no advance payments): is your household income below the poverty line while you are not eligible for Medicaid because of immigration status? Asked once a Form 1095-A without advance payments is entered; inert above the poverty line."
+    },
+    "enrollee_not_eligible_for_marketplace_due_to_immigration": {
+      "type": "boolean",
+      "description": "Form 8962 instructions: is anyone in your tax family enrolled on the policy not lawfully present in the United States? Asked once a Form 1095-A is entered on a return that claims dependents; a yes is the engine's own knockout, served with words."
+    },
+    "dependents_modified_agi_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Form 8962 line 2b: the total modified AGI of the dependents in your tax family who were required to file a return. Optional, asked once a Form 1095-A is entered on a return that claims dependents; absent means 0 (no dependent was required to file). a positive amount is a dependent required to file, which is the engine's own refusal (/dependentsRequiredToFile, IRC 36B(d)(2)(A)) served with words — the yes/no the engine reads is derived from this amount."
+    },
+    "paid_prior_year_care_expenses_this_year": {
+      "type": "boolean",
+      "description": "Form 2441 Worksheet A's root: whether you paid in 2025 any qualified care expenses you had in 2024 but had not paid by the end of 2024. Optional on a return that files Form 2441 (a qualifying person with 2025 care expenses); absent means false and is stated (the engine's own $0 fallback, said out loud). true reaches prior_year_credit_claimed. Measured: the chain answered gives a 220.00 prior-year credit, line 24 865.00 → 645.00."
+    },
+    "prior_year_credit_claimed": {
+      "type": "boolean",
+      "description": "Whether the child and dependent care credit was claimed on the 2024 return (Worksheet A, line 3). Required once paid_prior_year_care_expenses_this_year is true; true reaches prior_year_credit_claimed_maximum, false reaches the seven 2024 figures directly."
+    },
+    "prior_year_credit_claimed_maximum": {
+      "type": "boolean",
+      "description": "Whether the 2024 credit was claimed on the maximum amount of qualified expenses allowed for 2024 (i2441's own test). Required once prior_year_credit_claimed is true; true ends the chain and Worksheet A computes 0 (measured); false reaches the seven 2024 figures."
+    },
+    "prior_year_form_2441_line_3_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Line 3 of the 2024 Form 2441 (Worksheet A, line 1), in integer cents. Required where the chain reaches it."
+    },
+    "prior_year_expenses_paid_this_year_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The 2024 qualified care expenses paid in 2025 (Worksheet A, line 2), in integer cents. Required where the chain reaches it."
+    },
+    "prior_year_had_two_or_more_qualifying_persons": {
+      "type": "boolean",
+      "description": "Whether there were two or more qualifying persons in 2024 (Worksheet A, line 4's selector). Required where the chain reaches it."
+    },
+    "prior_year_excluded_or_deducted_benefits_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Dependent care benefits excluded or deducted on the 2024 return (Worksheet A, line 5), in integer cents. Required where the chain reaches it; 0 if none."
+    },
+    "prior_year_lower_earned_income_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The smaller of the two 2024 earned incomes, or the filer's own 2024 earned income if not married in 2024 (Worksheet A, line 7), in integer cents. Required where the chain reaches it."
+    },
+    "prior_year_form_2441_line_6_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Line 6 of the 2024 Form 2441 — the amount the 2024 credit was figured on (Worksheet A, line 9), in integer cents. Required where the chain reaches it."
+    },
+    "prior_year_agi_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The 2024 adjusted gross income, from line 11 of the 2024 Form 1040 (Worksheet A, line 11), in integer cents. Required where the chain reaches it."
+    },
+    "mfs_ptc_exception": {
+      "type": "boolean",
+      "description": "Form 8962 line A (married filing separately): do you qualify for the exception for a taxpayer who is a victim of domestic abuse or spousal abandonment? Asked once a Form 1095-A is entered on a separate return; a no repays every advance payment and allows no credit."
+    },
+    "mfs_ptc_exception_fourth_year": {
+      "type": "boolean",
+      "description": "Form 8962 instructions: are you claiming that exception for a fourth consecutive year? Asked once the separate-return exception is answered yes."
+    },
+    "dependent_care_carryover_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Form 2441 line 13: the prior-year dependent care benefits used during this year's grace period. Optional; absent means none. Accepted once a filer reports a benefit (Form W-2 box 10, or their own sole-proprietorship benefit) — a carryover with no benefit this year is refused by name. Reaches Form 1040 lines 1e and 24."
+    },
+    "dependent_care_forfeited_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Form 2441 line 14: the dependent care benefits forfeited or carried forward to next year. Required once a filer reports a benefit (0 if none) — Form 2441 Part III stalls without its yes/no — and accepted only then. Reaches Form 1040 lines 1e and 24."
+    },
+    "paid_student_loan_interest": {
+      "type": "boolean",
+      "description": "Schedule 1 line 21: whether the filer paid interest on a qualified student loan during the year. Asked on every return. A yes asks whether the loans qualify and the amount."
+    },
+    "student_loans_qualify": {
+      "type": "boolean",
+      "description": "Line 21 follow-up: whether the loans were taken out solely to pay qualified education expenses for the filer, spouse or a dependent, and not from a related person or an employer plan. Asked once paid_student_loan_interest is yes; refused when answered otherwise. A no computes a zero deduction (the engine's own rule)."
+    },
+    "student_loan_interest_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Form 1098-E box 1, in cents: the student loan interest paid during the year. Asked once paid_student_loan_interest is yes; refused when answered otherwise. The engine applies the $2,500 cap, the income phase-out and the claimed-dependent rule (measured: $1,500 moves line 11 52,000 -> 50,500 on wages-single-mid; zero on wages-single-high)."
+    },
+    "student_loan_interest_employer_paid_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Line 21 follow-up, in cents: how much of student_loan_interest_cents an employer paid on the filer's behalf, tax-free, under a section 127 educational assistance program (IRC 221(e)(1)). Asked once student_loans_qualify is yes; refused when answered otherwise. 0 when none. The engine subtracts it from the interest before the $2,500 cap; unanswered on a claiming return, the engine leaves line 21 incomplete."
+    },
+    "student_loan_interest_from_qtp_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Line 21 follow-up, in cents: how much of student_loan_interest_cents was paid with tax-free earnings from a qualified tuition program (IRC 221(e)(1), 529(c)(9)). Asked once student_loans_qualify is yes; refused when answered otherwise. 0 when none. The engine subtracts it from the interest before the $2,500 cap; unanswered on a claiming return, the engine leaves line 21 incomplete."
+    },
+    "royalty_expenses_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Schedule E lines 5-19, the return's one royalty activity's ordinary deductible expenses (depletion excluded — the taxpayer's own records, never a 1099 box). Required once the return claims royalty income (any misc1099s[].royalties_cents above 0); refused if answered with no royalty income claimed. Enter 0 if there were none."
+    },
+    "royalty_is_oil_gas_geothermal": {
+      "type": "boolean",
+      "description": "Whether the return's one royalty activity is an oil, gas, or geothermal property (IRC 613A(c)(1)/613(e)), eligible for 15% percentage depletion on Schedule E line 18. Optional, asked once the return claims royalty income; absent claims no percentage depletion (the engine's own conservative default). Refused if answered with no royalty income claimed."
+    },
+    "couple_required_to_file": {
+      "type": "boolean",
+      "description": "On a joint return where a spouse can be claimed as someone's dependent: whether the couple is required to file a tax return. A yes means neither spouse is claimed; a no asks whether the couple files only for a refund. Refused on any other status and where no spouse is claimable."
+    },
+    "couple_files_only_for_refund": {
+      "type": "boolean",
+      "description": "On a joint return not required to file where a spouse can be claimed: whether the couple files only to get a refund of tax withheld or estimated tax paid, not to claim dependents or credits. A yes lets the claimable spouse be claimed (the standard deduction and the earned income credit follow); a no means the couple files for tax benefits and nobody can claim them. Refused anywhere the chain does not reach it."
+    },
+    "spouse_itemizes": {
+      "type": "boolean",
+      "description": "The itemizes half of the Form 1040 page-1 checkbox “Your spouse itemizes on a separate return or you were a dual-status alien”. Asked on every married-filing-separately return: true zeroes this return's standard deduction (IRC 63(c)(6)(A)) — computed, not refused. Belongs to a separate return only; refused on any other filing status. (The dual-status half is ruled out by the standing assumption that the filer was a US citizen or resident all year.)"
+    },
+    "community_property_domicile": {
+      "type": "boolean",
+      "description": "Whether the filer's or their spouse's domicile is in a community property state (Form 8958's own test — domicile, not residence). Asked on every married-filing-separately return, first: true is refused — the Form 8958 community-income allocation is not in the covered set, and computing a separate return without it would mis-state both spouses' returns. Belongs to a separate return only; refused elsewhere."
+    },
+    "spouse_death_year": {
+      "enum": [
+        "last_year",
+        "two_years_ago"
+      ],
+      "description": "Which of the two preceding tax years the filer's spouse died in. Asked on every qualifying-surviving-spouse return — the status exists for exactly those two years (a spouse who died during the tax year files jointly for that year, the form instruction's own rule). Refused on any other filing status."
+    },
+    "could_have_filed_jointly_year_of_death": {
+      "type": "boolean",
+      "description": "Whether the filer could have filed jointly with the spouse for the year the spouse died (whether or not they did). Asked on every qualifying-surviving-spouse return; the engine's eligibility test reads it. Refused on any other filing status."
+    },
+    "spouse_files_return": {
+      "type": "boolean",
+      "description": "Whether the spouse files their own return for the year. Asked on a married-filing-separately return once the spouse is answered as not itemizing (a spouse who itemizes files a return, so this is not asked — and an answer beside an itemizing spouse is refused rather than dropped): a spouse who files earns this return nothing further; a spouse who does not opens the next question. Belongs to a separate return only; refused elsewhere."
+    },
+    "spouse_had_gross_income": {
+      "type": "boolean",
+      "description": "Whether the spouse had any gross income for the year. Asked only when the spouse files no return (IRC 151(b): the spouse's exemption on a separate return needs no joint return, no gross income, and no other taxpayer's dependency). Answering it when the spouse files is refused rather than dropped."
+    },
+    "spouse_can_be_claimed": {
+      "type": "boolean",
+      "description": "Whether someone else can claim the spouse as a dependent. Asked only when the spouse files no return and had no gross income. Answering it earlier in the chain is refused rather than dropped."
+    },
+    "spouse_65_or_older": {
+      "type": "boolean",
+      "description": "Whether the spouse was 65 or older at the end of the year — Form 1040 line 12's spouse checkbox (“Spouse: Was born before January 2, 1961”). Asked only when the spouse files no return, had no gross income and cannot be claimed by another: true adds the spouse's age amount to this return's standard deduction (IRC 63(f)(1)(B)). Refused when the chain does not reach it."
+    },
+    "spouse_is_blind": {
+      "type": "boolean",
+      "description": "Whether the spouse is blind — Form 1040 line 12's spouse checkbox (“Spouse: Is blind”). Asked in the same case as the age question: true adds the spouse's blindness amount (IRC 63(f)(2)(B)). Refused when the chain does not reach it."
+    },
+    "spouse_covered_by_employer_plan": {
+      "type": "boolean",
+      "description": "Whether the filer's spouse was covered by a retirement plan at work during the year. A separate-return question, asked once the filer contributed to an IRA and the couple did not live apart all year: it decides the IRA deduction's phase-out (Schedule 1 line 20). Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_jan": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of January 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth01). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_feb": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of February 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth02). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_mar": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of March 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth03). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_apr": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of April 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth04). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_may": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of May 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth05). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_jun": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of June 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth06). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_jul": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of July 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth07). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_aug": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of August 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth08). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_sep": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of September 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth09). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_oct": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of October 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth10). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_nov": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of November 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth11). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "spouse_hsa_coverage_dec": {
+      "type": "string",
+      "enum": ["none", "self_only", "family"],
+      "description": "Form 8889 lines 3 and 6 on a separate return, the spouse's side of the Line 3 Limitation Chart: the high deductible health plan coverage the filer's spouse — who is not on this return — had on the first day of December 2025: none, self-only or family (/writableHsaMfsSpouseCoverageTypeMonth12). Asked once a filer with family coverage answers hsa_spouse_contributed true (register row 52), or beside the filer's Medicare enrollment for part of the year (whatever the check says or whether it is shown — on a separate return the vector governs line 3 only with the twelve): with the twelve months answered the dictionary's separate-return refusal is gated off, IRC 223(b)(5) treating both spouses as having family coverage for any month either did and dividing the shared limitation equally; the chain then reaches hsa_marital_status_changed. Refused when the answers do not reach it."
+    },
+    "filed_jointly_2023": {
+      "type": "boolean",
+      "description": "On a joint return where a filer reports a retirement distribution received in 2023 (Form 8880 line 4): whether the couple also filed jointly for 2023. A spouse's distribution that year counts against the other's contributions only if they filed jointly then (measured); unanswered, the engine zeroes the credit, so it is asked. Refused on any other status and where no 2023 distribution is reported."
+    },
+    "filed_jointly_2024": {
+      "type": "boolean",
+      "description": "On a joint return where a filer reports a retirement distribution received in 2024 (Form 8880 line 4): whether the couple also filed jointly for 2024. A spouse's distribution that year counts against the other's contributions only if they filed jointly then (measured); unanswered, the engine zeroes the credit, so it is asked. Refused on any other status and where no 2024 distribution is reported."
+    },
+    "hsa_excess_in_w2_wages": {
+      "type": "boolean",
+      "description": "On a return with a W-2 box 12 code W amount (employer HSA contributions): whether the employer already included any contribution over the Form 8889 line 8 limit in W-2 box 1 wages. Optional. Absent, the engine reports the excess as other income on Schedule 1 line 8z (measured: 5,000 of code W against the 4,300 self-only limit adds 700 of income and a 42 excise tax on Form 5329; true drops the income and keeps the excise). One answer for the whole return: on a joint return a yes drops both filers' excess from income. Refused on a return with no code W amount."
+    },
+    "combat_pay_election": {
+      "type": "string",
+      "enum": [
+        "own",
+        "spouse",
+        "both",
+        "none"
+      ],
+      "description": "The combat pay election, Form 1040 line 1i: whether nontaxable combat pay (Form W-2 box 12 code Q) is counted as earned income for the earned income credit. Asked once a filer's W-2 carries code Q; required (unanswered, line 1i is unresolved — measured). own = the primary filer's combat pay, spouse = the spouse's (a joint return), both = both filers', none. A choice naming a filer whose W-2 has no code Q is refused. The credit is figured with the answer given (measured: on a 48,250-wage return with one child, code Q 8,000 elected in moves the credit 345 → 3)."
+    },
+    "cdcc_combat_pay_election": {
+      "type": "string",
+      "enum": [
+        "own",
+        "spouse",
+        "both",
+        "none"
+      ],
+      "description": "The combat pay election for the child and dependent care credit, Form 2441 Part II. Asked once a filer's W-2 carries code Q and care expenses are on the return; required (unanswered, the credit is a Placeholder 0 — measured: line 24 served 1,100 higher). The same four choices as combat_pay_election."
+    },
+    "dependent_care_benefits_combat_pay_election": {
+      "type": "string",
+      "enum": [
+        "own",
+        "spouse",
+        "both",
+        "none"
+      ],
+      "description": "The combat pay election for the dependent care benefits exclusion, Form 2441 Part III. Asked once a filer's W-2 carries code Q and dependent care benefits (W-2 box 10) are reported; required (unanswered, every served line is a Placeholder — measured). The same four choices as combat_pay_election."
+    }
+  }
+}

@@ -1,0 +1,75 @@
+# IRSW2GU — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRSW2GU/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 76aedace4ab1d299916e61e28826777dca746a23f31a0aebd7c93f3781415a69
+# boxes: 32   acroform fields: 126   boxes with a fact: 29
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (9): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 8 `printed blank on this form`: shared spelling `printed blank on this form` names 2 readings
+# unspelled: box 10 `printed blank on this form`: shared spelling `printed blank on this form` names 2 readings
+# unspelled: box 12a row 2 `Amount`: shared spelling `amount` names 4 readings
+# unspelled: box 12b row 1 `Code`: shared spelling `code` names 3 readings
+# unspelled: box 12b row 2 `Amount`: shared spelling `amount` names 4 readings
+# unspelled: box 12c row 1 `Code`: shared spelling `code` names 3 readings
+# unspelled: box 12c row 2 `Amount`: shared spelling `amount` names 4 readings
+# unspelled: box 12d row 1 `Code`: shared spelling `code` names 3 readings
+# unspelled: box 12d row 2 `Amount`: shared spelling `amount` names 4 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:90251d5ff401	VOID	void	topmostSubform[0].CopyA[0].Void_ReadOrder[0].c1_1[0]|topmostSubform[0].Copy1[0].Void_ReadOrder[0].c2_1[0]	/formW2Gus/*/writableVoid	Bool		
+a		Employee's social security number; the per-item Derived TIN resolved from this item's own filer	employee's social security number; the per-item derived tin resolved from this item's own filer	topmostSubform[0].CopyA[0].BoxA_ReadOrder[0].f1_01[0]|topmostSubform[0].Copy1[0].BoxA_ReadOrder[0].f2_01[0]|topmostSubform[0].CopyB[0].CopyB[0].BoxA_ReadOrder[0].f2_01[0]|topmostSubform[0].CopyC[0].CopyC[0].BoxA_ReadOrder[0].f2_01[0]	/formW2Gus/*/employeeSsn	TIN		
+—	caption:5ee2c6d3ca15	b. Employer identification number (E I N)	b. employer identification number	topmostSubform[0].CopyA[0].Col_Left[0].f1_02[0]|topmostSubform[0].Copy1[0].Col_Left[0].f2_02[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].f2_02[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].f2_02[0]	/formW2Gus/*/writableEmployerIdentificationNumber	EIN		
+—	caption:10e0dc32ad30	c. Employer's name, address, and Z I P code	c. employer's name, address, and z i p code	topmostSubform[0].CopyA[0].Col_Left[0].f1_03[0]|topmostSubform[0].Copy1[0].Col_Left[0].f2_03[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].f2_03[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].f2_03[0]	/formW2Gus/*/writableEmployerNameAddressAndZipCode	String		
+—	caption:106e53b0b05e	d. Control number	d. control number	topmostSubform[0].CopyA[0].Col_Left[0].f1_04[0]|topmostSubform[0].Copy1[0].Col_Left[0].f2_04[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].f2_04[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].f2_04[0]	/formW2Gus/*/writableControlNumber	String		
+—	caption:6d50875832a6	e. Employee's first name and initial	e. employee's first name and initial	topmostSubform[0].CopyA[0].Col_Left[0].FirstName_ReadOrder[0].f1_05[0]|topmostSubform[0].Copy1[0].Col_Left[0].FirstName_ReadOrder[0].f2_05[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].FirstName_ReadOrder[0].f2_05[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].FirstName_ReadOrder[0].f2_05[0]	/formW2Gus/*/writableEmployeeFirstNameAndInitial	String		
+—	caption:eac19fd18256	e. Last name	e. last name	topmostSubform[0].CopyA[0].Col_Left[0].LastName_ReadOrder[0].f1_06[0]|topmostSubform[0].Copy1[0].Col_Left[0].LastName_ReadOrder[0].f2_06[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].LastName_ReadOrder[0].f2_06[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].LastName_ReadOrder[0].f2_06[0]	/formW2Gus/*/writableEmployeeLastName	String		
+—	caption:88e9e0ef1997	e. Suff	e. suff	topmostSubform[0].CopyA[0].Col_Left[0].f1_07[0]|topmostSubform[0].Copy1[0].Col_Left[0].f2_07[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].f2_07[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].f2_07[0]	/formW2Gus/*/writableEmployeeSuffix	String		
+—	caption:7f5e24be3852	f. Employee's address and Z I P code	f. employee's address and z i p code	topmostSubform[0].CopyA[0].Col_Left[0].f1_08[0]|topmostSubform[0].Copy1[0].Col_Left[0].f2_08[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Left[0].f2_08[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Left[0].f2_08[0]	/formW2Gus/*/writableEmployeeAddressAndZipCode	String		
+1		Wages, tips, other compensation	wages, tips, other compensation	topmostSubform[0].CopyA[0].Col_Right[0].Box1_ReadOrder[0].f1_09[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box1_ReadOrder[0].f2_09[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box1_ReadOrder[0].f2_09[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box1_ReadOrder[0].f2_09[0]	/formW2Gus/*/writableWages	Dollar		
+2		Guam income tax withheld	guam income tax withheld	topmostSubform[0].CopyA[0].Col_Right[0].f1_10[0]|topmostSubform[0].Copy1[0].Col_Right[0].f2_10[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].f2_10[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].f2_10[0]	/formW2Gus/*/writableGuamIncomeTaxWithheld	Dollar		
+3		Social security wages	social security wages	topmostSubform[0].CopyA[0].Col_Right[0].Box3_ReadOrder[0].f1_11[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box3_ReadOrder[0].f2_11[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box3_ReadOrder[0].f2_11[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box3[0].f2_11[0]	/formW2Gus/*/writableOasdiWages	Dollar		
+4		Social security tax withheld	social security tax withheld	topmostSubform[0].CopyA[0].Col_Right[0].f1_12[0]|topmostSubform[0].Copy1[0].Col_Right[0].f2_12[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].f2_12[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].f2_12[0]	/formW2Gus/*/writableOasdiWithholding	Dollar		
+5		Medicare wages and tips	medicare wages and tips	topmostSubform[0].CopyA[0].Col_Right[0].Box5_ReadOrder[0].f1_13[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box5_ReadOrder[0].f2_13[0]	/formW2Gus/*/writableMedicareWages	Dollar		
+6		Medicare tax withheld	medicare tax withheld	topmostSubform[0].CopyA[0].Col_Right[0].f1_14[0]|topmostSubform[0].Copy1[0].Col_Right[0].f2_14[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].f2_14[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].f2_14[0]	/formW2Gus/*/writableMedicareWithholding	Dollar		
+7		Social security tips	social security tips	topmostSubform[0].CopyA[0].Col_Right[0].Box7_ReadOrder[0].f1_15[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box7_ReadOrder[0].f2_15[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box7_ReadOrder[0].f2_15[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box7_ReadOrder[0].f2_15[0]	/formW2Gus/*/writableOasdiTips	Dollar		
+8		printed blank on this form		topmostSubform[0].CopyA[0].Col_Right[0].f1_16[0]|topmostSubform[0].Copy1[0].Col_Right[0].f2_16[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].f2_16[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].f2_16[0]				RESERVED
+9		a numbered cell printed with no caption, https://www.irs.gov/pub/irs-prior/fw2gu--2025.pdf, page 2: "9"	a numbered cell printed with no caption, https://www.irs.gov/pub/irs-prior/fw2gu--2025.pdf, page 2: "9"	topmostSubform[0].CopyA[0].Col_Right[0].Box9_ReadOrder[0].f1_17[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box9_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box9_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box9_ReadOrder[0].f2_17[0]				STRUCTURAL
+10		printed blank on this form		topmostSubform[0].CopyA[0].Col_Right[0].f1_18[0]|topmostSubform[0].Copy1[0].Col_Right[0].f2_18[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].f2_18[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].f2_18[0]				RESERVED
+11		Nonqualified plans	nonqualified plans	topmostSubform[0].CopyA[0].Col_Right[0].Box11_ReadOrder[0].f1_19[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box11_ReadOrder[0].f2_19[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box11_ReadOrder[0].f2_19[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box11_ReadOrder[0].f2_19[0]	/formW2Gus/*/writableNonQualifiedPlans	Dollar		
+12a	1	See instructions for box 12. Code	see instructions for box 12. code	topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_20[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_20[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_20[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_20[0]	/formW2Gus/*/box12Entries/[0]/writableCode	Enum	A;B;C;D;E;F;G;H;J;K;L;M;N;P;Q;R;S;T;V;W;Y;Z;AA;BB;DD;EE;FF;GG;HH;II	
+12a	2	Amount		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_21[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_21[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_21[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_21[0]	/formW2Gus/*/box12Entries/[0]/writableAmount	Dollar		
+12b	1	Code		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_22[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_22[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_22[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_22[0]	/formW2Gus/*/box12Entries/[1]/writableCode	Enum	A;B;C;D;E;F;G;H;J;K;L;M;N;P;Q;R;S;T;V;W;Y;Z;AA;BB;DD;EE;FF;GG;HH;II	
+12b	2	Amount		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_23[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_23[0]	/formW2Gus/*/box12Entries/[1]/writableAmount	Dollar		
+12c	1	Code		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_24[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_24[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_24[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_24[0]	/formW2Gus/*/box12Entries/[2]/writableCode	Enum	A;B;C;D;E;F;G;H;J;K;L;M;N;P;Q;R;S;T;V;W;Y;Z;AA;BB;DD;EE;FF;GG;HH;II	
+12c	2	Amount		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_25[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_25[0]	/formW2Gus/*/box12Entries/[2]/writableAmount	Dollar		
+12d	1	Code		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_26[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_26[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_26[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_26[0]	/formW2Gus/*/box12Entries/[3]/writableCode	Enum	A;B;C;D;E;F;G;H;J;K;L;M;N;P;Q;R;S;T;V;W;Y;Z;AA;BB;DD;EE;FF;GG;HH;II	
+12d	2	Amount		topmostSubform[0].CopyA[0].Col_Right[0].Box12_ReadOrder[0].f1_27[0]|topmostSubform[0].Copy1[0].Col_Right[0].Box12_ReadOrder[0].f2_27[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Box12_ReadOrder[0].f2_27[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Box12_ReadOrder[0].f2_27[0]	/formW2Gus/*/box12Entries/[3]/writableAmount	Dollar		
+13	1	Statutory employee	statutory employee	topmostSubform[0].CopyA[0].Col_Right[0].Statutory_ReadOrder[0].c1_2[0]|topmostSubform[0].Copy1[0].Col_Right[0].Statutory_ReadOrder[0].c2_2[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Statutory_ReadOrder[0].c2_2[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Statutory_ReadOrder[0].c2_2[0]	/formW2Gus/*/writableStatutoryEmployee	Bool		
+13	2	Retirement plan	retirement plan	topmostSubform[0].CopyA[0].Col_Right[0].Retirement_ReadOrder[0].c1_3[0]|topmostSubform[0].Copy1[0].Col_Right[0].Retirement_ReadOrder[0].c2_3[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].Retirement_ReadOrder[0].c2_3[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].Retirement_ReadOrder[0].c2_2[0]	/formW2Gus/*/writableRetirementPlan	Bool		
+13	3	Third-party sick pay	third-party sick pay	topmostSubform[0].CopyA[0].Col_Right[0].c1_4[0]|topmostSubform[0].Copy1[0].Col_Right[0].c2_4[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].c2_4[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].c2_2[0]	/formW2Gus/*/writableThirdPartySickPay	Bool		
+14		Other	other	topmostSubform[0].CopyA[0].Col_Right[0].f1_28[0]|topmostSubform[0].Copy1[0].Col_Right[0].f2_28[0]|topmostSubform[0].CopyB[0].CopyB[0].Col_Right[0].f2_28[0]|topmostSubform[0].CopyC[0].CopyC[0].Col_Right[0].f2_28[0]	/formW2Gus/*/writableBox14Other	String		

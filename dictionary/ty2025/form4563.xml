@@ -1,0 +1,75 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form4563Absences">
+      <Name>Days absent from American Samoa (Form 4563 line 6 table)</Name>
+      <Description>The collection behind Form 4563 line 6, one item per period the filer was absent from American Samoa during the tax year. The printed table has four rows and four columns, so the first four items print; a filer with more attaches a statement. The bona fide residence test of section 931 turns on presence in the possession, and line 6 is where the return states the absences, so the graph needs the periods themselves rather than a single total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4563Absences/*/writableDateLeft">
+      <Name>Form 4563 line 6 column (a), date left American Samoa</Name>
+      <Description>Line 6 column (a) for this absence, the day the filer left American Samoa. Typed Day because the box prints a calendar date; unanswered leaves the printed cell blank and changes no tax value.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4563Absences/*/writableDateReturned">
+      <Name>Form 4563 line 6 column (b), date returned to American Samoa</Name>
+      <Description>Line 6 column (b) for this absence, the day the filer returned to American Samoa. Typed Day because the box prints a calendar date; unanswered leaves the printed cell blank and changes no tax value.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4563Absences/*/writableDaysAbsent">
+      <Name>Form 4563 line 6 column (c), number of days absent</Name>
+      <Description>Line 6 column (c) for this absence, the count of days the filer was away from American Samoa. Entered rather than computed from columns (a) and (b): the printed form asks the filer to state the count, and the two dates alone do not settle whether the days of departure and return are counted.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4563Absences/*/writableReasonForAbsence">
+      <Name>Form 4563 line 6 column (d), reason for absence</Name>
+      <Description>Line 6 column (d) for this absence, the filer's stated reason for being away from American Samoa. A faithful record field: it plays no part in any computation, and unanswered leaves the printed cell blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

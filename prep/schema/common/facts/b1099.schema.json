@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/b1099.schema.json",
+  "title": "Form 1099-B",
+  "description": "One Form 1099-B transaction: the IRS template's one row (boxes 1a-1g). A broker's consolidated statement with many rows is a reading question, not this schema's. Box 1a (description of property) is not carried: it is free text and the engine prints it only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "proceeds_cents",
+    "cost_basis_cents"
+  ],
+  "properties": {
+    "person": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "date_acquired": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Box 1b, date acquired, as YYYY-MM-DD. Optional: a box that reads VARIOUS (or INHERITED) is left out, and then box 2 is asked. With both dates the engine works out the holding period from them."
+    },
+    "date_sold": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Box 1c, date sold or disposed, as YYYY-MM-DD, in the tax year. Optional; absent, box 2 is asked."
+    },
+    "proceeds_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Box 1d, proceeds. Form 8949 column (d).",
+      "minimum": 0
+    },
+    "cost_basis_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Box 1e, cost or other basis. Form 8949 column (e). Required: a blank box 1e (a noncovered security's basis is often not reported) is asked, because the engine leaves a transaction with either amount blank incomplete. 0 is an answer.",
+      "minimum": 0
+    },
+    "accrued_market_discount_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Box 1f, accrued market discount. Optional; absent is none. An amount above 0 is refused by name: it is ordinary interest income as well as a Form 8949 column (g) adjustment (code D), and that pair is not in the covered set.",
+      "minimum": 0
+    },
+    "wash_sale_loss_disallowed_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Box 1g, wash sale loss disallowed. Optional; absent is none. Sent as the Form 8949 column (g) adjustment, a positive amount with code W, so it reduces the loss.",
+      "minimum": 0
+    },
+    "term": {
+      "type": "string",
+      "enum": ["short", "long", "ordinary"],
+      "description": "Box 2, the checkbox marked: Short-term gain or loss, Long-term gain or loss, or Ordinary. Asked when box 1b or 1c has no date (the engine cannot work out the holding period then, and leaves the transaction incomplete); with both dates the dates decide and this is kept as read. Ordinary is refused by name: that gain is not reported on Form 8949."
+    },
+    "federal_withholding_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Box 4, federal income tax withheld. Optional; absent is none. An amount above 0 is refused by name: at this version the engine does not carry the Form 1099-B box into Form 1040 line 25b, and a return that leaves out tax already paid would overstate what is owed.",
+      "minimum": 0
+    },
+    "collectibles": {
+      "type": "boolean",
+      "description": "Box 3, the Collectibles checkbox. Asked on every Form 1099-B, never presumed unchecked: the printed-box list cannot find it on a page yet. Checked is refused by name: a collectibles gain is taxed at up to 28% through the Schedule D worksheet, and that split is not in the covered set."
+    },
+    "qualified_opportunity_fund": {
+      "type": "boolean",
+      "description": "Box 3, the QOF checkbox. Asked on every Form 1099-B, never presumed unchecked. Checked is refused by name: a qualified opportunity fund disposition is reported with Form 8997, which is not in the covered set."
+    },
+    "loss_not_allowed": {
+      "type": "boolean",
+      "description": "Box 7, 'Check if loss is not allowed based on amount in 1d'. Optional; absent is unchecked. Checked is refused by name: the part of the loss that is not allowed is not in the covered set."
+    },
+    "basis_reported_to_irs": {
+      "type": "boolean",
+      "description": "Box 12, 'Basis reported to IRS'. Optional; absent sends nothing. It decides only which Form 8949 box the row is listed under (A or D when reported, B or E when not) and changes no amount."
+    }
+  }
+}

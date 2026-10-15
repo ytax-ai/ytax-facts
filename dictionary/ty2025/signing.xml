@@ -1,0 +1,2014 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/signing.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/directFileLanguagePreference">
+      <Name>Direct File Language Preference</Name>
+      <Description>The language the filer wants to received communications from Direct File in</Description>
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/timeZoneOptions">
+      <Derived>
+        <EnumOptions>
+          <String>HST</String>
+          <String>HADT</String>
+          <String>AKT</String>
+          <String>PT</String>
+          <String>MT</String>
+          <String>CT</String>
+          <String>ET</String>
+          <String>MIL</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/offset">
+      <Derived>
+        <Switch>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    ET
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-4</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    CT
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-5</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    MT
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-6</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    PT
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-7</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    AKT
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-8</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    HADT
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-9</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    HST
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-10</Int>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/stateTimezone" />
+                </Left>
+                <Right>
+                  <Enum optionsPath="/timeZoneOptions">
+                    MIL
+                  </Enum>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Int>-12</Int>
+            </Then>
+          </Case>
+
+
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/stateTimezone">
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/address" module="filers" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MIL
+              </Enum>
+            </Then>
+          </Case>
+
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AL</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AK</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                HADT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AZ</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                PT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AR</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>CA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                PT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>CO</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>CT</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>DE</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>DC</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>FL</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>GA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>HI</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                HST
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>ID</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                PT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>IL</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>IN</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>IA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>KS</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>KY</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>LA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>ME</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MD</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MI</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MN</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MS</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MO</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>MT</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NE</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NV</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                PT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NH</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NJ</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NM</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NY</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>NC</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>ND</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>OH</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>OK</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>OR</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                PT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>PA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>RI</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>SC</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>SD</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>TN</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>TX</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>UT</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>VT</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>VA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>WA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                PT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>WV</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                ET
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>WI</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                CT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>WY</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MT
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AA</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MIL
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AE</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MIL
+              </Enum>
+            </Then>
+          </Case>
+
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/address/stateOrProvence" module="filers" />
+                </Left>
+                <Right>
+                  <String>AP</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MIL
+              </Enum>
+            </Then>
+          </Case>
+
+
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Enum optionsPath="/timeZoneOptions">
+                MIL
+              </Enum>
+            </Then>
+          </Case>
+
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/todayOverride" testOnly="true">
+      <Description>USED FOR TESTING. Manually set a fact for what "Today" is since mocking Dates in the fact graph is
+        tricky in typescript</Description>
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/today">
+      <Description>Today, in the filer's timezone of residence</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/todayOverride" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/todayOverride" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Today>
+                <Dependency path="/offset" />
+              </Today>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSeenReviewScreen">
+      <Name>Has seen review screen</Name>
+      <Description>The user has seen the review screen</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/lastYearAgiFromOLA">
+      <Description>
+        The user's last year's AGI as loaded from their OLA account.
+        This should probably be a dollar amount,
+        but was a bug from TY2023.
+      </Description>
+      <Writable>
+        <Int />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filedLastYear">
+      <Name>Filed last year</Name>
+      <Description>Has the taxpayer filed last year</Description>
+      <Export mef="true" downstreamFacts='true' />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/needsDateOfBirthToSign">
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path='/filedLastYear' />
+          </Not>
+          <Dependency module='filers' path="/primaryFilerHasIpPin" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isFilingMFJAndIsWidowedInTaxYear">
+      <Name>TP is filing MFJ and is widowed in tax year</Name>
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/isWidowedInTaxYear" />
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/spouseFiledLastYear">
+      <Name>Spouse filed last year</Name>
+      <Description>Has the taxpayer's spouse filed last year</Description>
+      <Export downstreamFacts='true' />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseNeedsDateOfBirthToSign">
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path='/spouseFiledLastYear' />
+          </Not>
+          <Dependency module='filers' path="/spouseHasIpPin" />
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/barredFromSelfSelectPin">
+      <Name>A signer of this return is barred from the Self-Select PIN method</Name>
+      <Description>True when a signer of this return is a first-time filer who was younger than 16
+        at the end of the tax year — the population the Form 1040 instructions bar from the
+        Self-Select PIN method. True for the primary filer who is under 16 and did not file last
+        year, and, on a return treated as MFJ, for a spouse under 16 who did not file last year.
+
+        THIS IS THE BODY OF THE RETIRED KNOCKOUT /flowKnockoutFirstTimeFilerYoungerThan16, UNCHANGED,
+        under a name that says what the printed rule says. The rule bars ONE SIGNATURE METHOD, not
+        filing: the same instructions page leaves the Practitioner PIN and the handwritten paper
+        signature open to exactly this filer. So this fact is an INPUT to /signatureMethodRoute and
+        carries neither BlockSubmissionOnTrue nor membership in flow:/flowIsKnockedOut.
+
+        COMPLETENESS IS UNCHANGED AND THAT IS DELIBERATE. Both arms read
+        Any(Not(IsComplete(&lt;answer&gt;)), Not(&lt;answer&gt;)) — not-yet-answered counts as
+        not-yet-filed — so this fact is Complete in every state of the signing answers and
+        Incomplete only where the DATE OF BIRTH itself is unanswered. That property was bought by a
+        measured leak in the predecessor's fix round 1 and it is what keeps /signatureMethodRoute
+        TOTAL wherever the age is known. Under a routing fact the unanswered state now costs
+        nothing: it OFFERS the paper path rather than refusing the return, and over-offering paper
+        is free.
+
+        THE /filedLastYear PROXY IS DISSOLVED RATHER THAN FIXED. It answers "did you file LAST year"
+        where the printed rule says "first-time filer", so a filer who last filed two years ago is
+        over-caught. Under a refusal that was an over-refusal; under a route its only consequence is
+        which method is offered. A separate "have you ever filed" intake would sharpen the offer and
+        is not a prerequisite of anything.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <All>
+            <Dependency module="filers" path="/primaryFiler/youngerThan16" />
+            <Any>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/filedLastYear" />
+                </IsComplete>
+              </Not>
+              <Not>
+                <Dependency path="/filedLastYear" />
+              </Not>
+            </Any>
+          </All>
+          <All>
+            <Dependency module="filers" path="/secondaryFiler/youngerThan16" />
+            <Dependency module="filingStatus" path="/treatAsMFJ" />
+            <Any>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/spouseFiledLastYear" />
+                </IsComplete>
+              </Not>
+              <Not>
+                <Dependency path="/spouseFiledLastYear" />
+              </Not>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/signatureMethodRouteOptions">
+      <Name>Signature method options</Name>
+      <Description>The three signature methods the 2025 Instructions for Form 1040 leave open to an
+        individual return: the Self-Select PIN, the Practitioner PIN, and a handwritten signature on
+        a paper return. A CLOSED set — the instructions name no fourth.
+
+        EXPORTED rather than left to the optionsPath reference alone: /signatureMethodRoute names
+        this set inside a Switch's Then arms, and an optionsPath reference in that position is NOT a
+        dependency edge in the engine-emitted manifest (measured — lint_wiring reported the fact
+        UNWIRED with the route already shipping). The Export is also the honest reading: the option
+        set is what a caller renders the choice from.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>selfSelectPin</String>
+          <String>practitionerPin</String>
+          <String>paper</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/usesPractitionerPinMethod">
+      <Name>The return is signed through a tax practitioner using the Practitioner PIN method</Name>
+      <Description>Whether this return is being filed electronically through a tax practitioner who
+        will enter or generate the filer's PIN.
+
+        THIS IS THE ARM THE DICTIONARY HAD NO FACT FOR, and it is why a routing fact needed an
+        intake rather than only a derivation. The Self-Select PIN machinery ships in full
+        (/signReturnIdentity and its option set, /selfSelectPin, the spouse twins) and the paper
+        path ships as /isPaperPath; the Practitioner PIN was named nowhere. A route with two arms
+        would have left a first-time under-16 filer with paper as their only alternative, which is a
+        worse answer than the instructions give them.
+
+        Optional and complete-safe by its reader: /signatureMethodRoute tests
+        All(IsComplete(this), this), so an unanswered question routes as "not a practitioner
+        return" rather than making the route Incomplete. Whether and how the question is ASKED is
+        the application's surface, not this dictionary's, under invariant #7 — the same division of labor
+        scheduleH:/householdEmployees draws.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/signatureMethodRoute">
+      <Name>Which signature method this return uses — Self-Select PIN, Practitioner PIN, or paper</Name>
+      <Description>The signature method this return is on. A ROUTE, not a gate: it changes which
+        method is offered, never whether the return may be filed, and nothing blocks on it.
+
+        THE ORDER OF THE ARMS IS THE RULE, and each one is printed.
+        (1) paper when /isPaperPathDueToMissingIpPin. FIRST, ahead of the practitioner arm, because
+        the missing-IP-PIN bar is a bar on ANY ELECTRONIC RETURN rather than on one method: "all six
+        digits of your IP PIN must appear" ... "in the IP PIN spaces provided next to the" "space for
+        your occupation for your elec-" "tronic signature to be complete. Failure" "to include an
+        issued IP PIN on the elec-" "tronic return will result in an invalid sig-" "nature and a
+        rejected return." A filer with an issued IP PIN they cannot supply cannot e-file THROUGH A
+        PRACTITIONER either, so paper is their route and the practitioner answer must not override it.
+        (2) practitionerPin when the filer says a tax practitioner will enter or generate their PIN.
+        Ahead of the under-16 bar, because that bar is on the SELF-SELECT PIN alone: the instructions
+        offer the Practitioner PIN to exactly the filer the CAUTION box excludes, so a practitioner
+        return is not routed to paper on account of age.
+        (3) paper when /barredFromSelfSelectPin — the first-time under-16 signer the CAUTION box
+        names. This is the population that used to be REFUSED.
+        (4) paper when /isPaperPath's REMAINING legs: a filer (or spouse) who answered cannotFind to
+        the Self-Select PIN identity question. That fact's own option set already calls cannotFind
+        "this dictionary's own escape to the paper path", so the route reads it rather than inventing
+        a second one. Note the whole of /isPaperPath is tested here, missing-IP-PIN leg included; arm
+        (1) has already caught that leg, so this arm decides only the cannotFind ones.
+        (5) selfSelectPin otherwise.
+
+        TOTAL WHEREVER THE AGE IS KNOWN, which is obligation (3) of the contract this discharges.
+        Arm (1) and arm (3) are wrapped All(IsComplete(x), x), so an unanswered practitioner
+        question or an unanswered signing identity question resolves the arm Complete-false instead
+        of leaving the route Incomplete; arm (2) is Complete in every state of the signing answers
+        by /barredFromSelfSelectPin's own construction. The route is therefore Incomplete only where
+        a signer's DATE OF BIRTH is unanswered — the one state the retired guard was Incomplete in
+        too, and no return reaches submission without a date of birth.
+
+        WHAT THIS FACT DOES NOT CLAIM. It takes no position on the SCREENS: the application owns those, and
+        invariant #7 excludes the frontend as a ground for REFUSING, not the division of labour. It
+        also claims no MeF element — this repo holds no schema for a signature-method code, and the
+        route is exported for downstream readers only.
+
+        WHAT IT REPLACES: /flowKnockoutFirstTimeFilerYoungerThan16, which blocked submission for
+        this filer. Under a route the filer has somewhere to go, so there is nothing left to
+        refuse.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/isPaperPathDueToMissingIpPin" />
+                </IsComplete>
+                <Dependency path="/isPaperPathDueToMissingIpPin" />
+              </All>
+            </When>
+            <Then>
+              <Enum optionsPath="/signatureMethodRouteOptions">paper</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/usesPractitionerPinMethod" />
+                </IsComplete>
+                <Dependency path="/usesPractitionerPinMethod" />
+              </All>
+            </When>
+            <Then>
+              <Enum optionsPath="/signatureMethodRouteOptions">practitionerPin</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/barredFromSelfSelectPin" />
+            </When>
+            <Then>
+              <Enum optionsPath="/signatureMethodRouteOptions">paper</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/isPaperPath" />
+                </IsComplete>
+                <Dependency path="/isPaperPath" />
+              </All>
+            </When>
+            <Then>
+              <Enum optionsPath="/signatureMethodRouteOptions">paper</Enum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Enum optionsPath="/signatureMethodRouteOptions">selfSelectPin</Enum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/signReturnIdentityOptions">
+      <Name>Tax return identity Options</Name>
+      <Description>Options for how the TP wants to sign their tax return</Description>
+      <Derived>
+        <EnumOptions>
+          <String>lastYearAgi</String>
+          <String>lastYearPin</String>
+          <String>cannotFind</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/signReturnIdentity">
+      <Name>How the TP wants to confirm their identity</Name>
+      <Description>Using self-select PIN, last year's AGI and date of birth, or they cannot find either of these.</Description>
+
+      <Writable>
+        <Enum optionsPath="/signReturnIdentityOptions" />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/signReturnIdentitySpouseOptions">
+      <Name>Tax return identity Options</Name>
+      <Description>Options for how the TP's spouse wants to sign their tax return</Description>
+      <Derived>
+        <EnumOptions>
+          <String>lastYearAgi</String>
+          <String>lastYearPin</String>
+          <String>cannotFind</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+
+    <Fact path="/signReturnIdentitySpouse">
+      <Name>How the TP wants to confirm their identity</Name>
+      <Description>Using self-select PIN, last year's AGI and date of birth, or they cannot find either of these.</Description>
+
+      <Writable>
+        <Enum optionsPath="/signReturnIdentitySpouseOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isPaperPathDueToMissingIpPin">
+      <Derived>
+        <Any>
+          <Dependency module='filers' path='/primaryFilerIsMissingIpPin' />
+          <Dependency module='filers' path='/secondaryFilerIsMissingIpPin' />
+          <Dependency module='familyAndHousehold' path='/oneOrMoreDependentsAreMissingIpPin' />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEssarFeatureFlag">
+      <Name>Is ESSAR Enabled</Name>
+      <Description>Is the electronic signing flow (and use of ESSAR) enabled through a build flag</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasFailedMaxElectronicSigningAttempts">
+      <Name>(UNUSED) Has Electronic Signing Failed</Name>
+      <Description>Note: this fact has been deprecated and is no longer used. It should be removed after filing season.
+        True when the maximum configured number of attempts to electronically sign a return has been reached</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/canUseElectronicSignatureFlow">
+      <Name>(UNUSED) Is eSign flow enabled</Name>
+      <Description>Note: this fact has been deprecated and is no longer used. It should be removed after filing season.
+        Is the electronic signature flow available for this tax return</Description>
+      <Derived>
+        <All>
+          <Dependency path='/isEssarFeatureFlag' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isLegacySigningPath">
+      <Name>Is not compatible with electronic signing</Name>
+      <Description>Is not compatible with electronic signing</Description>
+      <Export downstreamFacts='true' />
+      <Derived>
+        <Any>
+          <Dependency path='/isPaperPathDueToMissingIpPin' />
+          <Dependency module="spouseSection" path="/isMFJWithLivingSpouse" />
+          <Not>
+            <Dependency path="/isEssarFeatureFlag" />
+          </Not>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isPaperPath">
+      <Name>Whether the return is on a paper filing path</Name>
+      <Description>Either the TP is missing an IP Pin or they cannot find their last
+        year's AGI or Self-Select Pin in the
+        Sign and Submit section.</Description>
+      <Export downstreamFacts='true' />
+      <Derived>
+        <Any>
+          <Dependency path='/isPaperPathDueToMissingIpPin' />
+          <Dependency path='/cannotFindPinOrAgi' />
+          <Dependency path='/spouseCannotFindPinOrAgi' />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isPaperPathAndWantedToPayViaAch">
+      <Name>If the filer is on a paper filing path and set their payment method to direct deposit</Name>
+      <Derived>
+        <All>
+          <Dependency path='/isPaperPath' />
+          <Dependency module='paymentMethod' path='/payViaAch' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isPaperPathAndNoPaymentChoiceOrWasAutocorrected">
+      <Name>If the filer is on a paper filing path and did not have a payment method chosen</Name>
+      <Derived>
+        <All>
+          <Dependency path='/isPaperPath' />
+          <Any>
+            <Not>
+              <IsComplete>
+                <Dependency module='paymentMethod' path='/payViaAch' />
+              </IsComplete>
+            </Not>
+            <Dependency module="flow" path="/flowHasSeenPaymentMethodAutocorrect" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/willEnterLastYearPin">
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path='/signReturnIdentity' />
+          </Left>
+          <Right>
+            <Enum optionsPath='/signReturnIdentityOptions'>lastYearPin</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/willEnterLastYearAgi">
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path='/signReturnIdentity' />
+          </Left>
+          <Right>
+            <Enum optionsPath='/signReturnIdentityOptions'>lastYearAgi</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cannotFindPinOrAgi">
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path='/signReturnIdentity' />
+            </Left>
+            <Right>
+              <Enum optionsPath='/signReturnIdentityOptions'>cannotFind</Enum>
+            </Right>
+          </Equal>
+          <Dependency path='/filedLastYear' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseWillEnterLastYearPin">
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path='/signReturnIdentitySpouse' />
+          </Left>
+          <Right>
+            <Enum optionsPath='/signReturnIdentitySpouseOptions'>lastYearPin</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseWillEnterLastYearAgi">
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path='/signReturnIdentitySpouse' />
+          </Left>
+          <Right>
+            <Enum optionsPath='/signReturnIdentitySpouseOptions'>lastYearAgi</Enum>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseCannotFindPinOrAgi">
+      <Derived>
+        <All>
+          <Equal>
+            <Left>
+              <Dependency path='/signReturnIdentitySpouse' />
+            </Left>
+            <Right>
+              <Enum optionsPath='/signReturnIdentitySpouseOptions'>cannotFind</Enum>
+            </Right>
+          </Equal>
+          <Dependency path='/spouseFiledLastYear' />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/needsToEnterLastYearAgi">
+      <Derived>
+        <All>
+          <Dependency path="/filedLastYear" />
+          <Dependency path="/willEnterLastYearAgi" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseNeedsToEnterLastYearAgi">
+      <Derived>
+        <All>
+          <Dependency module="spouseSection" path="/isMFJWithLivingSpouse" />
+          <Dependency path="/spouseFiledLastYear" />
+          <Dependency path="/spouseWillEnterLastYearAgi" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lastYearAgi">
+      <Name>Last year's AGI</Name>
+      <Description>Taxpayer's AGI from the last year</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/spouseLastYearAgi">
+      <Name>Last year's AGI for Spouse</Name>
+      <Description>Taxpayer's spouse's AGI from the last year</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryPriorYearAGIAmount">
+      <Name>primaryPriorYearAGIAmount</Name>
+      <Description>Primary filer's prior year AGI amount.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Not>
+                    <Dependency path="/filedLastYear" />
+                  </Not>
+                  <Not>
+                    <Dependency module="filers" path="/primaryFilerHasIpPin" />
+                  </Not>
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Not>
+                    <Dependency module="filers" path="/primaryFilerHasIpPin" />
+                  </Not>
+                  <Dependency path="/needsToEnterLastYearAgi" />
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/lastYearAgi" />
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spousePriorYearAGIAmount">
+      <Name>spousePriorYearAGIAmount</Name>
+      <Description>Spouse's prior year AGI amount.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency module="spouseSection" path="/isMFJWithLivingSpouse" />
+                  <Not>
+                    <Dependency path="/spouseFiledLastYear" />
+                  </Not>
+                  <Not>
+                    <Dependency module="filers" path="/spouseHasIpPin" />
+                  </Not>
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Not>
+                    <Dependency module="filers" path="/spouseHasIpPin" />
+                  </Not>
+                  <Dependency path="/spouseNeedsToEnterLastYearAgi" />
+                </All>
+              </When>
+              <Then>
+                <Dependency path="/spouseLastYearAgi" />
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/selfSelectPin">
+      <Name>Self-Select PIN</Name>
+      <Description>The self-select pin number of the taxpayer(s).</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Writable>
+        <PIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/selfSelectPinLastYear">
+      <Name>Last Year's Self-Select PIN</Name>
+      <Description>The self-select pin number of the taxpayer(s) for the last tax year.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <PIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/xmlSelfSelectPinLastYear">
+      <Name>Last Year's Self-Select PIN</Name>
+      <Description>The self-select pin number of the taxpayer(s) for the last tax year. Used to populate the IRS Return
+        Header SelfSelectPINGrp.PrimaryPriorYearPIN XML element.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/willEnterLastYearPin" />
+                <Not>
+                  <Dependency module='filers' path="/primaryFilerHasIpPin" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/selfSelectPinLastYear" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseSelfSelectPin">
+      <Name>Self-Select PIN for Taxpayer's Spouse</Name>
+      <Description>The self-select pin number of the taxpayer's spouse.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <PIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/xmlSpouseSelfSelectPin">
+      <Description>The self-select pin used by the XML. The spouse's self select pin should not be used when the spouse
+        is deceased</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="spouseSection" path="/isMFJWithLivingSpouse" />
+            </When>
+            <Then>
+              <Dependency path="/spouseSelfSelectPin" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/spouseSelfSelectPinLastYear">
+      <Name>Last Year's Self-Select PIN for Spouse of taxpayer</Name>
+      <Description>The self-select pin number of the taxpayer's spouse for the last tax year.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <PIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/xmlSpouseSelfSelectPinLastYear">
+      <Name>Last Year's Self-Select PIN for Spouse of taxpayer</Name>
+      <Description>The self-select pin number of the taxpayer's spouse for the last tax year. Used to populate the IRS
+        Return Header SelfSelectPINGrp.SpousePriorYearPIN XML element.The spouse's self select pin should not be used
+        when the spouse
+        is deceased.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="spouseSection" path="/isMFJWithLivingSpouse" />
+                <Dependency path="/spouseWillEnterLastYearPin" />
+                <Not>
+                  <Dependency module='filers' path="/spouseHasIpPin" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/spouseSelfSelectPinLastYear" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isUsingDirectDeposit">
+      <Name>Whether the taxpayer is using direct deposit or not</Name>
+      <Derived>
+        <Any>
+          <Dependency module="paymentMethod" path='/refundViaAch' />
+          <Dependency module="paymentMethod" path='/payViaAch' />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isUsingBankAccountToPay">
+      <Name>Whether the taxpayer is using direct deposit to pay the taxes they owe</Name>
+      <Derived>
+        <All>
+          <Dependency module="taxCalculations" path='/owesBalance' />
+          <Dependency module="paymentMethod" path='/payViaAch' />
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

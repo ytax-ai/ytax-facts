@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/g1099.schema.json",
+  "title": "Form 1099-G (unemployment compensation)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "unemployment_compensation_cents"
+  ],
+  "properties": {
+    "person": {
+      "description": "Index into persons[]. The filer this Form 1099-G was issued to \u2014 the primary, or the spouse on a joint return.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "unemployment_compensation_cents": {
+      "description": "Box 1, unemployment compensation. Required: the form is issued because compensation was paid, so a blank box is an unread box, not compensation of nothing. Reaches Schedule 1 line 7 and, through Schedule 1 line 10 and Form 1040 line 8, line 9. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "federal_withholding_cents": {
+      "description": "Box 4, federal income tax withheld. Optional: blank is an ordinary state of the box; absent is computed as zero and stated in the response. Reaches Form 1040 line 25b, inside line 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "repaid_cents": {
+      "description": "Unemployment compensation received in the year and repaid in the same year \u2014 the Schedule 1, line 7 repayment entry space, not a box on the form. Optional: absent is computed as zero and stated in the response. Netted against box 1 on line 7. Never above box 1: a repayment exceeding the year's benefits is a repayment of an earlier year's benefits, which opens an itemized deduction (or the engine's own knockout above $3,000) this service does not carry, so it is refused rather than served as a zero line 7. Box 2 (state or local income tax refund) is not covered: it is computed as zero and published as an assumption.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

@@ -1,0 +1,619 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/paymentMethod.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/bankAccount">
+      <Name>Bank Account</Name>
+      <Description>Information for the bank account you want to deposit into</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <BankAccount />
+      </Writable>
+    </Fact>
+
+    <Fact path="/refundViaAch">
+      <Name>Wants Direct Deposit</Name>
+      <Description>Whether the TP wants to receive a direct deposit. Otherwise, they will receive a mailed check.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/payViaAch">
+      <Name>User's preference to pay via ACH</Name>
+      <Description>Whether the TP wants to make an immediate ACH payment through direct file. Otherwise, they will be
+        have to make their payment at a different time and/or through a different method.
+
+        SCREEN SPECIFICATION (this dictionary decides the writable and its wording; the application
+        implements it without opening an IRC document).
+
+        QUESTION AS ASKED: "Do you want to pay the amount you owe now, by direct debit from your
+        bank account?" Answers: "Yes, pay by direct debit" / "No, I will pay another way".
+
+        HELP TEXT: "The IRS is allowed to accept payment by any commercially acceptable means,
+        including an electronic debit from your account (IRC 6311(a); 26 U.S.C. 6311, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6311&amp;num=0&amp;edition=2024). Whichever you choose, the amount is due by the filing deadline: the law fixes
+        payment at the time and place fixed for filing the return, without regard to any extension
+        of time for filing (IRC 6151(a); 26 U.S.C. 6151, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6151&amp;num=0&amp;edition=2024). Choosing 'No' does
+        not delay what you owe; it only means we will not schedule the debit for you. You can pay at
+        www.irs.gov/Payments (2025 Form 1040 line 37; https://www.irs.gov/pub/irs-pdf/f1040.pdf, page 2)."
+
+        ASKED WHEN: taxCalculations:/owesBalance is true. Never asked of a refund filer or a
+        zero-balance filer; /refundViaAch is the mirror question on the refund side and the two are
+        never both live.
+
+        UNANSWERED POSTURE: NOT DEFAULTED and NOT REFUSED. No guard fires, because both payment-date
+        guards carry IsComplete(/payViaAch) and resolve Complete false; but /paymentSectionComplete
+        is INCOMPLETE (every arm that mentions this fact needs it resolved), so the filer cannot
+        finish the payment section without answering. That is deliberate: defaulting the answer
+        either way would either schedule a debit the filer did not authorise or silently decline one
+        they wanted.
+
+        VALIDATION: Boolean, two labelled options, no Limit. There is nothing to range-check.
+
+        WHAT THE ANSWER FEEDS: /xmlPaymentBankAccount (its Switch resolves to nothing unless
+        owesBalance AND this fact are both true, so the account never travels on a return that is
+        not paying by debit); /paymentSectionComplete arms 3, 4 and 5; and both
+        /achPaymentDateStaleAtSigning and /achPaymentDateBeyondPaymentWindow, which no longer refuse
+        a filer who answered a date and then answered NO here.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/achPaymentDate">
+      <Name>Payment date</Name>
+      <Description>When the user would like their payment to be processed.
+
+        SCREEN SPECIFICATION. This is the screen the two payment-date refusals send
+        the filer back to, so its wording is part of the remedy, not decoration.
+
+        QUESTION AS ASKED: "What date should we ask your bank to send this payment?"
+
+        HELP TEXT: "Choose a date from today through the filing deadline. The amount you owe is due
+        by that deadline no matter when you file: the law fixes payment at the time and place fixed
+        for filing the return, determined without regard to any extension of time for filing (IRC
+        6151(a); 26 U.S.C. 6151, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6151&amp;num=0&amp;edition=2024), and a reference to the date fixed for
+        payment means the last day fixed for it, without regard to any extension of time for paying
+        (IRC 6151(c); same file, line 29). Holding a filing extension does not move this date. If
+        you are already past the deadline, the only date we can schedule is today. The debit itself
+        is the commercially acceptable means the IRS is authorised to receive (IRC 6311(a);
+        26 U.S.C. 6311, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6311&amp;num=0&amp;edition=2024)."
+
+        ASKED WHEN: taxCalculations:/owesBalance is true AND /payViaAch is true. Not asked of a
+        filer paying another way; /paymentSectionComplete's not-paying-via-ACH arm treats that filer
+        as DONE with no date at all.
+
+        UNANSWERED POSTURE: NOT DEFAULTED and NOT REFUSED. Both window guards carry
+        IsComplete(/achPaymentDate) and resolve Complete false while it is blank, so nothing blocks
+        submission on emptiness alone; /paymentSectionComplete is INCOMPLETE until it is answered.
+        Never defaulted to today or to the deadline: a scheduled debit date is an instruction, and
+        guessing one is an answer the taxpayer did not give.
+
+        VALIDATION: type Day. Effective range MIN = signing:/today and MAX =
+        /achPaymentDateLastAllowableDate (filers:/taxDay ordinarily; signing:/today once the filer is
+        past it, which collapses the range to a single legal date). NOTE FOR THE IMPLEMENTER, and it
+        is the reason this range is written here in prose: THE RANGE IS NOT DECLARED AS A Limit ON
+        THIS WRITABLE AND CANNOT BE TODAY. Both bounds are derived facts, and
+        dictionary/ty2025/FactDictionaryModule.rng's LimitContent admits only Int, Dollar, String and
+        Day literals, so a bound naming a Dependency fails xmllint and the dictionary build (the
+        engine itself supports it; the repo's schema does not). Until that is lifted, the application owns
+        the range check at entry, and the two derived flags below own it at submission.
+
+        RE-VALIDATE AT SUBMISSION, NOT ONLY AT ENTRY. These bounds MOVE with the calendar: a date
+        that was legal when it was entered goes stale on its own, so a return that resolved clean
+        yesterday can be blocked today with no answer having changed. No entry-time check of any
+        kind can close that; it is why the two derived flags exist alongside the range.
+
+        WHAT THE ANSWER FEEDS: the MeF payment record's requested payment date (this fact carries
+        Export mef="true" directly; see the gated-twin gap recorded on
+        /achPaymentDateStaleAtSigning), and both /achPaymentDateStaleAtSigning (date earlier than
+        today) and /achPaymentDateBeyondPaymentWindow (date later than the last allowable date), each
+        of which blocks submission through its alias and sends the filer back to this screen.</Description>
+      <Export mef="true" />
+
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/achPaymentDateInThePast">
+      <Name>Payment date is scheduled in the past</Name>
+      <Description>Whether the specified payment date is in the past. The
+        predicate moved to /achPaymentDateStaleAtSigning, which
+        adds the /payViaAch conjunct this guard never carried, and this fact is now an alias over it
+        so the submission block and the fact path both stay where every reader already looks. The
+        alias is a Dependency reuse, not a second derivation of the same quantity: read
+        /achPaymentDateStaleAtSigning for the rule, its authority and its fixtures. It stays an
+        All-over-Derived body deliberately, because it is a protected entry of
+        js/test/factDictionaryTests/completenessProbe.baseline.json.</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <All>
+          <Dependency path="/achPaymentDateStaleAtSigning" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/achPaymentDateStaleAtSigning">
+      <Name>The elected ACH payment date has fallen behind today</Name>
+      <Description>The successor to paymentMethod:/achPaymentDateInThePast,
+        which is now an alias over this fact. True when
+        the filer has ELECTED to pay by ACH, owes a balance, and the date they scheduled the debit
+        for is earlier than signing:/today, so the instruction on the return can no longer be
+        carried out and the answer has to be re-taken.
+
+        THE NARROWING THIS FACT LANDS is a defect fix, not a refinement. The guard it succeeds never
+        checked /payViaAch, so a filer who answered a payment date and then set /payViaAch to false
+        and chose to pay some other way was still blocked by a date that feeds nothing. The module
+        proves the date feeds nothing in that state: /xmlPaymentBankAccount is a Switch whose only
+        Case is All(owesBalance, /payViaAch) and resolves to nothing otherwise, and
+        /paymentSectionComplete treats a filer who is not paying via ACH as DONE with no date
+        required at all.
+
+        COMPLETE-SAFE BY CONSTRUCTION: IsComplete(/achPaymentDate) and IsComplete(/payViaAch) are
+        both conjuncts, so an unanswered date or an unanswered election resolves this fact to
+        Complete false rather than Incomplete (All returns Complete false the moment any conjunct
+        is Complete false). Neither IsComplete gates a complete-safe fact: both wrap bare Writables
+        whose unanswered state is exactly the "source has not answered" predicate. The
+        election-unanswered residue is refused upstream by /paymentSectionComplete, every arm of
+        which needs /payViaAch resolved.
+
+        TIME-DEPENDENT, which almost no other refusal in this dictionary is: it reads signing:/today,
+        so a return that resolved clean yesterday is refused today with no answer having changed.
+        Every fixture pinning it controls signing:/todayOverride.
+
+        WHAT IS NOT LANDED HERE, named rather than assumed. The contract also asked for the intake
+        half: a Min bound on /achPaymentDate reading signing:/today. The ENGINE supports a derived
+        bound (limits/Min.scala and Max.scala each build theirs with CompNode.fromDerivedConfig,
+        whose registered factories include Dependency), but this repo does not yet accept one in the
+        dictionary: FactDictionaryModule.rng's LimitContent admits only Int, Dollar, String and Day
+        LITERALS, so xmllint rejects a Dependency bound outright, and scripts/limit_test.py's
+        supported() itemises it as a skip that its RATCHET turns into a live-run failure. Neither fix
+        is available to a dictionary author today. A Limit could not retire this fact in any case: it is evaluated when the answer is given and
+        cannot catch a date that goes stale afterwards, which is exactly what this flag catches.
+
+        NOR IS THE MeF HALF LANDED, and it is named here because /achPaymentDate's screen
+        specification points at this paragraph for it. /achPaymentDate carries a bare
+        Export mef="true" with NO election gate, while the account it travels with has the gated
+        /xmlPaymentBankAccount, a Switch whose only Case is
+        All(taxCalculations:/owesBalance, /payViaAch) (no line number: locators in this module drift).
+        So this narrowing stops the REFUSAL but
+        leaves a stale date reaching the return header for a filer who withdrew the election: the
+        payment block is emitted half-gated. The remedy is a gated /xmlAchPaymentDate twin shaped
+        exactly like /xmlPaymentBankAccount, with Export mef="true" moving off /achPaymentDate onto
+        the twin; it binds the MeF IRSPayment record's RequestedPaymentDate. It is QUEUED, not done:
+        the hold that used to sit on it (the e-file/MeF clause of invariant #7) was lifted, but no MeF schema is vendored
+        under sources/ and Export mef="true" carries no
+        element name anywhere in this repo, so the element naming is unciteable today.</Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/achPaymentDate" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/payViaAch" />
+          </IsComplete>
+          <Dependency path="/payViaAch" />
+          <Dependency module="taxCalculations" path="/owesBalance" />
+          <LessThan>
+            <Left>
+              <Dependency path="/achPaymentDate" />
+            </Left>
+            <Right>
+              <Dependency module="signing" path="/today" />
+            </Right>
+          </LessThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/achPaymentDateMustBeToday">
+      <Name>Require the ach payment date be today</Name>
+      <Description>Whether to require the ach payment date be today if they are filing after the deadline</Description>
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency module="signing" path="/today" />
+            </Left>
+            <Right>
+              <Dependency module="filers" path="/taxDay" />
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/achPaymentDateLastAllowableDate">
+      <Name>Last allowable date for ach payment</Name>
+      <Description>The last possible date for ach payment</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/achPaymentDateMustBeToday" />
+            </When>
+            <Then>
+              <Dependency module="signing" path="/today" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency module="filers" path="/taxDay" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/achPaymentDateAfterDeadline">
+      <Name>Payment date is scheduled for after tax day or last allowable date</Name>
+      <Description>Whether the specified payment date comes after the last tax day or last allowable
+        date. The predicate moved to
+        /achPaymentDateBeyondPaymentWindow, which adds the /payViaAch conjunct this guard never
+        carried, and this fact is now an alias over it so the submission block and the fact path both
+        stay where every reader already looks. The alias is a Dependency reuse, not a second
+        derivation of the same quantity. It stays an All-over-Derived body deliberately, because it
+        is a protected entry of js/test/factDictionaryTests/completenessProbe.baseline.json.</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <All>
+          <Dependency path="/achPaymentDateBeyondPaymentWindow" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/achPaymentDateBeyondPaymentWindow">
+      <Name>The elected ACH payment date is after the last allowable date</Name>
+      <Description>The successor to paymentMethod:/achPaymentDateAfterDeadline,
+        which is now an alias over this fact. True
+        when the filer has ELECTED to pay by ACH, owes a balance, and scheduled the debit for a date
+        after /achPaymentDateLastAllowableDate, which is filers:/taxDay ordinarily and signing:/today
+        once the filer is already past it.
+
+        THE MIRROR OF /achPaymentDateStaleAtSigning AND A DIFFERENT BODY. One flag fences the PAST
+        edge of the window, this one the FUTURE edge, and the future edge COLLAPSES ONTO TODAY once
+        the deadline has passed (/achPaymentDateLastAllowableDate is a Switch on
+        /achPaymentDateMustBeToday) so that a filer past filers:/taxDay is subject to both at once
+        and only one date is acceptable. They land together for that reason.
+
+        THE SAME NARROWING APPLIES, for the same measured reason: this guard also never checked
+        /payViaAch, so a filer who withdrew the ACH election was refused for a date the module itself
+        treats as feeding nothing. See the sibling for the two witnesses in the module's own body.
+
+        A STATUTORY POINT THIS FACT MUST NOT LOSE, and the one place the pair touches real tax law
+        rather than intake hygiene: IRC 6151(c) says the date fixed for payment is the last day fixed
+        for it "determined without regard to any extension of time for paying the tax", and 6151(a)
+        says the same of the filing extension. The window's late edge is therefore taxDay REGARDLESS
+        of any extension the filer holds, and a later unit that reaches for an extended date because
+        the filer extended is wrong on the statute. /achPaymentDateLastAllowableDate is correct today
+        for that reason and must stay so.
+
+        COMPLETE-SAFE BY CONSTRUCTION, exactly as the sibling: IsComplete(/achPaymentDate) and
+        IsComplete(/payViaAch) are both conjuncts, so an unanswered date or election resolves this
+        fact to Complete false rather than Incomplete.
+
+        WHAT IS DELIBERATELY NOT DONE: automatically CLAMPING the answer into the window. Silently
+        moving a taxpayer's scheduled debit date is an answer they did not give, and this repo's
+        standing instrument for an entry the filer must correct is the block plus the re-ask
+        (formW2s:/hasW2ValidationErrors, scheduleC:/scheduleCs/proprietorUnansweredOnMfj), not a
+        guess. WHAT IS NOT LANDED: the intake half, a Max bound on /achPaymentDate reading
+        /achPaymentDateLastAllowableDate. The engine supports a derived bound; this repo's RNG and
+        scripts/limit_test.py do not yet accept one. The sibling fact records the same finding.</Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/achPaymentDate" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/payViaAch" />
+          </IsComplete>
+          <Dependency path="/payViaAch" />
+          <Dependency module="taxCalculations" path="/owesBalance" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/achPaymentDate" />
+            </Left>
+            <Right>
+              <Dependency path="/achPaymentDateLastAllowableDate" />
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/paymentSectionComplete">
+      <Name>Payment Section Complete</Name>
+      <Description>The Payment Method section is as complete as it needs to be</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <All>
+            <Dependency module="taxCalculations" path="/dueRefund" />
+            <Dependency path="/refundViaAch" />
+            <IsComplete>
+              <Dependency path="/bankAccount" />
+            </IsComplete>
+          </All>
+          <All>
+            <Dependency module="taxCalculations" path="/dueRefund" />
+            <Not>
+              <Dependency path="/refundViaAch" />
+            </Not>
+          </All>
+          <All>
+            <Dependency module="taxCalculations" path="/owesBalance" />
+            <Dependency path="/payViaAch" />
+            <IsComplete>
+              <Dependency path="/bankAccount" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/achPaymentDate" />
+            </IsComplete>
+            <Any>
+              <Not>
+                <Dependency module="signing" path="/isPaperPath" />
+              </Not>
+              <Not>
+                <IsComplete>
+                  <Dependency module="signing" path="/isPaperPath" />
+                </IsComplete>
+              </Not>
+            </Any>
+          </All>
+          <All>
+            <Dependency module="taxCalculations" path="/owesBalance" />
+            <Dependency path="/payViaAch" />
+            <IsComplete>
+              <Dependency path="/bankAccount" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency path="/achPaymentDate" />
+            </IsComplete>
+            <Dependency module="signing" path="/isPaperPath" />
+            <Dependency module="flow" path="/flowHasSeenPaymentMethodAutocorrect" />
+          </All>
+          <All>
+            <Dependency module="taxCalculations" path="/owesBalance" />
+            <Not>
+              <Dependency path="/payViaAch" />
+            </Not>
+          </All>
+          <Not>
+            <Any>
+              <Dependency module="taxCalculations" path="/dueRefund" />
+              <Dependency module="taxCalculations" path="/owesBalance" />
+            </Any>
+          </Not>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlRefundBankAccount">
+      <Name>Refund Bank account</Name>
+      <Description>The bank account used for refunds to the taxpayer. Populates the IRS XML elements corresponding to
+        1040 lines 35b, 35c, and 35d.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="taxCalculations" path="/dueRefund" />
+                <Dependency path="/refundViaAch" />
+                <Not>
+                  <Dependency module="taxCalculations" path="/form8888Attached" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/bankAccount" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlPaymentBankAccount">
+      <Name>Payment Bank account</Name>
+      <Description>The bank account used for payments from the taxpayer to the IRS. Populates the IRSPayment XML
+        elements corresponding to 1040.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="taxCalculations" path="/owesBalance" />
+                <Dependency path="/payViaAch" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/bankAccount" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlRefundDisbursementCd">
+      <Name>Refund Disbursement Code</Name>
+      <Description>
+        MeF Variable: Refund Disbursement Code.
+        Acceptable values:
+        0 – Balance Due/Zero Balance
+        1 – Reloadable
+        Prepaid Card
+        2 – Bank Account
+        3 – Paper Check
+        4 – Non-reloadable Merchant Gift Card
+        5 - Cryptocurrency
+        6 - Other 1
+        7 -
+        Other 2
+      </Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="taxCalculations" path="/owesBalance" />
+                <Dependency module="taxCalculations" path="/zeroBalance" />
+              </Any>
+            </When>
+            <Then>
+              <Int>0</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="taxCalculations" path="/dueRefund" />
+                <Dependency path="/refundViaAch" />
+              </All>
+            </When>
+            <Then>
+              <Int>2</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="taxCalculations" path="/dueRefund" />
+                <Not>
+                  <Dependency path="/refundViaAch" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Int>3</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlHasUltimateBankAccount">
+      <Name>Has Ultimate Bank Account</Name>
+      <Description>
+        When an ultimate bank account exists, MeF requires us to add information about that bank account to
+        the return headers.
+        If /xmlRefundDisbursementCd is any value other than (0, 3, or 4), then
+        /xmlHasUltimateBankAccount should be true. Otherwise, it should have no value.
+      </Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/xmlRefundDisbursementCd" />
+                    </Left>
+                    <Right>
+                      <Int>0</Int>
+                    </Right>
+                  </Equal>
+                </Not>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/xmlRefundDisbursementCd" />
+                    </Left>
+                    <Right>
+                      <Int>3</Int>
+                    </Right>
+                  </Equal>
+                </Not>
+                <Not>
+                  <Equal>
+                    <Left>
+                      <Dependency path="/xmlRefundDisbursementCd" />
+                    </Left>
+                    <Right>
+                      <Int>4</Int>
+                    </Right>
+                  </Equal>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/refundAccountIsChecking">
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/xmlRefundBankAccount/accountType" />
+          </Left>
+          <Right>
+            <String>Checking</String>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/refundAccountIsSavings">
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/xmlRefundBankAccount/accountType" />
+          </Left>
+          <Right>
+            <String>Savings</String>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

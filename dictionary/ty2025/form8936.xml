@@ -1,0 +1,185 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8936PartIIBusinessUseCreditFromScheduleA">
+      <Name>Form 8936 line 6 — business-use credit from Schedule A vehicles</Name>
+      <Description>Sum of Schedule A line 11 for every answered vehicle copy, GATED ON THE SHARED IRC 30D(f)(10) MODIFIED AGI TEST: IRC 30D(f)(10) denies "the credit allowed under subsection (a)" outright when MAGI exceeds the threshold for both years, and (a) is what (c)(1) and (c)(2) later split into the business and personal halves — the denial applies before the split, so it reaches the business/investment-use portion the same as the personal portion. cleanVehicleCreditRepayment:/newCleanVehicleMagiAllowsCredit is that same taxpayer-level test (computed once, not per vehicle or per business/personal split; the per-vehicle Schedule A copy's own MAGI boxes, writableBoxc180-c191, are a filer-attested print mirror of the identical test and are not read here — see that module's own comment). MAGI DENIES: $0. MAGI ALLOWS: the collection sum, unchanged. MAGI UNDECIDED (AGI or filing status not yet answered): Incomplete, not $0 — the same posture cleanVehicleCreditRepayment:/newCleanVehicleBusinessUsePartOfCredit already takes on its own (scalar-arm) business-use line ("An attested filer whose MAGI cannot be decided leaves this line Incomplete rather than $0"). If the collection is empty, the existing single-vehicle scalar value remains the compatibility arm, itself already MAGI-gated. An incomplete entered vehicle line propagates Incomplete rather than dropping that vehicle.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+                <GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan>
+                <Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" />
+                <IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+                <Not><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+                <GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan>
+                <Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" />
+                <IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+                <Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" />
+              </All>
+            </When>
+            <Then><CollectionSum><Dependency module="form8936sa" path="/form8936VehiclesToPrint/*/writableBoxf230" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+                <Equal><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal>
+              </All>
+            </When>
+            <Then><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleBusinessUsePartOfCredit" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8936PartIIIPersonalUseCreditFromScheduleA">
+      <Name>Form 8936 line 9 — personal-use new-vehicle amount from Schedule A</Name>
+      <Description>Form 8936 line 9, the total of Schedule A line 12 over every new clean vehicle, GATED ON THE SHARED IRC 30D(f)(10) MODIFIED AGI TEST (the same gate the business-use sum /form8936PartIIBusinessUseCreditFromScheduleA now applies, and the personal-use SCALAR fallback below already applies): IRC 30D(f)(10) denies "the credit allowed under subsection (a)" outright when MAGI exceeds the threshold for both years, before (c)(1)/(c)(2) split that allowance into the business and personal halves, so this side of the same Schedule A copy is denied on the identical population. cleanVehicleCreditRepayment:/newCleanVehicleMagiAllowsCredit is the taxpayer-level test (computed once, not per vehicle or per business/personal split; the per-vehicle Schedule A copy's own MAGI boxes, writableBoxc180-c191, are a filer-attested print mirror of the identical test and are not read here). MAGI DENIES: $0. MAGI ALLOWS: the collection sum, unchanged. MAGI UNDECIDED (AGI or filing status not yet answered): Incomplete, not $0. When Schedule A vehicle copies are entered and every copy is attested complete AND the MAGI test resolves, it is the sum of their line 12 amounts (or $0 when MAGI denies). When no copy is entered (an explicitly empty collection, or items with no printed box), it is cleanVehicleCreditRepayment /newCleanVehicleCreditsBeforeTaxLiabilityLimit: the single-vehicle intake's Schedule A line 12 plus the capped line 12 of every vehicle on /additionalNewCleanVehicles, the same aggregate Form 8936 line 13 limits — that scalar arm is already MAGI-gated on its own. That single-vehicle amount is $0 where Schedule A stops the filer before line 9: a vehicle the filer does not affirm as qualifying (lines 5 and 8e), a filer whose modified adjusted gross income is over the limit in both years (line 8d), and a credit transferred to the dealer (lines 8c and 8d). The copies and the additional-vehicle intake each describe whole vehicles, and the return cannot tell whether they overlap, so when copies are entered while the /additionalNewCleanVehicles candidates carry a credit (or an opened additional vehicle is not yet complete) this line is Incomplete: it neither drops those vehicles nor counts a vehicle twice. Additional vehicles whose candidates are all $0 add nothing to line 9 and do not block the copies. An unanswered collection, or an entered copy not attested complete, is Incomplete. The line 12 figure on the single-vehicle intake is the capped subtraction; it differs from the printed subtraction only on a tentative credit above the $7,500 the intake Limit already forbids. Reading recorded as TAX-INTERPRETATIONS CR-17.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+                <GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan>
+                <Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" />
+                <IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/additionalNewCleanVehiclesCreditCandidateSum" /></IsComplete>
+                <Equal><Left><Dependency module="cleanVehicleCreditRepayment" path="/additionalNewCleanVehiclesCreditCandidateSum" /></Left><Right><Dollar>0</Dollar></Right></Equal>
+                <IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+                <Not><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+                <GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan>
+                <Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" />
+                <IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/additionalNewCleanVehiclesCreditCandidateSum" /></IsComplete>
+                <Equal><Left><Dependency module="cleanVehicleCreditRepayment" path="/additionalNewCleanVehiclesCreditCandidateSum" /></Left><Right><Dollar>0</Dollar></Right></Equal>
+                <IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" /></IsComplete>
+                <Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleMagiAllowsCredit" />
+              </All>
+            </When>
+            <Then><CollectionSum><Dependency module="form8936sa" path="/form8936VehiclesToPrint/*/writableBoxf240" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete>
+                <Equal><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal>
+              </All>
+            </When>
+            <Then><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleCreditsBeforeTaxLiabilityLimit" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8936PartIVCreditFromScheduleA">
+      <Name>Form 8936 line 14 — previously owned vehicle amount from Schedule A</Name>
+      <Description>Sum of Schedule A line 17 for every answered vehicle copy. If the collection is empty, the existing scalar Form 8936 amount remains the compatibility arm.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Switch><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan><Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" /></All></When><Then><CollectionSum><Dependency module="form8936sa" path="/form8936VehiclesToPrint/*/writableBoxf280" /></CollectionSum></Then></Case><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><Equal><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal></All></When><Then><Dependency module="cleanVehicleCreditRepayment" path="/usedCleanVehicleTentativeCreditAmount" /></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form8936PartVCreditFromScheduleA">
+      <Name>Form 8936 line 19 — commercial vehicle amount from Schedule A</Name>
+      <Description>Sum of Schedule A line 26 for every answered vehicle copy. If the collection is empty, the existing scalar commercial amount remains the compatibility arm.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Switch><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan><Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" /></All></When><Then><CollectionSum><Dependency module="form8936sa" path="/form8936VehiclesToPrint/*/writableBoxf3100" /></CollectionSum></Then></Case><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><Equal><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal></All></When><Then><Dependency module="cleanVehicleCreditRepayment" path="/form8936CommercialCleanVehicleCreditFromScheduleA" /></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form8936UsedVehicleTaxLiabilityLimit">
+      <Name>Form 8936 line 17 tax-liability limit for previously owned clean vehicles</Name>
+      <Description>Form 8936 line 17 is Form 1040 line 18 minus the Form 8936 line-16 credits, floored at zero. The list is carried by the existing line-16 fact; this roll-up uses the same ordered credit limit for the multiple Schedule A line-17 amounts.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dollar>0</Dollar><Subtract><Minuend><Dependency module="taxCalculations" path="/totalTentativeTax" /></Minuend><Subtrahends><Dependency module="cleanVehicleCreditRepayment" path="/form8936CreditsOrderedBeforeUsedCredit" /></Subtrahends></Subtract></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form8936Schedule3Line6mUsedCleanVehicleCredit">
+      <Name>Form 8936 line 18 export: previously owned clean vehicle credit to Schedule 3 line 6m</Name>
+      <Description>When per-vehicle Schedule A items are present, this is the smaller of the sum of their line-17 amounts and the return-level tax capacity at Form 8936 line 17. Otherwise it preserves the existing scalar computation. Schedule 3 must read this export only after IsComplete is true.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Switch><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan><Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" /></All></When><Then><LesserOf><Dependency path="/form8936PartIVCreditFromScheduleA" /><Dependency path="/form8936UsedVehicleTaxLiabilityLimit" /></LesserOf></Then></Case><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><Equal><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal></All></When><Then><Dependency module="cleanVehicleCreditRepayment" path="/usedCleanVehicleCredit" /></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form8936CreditsOrderedBeforeNewVehicleCredit">
+      <Name>Credits ordered before the new clean vehicle credit (Form 8936 line 11)</Name>
+      <Description>Form 8936 line 11 is the prior-credit list on Form 8936 line 16 plus the Form 8936 line 18 previously owned vehicle credit, which is used before the new clean vehicle credit.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency module="cleanVehicleCreditRepayment" path="/form8936CreditsOrderedBeforeUsedCredit" /><Dependency module="form8936" path="/form8936Schedule3Line6mUsedCleanVehicleCredit" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8936NewVehicleTaxLiabilityLimit">
+      <Name>Form 8936 line 12 tax-liability limit for the personal-use new clean vehicle credit</Name>
+      <Description>Form 8936 line 12 is Form 1040 line 18 minus the line-11 credits, floored at zero.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dollar>0</Dollar><Subtract><Minuend><Dependency module="taxCalculations" path="/totalTentativeTax" /></Minuend><Subtrahends><Dependency module="form8936" path="/form8936CreditsOrderedBeforeNewVehicleCredit" /></Subtrahends></Subtract></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form8936Schedule3Line6fNewCleanVehicleCredit">
+      <Name>Form 8936 line 13 export: new clean vehicle credit to Schedule 3 line 6f</Name>
+      <Description>When per-vehicle Schedule A items are present, this is the smaller of line 9 (their line-12 amounts) and the return-level tax capacity at Form 8936 line 12; where line 9 refuses because additional new vehicles carrying a credit sit beside the copies, this line is Incomplete too. Otherwise it preserves the existing scalar computation, which limits the same all-vehicle aggregate line 9 prints. Schedule 3 must read this export only after IsComplete is true.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Switch><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan><Dependency module="form8936sa" path="/form8936VehicleSchedulesComplete" /></All></When><Then><LesserOf><Dependency path="/form8936PartIIIPersonalUseCreditFromScheduleA" /><Dependency path="/form8936NewVehicleTaxLiabilityLimit" /></LesserOf></Then></Case><Case><When><All><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete><Equal><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></Equal></All></When><Then><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleCredit" /></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form8936ReturnFilesThisForm">
+      <Name>Return files Form 8936</Name>
+      <Description>True when an answered Schedule A vehicle copy is present or a positive clean-vehicle credit or transferred-credit amount is entered through the existing scalar intake. A seeded empty vehicle collection and a bare return resolve false; an unanswered vehicle collection remains Incomplete unless an existing scalar proves the form is filed.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="form8936sa" path="/form8936Vehicles" /></IsComplete></When>
+            <Then><Any><GreaterThan><Left><CollectionSize><Dependency module="form8936sa" path="/form8936VehiclesToPrint" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredNewCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredNewCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredUsedCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredUsedCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleTentativeCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleTentativeCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableUsedCleanVehicleSalePrice" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableUsedCleanVehicleSalePrice" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleCreditFromPassThroughEntities" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleCreditFromPassThroughEntities" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableCommercialCleanVehicleCreditFromPassThroughEntities" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableCommercialCleanVehicleCreditFromPassThroughEntities" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/usedCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/usedCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All></Any></Then>
+          </Case>
+          <Case>
+            <When><Any><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredNewCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredNewCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredUsedCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableTransferredUsedCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleTentativeCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleTentativeCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableUsedCleanVehicleSalePrice" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableUsedCleanVehicleSalePrice" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleCreditFromPassThroughEntities" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableNewCleanVehicleCreditFromPassThroughEntities" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/writableCommercialCleanVehicleCreditFromPassThroughEntities" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/writableCommercialCleanVehicleCreditFromPassThroughEntities" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/newCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All><All><IsComplete><Dependency module="cleanVehicleCreditRepayment" path="/usedCleanVehicleCredit" /></IsComplete><GreaterThan><Left><Dependency module="cleanVehicleCreditRepayment" path="/usedCleanVehicleCredit" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All></Any></When>
+            <Then><True /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

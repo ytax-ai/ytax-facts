@@ -1,0 +1,76 @@
+# IRS1099DIV — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099DIV/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 7a8212b1997c0a8c2bd6ef78d619ab3342eec17e1a8e1a7b33e20bb3539bbbfb
+# boxes: 36   acroform fields: 140   boxes with a fact: 36
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (6): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 14 row 1 `State`: shared spelling `state` names 2 readings
+# unspelled: box 14 row 2 `State`: shared spelling `state` names 2 readings
+# unspelled: box 15 row 1 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 15 row 2 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 16 row 1 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 16 row 2 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/dividendReports/*/writableCalendarYear	String		
+void		VOID	void	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[0]	/dividendReports/*/writableVoid	Bool		
+corrected		CORRECTED	corrected	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]|topmostSubform[0].CopyB[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[1]	/dividendReports/*/writableCorrected	Bool		
+payer-name		PAYER'S name	payer's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_2[0]	/dividendReports/*/payer	String		
+payer-tin		PAYER'S TIN	payer's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_3[0]	/dividendReports/*/payer/tin	EIN		
+recipient-tin		RECIPIENT'S TIN; the per-item Derived TIN resolved from this report's own filer	recipient's tin; the per-item derived tin resolved from this report's own filer	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_4[0]	/dividendReports/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_5[0]	/dividendReports/*/writableRecipientName	String		
+recipient-address	1	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_6[0]	/dividendReports/*/writableRecipientStreetAddress	String		
+recipient-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_7[0]	/dividendReports/*/writableRecipientCityStateZip	String		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_8[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_8[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_8[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_8[0]	/dividendReports/*/writableAccountNumber	String		
+2nd-tin-not		2nd TIN not. checkbox	2nd tin not. checkbox	topmostSubform[0].CopyA[0].LeftCol[0].c1_4[0]	/dividendReports/*/writableSecondTinNotice	Bool		
+1a		Total ordinary dividends	1a total ordinary dividends	topmostSubform[0].CopyA[0].RghtCol[0].f1_9[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_9[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_9[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_9[0]	/dividendReports/*/writableOrdinaryDividends	Dollar		
+1b		Qualified dividends	1b qualified dividends	topmostSubform[0].CopyA[0].RghtCol[0].f1_10[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_10[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_10[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_10[0]	/dividendReports/*/writableQualifiedDividends	Dollar		
+2a		Total capital gain distr.	2a total capital gain distr	topmostSubform[0].CopyA[0].RghtCol[0].Box2a_ReadOrder[0].f1_11[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box2a_ReadOrder[0].f2_11[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box2a_ReadOrder[0].f2_11[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box2a_ReadOrder[0].f2_11[0]	/dividendReports/*/writableCapitalGainDistributions	Dollar		
+2b		Unrecap. Sec. 1250 gain	unrecap. sec. 1250 gain	topmostSubform[0].CopyA[0].RghtCol[0].f1_12[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_12[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_12[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_12[0]	/dividendReports/*/writableUnrecapturedSection1250Gain	Dollar		
+2c		Section 1202 gain	section 1202 gain	topmostSubform[0].CopyA[0].RghtCol[0].Box2c_ReadOrder[0].f1_13[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box2c_ReadOrder[0].f2_13[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box2c_ReadOrder[0].f2_13[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box2c_ReadOrder[0].f2_13[0]	/dividendReports/*/writableSection1202Gain	Dollar		
+2d		Collectibles (28%) gain	collectibles (28%) gain	topmostSubform[0].CopyA[0].RghtCol[0].f1_14[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_14[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_14[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_14[0]	/dividendReports/*/writableCollectiblesGain	Dollar		
+2e		Section 897 ordinary dividends	section 897 ordinary dividends	topmostSubform[0].CopyA[0].RghtCol[0].Box2e_ReadOrder[0].f1_15[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box2e_ReadOrder[0].f2_15[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box2e_ReadOrder[0].f2_15[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box2e_ReadOrder[0].f2_15[0]	/dividendReports/*/writableSection897OrdinaryDividends	Dollar		
+2f		Section 897 capital gain	section 897 capital gain	topmostSubform[0].CopyA[0].RghtCol[0].f1_16[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_16[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_16[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_16[0]	/dividendReports/*/writableSection897CapitalGain	Dollar		
+3		Nondividend distributions	nondividend distributions	topmostSubform[0].CopyA[0].RghtCol[0].Box3_ReadOrder[0].f1_17[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box3_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box3_ReadOrder[0].f2_17[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box3_ReadOrder[0].f2_17[0]	/dividendReports/*/writableNondividendDistribution	Dollar		
+4		Federal income tax withheld	4 federal income tax withheld	topmostSubform[0].CopyA[0].RghtCol[0].f1_18[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_18[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_18[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_18[0]	/dividendReports/*/writableFederalWithholding	Dollar		
+5		Section 199A dividends	section 199a dividends	topmostSubform[0].CopyA[0].RghtCol[0].Box5_ReadOrder[0].f1_19[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5_ReadOrder[0].f2_19[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box5_ReadOrder[0].f2_19[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5_ReadOrder[0].f2_19[0]	/dividendReports/*/writableSection199ADividends	Dollar		
+6		Investment expenses	investment expenses	topmostSubform[0].CopyA[0].RghtCol[0].f1_20[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_20[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_20[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_20[0]	/dividendReports/*/writableInvestmentExpenses	Dollar		
+7		Foreign tax paid	foreign tax paid	topmostSubform[0].CopyA[0].RghtCol[0].Box7_ReadOrder[0].f1_21[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box7_ReadOrder[0].f2_21[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box7_ReadOrder[0].f2_21[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box7_ReadOrder[0].f2_21[0]	/dividendReports/*/writableForeignTaxPaid	Dollar		
+8		Foreign country or U.S. possession	foreign country or u.s. possession	topmostSubform[0].CopyA[0].RghtCol[0].f1_22[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_22[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_22[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_22[0]	/dividendReports/*/writableForeignCountryOrUsPossession	String		
+9		Cash liquidation distributions	cash liquidation distributions	topmostSubform[0].CopyA[0].RghtCol[0].Box9_ReadOrder[0].f1_23[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box9_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box9_ReadOrder[0].f2_23[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box9_ReadOrder[0].f2_23[0]	/dividendReports/*/writableCashLiquidationDistribution	Dollar		
+10		Noncash liquidation distributions	noncash liquidation distributions	topmostSubform[0].CopyA[0].RghtCol[0].f1_24[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_24[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_24[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_24[0]	/dividendReports/*/writableNoncashLiquidationDistribution	Dollar		
+11		FATCA filing requirement checkbox	fatca filing requirement checkbox	topmostSubform[0].CopyA[0].RghtCol[0].TagCorrectingSubform[0].c1_3[0]|topmostSubform[0].Copy1[0].RghtCol[0].TagCorrectingSubform[0].c2_3[0]|topmostSubform[0].CopyB[0].RghtCol[0].TagCorrectingSubform[0].c2_3[0]|topmostSubform[0].Copy2[0].RghtCol[0].TagCorrectingSubform[0].c2_3[0]	/dividendReports/*/writableFatcaFilingRequirement	Bool		
+12		Exempt-interest dividends	exempt-interest dividends	topmostSubform[0].CopyA[0].RghtCol[0].Box12_ReadOrder[0].f1_25[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box12_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box12_ReadOrder[0].f2_25[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box12_ReadOrder[0].f2_25[0]	/dividendReports/*/writableExemptInterestDividends	Dollar		
+13		Specified private activity bond interest dividends	specified private activity bond interest dividends	topmostSubform[0].CopyA[0].RghtCol[0].f1_26[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_26[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_26[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_26[0]	/dividendReports/*/writableSpecifiedPrivateActivityBondInterestDividends	Dollar		
+14	1	State		topmostSubform[0].CopyA[0].RghtCol[0].Box14_ReadOrder[0].f1_27[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box14_ReadOrder[0].f2_27[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box14_ReadOrder[0].f2_27[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box14_ReadOrder[0].f2_27[0]	/dividendReports/*/writablePayerStateAbbreviation	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+14	2	State		topmostSubform[0].CopyA[0].RghtCol[0].Box14_ReadOrder[0].f1_28[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box14_ReadOrder[0].f2_28[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box14_ReadOrder[0].f2_28[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box14_ReadOrder[0].f2_28[0]	/dividendReports/*/writablePayerStateAbbreviation2	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+15	1	State identification no.		topmostSubform[0].CopyA[0].RghtCol[0].Box15_ReadOrder[0].f1_29[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box15_ReadOrder[0].f2_29[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box15_ReadOrder[0].f2_29[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box15_ReadOrder[0].f2_29[0]	/dividendReports/*/writableStateIdNumber	String		
+15	2	State identification no.		topmostSubform[0].CopyA[0].RghtCol[0].Box15_ReadOrder[0].f1_30[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box15_ReadOrder[0].f2_30[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box15_ReadOrder[0].f2_30[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box15_ReadOrder[0].f2_30[0]	/dividendReports/*/writableStateIdNumber2	String		
+16	1	State tax withheld		topmostSubform[0].CopyA[0].RghtCol[0].f1_31[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_31[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_31[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_31[0]	/dividendReports/*/writableStateTaxWithheld	Dollar		
+16	2	State tax withheld		topmostSubform[0].CopyA[0].RghtCol[0].f1_32[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_32[0]|topmostSubform[0].CopyB[0].RghtCol[0].f2_32[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_32[0]	/dividendReports/*/writableStateTaxWithheld2	Dollar		

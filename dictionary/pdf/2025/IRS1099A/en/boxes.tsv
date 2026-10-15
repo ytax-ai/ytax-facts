@@ -1,0 +1,51 @@
+# IRS1099A — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099A/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 658c4836c54a653982af45a77f503fa5795e1a68b01e15b2e8f9fdd26c02bdfd
+# boxes: 17   acroform fields: 31   boxes with a fact: 16
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:514193fd9e6a	For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/form1099As/*/writableCalendarYear	String		
+—	caption:90251d5ff401	VOID	void	topmostSubform[0].CopyA[0].c1_1[0]	/form1099As/*/writableVoid	Bool		
+—	caption:9ba6c34da4e6	CORRECTED	corrected	topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].CopyB[0].c2_1[0]	/form1099As/*/writableCorrected	Bool		
+—	caption:30414f238c2e	LENDER’S name, street address, city or town, state or province, country, Z I P or foreign postal code, and telephone no	lender’s name, street address, city or town, state or province, country, z i p or foreign postal code, and telephone no	topmostSubform[0].CopyA[0].LeftCol[0].f1_1[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]	/form1099As/*/writableLenderNameAddressAndTelephoneNumber	String		
+—	caption:7728409bbe86	LENDER'S T I N	lender's t i n	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]	/form1099As/*/writableLenderTin	TIN		
+—	caption:2b17355a9844	BORROWER'S T I N	borrower's t i n	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]	/form1099As/*/borrowerTin	TIN		
+—	caption:3955e06db6bf	BORROWER'S name	borrower's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]	/form1099As/*/writableBorrowerName	String		
+—	caption:f2e269305549	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]	/form1099As/*/writableStreetAddress	String		
+—	caption:e5278dd672c6	City or town, state or province, country, and Z I P or foreign postal code	city or town, state or province, country, and z i p or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]	/form1099As/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode	String		
+—	caption:be07365341dc	Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_8[0]	/form1099As/*/writableAccountNumber	String		
+1		Date of lender's acquisition or knowledge of abandonment	date of lender's acquisition or knowledge of abandonment	topmostSubform[0].CopyA[0].RightCol[0].f1_8[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_9[0]	/form1099As/*/writableDateOfLendersAcquisitionOrKnowledgeOfAbandonment	Day		
+2		Balance of principal outstanding	balance of principal outstanding	topmostSubform[0].CopyA[0].RightCol[0].f1_9[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_10[0]	/form1099As/*/writableBalanceOfPrincipalOutstanding	Dollar		
+3				topmostSubform[0].CopyA[0].RightCol[0].R2[0]|topmostSubform[0].CopyB[0].RightCol[0].R2[0]				RESERVED
+4		Fair market value of property	fair market value of property	topmostSubform[0].CopyA[0].RightCol[0].f1_10[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_11[0]	/form1099As/*/writableFairMarketValueOfProperty	Dollar		
+5	1	Check if the borrower was personally liable for repayment of the debt	check if the borrower was personally liable for repayment of the debt	topmostSubform[0].CopyA[0].RightCol[0].c1_2[0]	/form1099As/*/writableCheckIfTheBorrowerWasPersonallyLiableForRepaymentOfTheDebt	Bool		
+6		Description of property	description of property	topmostSubform[0].CopyA[0].RightCol[0].f1_11[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_12[0]	/form1099As/*/writableDescriptionOfProperty	String		
+5	2	If checked, the borrower was personally liable for repayment of the debt	if checked, the borrower was personally liable for repayment of the debt	topmostSubform[0].CopyB[0].RightCol[0].c2_2[0]	/form1099As/*/writableCheckIfTheBorrowerWasPersonallyLiableForRepaymentOfTheDebt	Bool		

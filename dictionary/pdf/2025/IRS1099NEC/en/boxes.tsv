@@ -1,0 +1,63 @@
+# IRS1099NEC — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099NEC/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 6cfed4bba723ef3454e527b156cc954c526646175fa0a0c8972f39f42645090c
+# boxes: 21   acroform fields: 80   boxes with a fact: 21
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (8): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box void-corrected row 1 `VOID / CORRECTED checkboxes`: shared spelling `void / corrected checkboxes` names 2 readings
+# unspelled: box void-corrected row 2 `VOID / CORRECTED checkboxes`: shared spelling `void / corrected checkboxes` names 2 readings
+# unspelled: box recipient-address row 1 `Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code`: shared spelling `street address (including apt. no.); city or town, state or province, country, and zip or foreign postal code` names 2 readings
+# unspelled: box recipient-address row 2 `Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code`: shared spelling `street address (including apt. no.); city or town, state or province, country, and zip or foreign postal code` names 2 readings
+# unspelled: box 5 row 1 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 5 row 2 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 7 row 1 `State income`: shared spelling `state income` names 2 readings
+# unspelled: box 7 row 2 `State income`: shared spelling `state income` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year, printed in the title block	for calendar year, printed in the title block	topmostSubform[0].CopyA[0].PgHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].Copy1[0].PgHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].CopyB[0].PgHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].Copy2[0].PgHeader[0].CalendarYear[0].f2_1[0]	/form1099Necs/*/writableCalendarYear	String		
+void-corrected	1	VOID / CORRECTED checkboxes		topmostSubform[0].CopyA[0].c1_1[0]|topmostSubform[0].Copy1[0].PgHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].c2_1[0]	/form1099Necs/*/writableVoid	Bool		
+void-corrected	2	VOID / CORRECTED checkboxes		topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].Copy1[0].PgHeader[0].c2_1[1]|topmostSubform[0].CopyB[0].c2_1[0]|topmostSubform[0].Copy2[0].c2_1[1]	/form1099Necs/*/writableCorrected	Bool		
+payer-name		PAYER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no.	payer's name, street address, city or town, state or province, country, zip or foreign postal code, and telephone no	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_2[0]	/form1099Necs/*/writablePayerNameAddress	String		
+payer-tin		PAYER'S TIN	payer's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_3[0]	/form1099Necs/*/writablePayerTin	EIN		
+recipient-tin		RECIPIENT'S TIN	recipient's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_4[0]	/form1099Necs/*/writableRecipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_5[0]	/form1099Necs/*/writableRecipientName	String		
+recipient-address	1	Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code		topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_6[0]	/form1099Necs/*/writableRecipientStreetAddress	String		
+recipient-address	2	Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code		topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_7[0]	/form1099Necs/*/writableRecipientCityStateZip	String		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_8[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_8[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_8[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_8[0]	/form1099Necs/*/writableAccountNumber	String		
+2nd-tin-not		2nd TIN not. checkbox	2nd tin not. checkbox	topmostSubform[0].CopyA[0].LeftCol[0].c1_2[0]	/form1099Necs/*/writableSecondTinNotice	Bool		
+1		Nonemployee compensation	nonemployee compensation	topmostSubform[0].CopyA[0].RightCol[0].f1_9[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_9[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_9[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_9[0]	/form1099Necs/*/writableNonemployeeCompensation	Dollar		
+2		Payer made direct sales totaling $5,000 or more of consumer products to recipient for resale	payer made direct sales totaling $5,000 or more of consumer products to recipient for resale	topmostSubform[0].CopyA[0].RightCol[0].c1_3[0]|topmostSubform[0].Copy1[0].RightCol[0].c2_3[0]|topmostSubform[0].CopyB[0].RightCol[0].c2_3[0]|topmostSubform[0].Copy2[0].RightCol[0].c2_3[0]	/form1099Necs/*/writablePayerMadeDirectSales	Bool		
+3		Excess golden parachute payments	excess golden parachute payments	topmostSubform[0].CopyA[0].RightCol[0].f1_10[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_10[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_10[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_10[0]	/form1099Necs/*/writableExcessGoldenParachutePayments	Dollar		
+4		Federal income tax withheld	federal income tax withheld	topmostSubform[0].CopyA[0].RightCol[0].f1_11[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_11[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_11[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_11[0]	/form1099Necs/*/writableFederalWithholding	Dollar		
+5	1	State tax withheld		topmostSubform[0].CopyA[0].RightCol[0].Box5_ReadOrder[0].f1_12[0]|topmostSubform[0].Copy1[0].RightCol[0].Box5_ReadOrder[0].f2_12[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5_ReadOrder[0].f2_12[0]|topmostSubform[0].Copy2[0].RightCol[0].Box5_ReadOrder[0].f2_12[0]	/form1099Necs/*/writableStateTaxWithheld	Dollar		
+5	2	State tax withheld		topmostSubform[0].CopyA[0].RightCol[0].Box5_ReadOrder[0].f1_13[0]|topmostSubform[0].Copy1[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].Copy2[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]	/form1099Necs/*/writableStateTaxWithheld2	Dollar		
+6	1	State/Payer's state no., row 1 — the payer's state number; the state half is writablePayerStateAbbreviation, which this one cell does not also print	state/payer's state no., row 1 — the payer's state number; the state half is writablepayerstateabbreviation, which this one cell does not also print	topmostSubform[0].CopyA[0].RightCol[0].Box6_ReadOrder[0].f1_14[0]|topmostSubform[0].Copy1[0].RightCol[0].Box6_ReadOrder[0].f2_14[0]|topmostSubform[0].CopyB[0].RightCol[0].Box6_ReadOrder[0].f2_14[0]|topmostSubform[0].Copy2[0].RightCol[0].Box6_ReadOrder[0].f2_14[0]	/form1099Necs/*/writablePayerStateIdNumber	String		
+6	2	State/Payer's state no., row 2 — the payer's state number; the state half is writablePayerStateAbbreviation2, which this one cell does not also print	state/payer's state no., row 2 — the payer's state number; the state half is writablepayerstateabbreviation2, which this one cell does not also print	topmostSubform[0].CopyA[0].RightCol[0].Box6_ReadOrder[0].f1_15[0]|topmostSubform[0].Copy1[0].RightCol[0].Box6_ReadOrder[0].f2_15[0]|topmostSubform[0].CopyB[0].RightCol[0].Box6_ReadOrder[0].f2_15[0]|topmostSubform[0].Copy2[0].RightCol[0].Box6_ReadOrder[0].f2_15[0]	/form1099Necs/*/writablePayerStateIdNumber2	String		
+7	1	State income		topmostSubform[0].CopyA[0].RightCol[0].Box7_ReadOrder[0].f1_16[0]|topmostSubform[0].Copy1[0].RightCol[0].Box7_ReadOrder[0].f2_16[0]|topmostSubform[0].CopyB[0].RightCol[0].Box7_ReadOrder[0].f2_16[0]|topmostSubform[0].Copy2[0].RightCol[0].Box7_ReadOrder[0].f2_16[0]	/form1099Necs/*/writableStateIncome	Dollar		
+7	2	State income		topmostSubform[0].CopyA[0].RightCol[0].Box7_ReadOrder[0].f1_17[0]|topmostSubform[0].Copy1[0].RightCol[0].Box7_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyB[0].RightCol[0].Box7_ReadOrder[0].f2_17[0]|topmostSubform[0].Copy2[0].RightCol[0].Box7_ReadOrder[0].f2_17[0]	/form1099Necs/*/writableStateIncome2	Dollar		

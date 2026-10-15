@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/compute-request.schema.json",
+  "title": "Common compute request",
+  "description": "The shared request shape for compute operations: tax_year plus either inline facts (one-shot) or a return_id referencing an assembled workspace. tax_year is a FIELD, never part of the path or tool name.",
+  "type": "object",
+  "required": ["tax_year"],
+  "properties": {
+    "tax_year": {
+      "description": "2024 | 2025 | 2026. ty2026 ships as data that REFUSES what the IRS has not announced.",
+      "type": "integer",
+      "enum": [2024, 2025, 2026]
+    },
+    "facts": { "$ref": "facts.schema.json" },
+    "return_id": {
+      "description": "Reference to an assembled workspace, in place of inline facts.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,64}$"
+    },
+    "options": { "type": "object" }
+  },
+  "oneOf": [
+    { "required": ["facts"] },
+    { "required": ["return_id"] }
+  ]
+}

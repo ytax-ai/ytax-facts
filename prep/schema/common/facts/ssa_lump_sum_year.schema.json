@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/ssa_lump_sum_year.schema.json",
+  "title": "An earlier year a 2025 Social Security lump-sum payment is attributable to",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "earlier_year",
+    "lump_sum_portion_cents",
+    "benefits_received_cents",
+    "adjusted_gross_income_cents",
+    "exclusions_cents",
+    "tax_exempt_interest_cents",
+    "taxable_benefits_reported_cents",
+    "filed_jointly",
+    "mfs_lived_with_spouse"
+  ],
+  "properties": {
+    "earlier_year": {
+      "description": "The earlier taxable year this row's part of the 2025 lump-sum payment is for, as the benefit statement shows it. Between 1984 and 2024: a part for years before 1984 is not taxed and is not in box 3, and a year that is not earlier than 2025 is not a prior taxable year under IRC 86(e)(1)(A). The year picks the worksheet the engine refigures with \u2014 Publication 915 Worksheet 2 for 1994 and later, Worksheet 3 for 1993 and earlier \u2014 and both read the same answers on this row.",
+      "type": "integer",
+      "minimum": 1984,
+      "maximum": 2024
+    },
+    "lump_sum_portion_cents": {
+      "description": "The part of the 2025 lump-sum payment that is for this earlier year (Publication 915, Worksheet 2 and 3, line 1). Required. It is added to that year's own benefits and subtracted from this year's box 5 total.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "benefits_received_cents": {
+      "description": "The benefits received in the earlier year itself \u2014 box 5 of that year's statement (Publication 915, Worksheet 2 and 3, line 1, first term). Required; 0 if none.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "adjusted_gross_income_cents": {
+      "description": "The earlier year's adjusted gross income (Publication 915, Worksheet 2 and 3, line 3). Required.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "exclusions_cents": {
+      "description": "The earlier year's exclusions and adjustments added back (Publication 915, Worksheet 2 and 3, line 4). Required; 0 if none.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "tax_exempt_interest_cents": {
+      "description": "The earlier year's tax-exempt interest (Publication 915, Worksheet 2 and 3, line 5). Required; 0 if none.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "taxable_benefits_reported_cents": {
+      "description": "The benefits already taxed for the earlier year \u2014 what that year's return reported (Publication 915, Worksheet 2 line 7, Worksheet 3 line 7). Required; 0 if none.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "filed_jointly": {
+      "description": "Whether the earlier year's return was a joint return. Required: it decides the base amount the refigure uses.",
+      "type": "boolean"
+    },
+    "mfs_lived_with_spouse": {
+      "description": "Whether the earlier year's return was married filing separately AND the filers lived together at some time that year. Required: that combination drops the base amount to 0 for the refigure.",
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/misc1099.schema.json",
+  "title": "Form 1099-MISC (box 2 royalties, box 3 other income)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "other_income_cents"
+  ],
+  "properties": {
+    "person": {
+      "description": "Index into persons[]. The filer this Form 1099-MISC was issued to \u2014 the primary, or the spouse on a joint return.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "royalties_cents": {
+      "description": "Box 2, royalties. Optional: absent means this form's box 2 is blank. Every 1099-MISC's box 2 on the return is summed into the one return-level royalty activity (the dictionary models royalties as a single activity, not one per form) \u2014 the ordinary expenses and the oil/gas/geothermal classification are asked once, at the root (`royalty_expenses_cents`, `royalty_is_oil_gas_geothermal`), never on this form. Reaches Schedule E line 4 and, through Schedule 1 line 5 and Form 1040 line 8, line 9. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "other_income_cents": {
+      "description": "Box 3, other income \u2014 the only 1099-MISC box the engine holds at the pin besides box 2 (rents and the medical and other boxes are not covered). Required: the form is issued because an amount was paid, so a blank box is an unread box. Reaches Schedule 1 line 8z (line 8g when it is an Alaska Permanent Fund dividend) and, through Schedule 1 line 10 and Form 1040 line 8, line 9. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "is_alaska_pfd": {
+      "description": "Whether box 3 of this form is an Alaska Permanent Fund dividend \u2014 the engine's own question on every 1099-MISC, whose unanswered default reads true. Required once box 3 (`other_income_cents`) is above 0: a $0 box has nothing to classify, so the answer is supplied automatically as false and never asked. Reconciled with the return's Alaska Permanent Fund dividend answers: a yes there needs a form marked here for that person, and a form marked here needs a yes there; each contradiction is refused by name.",
+      "type": "boolean"
+    },
+    "federal_withholding_cents": {
+      "description": "Box 4, federal income tax withheld. Optional: blank is an ordinary state of the box; absent is computed as zero and stated in the response. Reaches Form 1040 line 25b, inside line 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

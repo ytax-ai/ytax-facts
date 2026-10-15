@@ -1,0 +1,52 @@
+# IRS1099S — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099S/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: f2995bf7f51414a9d82e38c4ceeed467afca8ccb75a6f7cb5f3c11b563baadf1
+# boxes: 18   acroform fields: 31   boxes with a fact: 18
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year, printed in the title block	for calendar year, printed in the title block	Form1099-S[0].CopyA[0].CopyHeader[0].f1_1[0]|Form1099-S[0].CopyB[0].CopyHeader[0].f2_1[0]	/form1099Ss/*/writableCalendarYear	String		
+void		VOID; Copy A only	void; copy a only	Form1099-S[0].CopyA[0].CopyHeader[0].c1_1[0]	/form1099Ss/*/writableVoid	Bool		
+corrected		CORRECTED	corrected	Form1099-S[0].CopyA[0].CopyHeader[0].c1_1[1]|Form1099-S[0].CopyB[0].CopyHeader[0].c2_1[0]	/form1099Ss/*/writableCorrected	Bool		
+filer-name		FILER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone number	filer's name, street address, city or town, state or province, country, zip or foreign postal code, and telephone number	Form1099-S[0].CopyA[0].LeftCol[0].f1_2[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_2[0]	/form1099Ss/*/writableFilerNameAddress	String		
+filer-tin		FILER'S TIN	filer's tin	Form1099-S[0].CopyA[0].LeftCol[0].f1_3[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_3[0]	/form1099Ss/*/writableFilerTin	EIN		
+transferor-tin		TRANSFEROR'S TIN	transferor's tin	Form1099-S[0].CopyA[0].LeftCol[0].f1_4[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_4[0]	/form1099Ss/*/writableTransferorTin	TIN		
+transferor-name		TRANSFEROR'S name	transferor's name	Form1099-S[0].CopyA[0].LeftCol[0].f1_5[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_5[0]	/form1099Ss/*/writableTransferorName	String		
+transferor-address	1	Street address (including apt. no.)	street address	Form1099-S[0].CopyA[0].LeftCol[0].f1_6[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_6[0]	/form1099Ss/*/writableTransferorStreetAddress	String		
+transferor-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	Form1099-S[0].CopyA[0].LeftCol[0].f1_7[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_7[0]	/form1099Ss/*/writableTransferorCityStateZip	String		
+account		Account number (see instructions)	account number	Form1099-S[0].CopyA[0].LeftCol[0].f1_8[0]|Form1099-S[0].CopyB[0].LeftCol[0].f2_8[0]	/form1099Ss/*/writableAccountNumber	String		
+1		Date of closing	date of closing	Form1099-S[0].CopyA[0].RightCol[0].f1_9[0]|Form1099-S[0].CopyB[0].RightCol[0].f2_9[0]	/form1099Ss/*/writableDateOfClosing	Day		
+2		Gross proceeds	gross proceeds	Form1099-S[0].CopyA[0].RightCol[0].f1_10[0]|Form1099-S[0].CopyB[0].RightCol[0].f2_10[0]	/form1099Ss/*/writableGrossProceeds	Dollar		
+3		Address (including city, state, and ZIP code) or legal description	address (including city, state, and zip code) or legal description	Form1099-S[0].CopyA[0].RightCol[0].f1_11[0]|Form1099-S[0].CopyB[0].RightCol[0].f2_11[0]	/form1099Ss/*/writablePropertyAddressOrLegalDescription	String		
+4	1	Check here if the transferor received or will receive property or services as part of the consideration	check here if the transferor received or will receive property or services as part of the consideration	Form1099-S[0].CopyA[0].RightCol[0].c1_2[0]	/form1099Ss/*/writableTransferorReceivedPropertyOrServices	Bool		
+5	1	Check here if the transferor is a foreign person (nonresident alien, foreign partnership, foreign estate, or foreign trust)	check here if the transferor is a foreign person	Form1099-S[0].CopyA[0].RightCol[0].c1_3[0]	/form1099Ss/*/writableTransferorIsForeignPerson	Bool		
+6		Buyer's part of real estate tax	buyer's part of real estate tax	Form1099-S[0].CopyA[0].RightCol[0].f1_12[0]|Form1099-S[0].CopyB[0].RightCol[0].f2_12[0]	/form1099Ss/*/writableBuyersPartOfRealEstateTax	Dollar		
+4	2	Transferor received or will receive property or services as part of the consideration (if checked)	transferor received or will receive property or services as part of the consideration	Form1099-S[0].CopyB[0].RightCol[0].c2_2[0]	/form1099Ss/*/writableTransferorReceivedPropertyOrServices	Bool		
+5	2	If checked, transferor is a foreign person (nonresident alien, foreign partnership, foreign estate, or foreign trust)	if checked, transferor is a foreign person	Form1099-S[0].CopyB[0].RightCol[0].c2_3[0]	/form1099Ss/*/writableTransferorIsForeignPerson	Bool		

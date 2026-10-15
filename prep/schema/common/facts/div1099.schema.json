@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/div1099.schema.json",
+  "title": "Form 1099-DIV",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person"
+  ],
+  "properties": {
+    "person": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ordinary_dividends_cents": {
+      "description": "1099-DIV box 1a, total ordinary dividends (box 5 is included in this amount by the form's own instruction). Optional; absent is computed as zero and stated. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "qualified_dividends_cents": {
+      "description": "1099-DIV box 1b, qualified dividends \u2014 taxed at the capital-gains rates through the QDCGT worksheet. Never more than box 1a. Optional; absent is computed as zero and stated (ordinary rates apply). Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "capital_gain_distributions_cents": {
+      "description": "1099-DIV box 2a, total capital gain distributions \u2014 Form 1040 line 7 without Schedule D when this is the only capital gain. Optional; absent is computed as zero and stated. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "unrecaptured_1250_gain_cents": {
+      "description": "1099-DIV box 2b, unrecaptured section 1250 gain \u2014 a 25%-rate slice INSIDE box 2a, so never more than it. Optional; absent is computed as zero and stated. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "federal_withholding_cents": {
+      "description": "1099-DIV box 4, federal income tax withheld. Optional \u2014 blank is an ordinary state of the box; absent is computed as zero and stated. Reaches Form 1040 line 25b, inside 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "section_199a_dividends_cents": {
+      "description": "1099-DIV box 5, section 199A dividends \u2014 included in box 1a, and the input to the 20% qualified business income deduction (Form 1040 line 13). Never more than box 1a. Optional; absent is computed as zero and stated (the deduction goes unclaimed). Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "exempt_interest_dividends_cents": {
+      "description": "1099-DIV box 12, exempt-interest dividends \u2014 Form 1040 line 2a, and inside the MAGI that phases out the senior deduction on line 12. Optional; absent is computed as zero and stated. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

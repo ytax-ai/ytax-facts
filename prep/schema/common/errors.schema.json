@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/errors.schema.json",
+  "title": "yTax structured errors and refusals",
+  "description": "Errors are structured: {code, message, field_path?, manifest_ref?}. Refusals name a boundary and point at the coverage manifest \u2014 never a guess. Honest refusal is a feature.",
+  "$defs": {
+    "error_code": {
+      "enum": [
+        "OUT_OF_COVERAGE",
+        "SCHEMA_INVALID",
+        "YEAR_NOT_ANNOUNCED",
+        "KNOCKOUT",
+        "WORKSPACE_EXPIRED",
+        "RATE_LIMITED",
+        "UNAUTHENTICATED",
+        "ENGINE_UNAVAILABLE"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/error_code"
+        },
+        "message": {
+          "type": "string"
+        },
+        "field_path": {
+          "type": "string"
+        },
+        "manifest_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "refusal": {
+      "description": "A structured refusal carried in the envelope's refusals[].",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "boundary",
+        "manifest_ref"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/error_code"
+        },
+        "boundary": {
+          "description": "The named boundary that was hit (e.g. a form/situation not covered).",
+          "type": "string"
+        },
+        "citation": {
+          "$ref": "citation.schema.json"
+        },
+        "manifest_ref": {
+          "description": "Pointer into the coverage manifest for this boundary.",
+          "type": "string"
+        },
+        "words": {
+          "description": "for a KNOCKOUT, the dictionary's own sentence for the boundary \u2014 what a person reads; the path stays in `boundary` as the machine key.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

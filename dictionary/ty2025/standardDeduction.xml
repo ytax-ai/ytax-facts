@@ -1,0 +1,884 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/standardDeduction.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/additionalStandardDeductionItems">
+      <Name>Additional standard deduction items</Name>
+      <Description>The count of the number of blindness or old age items among the filers.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Add>
+          <Count>
+            <Dependency module="filers" path="/primaryFiler/isBlind" />
+          </Count>
+          <Count>
+            <Dependency module="filers" path="/primaryFiler/age65OrOlder" />
+          </Count>
+          <Dependency path="/secondaryFilerAdditionalStandardDeductionItems" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filerMFSAndSpouseIsEligibleForStandardDeductions">
+      <Name>Filer is MFS and the spouse is eligible for standard deduction</Name>
+      <Description>When the Filer is MFS and the spouse info is relevant to standard deductions</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/treatAsMFS" />
+          <Not>
+            <Dependency module="filers" path="/MFSSpouseProvidesNoBenefits" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isSpouseInfoApplicableForStandardDeductions">
+      <Name>Spouse eligible for additional standard deduction items</Name>
+      <Description>Whether or not the spouse's information is applicable to the standard deduction calculations</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Any>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/filerMFSAndSpouseIsEligibleForStandardDeductions" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerAdditionalStandardDeductionItems">
+      <Name>Secondary Filer Additional Standard Deduction Items</Name>
+      <Description>Additional Standard Deduction Items from the secondary filer</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/isSpouseInfoApplicableForStandardDeductions" />
+            </When>
+            <Then>
+              <Add>
+                <Count>
+                  <Dependency module="filers" path="/secondaryFiler/isBlind" />
+                </Count>
+                <Count>
+                  <Dependency path="/secondaryFilerIs65OrOlderForDeduction" />
+                </Count>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Int>0</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerIs65OrOlderForDeduction">
+      <Name>Secondary Filer is 65 or Older for Deduction</Name>
+      <Description>Whether the secondary filer counts as 65 or older for the standard deduction. Takes into account
+        possible death during the tax year</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Dependency module="filers" path="/isWidowedInTaxYear" />
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/MFJDeceasedSpouseReachedAge65ForStandardD" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dependency module="filers" path="/MFSSpouse65OrOlder" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <All>
+                <Not>
+                  <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+                </Not>
+                <Dependency module="filers" path="/secondaryFiler/age65OrOlder" />
+              </All>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isSpouse65OrOlder">
+      <Name>Is spouse 65 or older?</Name>
+      <Description>Whether the primary filer's spouse is 65 or older. Used in form 1040 to populate the
+        Spouse65OrOlderInd XML element.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/secondaryFilerIs65OrOlderForDeduction" />
+                </IsComplete>
+                <Dependency path="/isSpouseInfoApplicableForStandardDeductions" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerIs65OrOlderForDeduction" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/additionalStandardDeductionMultiplier">
+      <Name>Additional standard deduction multiplier</Name>
+      <Description>The amount to add to the standard deduction for each additional item.
+        Rev Proc .15 Standard Deduction
+        §63(f)
+
+        To-do: Replace Any/Equal with
+        Include</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+                <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+              </Any>
+            </When>
+            <Then>
+              <Dollar>2000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              </Any>
+            </When>
+            <Then>
+              <Dollar>1600</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalStandardDeduction">
+      <Name>Additional standard deduction</Name>
+      <Description>The additional amount to add to the standard deduction to account for blindness or old age.</Description>
+
+      <Derived>
+        <Multiply>
+          <Dependency path="/additionalStandardDeductionItems" />
+          <Dependency path="/additionalStandardDeductionMultiplier" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/MFJStandardDeduction">
+      <Name>Married Filing Jointly Standard Deduction</Name>
+      <Description>The basic standard deduction for a joint return or a qualifying surviving spouse
+        (IRC 63(c)(2)(A) as modified by IRC 63(c)(7)), the Form 1040 line 12 amount for married filing
+        jointly and qualifying surviving spouse.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Dollar>31500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/singleOrMFSStandardDeduction">
+      <Name>Single or Married Filing Separately Standard Deduction</Name>
+      <Description>The basic standard deduction in any other case (IRC 63(c)(2)(C) as modified by IRC
+        63(c)(7)), the Form 1040 line 12 amount for single and married filing separately.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Dollar>15750</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/HoHStandardDeduction">
+      <Name>HoH Standard Deduction</Name>
+      <Description>The basic standard deduction for a head of household (IRC 63(c)(2)(B) as modified by
+        IRC 63(c)(7)), the Form 1040 line 12 amount for head of household.</Description>
+      
+
+      <Derived>
+        <Dollar>23625</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filingStatusStandardDeduction">
+      <Name>Filing status standard deduction</Name>
+      <Description>The amount of the standard deduction based on filing status alone.
+
+        To-do: Replace Any/Equal with
+        Include</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/singleOrMFSStandardDeduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            </When>
+            <Then>
+              <Dependency path="/HoHStandardDeduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/MFJStandardDeduction" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/normalStandardDeduction">
+      <Name>Normal standard deduction</Name>
+      <Description>The amount to use as the standard deduction if a filer cannot be claimed as a dependent.</Description>
+
+      <Derived>
+        <Add>
+          <Dependency path="/filingStatusStandardDeduction" />
+          <Dependency path="/additionalStandardDeduction" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/minimumStandardDeductionEarnedIncome">
+      <Name>Earned income for the §63(c)(5)(B) dependent standard-deduction floor (the i1040gi footnote)</Name>
+      <Description>The i1040gi Standard Deduction Worksheet for Dependents footnote defines
+        "earned income" for line 1 of that worksheet as "the total of the amount(s) you reported
+        on Form 1040 or 1040-SR, line 1z, and Schedule 1, lines 3, 6, 8r, 8t, and 8u minus the
+        amount, if any, on Schedule 1, line 15" (i1040gi:2313-2314). This fact IS that sum:
+        income:/employerIncomeSubtotalWithoutCommunityPropertyAllocation (line 1z, already the
+        community-property-safe EARNED INCOME reading, not the allocated Form 1040 line 1z) plus
+        Schedule 1 line 3 (scheduleC:/scheduleCNetProfitSubjectToUsTax — the possession-exclusion-
+        aware Schedule C net profit, the same term income:/totalIncome takes as its own line 3),
+        line 6 (scheduleF:/scheduleFNetProfitOrLoss, signed), line 8r
+        (income:/schedule1Line8rIncomeOrZero), line 8t (income:/schedule1Line8tIncomeOrZero) and
+        line 8u (income:/schedule1Line8uIncarceratedWages), minus line 15
+        (scheduleSE:/selfEmploymentTaxDeduction). FLOORED AT ZERO — Pub. 501 Table 8 line 1 says
+        "Enter your earned income (defined below). If none, enter -0-" (p501:2232) — though the
+        floor never changes /minimumStandardDeduction's own output: any earned income at or below
+        $900 makes the GreaterOf pick the $1,350 floor regardless of exactly how negative the
+        pre-floor figure is, so the floor exists for this fact's own correctness as an exported
+        quantity, not for its one consumer today.
+
+        THE DOUBLE-COUNT TRAP THIS FACT RECONCILES. Schedule
+        1 line 3 (scheduleC:/scheduleCNetProfitSubjectToUsTax) is the NET Schedule C profit or loss
+        across every business on the return, and a statutory employee's routed box 1 (or their bare
+        attestation) is already inside that net figure — it is that business's own gross receipts
+        (scheduleC:/scheduleCs/*/scheduleCGrossIncome), reduced by that business's own expenses,
+        before it reaches line 31/line 3. Summing Schedule 1 line 3 AND
+        income:/statutoryEmployeeWagesInEarnedIncome (the OLD add-back) would count the routed box 1
+        TWICE — once net-of-expenses inside line 3, once gross on top of it — so the old add-back is
+        DROPPED here rather than kept beside the new line-3 term.
+        income:/statutoryEmployeeWagesInEarnedIncome ITSELF IS NOT RETIRED: its other three
+        consumers (/earnedIncomeWithAllCombatPay, /earnedIncomeWithAllCombatPayIncludingExcludedTerritory,
+        eitc:/eitcEarnedIncomeBase) read their OWN printed worksheets, each of which adds the
+        statutory employee's Schedule C line 1 by name rather than folding in the whole net Schedule
+        C profit, so those three keep the add-back unchanged.
+
+        NAMED RESIDUE, NOT SILENTLY BUILT: this fact's six new Schedule 1 terms are RETURN-LEVEL
+        (household) figures, unlike income:/employerIncomeSubtotalWithoutCommunityPropertyAllocation,
+        which is community-property-allocation-aware (PRIMARY filer's base alone on that arm, so a
+        spouse's wages never inflate this filer's own earned income). No per-filer-scoped wrapper of
+        scheduleC:/scheduleCNetProfitSubjectToUsTax, scheduleF:/scheduleFNetProfitOrLoss, the three
+        Schedule 1 line 8 OrZero facts, or scheduleSE:/selfEmploymentTaxDeduction exists in this
+        dictionary today, so on a community-property-allocation return where the SPOUSE also files a
+        Schedule C, Schedule F, or has Schedule 1 line 8 income, this fact's Schedule-1-derived terms
+        would include the spouse's share too — the same class of error
+        /employerIncomeSubtotalWithoutCommunityPropertyAllocation's own arm exists to prevent, not
+        yet closed for these six terms. A dependent claimed on a community-property-allocation
+        return is a narrow population (the allocation return is itself MFS in a community-property
+        state); the gap is real and is not modelled by any fixture in this unit.
+
+        COMPLETE SAFE: every term is already a complete-safe fact
+        (income:/employerIncomeSubtotalWithoutCommunityPropertyAllocation,
+        scheduleC:/scheduleCNetProfitSubjectToUsTax, scheduleF:/scheduleFNetProfitOrLoss and
+        scheduleSE:/selfEmploymentTaxDeduction resolve to $0 on every unanswered return by
+        construction, and the three Schedule 1 line 8 terms are named *OrZero for the same reason),
+        so this fact never needs an IsComplete wrapper of its own. California TY2025 reads this fact through its stateSystems export (Form 540 line 18 dependent standard deduction worksheet).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Dependency module="income" path="/employerIncomeSubtotalWithoutCommunityPropertyAllocation" />
+                <Dependency module="scheduleC" path="/scheduleCNetProfitSubjectToUsTax" />
+                <Dependency module="scheduleF" path="/scheduleFNetProfitOrLoss" />
+                <Dependency module="income" path="/schedule1Line8rIncomeOrZero" />
+                <Dependency module="income" path="/schedule1Line8tIncomeOrZero" />
+                <Dependency module="income" path="/schedule1Line8uIncarceratedWages" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/minimumStandardDeduction">
+      <Name>Minimum standard deduction</Name>
+      <Description>The alternative amount to use as the standard deduction if a filer can be claimed as a dependent.
+        This amount is not used if it exceeds the normal amount of the standard deduction.
+        Rev Proc .15 Standard Deduction §63(c)(5)
+
+        THE EARNED-INCOME OPERAND IS /minimumStandardDeductionEarnedIncome —
+        the i1040gi footnote's own six-term Schedule 1
+        formula, not an approximation of it. See that fact's Description for the full derivation,
+        the double-count trap it reconciles, and the community-property residue it names.</Description>
+      
+
+      <Derived>
+        <Add>
+          <GreaterOf>
+            <Dollar>1350</Dollar>
+            <Add>
+              <Dependency path="/minimumStandardDeductionEarnedIncome" />
+              <Dollar>450</Dollar>
+            </Add>
+          </GreaterOf>
+          <Dependency path="/additionalStandardDeduction" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/baseStandardDeduction">
+      <Name>Base standard deduction (before the net qualified disaster loss increase)</Name>
+      <Description>The standard deduction from filing status, age/blindness, and the dependent
+        limitation - BEFORE the OBBBA net-qualified-disaster-loss increase. This is the
+        amount §63(c)(7) starts from; a taxpayer with a net qualified disaster loss adds that loss on
+        top (see /standardDeduction). Split out from /standardDeduction so the increase is a single,
+        auditable addend and every consumer of the (unchanged) base is unaffected.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency module="filers" path="/treatFilersAsDependents" />
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/normalStandardDeduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filers" path="/treatFilersAsDependents" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/minimumStandardDeduction" />
+                <Dependency path="/normalStandardDeduction" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyLine12StandardDeductionWhateverTheAllocation">
+      <Name>Form 1040 line 12 is the standard deduction whatever Schedule A line 17 allocation the filer would attest</Name>
+      <Description>TRUE when the household's UNALLOCATED Schedule A total
+        (scheduleA:/totalItemizedDeductionsBeforeCommunityPropertyAllocation) does not exceed this
+        return's standard deduction and the filer has not made the election to itemize anyway
+        (scheduleA:/electsToItemize). On a community-property separate return the Schedule A line
+        17 amount that may be attested can never exceed that unallocated total (a larger answer
+        leaves scheduleA:/totalItemizedDeductions Incomplete), so when this is TRUE no allocation
+        can make itemizing win, and Form 1040 line 12 is the standard deduction. This is the same
+        condition as the third Case of scheduleA:/totalItemizedDeductions, which already carries
+        such a return to line 12 without the allocation; this fact names it so the
+        community-property refusal can read the OUTCOME.
+
+        GATE-FREE BY CONSTRUCTION. It reads no community-property gate. The allocation-input gate
+        filers:/communityPropertyAllocationInputsComplete is read by Schedule SE, and the three
+        inputs here reach Schedule SE through adjusted gross income, so the refusal that reads this
+        fact is filers:/communityPropertyReturnAllocationInputsComplete, a separate fact nothing on
+        the income side reads.
+
+        COMPLETE-SAFE: the two dollar inputs are read IsComplete-first; if either is unresolved
+        this is FALSE, and the refusal that reads it keeps refusing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="scheduleA" path="/totalItemizedDeductionsBeforeCommunityPropertyAllocation" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/standardDeduction" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency module="scheduleA" path="/electsToItemize" />
+          </IsComplete>
+          <Not>
+            <Any>
+              <GreaterThan>
+                <Left>
+                  <Dependency module="scheduleA" path="/totalItemizedDeductionsBeforeCommunityPropertyAllocation" />
+                </Left>
+                <Right>
+                  <Dependency path="/standardDeduction" />
+                </Right>
+              </GreaterThan>
+              <Dependency module="scheduleA" path="/electsToItemize" />
+            </Any>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/standardDeduction">
+      <Name>Standard deduction</Name>
+      <Description>The amount of the standard deduction, ZERO where IRC 63(c)(6)(A) says it is zero
+        and otherwise INCREASED by any net qualified disaster loss (Form 4684 line 15).
+
+        THERE ARE TWO ZERO ARMS. The second is IRC
+        63(c)(6)(B) reached through the dual status rule: a filer who checks Form 1040 line 12c,
+        "You were a dual-status alien", gets $0, because Publication 519 chapter 6 says "You cannot
+        use the standard deduction allowed on Form 1040 or 1040-SR. However, you can itemize any
+        allowable deductions." Until that arm landed the box printed on the return and the filer
+        still got the full standard deduction. The joint return exception is carried by the checkbox
+        itself rather than by a filing status conjunct, and the reasoning is on the arm.
+
+        THE ZERO ARM IS FIRST. 63(c)(6)(A) says the standard deduction of a
+        married individual filing a separate return where either spouse itemizes "shall be zero", and
+        63(c)(1) defines "the standard deduction" as the SUM of the basic and additional amounts, so
+        the zero is a total rather than a component. It is placed here rather than on
+        /baseStandardDeduction for two reasons the statute gives: the aged/blind additional amount is
+        inside the sum 63(c)(6) zeroes, and taxCalculations:/wantsStandardDeduction compares Schedule
+        A's total against THIS fact, so a zero placed lower down would be added back by the
+        disaster-loss arm and would also fail to make itemizing win the comparison.
+
+        AN OPEN INTERPRETATION, RESOLVED AND RECORDED RATHER THAN ASSUMED. The disaster-loss increase
+        below rests on 63(c)(7) AS AMENDED by the OBBBA. The vendored edition on disk,
+        26 U.S.C. 63, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section63&amp;num=0&amp;edition=2024, carries the 2018-2025 special rule at (c)(7) and does NOT
+        contain that increase at all, so this repo's text cannot say whether 63(c)(6)'s zero swallows
+        it. THIS FILL ZEROES THE WHOLE FIGURE, disaster-loss increase included, on the vendored
+        text's own words: (c)(6) says "the standard deduction shall be zero" without qualification,
+        and (c)(1)'s definition is what "the standard deduction" means. The separating case is an MFS
+        filer whose spouse itemizes AND who has a net qualified disaster loss. Direction if this
+        reading is wrong: the deduction is too small, so the tax is too high — taxpayer-adverse and
+        VISIBLE AND MATCHABLE, which is the safer error of the two, and "safer" means exactly that
+        and not "adverse is safer": the spouse's own return carries the itemizing election the
+        Service matches against, so a too-small deduction is a figure this filer can see and dispute
+        while a too-large one is an understatement the Service finds. The acquisition gap (the
+        amended 63(c)(7)) is routed rather than papered over.
+        §63(c)(7) / the OBBBA "increased standard deduction for net
+        disaster losses": standard deduction = base standard deduction + net qualified disaster loss,
+        so a qualified disaster loss is deductible WITHOUT itemizing (2025 i4684 "Increased standard
+        deduction reporting"). form4684:/netQualifiedDisasterLoss is Complete 0 on every return
+        without a qualified disaster attestation, so this is byte-identical additive for all existing
+        scenarios. The increase is NOT subject to the §63(c)(5) dependent limitation (that limitation
+        bounds only the base in /baseStandardDeduction). NOTE: this increased amount is what
+        /wantsStandardDeduction compares against Schedule A itemized deductions; the §63(e) elect-to-
+        itemize interaction and the itemize-with-line-16 alternative are discussed in the records file.
+
+        ⚠ THE PUB. 570 APPORTIONMENT RATIO IS ROUNDED TO FOUR DECIMALS BEFORE THE MULTIPLY, AND THIS
+        FACT ROUNDS IT THE SAME WAY. Publication 1321, "Special Instructions For Bona
+        Fide Residents Of Puerto Rico" (Rev. 10-2025), carries a WORKSHEET for precisely this
+        apportionment and works it: a filer with 26,000 of gross income subject to U.S. tax out of
+        41,000 from all sources divides to ".6341" and multiplies the 31,500 MFJ standard deduction
+        by that, printing 19,974 (https://www.irs.gov/pub/irs-pdf/p1321.pdf, pages 4-5). Exact arithmetic
+        gives 19,975.61, which rounds to 19,976 — TWO DOLLARS APART, and the published figure is the
+        one a filer following the worksheet produces.
+        HOW IT HID, which is the part worth keeping: Publication 570's Schedule A example runs at
+        96,000/120,000 = 0.8 EXACTLY, so all four of its printed outputs — 8,800, 8,000, 13,000,
+        4,000 — are INSENSITIVE to the ratio's precision. The Pub 1321 worked example discriminates the rounding: 15,750 at 26,000/41,000 gives 9,987 under the four-decimal rule and 9,988 under exact arithmetic.
+        HOW IT IS EXPRESSED, since the engine has no rounding-precision operator: the ratio is scaled
+        by 10,000, RoundToInt yields the four-decimal ratio as an integer, and the product is divided
+        back by 10,000. The same scaling idiom studentLoanAdjustment /studentLoanAmountPhaseOutAmount
+        uses for its three-decimal ratio, at a different power. Applied identically at all eight
+        apportionment sites in this unit, not just here.
+        WHAT IS INFERRED RATHER THAN PRINTED, stated because it is a real gap in the authority: the
+        worksheet line reads only "Divide line 2a by line 2b" and never says "round to four
+        decimals". The four decimals are read off the worked example's own presentation. The
+        alternative reading — exact arithmetic — disagrees with the IRS's published answer, which is
+        why it is not the one chosen. interpretation:provisional.
+
+        THE DISCLOSURE STRING DIFFERS BETWEEN THE TWO PUBLICATIONS, and both are recorded rather than
+        one being picked silently. Pub. 570 says to write "Standard deduction modified due to income
+        excluded under section 931 (if American Samoa) or section 933 (if Puerto Rico)" in the space
+        above line 9 (lines 2358-2361). Pub. 1321, which is Puerto-Rico-specific and the later
+        document, says to write "Standard Deduction modified due to excluded income under section
+        933" on line 12e (p1321 lines 176-178). /pdfStandardDeductionModifiedForPossessionExclusion
+        is a Boolean and carries neither string, so nothing here has to choose; whichever
+        renderer produces the PDF does, and this paragraph is what it needs.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="/standardDeductionZeroedByMfsSpouseItemizing" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/isDualStatusAlien" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/filesShortPeriodReturnForAccountingPeriodChange" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <GreaterOf>
+                      <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <Dependency path="/hasPossessionExclusionProration" />
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="/fullStandardDeduction" />
+                      <RoundToInt>
+                        <Divide>
+                          <Dividend>
+                            <Multiply>
+                              <Dependency module="income" path="/grossIncomeSubjectToUsTax" />
+                              
+                              <Dollar>10000</Dollar>
+                            </Multiply>
+                          </Dividend>
+                          <Divisors>
+                            <GreaterOf>
+                              <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+                              <Dollar>0</Dollar>
+                            </GreaterOf>
+                          </Divisors>
+                        </Divide>
+                      </RoundToInt>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Int>10000</Int>
+                  </Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/fullStandardDeduction" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/fullStandardDeduction">
+      <Name>Full standard deduction, before the Pub. 570 possession apportionment</Name>
+      <Description>The base standard deduction plus any net qualified disaster loss — i.e. exactly
+        the unapportioned body of /standardDeduction, extracted UNCHANGED so the apportioned
+        amount has a multiplicand.
+
+        Publication 570 chapter 4 names this two-step shape rather than leaving it to be inferred:
+        "first figure your full standard deduction according to the Instructions for Form 1040. Then
+        multiply your full standard deduction by the following fraction"
+        (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 34). So the apportionment belongs INSIDE
+        /standardDeduction — Form 1040 line 12 is the apportioned figure, which is why that path was
+        rebodied rather than a new one added beside it and the three consumers re-pointed.
+
+        Retained as its own exported fact rather than inlined because it is the quantity the printed
+        instruction calls "your full standard deduction", and the later steps (Schedule A, the
+        section 224/225 deductions) need the same fraction against their own multiplicands.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Add>
+          <Dependency path="/baseStandardDeduction" />
+          <Dependency module="form4684" path="/netQualifiedDisasterLoss" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasPossessionExclusionProration">
+      <Name>The return reports a section 931 or 933 exclusion, so the Pub. 570 fraction applies</Name>
+      <Description>True when either possession exclusion is non-zero. Gates the apportionment in /standardDeduction so that a return answering the gross-income intake but reporting NO exclusion takes the full deduction rather than a fraction that happens to equal one — the identity is then structural instead of arithmetical.
+
+        Same condition ctcOdc:/knockoutPossessionOrPuertoRicoIncomeExclusion fires on, deliberately
+        NOT a dependency on that fact: this is the arithmetic's own precondition and must survive
+        that knockout's eventual retirement unchanged.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Add>
+              <Dependency module="ctcOdc" path="/puertoRicoIncomeExclusion933" />
+              <Dependency module="ctcOdc" path="/possessionIncomeExclusion931" />
+            </Add>
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfStandardDeductionModifiedForPossessionExclusion">
+      <Name>PDF: the return must carry the Pub. 570 standard-deduction disclosure</Name>
+      <Description>Publication 570 attaches a WRITING obligation to the apportionment, and it is
+        modelled as a fact rather than dropped: "In the space above line 9, enter 'Standard deduction
+        modified due to income excluded under section 931 (if American Samoa) or section 933 (if
+        Puerto Rico).'" (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 34).
+
+        True exactly when /standardDeduction actually took the apportioned arm — both the exclusion
+        AND a usable denominator — so it can never assert a modification that did not happen. Same
+        shape as form6251:/pdfIncludeForm172, and it exists for the same reason: an obligation the
+        graph can see and does not surface is one the filer silently fails.</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/hasPossessionExclusionProration" />
+          <IsComplete>
+            <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isDualStatusAlien">
+      <Name>The filer was a dual status alien, complete safe</Name>
+      <Description>The complete safe reading of /writableIsDualStatusAlien: true when the filer answered the Form 1040 line 12c question yes, and FALSE both when they answered no and when the question was never asked. The intake is a bare Boolean Writable, so an unanswered one is Incomplete; a raw Dependency on it inside the /standardDeduction Switch would make the standard deduction, taxable income and the whole tax computation Incomplete on every ordinary return, which never asks the question. FALSE IS THE RIGHT DEFAULT AND IT IS ALSO THE ADVERSE ONE IN THE ONLY DIRECTION THAT MATTERS HERE: it leaves the standard deduction standing, which is what every return that is not a dual status return should get, and no return can lose its deduction by silence.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableIsDualStatusAlien" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableIsDualStatusAlien" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableIsDualStatusAlien">
+      <Name>Was the filer a dual-status alien (Form 1040 line 12c)</Name>
+      <Description>Whether the filer was a dual-status alien for the tax year, which is what the Form 1040 line 12c checkbox reports. A dual-status alien who files a joint return with a spouse who was a U.S. citizen or resident alien at the end of the year and who agrees to be taxed on combined worldwide income does not check the box. IT ZEROES THE STANDARD DEDUCTION, through the complete safe /isDualStatusAlien and the second zero arm of /standardDeduction.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filesShortPeriodReturnForAccountingPeriodChange">
+      <Name>Files a short-period return for a change of accounting period, complete safe</Name>
+      <Description>The complete-safe reading of
+        /writableFilesShortPeriodReturnForAccountingPeriodChange: true when the filer answered the
+        attestation yes, and FALSE both when they answered no and when the question was never asked.
+        Same IsComplete-Switch
+        idiom /isDualStatusAlien uses and for the identical reason: the intake is a bare Boolean
+        Writable, so a raw Dependency on it inside the /standardDeduction Switch would make the
+        standard deduction, taxable income and the whole tax computation Incomplete on every
+        ordinary return, which never answers this attestation. FALSE IS THE RIGHT DEFAULT: this
+        dictionary has no other signal for a short-period accounting-change return (no Form 1128 /
+        change-of-accounting-period model exists anywhere in the tree), the population is rare
+        (p501's own listing puts it second of three, after MFS-spouse-itemizes and before
+        dual-status), and no return can lose its deduction by silence — the same posture
+        /isDualStatusAlien takes (and /standardDeductionZeroedByMfsSpouseItemizing once took) on an
+        unanswered intake whose true answer is rare.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableFilesShortPeriodReturnForAccountingPeriodChange" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableFilesShortPeriodReturnForAccountingPeriodChange" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableFilesShortPeriodReturnForAccountingPeriodChange">
+      <Name>Filing a short-period return for a change of accounting period (IRC 443(a)(1))</Name>
+      <Description>Screen spec. Question — "Are you filing this return for a period of less than 12 months because
+        you changed your annual accounting period?" Help text — "Most filers do not answer yes to
+        this question. It applies only if you formally changed your tax year (for example, from a
+        calendar year to a fiscal year) and are filing a short return that covers less than 12
+        months as a result. IRC section 443(a)(1) governs this change; if it applies to you, your
+        standard deduction is zero and you must itemize any deductions you have (26 U.S.C.
+        63(c)(6)(C); IRS Publication 501, 'Persons not eligible for the standard deduction'), and you
+        cannot claim the earned income credit for a tax year of less than 12 months (26 U.S.C. 32(e)). This
+        does NOT apply to a first or final return covering a short period for another reason, such
+        as a change in filing status, birth, death, or the start or end of a business — only a
+        deliberate change of annual accounting period under section 443." Asked-when — return-level,
+        every return, alongside the other IRC 63(c)(6) checkboxes this same statutory paragraph
+        prints on Form 1040 line 12 (12b MFS-spouse-itemizes, 12c dual-status alien); this repo
+        surfaces it in the same screen group rather than inventing a new one, since no other intake
+        gates it and the three conditions share one paragraph of law. Unanswered posture — defaults
+        to NO / FALSE through /filesShortPeriodReturnForAccountingPeriodChange: the full standard
+        deduction stands, because a rare condition with no other signal in this return must not
+        silently refuse or zero the deduction of the ordinary filer who was never asked. Validation
+        — plain Boolean, no Min/Max, no enum. Feeds — the third zero arm of
+        standardDeduction:/standardDeduction (IRC 63(c)(6)(C)), and, through
+        /filesShortPeriodReturnForAccountingPeriodChange, eitc:/maybeEligibleForEitcBase, where a yes
+        denies the earned income credit (IRC 32(e)); answering yes with no Schedule A
+        content is the filer's own choice to make, the same posture the MFS-spouse-itemizes arm
+        takes (scheduleA:/itemizationIsCompulsoryUnderZeroStandardDeduction's sibling situation),
+        and is not separately gated here — that computation is scheduleA's, not this writable's, and
+        is NOT built by this unit (named residue below).
+
+        NAMED RESIDUE: this fill answers the intake and zeroes the deduction; it does NOT build
+        scheduleA's compulsory-itemization narrowing for THIS population the way it is built for
+        the MFS-spouse-itemizes arm (scheduleA:/itemizationIsCompulsoryUnderZeroStandardDeduction
+        reads ONLY filers:/standardDeductionZeroedByMfsSpouseItemizing). A filer who answers this
+        attestation true, elects section 63(e) to itemize, and claims nothing on Schedule A would
+        still be caught by scheduleA:/knockoutElectToItemizeWithoutScheduleA — the same gap the
+        MFS arm had before that narrowing was built, now reopened for this narrower population. Population: filers who
+        both (a) changed their accounting period under section 443 AND (b) have no itemized
+        deductions to report — a narrow intersection, and not modelled by any fixture in this
+        unit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

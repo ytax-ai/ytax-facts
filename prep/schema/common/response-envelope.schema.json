@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/response-envelope.schema.json",
+  "title": "yTax response envelope",
+  "description": "The envelope every operation response carries. Provenance is the payload: engine version, per-year dictionary content hash, input hash, integer-cent values, and per-line citations downstream. Same input_hash ⇒ byte-identical output.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["engine_version", "dictionary_hash", "input_hash", "computed_at", "result", "refusals"],
+  "properties": {
+    "engine_version": {
+      "description": "The pinned build tag/hash the result was computed by.",
+      "type": "string"
+    },
+    "dictionary_hash": {
+      "description": "Content hash of dictionary/ty<year>/ at the pin.",
+      "type": "string"
+    },
+    "input_hash": {
+      "description": "sha256 over the canonicalized fact set. Same input_hash ⇒ identical bytes.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "computed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "result": {
+      "description": "Operation-specific; defined by each operation's response schema.",
+      "type": "object"
+    },
+    "refusals": {
+      "description": "Structured refusals; each names the boundary and points at the coverage manifest.",
+      "type": "array",
+      "items": { "$ref": "errors.schema.json#/$defs/refusal" }
+    }
+  }
+}

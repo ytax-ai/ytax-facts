@@ -1,0 +1,564 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form8332PartICurrentTaxYearTwoDigit">
+      <Name>Form 8332 Part I: the two digit current tax year</Name>
+      <Description>The two digits the Part I release prints after the printed 20, which for this dictionary's tax year is 25. A constant, not an intake: Part I releases the current year and this is a TY2025 dictionary.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Int>25</Int>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8332FilesReleaseOrRevocation">
+      <Name>The custodial parent is completing a Form 8332 release or revocation</Name>
+      <Description>Whether the custodial parent is completing a Form 8332 release (Part I/II) or
+        revocation (Part III) with this return's information. It is the return-level election that
+        a Form 8332 is being completed at all, not itself the render gate: the printed population
+        is the per-child collection /form8332Children, which pairs this election with the
+        child-level release or revocation signal. A Part I/II release is signed by the custodial
+        parent and given to the noncustodial parent, who attaches it to THEIR return (see
+        familyAndHousehold:/familyAndHousehold/*/writableNoncustodialParentHasReleaseToAttach's
+        Description) — but this return's printed package is the only place the custodial parent
+        can obtain the copy to sign, so the copy is printed here. Nothing in the graph implies the
+        election, because a release or revocation is a document the custodial parent chooses to
+        sign.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8332AttachesPartIIIRevocation">
+      <Name>This return attaches a Form 8332 Part III revocation copy</Name>
+      <Description>Whether the custodial parent's own return attaches at least one Form 8332
+        Part III revocation copy. Part III is the only Part the custodial parent files with their
+        own return: "You must attach a copy of the revocation to your tax return each year the
+        exemption is claimed as a result of the revocation." A Part I/II release is instead signed
+        and handed to the noncustodial parent, who attaches it to THEIR return; this return's
+        printed package still carries the copy, because that package is the only place the filer
+        can obtain the form to sign, but it is not an attachment to this return. This fact is the
+        return-level "at least one" summary of /form8332RevokedChildren. It is NOT the render gate:
+        dictionary/pdf/2025/gates.tsv's IRS8332 row renders one copy per child in
+        /form8332Children, the released and the revoked children together.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/form8332RevokedChildrenCount" />
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableForm8332PartIIIRevoked">
+      <Name>Form 8332 Part III: this child's release is being revoked</Name>
+      <Description>Whether the custodial parent is revoking an earlier release of claim to
+        exemption for THIS child (drawn from the household collection, not re-asked). Form 8332
+        is filed once per child ("Attach a separate form for each child"), so this is asked once
+        per household member rather than once per return.
+
+        SCREEN SPECIFICATION - the application implements this without opening a statute.
+
+        QUESTION TEXT, with the child's name substituted for {name}: "Are you revoking an earlier
+        release of your claim to {name} as a dependent?"
+
+        HELP TEXT: "Use Part III of Form 8332 to revoke a release you signed earlier for this
+        child. The revocation takes effect no earlier than the year after you give the
+        noncustodial parent a copy, and you must attach a copy of this form to your own return
+        each year you claim the exemption as a result of the revocation."
+        Source: https://www.irs.gov/pub/irs-pdf/f8332.pdf, page 1 and lines 44-77 (Revocation of release of claim to
+        exemption, and the Custodial Parent attachment duty).
+
+        ASKED WHEN: /writableForm8332FilesReleaseOrRevocation is true, once per
+        /familyAndHousehold member the custodial parent identifies as a child of a released
+        earlier declaration.
+
+        UNANSWERED POSTURE: unanswered means NOT revoked — a silent household member prints no
+        copy and is not counted in /form8332RevokedChildren. No Placeholder, no default value
+        beyond that safe reading.
+
+        VALIDATION: Boolean. Yes/No radio, no default selection, answer required to leave the
+        screen. No Min/Max.
+
+        WHAT THE ANSWER FEEDS: ../form8332PartIIIRevokedCompleteSafe -> /form8332RevokedChildren
+        and, unioned with the released children, /form8332Children (the `includeForEach` render
+        gate, dictionary/pdf/2025/gates.tsv) -> one Form 8332 copy for this child, carrying this
+        child's name (../form8332PartIIIChildName) and
+        ../writableForm8332PartIIIRevocationTaxYears on the Part III lines.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/form8332PartIIIRevokedCompleteSafe">
+      <Name>This child's Part III revocation is in effect (complete-safe)</Name>
+      <Description>The complete-safe reading of ../writableForm8332PartIIIRevoked: an unanswered
+        household member resolves Complete false, so /form8332RevokedChildren never grows on
+        silence and the render gate never fires on an incomplete intake.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../writableForm8332PartIIIRevoked" />
+          </IsComplete>
+          <Dependency path="../writableForm8332PartIIIRevoked" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableForm8332PartIIIRevocationTaxYears">
+      <Name>Form 8332 Part III: the tax years this child's revocation covers</Name>
+      <Description>The tax years this child's Part III revocation covers, which the printed line
+        asks the filer to specify. Per child, not per return, because a parent revoking for two
+        children can specify different years for each.
+
+        SCREEN SPECIFICATION - the application implements this without opening a statute.
+
+        QUESTION TEXT, with the child's name substituted for {name}: "Which tax year or years are
+        you revoking the release for {name}?"
+
+        HELP TEXT: "Form 8332 asks you to write the year or years the revocation covers. A
+        revocation cannot take effect before the tax year AFTER the year you give the noncustodial
+        parent a copy of it (or make a reasonable effort to). So if you give them the copy in 2025,
+        the earliest year you can revoke is 2026. You can name a single year, a list of years, or a
+        phrase such as 'all future years'."
+        Source: https://www.irs.gov/pub/irs-pdf/f8332.pdf, page 1 (Use Part III to revoke a previous
+        release; the revocation is effective no earlier than the tax year following the year the
+        copy is provided) and lines 37-38 (the printed line, "for the tax year(s) ... Specify").
+
+        ASKED WHEN: ../writableForm8332PartIIIRevoked is true for this household member. Not asked
+        of a member with no revocation, and never asked once per return: it belongs to the child's
+        own copy of the form.
+
+        UNANSWERED POSTURE: blank on the printed form. The field is free text the filer writes on
+        the paper form, so silence prints nothing rather than a guess, and it does NOT suppress the
+        copy: /form8332Children is gated on the revocation answer, not on this one, so a filer who
+        revokes but leaves the years blank still gets a form to complete by hand. No Placeholder
+        and no default.
+
+        VALIDATION: String, free text, no Min/Max and no enum. Not parsed into years anywhere in
+        the dictionary; it is transcribed onto the form as typed.
+
+        WHAT THE ANSWER FEEDS: the Part III "for the tax year(s)" line of this child's copy,
+        f1_10 in dictionary/pdf/2025/IRS8332/en/configuration.yml, reached as
+        /form8332Children/*/writableForm8332PartIIIRevocationTaxYears.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8332RevokedChildren">
+      <Name>Form 8332 Part III: children whose release is being revoked</Name>
+      <Description>The household members for whom the custodial parent completes a Part III
+        revocation. This is the Part III half of /form8332Children, the printed population, and is
+        what /form8332RevokedChildrenCount and /form8332AttachesPartIIIRevocation measure — the
+        subset whose copies the custodial parent also attaches to this return. An empty collection
+        is the no-revocation return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/familyAndHousehold">
+          <Dependency path="form8332PartIIIRevokedCompleteSafe" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332RevokedChildrenCount">
+      <Name>Count of children whose Form 8332 release is being revoked</Name>
+      <Description>The size of /form8332RevokedChildren — how many Part III copies this render
+        surface prints. Zero on the no-revocation return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <CollectionSize>
+          <Dependency path="/form8332RevokedChildren" />
+        </CollectionSize>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332FilesReleaseOrRevocationCompleteSafe">
+      <Name>The return is completing a Form 8332 (complete-safe)</Name>
+      <Description>The complete-safe reading of /writableForm8332FilesReleaseOrRevocation: an
+        unanswered election resolves Complete false, so no child joins /form8332Children until the
+        filer says a Form 8332 is being completed. It is what keeps a child whose claim was
+        released by a pre-1985 or post-1984 divorce decree, with no Form 8332 completed at all,
+        out of the printed population.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableForm8332FilesReleaseOrRevocation" />
+          </IsComplete>
+          <Dependency path="/writableForm8332FilesReleaseOrRevocation" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/form8332ReleaseSignedCompleteSafe">
+      <Name>This child's claim is released on a Form 8332 (complete-safe)</Name>
+      <Description>Whether a filer on this return signs a Form 8332 Part I/II release of the claim
+        to THIS child. Read from the benefit-split answer already asked rather than re-asked:
+        dependentsBenefitSplit's ../primaryFilerNotClaiming and ../bothFilersNotClaiming are the
+        two derived readings of ../whichParentNotClaiming = "iDid" ("I signed the written
+        declaration not to claim this child"), one for a return not treated as joint and one for a
+        joint return, so their disjunction is exactly the released population. Complete-safe in
+        both directions: both readings depend on filingStatus:/treatAsMFJ and are Incomplete until
+        the filing status is settled, so their completeness is tested before they are read and an
+        unanswered child reads false. The return-level
+        /form8332FilesReleaseOrRevocationCompleteSafe conjunct keeps a release made by decree
+        rather than on a Form 8332 out of the printed population.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="dependentsBenefitSplit" path="../whichParentNotClaiming" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency module="dependentsBenefitSplit" path="../primaryFilerNotClaiming" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency module="dependentsBenefitSplit" path="../bothFilersNotClaiming" />
+          </IsComplete>
+          <Any>
+            <Dependency module="dependentsBenefitSplit" path="../primaryFilerNotClaiming" />
+            <Dependency module="dependentsBenefitSplit" path="../bothFilersNotClaiming" />
+          </Any>
+          <Dependency path="/form8332FilesReleaseOrRevocationCompleteSafe" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/form8332PartIIIChildName">
+      <Name>Form 8332 Part III: the child name printed on this child's copy</Name>
+      <Description>The name printed on the Part III line "I revoke the release of claim to an
+        exemption for" of THIS child's copy: this household member's own ../fullName when the copy
+        carries a revocation, and blank otherwise. The blank branch is load-bearing —
+        /form8332Children also renders a copy for a child whose claim is being RELEASED, and
+        Part III of that copy states a revocation nobody made, so it must print
+        empty.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../form8332PartIIIRevokedCompleteSafe" />
+            </When>
+            <Then>
+              <Dependency module="familyAndHousehold" path="../fullName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/form8332PartIChildName">
+      <Name>Form 8332 Part I: the child name printed on this child's copy</Name>
+      <Description>The name printed on the Part I line "I agree not to claim an exemption for" of THIS
+        child's copy: this household member's own ../fullName when a filer on this return releases the
+        claim to this child for the current year (../form8332ReleaseSignedCompleteSafe, read from the
+        "I signed the written declaration not to claim this child" answer), and blank otherwise, since
+        Part I of a copy for a revocation-only or future-years-only child states a release nobody made.
+        One form per child, so each copy names its own child.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../form8332ReleaseSignedCompleteSafe" />
+            </When>
+            <Then>
+              <Dependency module="familyAndHousehold" path="../fullName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/writableForm8332PartIIReleaseTaxYears">
+      <Name>Form 8332 Part II: the future tax years released for this child</Name>
+      <Description>SCREEN. Question: "Are you also releasing your claim to this child for future
+        years? If so, which years? (for example, 2026 and 2027, or all future years)". Asked when the
+        return completes a Form 8332 (/writableForm8332FilesReleaseOrRevocation) for this household
+        member. Free text, as the printed Part II line asks the filer to specify the years. Unanswered
+        means no Part II release for this child: Part II of this child's copy prints blank. Each child
+        has its own Form 8332, so the answer is per child.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/form8332PartIIChildName">
+      <Name>Form 8332 Part II: the child name printed on this child's copy</Name>
+      <Description>The name printed on the Part II line of THIS child's copy: this household member's
+        own ../fullName when the Part II future years are answered for this child
+        (../writableForm8332PartIIReleaseTaxYears), and blank otherwise.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableForm8332PartIIReleaseTaxYears" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="familyAndHousehold" path="../fullName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332FiledWithForm8453">
+      <Name>A Form 8332 goes with this return, so an e-filed return sends it with Form 8453</Name>
+      <Description>True when this return carries a Form 8332 as an attachment: the custodial parent's
+        own Part III revocation copy (/form8332AttachesPartIIIRevocation), or, on the noncustodial
+        parent's return, a signed release the filer has in hand for a child
+        (dependentsBenefitSplit:/familyAndHousehold/*/noncustodialParentHasReleaseToAttach). Form 8332
+        says that a return filed electronically files Form 8332 with Form 8453, the U.S. Individual
+        Income Tax Transmittal for an IRS e-file Return, whose attachment list names Form 8332 (and the
+        post-1984, pre-2009 decree pages that may stand in for it). This is the fact the e-file
+        transmittal reads to check that Form 8453 box; a paper return attaches the form directly.
+        Complete-safe false when neither is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Dependency path="/form8332AttachesPartIIIRevocation" />
+          <GreaterThan>
+            <Left>
+              <CollectionSize>
+                <Filter path="/familyAndHousehold">
+                  <Dependency module="dependentsBenefitSplit" path="noncustodialParentHasReleaseToAttach" />
+                </Filter>
+              </CollectionSize>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332Children">
+      <Name>Children this return prints a Form 8332 for</Name>
+      <Description>The household members this return prints a Form 8332 copy for — the render
+        population of dictionary/pdf/2025/gates.tsv's IRS8332 row (`includeForEach`). It is the
+        UNION of the children whose claim a filer releases for the current year (Part I) or for future
+        years (Part II, ../writableForm8332PartIIReleaseTaxYears answered) and the children whose
+        earlier release a filer revokes (Part III), because the form header says "Attach a separate
+        form for each child": one copy per child, carrying whichever Parts that child needs.
+        Release and revocation are not two render populations, they are two Parts of one form. A
+        release is not an attachment to this return — the custodial parent signs it and hands it to
+        the noncustodial parent, who attaches it to theirs — but this return's printed package is
+        the only place the filer can obtain the copy to sign, so the copy is printed here. An empty
+        collection is the return that files no Form 8332.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/familyAndHousehold">
+          <Any>
+            <Dependency path="form8332ReleaseSignedCompleteSafe" />
+            <Dependency path="form8332PartIIIRevokedCompleteSafe" />
+            <All>
+              <Dependency path="/form8332FilesReleaseOrRevocationCompleteSafe" />
+              <IsComplete>
+                <Dependency path="writableForm8332PartIIReleaseTaxYears" />
+              </IsComplete>
+            </All>
+          </Any>
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332ChildrenCount">
+      <Name>Count of children this return prints a Form 8332 for</Name>
+      <Description>The size of /form8332Children — how many Form 8332 copies this render surface
+        prints. Zero on a return that files none.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <CollectionSize>
+          <Dependency path="/form8332Children" />
+        </CollectionSize>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8332SignerIsSecondaryFiler">
+      <Name>Form 8332: the custodial parent signing is the secondary filer</Name>
+      <Description>Whether the custodial parent releasing or revoking the claim is the SECONDARY
+        filer on this joint return, asked only when the return is married filing jointly. Every
+        "Custodial parent's SSN" box on the form belongs to whichever parent actually signs that
+        Part, and on an MFJ return the two filers are not interchangeable: a remarried custodial
+        parent can be listed second, with the primary filer being the new spouse who is not a
+        party to the release at all.
+
+        QUESTION TEXT, as asked: "Are you the second person listed on this joint return (not the
+        first person named on Form 1040)?" asked once, in the Form 8332 section, immediately
+        after the return confirms it is filing a release or revocation.
+
+        HELP TEXT: "Form 8332 asks for the Social Security number of the parent releasing or
+        revoking the claim. On a joint return we need to know which of you that is, so the right
+        SSN prints next to the signature."
+
+        ASKED WHEN: /writableForm8332FilesReleaseOrRevocation is true AND the return's filing
+        status is married filing jointly. Not asked on any other filing status, because there is
+        only one filer to sign.
+
+        UNANSWERED POSTURE: unanswered means primary filer signs. The custodial parent is who
+        opens this section of the interview, and on every return that has reached this screen
+        before it existed the primary filer was the (only) signer, so silence must not move the
+        SSN off the primary filer's box; the wrong-but-narrower defect this fact fixes is the
+        REMARRIED-secondary-signs case that requires an affirmative Yes.
+
+        VALIDATION: Boolean. Yes/No radio, no default selection when asked, answer required to
+        leave the screen. No Min/Max.
+
+        WHAT THE ANSWER FEEDS: /form8332SigningFilerTin, which is the fact printed in every
+        "Custodial parent's SSN" box on the rendered form (f1_5, f1_8, f1_11 in
+        dictionary/pdf/2025/IRS8332/en/configuration.yml).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8332SignerIsSecondaryFilerCompleteSafe">
+      <Name>Form 8332 signer is the secondary filer (complete-safe)</Name>
+      <Description>The complete-safe reading of /writableForm8332SignerIsSecondaryFiler: an
+        unanswered or not-yet-reached screen resolves Complete false, so
+        /form8332SigningFilerTin always completes to the primary filer's TIN until an MFJ filer
+        affirmatively says the secondary filer is the one signing. Not gated on filing status
+        here — a non-MFJ return simply never has this writable answered, and false is the
+        correct reading of that silence too.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableForm8332SignerIsSecondaryFiler" />
+          </IsComplete>
+          <Dependency path="/writableForm8332SignerIsSecondaryFiler" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332PrimaryFiler">
+      <Description>The primary filer used by Form 8332 signing-TIN selection</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isPrimaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332SecondaryFiler">
+      <Description>The secondary filer used by Form 8332 signing-TIN selection</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8332SigningFilerTin">
+      <Name>Form 8332: the signing custodial parent's SSN</Name>
+      <Description>The SSN printed in every "Custodial parent's SSN" box on the rendered form —
+        the secondary filer's TIN when /form8332SignerIsSecondaryFilerCompleteSafe is true,
+        otherwise the primary filer's TIN. On an MFJ return where the remarried custodial parent
+        is the secondary filer, only that filer's SSN belongs beside the signature, since only
+        the custodial parent under IRC 152(e)(2)(A) can sign the release.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form8332SignerIsSecondaryFilerCompleteSafe" />
+            </When>
+            <Then>
+              <Dependency path="/form8332SecondaryFiler/tin" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8332PrimaryFiler/tin" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8332NoncustodialParentName">
+      <Name>Form 8332 header: name of the noncustodial parent</Name>
+      <Description>The name of the noncustodial parent the custodial parent releases the claim to. The other parent is not a person this dictionary holds: /filers is the return's own filers and /familyAndHousehold is the household, neither of which carries a parent who lives elsewhere. So the name is the filer's own entry.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8332NoncustodialParentTin">
+      <Name>Form 8332 header: social security number of the noncustodial parent</Name>
+      <Description>The noncustodial parent's social security number, the second identity box of the header. Like the name beside it, it names a person outside the return and is the filer's own entry.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+
+
+
+
+  </Facts>
+</FactDictionaryModule>

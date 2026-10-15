@@ -1,0 +1,398 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8582ReturnFilesThisForm">
+      <Name>Return files Form 8582</Name>
+      <Description>True when the modeled passive pool has an overall loss or a current-year
+        passive loss suspended by §469, AND this form's own bottom line resolves. Activity-specific
+        filing exceptions and passive-credit-only filers remain outside the gate.
+
+        TWO POINTS, both of them pinned by fixtures:
+        * the first disjunct tested the WRONG SIGN. /overallPassiveNet is signed (the witness
+          reads line 3 straight off it at -42,000), so GreaterThan($0) asked whether the pool had
+          passive INCOME while this Description said "overall loss". It is LessThan($0) now, which
+          is what the Description always claimed and what "Who Must File" means.
+        * IsComplete-FIRST, the RENDER-GATES guarded-presence shape. The gate used to read
+          Complete true over a wholly unanswered Form 8582, so the return would attach a form whose
+          lines 6-11 are all blank. /form8582Line11TotalLossesAllowed is this form's printed total
+          and the one line that proves Part II/III were actually computed; requiring it means a
+          blank Form 8582 is never emitted. Pinned by form8582-line6-unanswered (gate false while
+          the §469 pool still shows its loss) against form8582-line6-line9-example and
+          form8582-line4-smaller-example (both true).
+
+        The guard is temporary by construction: once line 6 reads
+        scheduleE:/section8582Magi, line 11 resolves whenever the pool does and the IsComplete leg
+        stops being able to suppress anything.
+
+        A SECOND ARM rather than a widening of the first. The two disjuncts above both require an overall passive LOSS or a
+        suspended loss, so a filer with passive activity deductions and an overall passive GAIN got
+        no Form 8582 at all — while the printed line 3 says, of a line that is zero or more, "stop
+        here and include this form with your return", and Who Must File names everyone "who have
+        passive activity deductions (including prior year unallowed losses)". The new arm is
+        exactly that case: line 3 at or above zero AND a loss in either printed leg (line 1d or
+        line 2d). Pinned by tests/nodes/ty2025/form8582/form8582-whofiles-loss-leg-overall-gain —
+        line 1d a 3,000 loss, line 2d 8,000 of income, line 3 +5,000, suspended 0 — where the gate
+        was measured Complete false before the edit and Complete true after.
+
+        WHY IT IS A SEPARATE ARM, NOT A THIRD DISJUNCT INSIDE THE FIRST: the IsComplete(line 11)
+        leg exists so a wholly unanswered Form 8582 is never attached (S3 above), and on a
+        stop-at-line-3 return the form never reaches lines 6 and 10, whose two free writables are
+        what line 11 needs. Requiring line 11 on this arm would make the correction unreachable for
+        the filer it is for. The fixture proves the independence: it removes BOTH
+        /writableForm8582ModifiedAdjustedGrossIncome and /writableForm8582PassiveActivityIncomeTotal,
+        asserts lines 10 and 11 Incomplete, and still asserts the gate Complete true. Part I still
+        prints from scheduleE's exported aggregates, so the attached form is not blank.
+
+        NO NEW COMPLETENESS SURFACE: /form8582Line1dRentalActiveSignedNet and
+        /form8582Line2dOtherPassiveSignedNet are derived from scheduleE:/overallPassiveNet and
+        scheduleE:/otherPassiveNet, and the first arm already reads /overallPassiveNet, so this
+        fact depends on nothing it did not already depend on.
+
+        WHAT THIS ARM STILL DOES NOT COVER, stated rather than left to be discovered: prior-year
+        unallowed losses (printed lines 1c and 2c) are not modeled in the pool at all, so a filer
+        whose only passive deduction is a carryforward is still not detected here; and a
+        per-activity loss inside a leg that nets positive is invisible to a leg-level test. The
+        first is owned by scheduleE, not by this module.
+
+        THE WHO MUST FILE EXCEPTION, CORRECTED by the w13 review. This paragraph used to say the
+        Exception has "six conditions, i8582 lines 42-61" and that THIS ARM "can attach a form the
+        Exception would excuse". Both halves were wrong. The Exception is headed at i8582 line 41
+        and runs to line 61, and it carries SEVEN bullets, the seventh being the limited-partner /
+        estate-or-trust-beneficiary interest. And this arm cannot reach an excused filer, which is
+        provable from the leg definitions rather than merely untested: the arm fires only when
+        line 2d is a loss, or when line 1d is a loss while the overall net is at or above zero, and
+        the second of those forces line 2d strictly positive. Either way the other-passive leg is
+        non-zero, so passive activities exist that are not rental real estate with active
+        participation, which fails the Exception's FIRST condition by itself.
+
+        THE OVER-INCLUSION IS THE FIRST ARM'S, and it is measured, not inferred:
+        tests/nodes/ty2025/form8582/form8582-whofiles-exception-excused-still-files is one
+        actively-participated rental with an 8,000 loss, MAGI 50,000, single, no other passive
+        activity and no prior-year unallowed loss — every Exception condition met — and this gate
+        is Complete true there. It is left that way ON PURPOSE. The harm runs the benign way (an
+        unrequired attachment whose numbers agree with the return; the instructions say the filer
+        does not have to file, not that they must not), while two of the seven conditions
+        (prior-year unallowed losses, current or prior-year unallowed passive credits) have NO
+        facts anywhere in dictionary/ty2025, so modelling the Exception now would hard-code them to
+        "none" and SUPPRESS the form for exactly the filers who must file it. The MAGI condition
+        would additionally have to gate a printed form on ../form8582Line6ModifiedAdjustedGrossIncome,
+        the free writable whose drift from scheduleE:/section8582Magi is an open defect,
+        and the "total loss from the rental real estate activities" condition
+        needs a ruling on whether it means the net of the leg or the sum of the loss activities.
+        dictionary/pdf/2025/gates.tsv already carries the matching render-gate limitation note.
+
+        FOURTH CORRECTION, and it is about DECIDABILITY rather than about who files. This is a PRINT
+        gate, so the only two answers it may give are a decided yes and a decided no; a value that is
+        right for the branch it took and silent about whether the branch was the right one is an
+        answer no consumer can act on. The second arm reads the Schedule E pool through
+        ../form8582Line1dRentalActiveSignedNet and ../form8582Line2dOtherPassiveSignedNet, and those
+        aggregates are undecidable on a return whose passive intake is only partly answered - a
+        Schedule K-1 that leaves the item D publicly-traded-partnership question blank leaves
+        scheduleE:/k1PassiveNet undecided and with it /otherPassiveNet and /overallPassiveNet - so on
+        such a return the arm answered the print question with a Placeholder. IsComplete on line 1d is
+        the whole guard: an All returns a decided FALSE as soon as ANY of its operands is a decided
+        FALSE, whatever the operands beside it resolve to, so the guard settles the arm on a decided NO
+        and the two undecidable comparisons cannot lift it back to a Placeholder. It is written FIRST
+        for the reader, not for the evaluator: an All is order-independent, so the position of this
+        member carries no meaning. ONE GUARD COVERS BOTH LEGS: line 1d is line 3 less line
+        2d, so its completeness is exactly the completeness of both exported aggregates and line 2d
+        needs no guard of its own. AND IT MUST BE LINE 1d, not line 11: the third arm above exists so a
+        stop-at-line-3 filer is detected on a return that never reaches lines 6 and 10, and a line 11
+        guard here would make that correction unreachable for the filer it is for. NO VALUE MOVES ANYWHERE: wherever this arm resolved a decided TRUE
+        the aggregates were already complete, which is what made the comparison decidable, so the guard
+        is true there by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/form8582Line11TotalLossesAllowed" /></IsComplete>
+            <Any>
+              <LessThan><Left><Dependency module="scheduleE" path="/overallPassiveNet" /></Left><Right><Dollar>0</Dollar></Right></LessThan>
+              <GreaterThan><Left><Dependency module="scheduleE" path="/passiveSuspendedLossTotal" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+            </Any>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/form8582Line1dRentalActiveSignedNet" /></IsComplete>
+            <GreaterThanOrEqual><Left><Dependency module="scheduleE" path="/overallPassiveNet" /></Left><Right><Dollar>0</Dollar></Right></GreaterThanOrEqual>
+            <Any>
+              <LessThan><Left><Dependency path="/form8582Line1dRentalActiveSignedNet" /></Left><Right><Dollar>0</Dollar></Right></LessThan>
+              <LessThan><Left><Dependency path="/form8582Line2dOtherPassiveSignedNet" /></Left><Right><Dollar>0</Dollar></Right></LessThan>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8582Line1dRentalActiveSignedNet">
+      <Name>Form 8582 Part I line 1d — active-participation rental net</Name>
+      <Description>Overall passive net less the other-passive net. Schedule E exports both aggregate pool values; their difference is the Form 8582 active-participation rental leg.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Subtract><Minuend><Dependency module="scheduleE" path="/overallPassiveNet" /></Minuend><Subtrahends><Dependency module="scheduleE" path="/otherPassiveNet" /></Subtrahends></Subtract></Derived>
+    </Fact>
+
+    <Fact path="/form8582Line2dOtherPassiveSignedNet">
+      <Name>Form 8582 Part I line 2d — other passive net</Name>
+      <Description>Schedule E's exported aggregate for all other passive activities.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="scheduleE" path="/otherPassiveNet" /></Derived>
+    </Fact>
+
+    <Fact path="/form8582Line3OverallPassiveSignedNet">
+      <Name>Form 8582 Part I line 3 — overall passive net</Name>
+      <Description>Schedule E's exported overall passive net, the combine of lines 1d and 2d.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="scheduleE" path="/overallPassiveNet" /></Derived>
+    </Fact>
+
+    <Fact path="/form8582Line4SpecialAllowanceLossBase">
+      <Name>Form 8582 Part II line 4 — smaller active-rental loss</Name>
+      <Description>The smaller of the positive loss on line 1d or the overall loss on line 3. The ordinary special-allowance computation is modeled; the prior-year commercial revitalization deduction worksheet is not.</Description>
+      
+      <Derived>
+        <LesserOf>
+          <GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="/form8582Line1dRentalActiveSignedNet" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf>
+          <GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="/form8582Line3OverallPassiveSignedNet" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf>
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8582Line5MagiThreshold">
+      <Name>Form 8582 Part II line 5 — MAGI threshold</Name>
+      <Description>$150,000, or $75,000 for married filing separately.
+
+        DECLARED LIMIT, print fidelity only. The instruction
+        conditions the $75,000 substitution on LIVING APART, not on the filing status alone:
+        "Married persons filing separate returns who lived / apart from their spouses at all times
+        during the year must / enter $75,000 on line 5 instead of $150,000." This Switch reads only
+        filingStatus:/isFilingStatusMFS, so an MFS filer who lived WITH their spouse also gets
+        75,000 here. NO DOLLAR MOVES: that filer's line 8 is the literal $0 case in
+        ../form8582Line8SpecialAllowanceCap, which does not read line 7, so lines 9 and 11 are
+        unaffected. What is wrong is purely what is PRINTED — dictionary/pdf/2025/IRS8582/en/configuration.yml
+        maps this fact to f1_13[0], so the filer sees a filled-in Part II on a form whose own
+        Caution tells them not to complete Part II.
+
+        DELIBERATELY NOT FIXED AT THE FACT LEVEL. The faithful correction is to suppress the whole
+        Part II render (printed lines 4 through 9) for that filer, which is a render-gate concern
+        in dictionary/pdf/2025/IRS8582. Blanking line 5 alone here would leave line 4 populated,
+        i.e. a half-completed Part II, which is worse than a consistently computed one. The same
+        class of print-only infidelity applies to the f8582 line 3 routing note "Line 2d is a loss
+        (and line 1d is zero or more), skip Part II and go to line 10": when the loss sits in the
+        line 2d leg the model still computes and prints lines 4 through 9, and it is numerically
+        harmless for the same reason (line 4 floors to 0 when line 1d is at or above zero, so line
+        9 is 0 and line 11 equals line 10, exactly what skipping Part II yields).</Description>
+      
+      <Derived>
+        <Switch>
+          <Case><When><Equal><Left><Dependency module="filingStatus" path="/isFilingStatusMFS" /></Left><Right><True /></Right></Equal></When><Then><Dollar>75000</Dollar></Then></Case>
+          <Case><When><Equal><Left><Dependency module="filingStatus" path="/isFilingStatusMFS" /></Left><Right><False /></Right></Equal></When><Then><Dollar>150000</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8582ModifiedAdjustedGrossIncome">
+      <Name>Form 8582 Part II line 6 — modified adjusted gross income</Name>
+      <Description>Enter the line-6 modified adjusted gross income after applying the Form 8582 instructions; the module floors the entered amount at zero.
+
+        INTERIM INTAKE, and it is the second MAGI on this return. The
+        return's own §469 allowance is already computed from scheduleE:/section8582Magi — a
+        Derived fact with 18 dependencies — and nothing forces
+        this typed amount to equal it. The consequence is measured, not asserted: in
+        tests/nodes/ty2025/form8582/form8582-line6-magi-drift the filer types $120,000 while
+        scheduleE computes $86,500, so the PRINTED form says the special allowance is $15,000
+        while the return deducts scheduleE's $25,000
+        (/rentalSpecialAllowance = /passiveAllowedLossTotal = 25000.00). The companion case
+        form8582-line6-schedulee-magi-agreement pins the only state in which the form is right:
+        the two numbers equal.
+
+        THE SUCCESSOR (one line in scheduleE, which block 4 may not edit): add
+        &lt;Export downstreamFacts="true" /&gt; to scheduleE:/section8582Magi and make
+        ../form8582Line6ModifiedAdjustedGrossIncome a bare Dependency on it, retiring this
+        writable. Recorded in the records overlay.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/form8582Line6ModifiedAdjustedGrossIncome">
+      <Name>Form 8582 Part II line 6 — modified adjusted gross income</Name>
+      <Description>The filer-entered modified adjusted gross income, floored at zero — NOT
+        scheduleE:/section8582Magi, which is what the return's own §469 special allowance is
+        computed from. scheduleE carries no &lt;Export downstreamFacts="true" /&gt; on that fact
+        and block 4 may not edit scheduleE, so the intake stands as the interim source and the
+        one-line export is the recorded successor (see ../writableForm8582ModifiedAdjustedGrossIncome
+        for the measured drift and the fixtures that pin it). Part II must not be computed twice;
+        until the export lands it is, and this Description is the place that says so.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dependency path="/writableForm8582ModifiedAdjustedGrossIncome" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/form8582Line7PhaseoutDifference">
+      <Name>Form 8582 Part II line 7 — threshold less modified AGI</Name>
+      <Description>Line 5 minus line 6, floored at zero as directed when line 6 is at least the threshold.</Description>
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/form8582Line5MagiThreshold" /></Minuend><Subtrahends><Dependency path="/form8582Line6ModifiedAdjustedGrossIncome" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/form8582Line8SpecialAllowanceCap">
+      <Name>Form 8582 Part II line 8 — special allowance cap</Name>
+      <Description>One-half of line 7, limited to $25,000, or $12,500 for a married filer who files
+        separately and lived apart all year, and $0 for a married filer who files separately and
+        lived with their spouse at any time during the year.
+
+        TWO POINTS, both pinned by fixtures:
+        * THE QUESTION IS NO LONGER ASKED TWICE. The MFS case used to read this module's own
+          ../writableForm8582MfsLivedApartAllYear; it now reads filers:/livedApartAllYear, which is
+          the SAME fact scheduleE:/rentalSpecialAllowance reads to decide the allowance the return
+          actually deducts. While the two answers were independent they could disagree, and
+          tests/nodes/ty2025/form8582/form8582-mfs-lived-with-spouse-low-magi (then named for the contradiction it witnessed) measured the
+          disagreement: the form printed a 12,500 special allowance on lines 8, 9 and 11 while
+          /rentalSpecialAllowance was 0.00. The printed form and the deducted allowance now move
+          together by construction, because they read one fact. (The fixture is named for the
+          contradiction it used to witness; now that the writable is retired it no longer
+          answers it and so no longer measures a contradiction, though its asserts are unchanged
+          because they were already driven by filers:/livedApartAllYear.)
+        * THE FORM NO LONGER DISAPPEARS. There was no case for an MFS filer who lived with their
+          spouse, so this line was Incomplete, lines 9 and 11 with it, and the IsComplete leg of
+          ../form8582ReturnFilesThisForm suppressed the whole form for a filer the printed form
+          tells to skip Part II and go to line 10. That filer now gets $0 here, which makes line 9
+          $0 and line 11 equal to line 10 — exactly what "Instead, go to line 10" means — and the
+          form is filed. Pinned by form8582-mfs-lived-with-spouse.
+
+        AN MFS RETURN THAT HAS NOT ANSWERED THE COHABITATION QUESTION leaves this line Incomplete
+        rather than printing a confident $0 over an allowance the return itself cannot resolve.
+        That arm is pinned by form8582-mfs-cohabitation-unanswered, which measures BOTH facts on
+        one return whose filers:/livedApartAllYear is Incomplete, and they DIFFER: THIS line
+        resolves Incomplete (the runner reports it "not in snapshot"), while
+        scheduleE:/rentalSpecialAllowance resolves Placeholder.
+
+        THE CAUSE OF THAT DIFFERENCE, isolated by the w13 review. This paragraph used to say the
+        build unit could not name it and offered the Round wrapper or case order as the candidates;
+        both were wrong. It is the Switch evaluator itself (Expression.scala, private object
+        switches, resultRecurse): a case whose When is Incomplete does NOT stop the Switch, because
+        Result.Incomplete carries no value and so falls into the catch-all recursion arm; it only
+        clears the accumulated completeness. The FIRST case whose When has value Some(true) then
+        supplies the result, downgraded with asPlaceholder if any earlier case was undecidable.
+        Result.Incomplete comes back ONLY from running off the end of the case list. So on an MFS
+        return whose filers:/livedApartAllYear is Incomplete:
+        * scheduleE:/rentalSpecialAllowance falls through its undecidable first case and then MEETS
+          its second case, whose When is a bare /isFilingStatusMFS and is Complete(true), so it
+          returns that case's body as a PLACEHOLDER.
+        * THIS fact's three cases are mutually exclusive with no catch-all, so once the non-MFS
+          case is Complete(false) the two MFS cases are both Incomplete, the list is exhausted, and
+          the Switch is Incomplete.
+        The presence of a matching later case is the whole difference. It is not the Round wrapper.
+
+        AND THE 0.00 IN THAT FIXTURE IS A COINCIDENCE OF ITS MAGI, which is why the divergence read
+        as harmless. scheduleE's placeholder is its 12,500 branch evaluated, min(12500, one half of
+        max(0, 75000 minus /section8582Magi)), and that fixture inherits wages of 86,500, above the
+        75,000 ceiling, so the branch is 0.00. form8582-mfs-cohabitation-unanswered-low-magi is the
+        same return at wages 50,000: /section8582Magi Complete 50,000.00, THIS line still
+        Incomplete, and scheduleE:/rentalSpecialAllowance Placeholder 12,500.00 — the full MFS
+        lived-apart allowance handed to a filer whose cohabitation answer is unknown.
+
+        THIS LINE'S Incomplete IS THE RIGHT ONE and must not be weakened to match. The consistency
+        successor belongs to scheduleE, which is out of this module's fence and whose change moves
+        a return dollar, so it needs its own unit. IT IS A TWO-CASE CHANGE, AND HALF OF IT IS A
+        TRAP: /rentalSpecialAllowance's second case must test All(isFilingStatusMFS,
+        livedApartAllYear) instead of bare isFilingStatusMFS, AND its third case's When must become
+        Not(isFilingStatusMFS) instead of the bare True catch-all. Doing only the first makes
+        things WORSE, by the same resultRecurse rule: with case 2 undecidable the True catch-all
+        still matches, so the fact would return the NON-MFS branch as a placeholder, min(25000, one
+        half of max(0, 150000 minus magi)) — 25,000.00 at that fixture's MAGI, i.e. the single
+        filer's full allowance handed to an MFS filer, worse than today's 12,500.00. With both
+        cases exclusive the list is exhausted and both facts go Incomplete together, and neither
+        the non-MFS nor the MFS-answered path changes. form8582-mfs-cohabitation-unanswered-low-magi
+        is that change's ready-made witness and goes RED (Placeholder 12,500.00 becomes Incomplete)
+        when it lands. Until then the property that matters still holds: neither the printed line nor
+        the deducted allowance is a confident number there, so the form is never more complete than
+        the return and the gate stays Complete false.
+
+        CASE ORDER IS HYGIENE HERE, NOT CORRECTNESS. This paragraph used to claim the non-MFS case
+        must stay FIRST so a non-MFS return never evaluates the cohabitation facts. Measured by
+        mutation in the w13 review: moving it LAST changes no case in the corpus, and it cannot,
+        because AllOperator short-circuits on Result.Complete(false) in both its head position and
+        its accumulator — on a non-MFS return each MFS case's When is Complete(false) without the
+        cohabitation conjunct ever being reached, and without clearing the Switch's accumulated
+        completeness. Keep the order for readability; do not rely on it for completeness.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency module="filingStatus" path="/isFilingStatusMFS" /></Left><Right><False /></Right></Equal></When>
+            <Then><LesserOf><Round><Divide><Dividend><Dependency path="/form8582Line7PhaseoutDifference" /></Dividend><Divisors><Int>2</Int></Divisors></Divide></Round>
+              <Dollar>25000</Dollar>
+            </LesserOf></Then>
+          </Case>
+          <Case>
+            <When><All><Equal><Left><Dependency module="filingStatus" path="/isFilingStatusMFS" /></Left><Right><True /></Right></Equal><Equal><Left><Dependency module="filers" path="/livedApartAllYear" /></Left><Right><True /></Right></Equal></All></When>
+            <Then><LesserOf><Round><Divide><Dividend><Dependency path="/form8582Line7PhaseoutDifference" /></Dividend><Divisors><Int>2</Int></Divisors></Divide></Round>
+              <Dollar>12500</Dollar>
+            </LesserOf></Then>
+          </Case>
+          <Case>
+            <When><All><Equal><Left><Dependency module="filingStatus" path="/isFilingStatusMFS" /></Left><Right><True /></Right></Equal><Equal><Left><Dependency module="filers" path="/livedApartAllYear" /></Left><Right><False /></Right></Equal></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8582Line9SpecialAllowanceAllowed">
+      <Name>Form 8582 Part II line 9 — special allowance</Name>
+      <Description>The smaller of line 4 and line 8. The CRD-specific worksheet can change this amount and remains outside this model.</Description>
+      
+      <Derived><LesserOf><Dependency path="/form8582Line4SpecialAllowanceLossBase" /><Dependency path="/form8582Line8SpecialAllowanceCap" /></LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/writableForm8582PassiveActivityIncomeTotal">
+      <Name>Form 8582 Part III line 10 — passive activity income</Name>
+      <Description>Enter the total of current-year passive net income reported on Part I lines 1a and 2a. Schedule E does not currently export these two positive-income subtotals separately.
+
+        The SAME successor as line 6: scheduleE computes
+        the Part I 1a/2a positive-income legs inside its own §469 chain; the export that retires
+        ../writableForm8582ModifiedAdjustedGrossIncome should retire this intake with it, or line
+        10 stays a free number added to a derived one.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/form8582Line10PassiveActivityIncome">
+      <Name>Form 8582 Part III line 10 — passive activity income</Name>
+      <Description>The filer-entered aggregate of current-year passive net income on Part I lines 1a and 2a.</Description>
+      
+      <Derived><Dependency path="/writableForm8582PassiveActivityIncomeTotal" /></Derived>
+    </Fact>
+
+    <Fact path="/form8582Line11TotalLossesAllowed">
+      <Name>Form 8582 Part III line 11 — total losses allowed</Name>
+      <Description>Line 9 plus line 10. This print result is exported as the successor input for Schedule E's future Form 8582 allowable-loss integration.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/form8582Line9SpecialAllowanceAllowed" /><Dependency path="/form8582Line10PassiveActivityIncome" /></Add></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,3752 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/ctcOdc.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/improperClaimsNoticeOptions">
+      <Name>Improper claims notice options</Name>
+      <Description>Options for how long a TP has been restricted for taking CTC, ACTC, or ODC</Description>
+      <Derived>
+        <EnumOptions>
+          <String>twoYears</String>
+          <String>tenYears</String>
+          <String>zeroYears</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+    <Fact path="/maybeEligibleForCtc">
+      <Name>Whether the TP may be eligible to receive CTC based on dependents</Name>
+      <Description>Whether there are dependents who are eligible for the Child Tax Credit.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleCtc" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowAskAboutOdc">
+      <Name>Whether we should ask the taxpayer about ODC eligibility</Name>
+      <Description>This requires that we have ODC eligible individuals, and that we haven't asked
+        about CTC. The
+        questions about eligibility are the same as CTC, so we don't ask them twice -- we just
+        default to CTC.</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/maybeEligibleForOdc" />
+          <Not>
+            <Dependency path="/maybeEligibleForCtc" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForOdc">
+      <Name>Whether the TP may be eligible for ODC based on dependents</Name>
+      <Description>Whether there are dependents who are eligible for the Credit for Other
+        Dependents.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/odcEligibleDependents" />
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcEligibleDependents">
+      <Name>Number of CTC-eligible dependents</Name>
+      <Description>The number of dependents who are eligible for the Child Tax Credit. Reported on
+        line 4 of Schedule
+        8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="familyAndHousehold" path="/familyAndHousehold" /></IsComplete></When>
+            <Then>
+              <Count>
+                <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleCtc" />
+              </Count>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812ContinueFromLine16a">
+      <Name>Continue Schedule 8812 from Line 16a</Name>
+      <Description>Whether to continue in sequence from Line 16a.</Description>
+      <Derived>
+        <NotEqual>
+          <Left>
+            <Dependency path="/remainingCtcAndOdc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </NotEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line16bCount">
+      <Name>Display value for PDF Schedule 8812, Line 16b (count)</Name>
+      <Description>The number of dependents who are eligible for the Child Tax Credit if completing
+        Part II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16a" />
+            </When>
+            <Then>
+              <Dependency path="/ctcEligibleDependents" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalPotentialCtc">
+      <Name>Total potential CTC</Name>
+      <Description>The maximum amount of the Child Tax Credit that could be claimed. Reported on
+        line 5 of Schedule
+        8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Any>
+                  <Dependency path="/ctcOdcDisqualifiedForImproperClaims" />
+                  <Not>
+                    <Dependency path="/maybeEligibleForCtc" />
+                  </Not>
+                </Any>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Multiply>
+                  <Dependency path="/ctcEligibleDependents" />
+                  <Dependency path="/maxCtcAmount" />
+                </Multiply>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line16bAmount">
+      <Name>Display value for PDF Schedule 8812, Line 16b (amount)</Name>
+      <Description>The maximum amount of the Child Tax Credit that could be claimed if completing
+        Part II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16a" />
+            </When>
+            <Then>
+              <Dependency path="/totalPotentialActc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812ContinueFromLine16b">
+      <Name>Continue Schedule 8812 from Line 16b</Name>
+      <Description>Whether to continue in sequence from Line 16b.</Description>
+      <Derived>
+        <NotEqual>
+          <Left>
+            <Dependency path="/pdf8812Line16bAmount" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </NotEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxCtcAmount">
+      <Name>Maximum child tax credit amount</Name>
+      <Description>The maximum child tax credit per child</Description>
+      
+
+      <Derived>
+        <Dollar>2200</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/odcEligibleDependents">
+      <Name>Number of ODC-eligible dependents</Name>
+      <Description>The number of dependents who are eligible for the Credit for Other Dependents.
+        Reported on line 6 of
+        Schedule 8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="familyAndHousehold" path="/familyAndHousehold" /></IsComplete></When>
+            <Then>
+              <Count>
+                <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/eligibleOdc" />
+              </Count>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/exactlyOneOdcEligibleDependent">
+      <Name>Exactly one ODC-eligible dependent</Name>
+      <Description>Whether the taxpayer has exactly one ODC-eligible dependent.</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/odcEligibleDependents" />
+          </Left>
+          <Right>
+            <Int>1</Int>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/moreThanOneOdcEligibleDependent">
+      <Name>More than one ODC-eligible dependent</Name>
+      <Description>Whether the taxpayer has more than one ODC-eligible dependent.</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/odcEligibleDependents" />
+          </Left>
+          <Right>
+            <Int>1</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalPotentialOdc">
+      <Name>Total potential ODC</Name>
+      <Description>The maximum amount of the Credit for Other Dependents that could be claimed.
+        Reported on line 7 of
+        Schedule 8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Any>
+                  <Dependency path="/ctcOdcDisqualifiedForImproperClaims" />
+                  <Not>
+                    <Dependency path="/maybeEligibleForOdc" />
+                  </Not>
+                </Any>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Multiply>
+                  <Dependency path="/odcEligibleDependents" />
+                  <Dependency path="/maxOdcAmount" />
+                </Multiply>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxOdcAmount">
+      <Name>Maximum credit amount for other dependents</Name>
+      <Description>The maximum credit for other dependents, per dependent</Description>
+      
+
+      <Derived>
+        <Dollar>500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalPotentialDependentCredits">
+      <Name>Total potential dependent credits</Name>
+      <Description>The combined amount of the maximum Child Tax Credit and Credit for Other
+        Dependents. Reported on line
+        8 of Schedule 8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/totalPotentialCtc" />
+            <Dependency path="/totalPotentialOdc" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditPhaseoutThreshold">
+      <Name>Dependent credit phaseout threshold</Name>
+      <Description>The MAGI threshold at which the dependent credits begin to phaseout. Reported on
+        line 9 of Schedule
+        8812.</Description>
+      <Export mef="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>400000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              </Not>
+            </When>
+            <Then>
+              <Dollar>200000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditMagiAboveThreshold">
+      <Name>Dependent credit MAGI above threshold</Name>
+      <Description>The amount of excess income above the threshold.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/dependentCreditMagi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/dependentCreditPhaseoutThreshold" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/roundedDependentCreditMagiAboveThreshold">
+      <Name>Rounded dependent credit MAGI above threshold</Name>
+      <Description>In whole $1,000s, the amount of excess income above the threshold. Per §24(b)(2),
+        any fraction of
+        $1,000 is rounded to $1,000. Reported on line 10 of Form 8812.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <Add>
+                <Dependency path="/dependentCreditMagiAboveThreshold" />
+                <Dollar>999.99</Dollar>  
+              </Add>
+            </Multiplicand>
+            <Rate>
+              <Rational>1000/1000</Rational>
+            </Rate>
+          </StepwiseMultiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditPhaseout">
+      <Name>Dependent credit phaseout</Name>
+      <Description>The amount to reduce the dependent credit amount by. Reported on line 11 of Form
+        8812.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/roundedDependentCreditMagiAboveThreshold" />
+            <Rational>5/100</Rational>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditLessPhaseout">
+      <Name>Dependent credit less phaseout</Name>
+      <Description>The amount of dependent credits left to claim after applying the phaseout.
+        Reported on line 12 of
+        Form
+        8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/totalPotentialDependentCredits" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/dependentCreditPhaseout" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditNotFullyPhasedOut">
+      <Name>Dependent credit not fully phased out</Name>
+      <Description>Whether there is any amount of dependent credits left to claim after applying the
+        phaseout. Reported
+        on a checkbox on line 12 of Form 8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/dependentCreditLessPhaseout" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditFullyPhasedOut">
+      <Name>Dependent credit fully phased out</Name>
+      <Description>Whether there is no amount of dependent credits left to claim after applying the
+        phaseout. Reported
+        on
+        a checkbox on line 12 of Form 8812.</Description>
+
+      <Derived>
+        <Not>
+          <Dependency path="/dependentCreditNotFullyPhasedOut" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxPotentialOdcAfterPhaseOut">
+      <Name>Max potential ODC amount after phase out</Name>
+      <Description>The max potential odc amount accounting for phase out if applicable</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/totalPotentialOdc" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/dependentCreditPhaseout" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlHasRemainingCtcAndOdc">
+      <Name>Has remaining CTC and ODC</Name>
+      <Description>Whether there is any CTC or ODC remaining to be processed, meaning that the
+        dependent credit
+        hasn't
+        phased out and there is still some CTC or ODC. Encountered on line 16a of form 8812.
+        Determines if lines 16b -
+        26
+        may be applicable.</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/dependentCreditNotFullyPhasedOut" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/remainingCtcAndOdc" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlHasPotentialActc">
+      <Name>Has potential ACTC</Name>
+      <Description>Whether there is any CTC or ODC that can be processed and there is some potential
+        ACTC
+        representing
+        Encountered on line 16b of form 8812. Determines if lines 17-26 may be applicable</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/xmlHasRemainingCtcAndOdc" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/totalPotentialActc" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlThreeOrMoreCtcEligibleDependents">
+      <Name>Three of more CTC eligible CTC dependents</Name>
+      <Description>Whether we have 3 CTC eligible dependents and potential ACTC. Encountered on line
+        20 of Schedule
+        8812.
+        Determines if lines 21-26 are applicable. to-do in future tax years: take Puerto Rico
+        residency into
+        account
+      </Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/xmlHasPotentialActc" />
+          <Dependency path="/threeOrMoreCtcEligibleDependents" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalCtc">
+      <Name>Total CTC from the CTC/ODC</Name>
+      <Description>Total amount of CTC the TP will receive after the phaseout. It is derived and used for us to help the
+        taxpayer make sense of how much of their credit comes from ctc, but it does not exist directly on schedule 8812.
+        CTC credits are applied after ODC credits as per the IRM and when there is a phase out are reduced after ODC
+        credits.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/totalCtcAndOdc" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/totalCtcAndOdc" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency path="/totalOdc" />
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingCtc">
+      <Name>Is receiving CTC</Name>
+      <Description>Whether the TP is receiving the child tax credit</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/totalCtc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalOdc">
+      <Name>Total ODC from the CTC/ODC</Name>
+      <Description>Total amount of ODC the TP will receive after the phaseout. It is derived and used for us to help the
+        taxpayer make sense of how much of their credit comes from odc, but it does not exist directly on schedule 8812.
+        ODC credits are applied before CTC credits as per the IRM and is also reduced first if there is a phase out.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/totalCtcAndOdc" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/maxPotentialOdcAfterPhaseOut" />
+                <Dependency path="/totalCtcAndOdc" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingOdc">
+      <Name>Is receiving ODC </Name>
+      <Description>Whether the TP is receiving the credit for other dependents</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/totalOdc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingCtcOrOdc">
+      <Name>Is receiving CTC or ODC</Name>
+      <Description>Whether the TP is receiving the child tax credit or credit for other dependents</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/totalCtcAndOdc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimit">
+      <Name>Credit Limit for Credits for Qualifying Children and Other Depednents</Name>
+      <Description>The credit limit per Credit Limit Worksheet A from Schedule 8812. Reported on line 13.
+
+        WORKSHEET A LINE 4. Line 4 reads "If you are not completing Credit Limit Worksheet B, enter
+        -0-; otherwise, enter the amount from Credit Limit Worksheet B"
+        (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 4), and line 5 subtracts it from line 3.
+        The Switch below is that sentence: -0- for every filer the Worksheet A line-3 trigger does
+        not select, and /sched8812CreditLimitWorksheetBLine15 for the rest.
+
+        THE FLOOR. The printed worksheet has an unfloored line 3 (line 1 - line 2) and an unfloored
+        line 5 (line 3 - line 4); this fact keeps ONE GreaterOf over the whole expression. The two
+        shapes are value-identical because line 4 is non-negative: if line 1 - line 2 is already
+        negative both give 0, and otherwise they agree term for term.
+
+        WHY IT READS THE TWINS AND NOT SCHEDULE 3. /sched8812CreditLimitWorksheetBLine15 sums
+        schedule3's Worksheet-B pass-throughs, which resolve to form5695 /residentialCleanEnergyCreditWsb,
+        form8839 /nonrefundableAdoptionCreditWsb, form8396 /mortgageInterestCreditWsb and form8859's
+        _Wsb twin. Reading /sched3Line5a, /sched3Line6c or /sched3Line6g instead would reach the
+        public credit selectors, whose plain arms read /totalCtcAndOdc, which reads this fact — a
+        cycle that parks the dictionary load at 0% CPU rather than raising. scripts/factdag.py up
+        /sched8812CreditLimit must contain neither /totalCtcAndOdc nor /sched3Line5a, /sched3Line6c or
+        /sched3Line6g.
+
+        THE FIXED POINT IS SOLVED, NOT APPROXIMATED, and the node tests assert it. On a Worksheet-B
+        return the coordinated answer is a FIXED POINT of the naive (Form 1040 line 19) equations:
+        once line 4 subtracts line 15, each bridge credit's PLAIN limit worksheet — which reads this
+        fact through /totalCtcAndOdc — yields exactly the same credit as its twin. The twins compute
+        the fixed point ACYCLICALLY; they do not reach a different number.
+        tests/nodes/ty2025/form5695/wsb-all-three-bridge-credits-ordered asserts the plain and twin
+        limits equal and the four nonrefundable credits summing to exactly the tax.
+
+        LINE 6h. Schedule 3 line 6h (Form 8859) reaches Worksheet B line 15 through
+        dictionary/ty2025/form8859.xml's _Wsb twin, the shape the three bridge credits have, because
+        Form 8859's own Tax Liability Limit Worksheet carries the same asterisk footnote. Form 8859 is
+        also a limb of /isCompletingCreditLimitWorksheetB, so the filer whose only Worksheet-B credit
+        is Form 8859 is detected. Worksheet B line 8's Schedule 2 terms are read through
+        /socialSecurityOverEitc, which /sched8812CreditLimitWorksheetBLine11 reuses.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="schedule3" path="/sched3Line1" />
+              <Dependency module="cdcc" path="/cdccTotalCredit" />
+              <Dependency module="schedule3" path="/sched3Line3" />
+              <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+              <Dependency module="schedule3" path="/sched3Line5b" />
+              <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+              <Dependency module="schedule3" path="/sched3Line6f" />
+              <Dependency module="schedule3" path="/sched3Line6l" />
+              <Dependency module="schedule3" path="/sched3Line6m" />
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="/isCompletingCreditLimitWorksheetB" />
+                  </When>
+                  <Then>
+                    <Dependency path="/sched8812CreditLimitWorksheetBLine15" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalCtcAndOdc">
+      <Name>Total CTC and ODC</Name>
+      <Description>The total amount of the child tax credit and credit for other dependents.
+        Reported on line 14 of Form
+        8812 (although for ExportZero reasons, there is a separate fact below), and line 19 of Form
+        1040.</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <Round>
+          <LesserOf>
+            <Dependency path="/dependentCreditLessPhaseout" />
+            <Dependency path="/sched8812CreditLimit" />
+          </LesserOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlTotalCtcAndOdcFor8812">
+      <Name>Total CTC and ODC</Name>
+      <Description>The total amount of the child tax credit and credit for other dependents.
+        Reported on line 14 of Form
+        8812.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Dependency path="/totalCtcAndOdc" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/remainingCtcAndOdc">
+      <Name>Remaining CTC and ODC</Name>
+      <Description>The amount of dependent credits left to claim after crediting the total tentative
+        tax. Reported on
+        line 16a of Form 8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/dependentCreditLessPhaseout" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/totalCtcAndOdc" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalPotentialActc">
+      <Name>Total potential additional CTC</Name>
+      <Description>The maximum amount of the Additional Child Tax Credit that could be claimed.
+        Reported on line 16b of
+        Schedule 8812.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Any>
+                  <Dependency path="/ctcOdcDisqualifiedForImproperClaims" />
+                  <Not>
+                    <Dependency path="/maybeEligibleForCtc" />
+                  </Not>
+                </Any>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Multiply>
+                  <Dependency path="/ctcEligibleDependents" />
+                  <Dependency path="/maxActcAmount" />
+                </Multiply>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxActcAmount">
+      <Name>Maximum additional child tax credit amount</Name>
+      <Description>The maximum additional tax credit per child
+        Rev Proc .05 Child Tax Credit §24(d)(1)(A)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>1700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/remainingPotentialActc">
+      <Name>Remaining potential additional CTC</Name>
+      <Description>The remaining amount of the Additional Child Tax Credit that could be claimed
+        after crediting the
+        total tentative tax.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <LesserOf>
+            <Dependency path="/remainingCtcAndOdc" />
+            <Dependency path="/totalPotentialActc" />
+          </LesserOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line17">
+      <Name>Display value for PDF Schedule 8812, Line 17</Name>
+      <Description>The remaining amount of the Additional Child Tax Credit that could be claimed if
+        completing Part
+        II-A;
+        undefined otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/remainingPotentialActc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/actcRefundabilityThreshold">
+      <Name>Additional CTC refundability threshold</Name>
+      <Description>The amount of earned income that must be exceeded in order to receive the
+        refundable additional child
+        tax credit.</Description>
+      
+
+      <Derived>
+        <Dollar>2500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomeAboveActcRefundabilityThreshold">
+      <Name>Earned income above additional CTC refundability threshold</Name>
+      <Description>The amount of earned income that can be used to calculate the refundable amount
+        of the additional
+        child tax credit.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency module="income" path="/earnedIncomeWithAllCombatPay" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/actcRefundabilityThreshold" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line19Amount">
+      <Name>Display value for PDF Schedule 8812, Line 19 amount</Name>
+      <Description>Earned income above additional CTC refundability threshold if completing Part
+        II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/earnedIncomeAboveActcRefundabilityThreshold" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomeExceedsActcRefundabilityThreshold">
+      <Name>Earned income exceeds additional CTC refundability threshold</Name>
+      <Description>Whether the taxpayer has enough earned income to qualify for the additional Child
+        Tax Credit.
+        Addition
+        12/22/23 - Also checking the real potential ACTC (compared against remaining CTC,
+        ODC and potential
+        ACTC)
+        This
+        represents the "Yes" checkbox on line 19 of the 8812 that determines if the line 19
+        dollar amount
+        field should
+        have a value.
+      </Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/xmlHasPotentialActc" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/earnedIncomeAboveActcRefundabilityThreshold" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line19Yes">
+      <Name>Display value for PDF Schedule 8812, Line 19 Yes checkbox</Name>
+      <Description>Whether earned income exceeds threshold if completing Part II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/earnedIncomeExceedsActcRefundabilityThreshold" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/earnedIncomeSubceedsActcRefundabilityThreshold">
+      <Name>Earned income additional CTC refundability threshold</Name>
+      <Description>Whether the taxpayer has too little earned income to qualify for the additional
+        Child Tax Credit.
+        Reported in a checkbox on line 19 of Form 8812.</Description>
+
+      <Derived>
+        <Not>
+          <Dependency path="/earnedIncomeExceedsActcRefundabilityThreshold" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line19No">
+      <Name>Display value for PDF Schedule 8812, Line 19 No checkbox</Name>
+      <Description>Whether earned income subceeds threshold if completing Part II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/earnedIncomeSubceedsActcRefundabilityThreshold" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/regularMaximumActc">
+      <Name>Regular maximum additional child tax credit</Name>
+      <Description>The maximum amount of the additional child tax credit that could be refunded to
+        you, absent
+        provisions
+        for taxpayers with three or more children.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/earnedIncomeAboveActcRefundabilityThreshold" />
+            <Rational>15/100</Rational>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line20">
+      <Name>Display value for PDF Schedule 8812, Line 20</Name>
+      <Description>Regular maximum ACTC if completing Part II-A; undefined otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/regularMaximumActc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/threeOrMoreCtcEligibleDependents">
+      <Name>Three or more CTC-eligible dependents</Name>
+      <Description>Whether the taxpayer has three or more CTC-eligible dependents.</Description>
+      <Export mef="true" downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left>
+            <Dependency path="/ctcEligibleDependents" />
+          </Left>
+          <Right>
+            <Int>3</Int>
+          </Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/exactlyOneCtcEligibleDependent">
+      <Name>Exactly one CTC-eligible dependent</Name>
+      <Description>Whether the taxpayer has exactly one CTC-eligible dependent.</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="/ctcEligibleDependents" />
+          </Left>
+          <Right>
+            <Int>1</Int>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/moreThanOneCtcEligibleDependent">
+      <Name>More than one CTC-eligible dependent</Name>
+      <Description>Whether the taxpayer has more than one CTC-eligible dependent.</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/ctcEligibleDependents" />
+          </Left>
+          <Right>
+            <Int>1</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/pdf8812Line20Yes">
+      <Name>Display value for PDF Schedule 8812, Line 20 Yes checkbox</Name>
+      <Description>Whether the taxpayer has three or more CTC-eligible dependents if completing Part
+        II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/threeOrMoreCtcEligibleDependents" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/lessThanThreeCtcEligibleDependents">
+      <Name>Less than three CTC-eligible dependents</Name>
+      <Description>Whether the taxpayer has less than three CTC-eligible dependents. Entered in a
+        checkbox on line 20 of
+        Form 8812.</Description>
+
+      <Derived>
+        <Not>
+          <Dependency path="/threeOrMoreCtcEligibleDependents" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line20No">
+      <Name>Display value for PDF Schedule 8812, Line 20 No checkbox</Name>
+      <Description>Whether the taxpayer has less than three CTC-eligible dependents if completing
+        Part II-A; undefined
+        otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency path="/lessThanThreeCtcEligibleDependents" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableIsBonaFidePuertoRicoResident">
+      <Name>Bona fide resident of Puerto Rico (intake)</Name>
+      <Description>The taxpayer's own attestation that they were a bona fide resident of Puerto Rico
+        for the tax year, within the meaning of section 937(a). THE INTAKE HALF of the trio idiom:
+        an optional Writable that NO shipping fact reads directly. Everything downstream reads the
+        complete-safe alias /isBonaFidePuertoRicoResident, because a bare unanswered Writable inside
+        the Schedule 8812 Part II-B routing would take /maximumActc Incomplete by contagion for
+        every filer in the corpus — the /aotcMagi failure class.
+
+        SELF-REPORTED, and that is not a shortcut. The instructions give the taxpayer the test to
+        apply and do not derive it from anything on the return: "Generally, you were a bona fide
+        resident of Puerto Rico if, during 2025, you: Met the presence test, Did not have a tax home
+        outside of Puerto Rico, and Did not have a closer connection to the United States or to a
+        foreign country than you have to Puerto Rico." None of those three is a modeled input.
+
+        NOT the same fact as a PUERTO RICO SOURCE INCOME amount. Residency is a status Schedule 8812
+        Part II-B reads on its own; the section 933 exclusion dollar is not built here; this path would be its eligibility input.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isBonaFidePuertoRicoResident">
+      <Name>Filer is a bona fide resident of Puerto Rico (Schedule 8812 Part II-B)</Name>
+      <Description>Whether the filer was a bona fide resident of Puerto Rico, as the Schedule 8812
+        Part II-B routing needs it. THE COMPLETE-SAFE ALIAS half of the trio idiom: the
+        IsComplete/Switch resolves FALSE when the attestation is unanswered, which is today's
+        behaviour exactly, so no existing return moves. /maximumActc and
+        /pdf8812ContinueFromLine20 read THIS path, never the writable.
+
+        WHAT IT CHANGES. Part II-B is headed "Certain Filers Who Have Three or More Qualifying
+        Children and Bona Fide Residents of Puerto Rico", and the line-20 routing note sends a PR
+        resident there regardless of the three-child test: "No. If you are a bona fide resident of
+        Puerto Rico, go to line 21." The statute is explicit — section 24(k)(2)(B)(ii) provides that
+        for a bona fide resident of Puerto Rico "subsection (d)(1)(B)(ii) shall be applied without
+        regard to the phrase 'in the case of a taxpayer with 3 or more qualifying children'" — and
+        the instructions say the same in plain words: "If you were a bona fide resident of Puerto
+        Rico, you may be eligible to claim the ACTC if you had at least one qualifying child."
+        Before this fact, /maximumActc gated strictly on /threeOrMoreCtcEligibleDependents and
+        /pdf8812ContinueFromLine20 implemented only the U.S. line structure, so a PR-resident return
+        with one or two qualifying children was silently computed on the U.S. path and UNDER-claimed.
+
+        WHAT IS NOT COMPUTED, AND HOW EACH PART IS HANDLED. Answering this attestation true routes a
+        filer with fewer than three qualifying children into Part II-B, where the instructions add
+        two Puerto Rico legs.
+        • LINE 21 must "include all your withheld social security, Medicare, and Additional Medicare
+          taxes, including those taxes withheld by Puerto Rican employers that are shown on Puerto
+          Rico Form(s) 499R-2/W-2PR". /sched8812Line21 reads Form W-2 only. A return with a child
+          tax credit qualifying child and a Form 499R-2/W-2PR showing box 21 or box 23 above zero is
+          refused by /knockoutSched8812Line21PuertoRicoWithholdingNotIncluded: a short line 21
+          under-claims the ACTC through Part II-B and over-claims the nonrefundable credit through
+          Credit Limit Worksheet B line 7 (/sched8812CreditLimitWorksheetBLine11 reuses
+          /socialSecurityOverEitc).
+        • LINE 18a must exclude "income earned in Puerto Rico, which you exclude from U.S. tax as a
+          bona fide resident of Puerto Rico". Wages on a Form 499R-2/W-2PR reach none of the three
+          addends of income:/earnedIncomeWithAllCombatPay (Form W-2 wages, formW2s:/allCombatPay and
+          scheduleSE:/selfEmploymentEarnedIncomeSubjectToUsTax), so there is nothing to exclude.
+          Excluded Puerto Rico Schedule C profit is kept out by the third addend, which follows IRC
+          24(d)(1)(B)(i)'s "which is taken into account in computing taxable income". Section 933(1)
+          exempts a bona fide resident's "income derived from sources within Puerto Rico (except
+          amounts received for services performed as an employee of the United States or any agency
+          thereof)" (26 U.S.C. 933, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section933&amp;num=0&amp;edition=2024, the left column of a two-column
+          extraction); a filer who enters that exclusion on Schedule 8812 line 2a
+          (/writablePuertoRicoIncomeExclusion933) is refused by
+          /knockoutPossessionOrPuertoRicoIncomeExclusion, witnessed at
+          tests/nodes/ty2025/ctcOdc/sched8812-magi-three-exclusion-terms. That refusal reaches the
+          filer who is asked and answers: line 2a is an optional Writable, the intake posture every
+          complete-safe alias in this module rests on.
+
+        A THIRD SCOPE FACT, stated so it is not mistaken for a gap: a bona fide PR resident who is
+        not required to file Form 1040 or 1040-SR claims the ACTC on Form 1040-SS instead of
+        Schedule 8812. Form 1040-SS is outside this repo's federal-1040 scope (invariant #7) and is
+        not a missing fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableIsBonaFidePuertoRicoResident" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableIsBonaFidePuertoRicoResident" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812ContinueFromLine20">
+      <Name>Continue Schedule 8812 from Line 20</Name>
+      <Description>Whether to continue in sequence from Line 20.
+
+        THE PUERTO RICO ARM, added with /isBonaFidePuertoRicoResident. The line-20 routing note has
+        two branches and the first of them is conditional on residency, which this fact previously
+        collapsed to an unconditional "skip Part II-B". Line 16b under $5,100 reads: "No. If you are
+        a bona fide resident of Puerto Rico, go to line 21. Otherwise, skip Part II-B and enter the
+        smaller of line 17 or line 20 on line 27." So the first Case's Then is the residency alias,
+        not a bare False — TRUE for a PR resident, FALSE for everyone else, which is byte-for-byte
+        today's behaviour when the attestation is unanswered.
+
+        THE $5,100 BRANCH IS DELIBERATELY UNTOUCHED. When line 16b is $5,100 or more the note reads
+        "Yes. If line 20 is equal to or more than line 17, skip Part II-B ... Otherwise, go to line
+        21" — no residency condition at all, so the PR arm must not reach into it. That is why the
+        residency alias appears in the FIRST Case only, and
+        tests/nodes/ty2025/ctcOdc/pr-resident-three-qc-line16b-boundary pins the boundary: at line
+        16b = $5,100 exactly the Yes branch owns the routing and the attestation changes nothing.
+
+        ⚠ THE PR ARM ON THIS FACT IS SOURCE-DERIVED BUT NOT WITNESSED BY A NODE TEST, and saying so
+        is cheaper than a green that means nothing. The arm sits in the first Case, whose input
+        /pdf8812Line16bAmount is a PDF-display fact that is undefined unless /pdf8812ContinueFromLine16a
+        (i.e. /remainingCtcAndOdc != 0) resolves — and no ctcOdc fixture on disk makes
+        /remainingCtcAndOdc resolve at all, so in every node test the first Case is skipped and this
+        fact falls through to its unconditional True. The three PR cases assert that fallthrough to
+        guard it against regression, and their transcripts say plainly that it is the fallthrough.
+        Closing this needs a ctcOdc fixture that completes the Part II-A display chain, which is a
+        fixture gap, not a tax-logic one.
+
+        THE SCOPE OF THAT GAP IS DISPLAY-ONLY, and it is bounded by reading the consumers rather
+        than by hoping. Every fact that depends on this one is a Schedule 8812 PDF display fact —
+        /pdf8812Line24, /pdf8812Line25 and /pdf8812Line26, each "undefined otherwise". The CREDIT
+        chain does not pass through here at all: /maximumActc reads
+        /threeOrMoreCtcEligibleDependents, /isBonaFidePuertoRicoResident, /regularMaximumActc and
+        /socialSecurityOverEitc, and /additionalCtc reads /maximumActc and
+        /remainingPotentialActc. So the unwitnessed arm can mis-route a PRINTED Part II-B, never a
+        dollar of tax — and the dollar arm of this change, /maximumActc, IS witnessed (318 with the
+        attestation answered true against 252 unanswered, on one fixture where nothing else
+        differs).</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="/pdf8812Line16bAmount" />
+                  </Left>
+                  <Right>
+                    <Multiply>
+                      <Int>3</Int>
+                      <Dependency path="/maxActcAmount" />
+                    </Multiply>
+                  </Right>
+                </GreaterThanOrEqual>
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/isBonaFidePuertoRicoResident" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="/pdf8812Line20" />
+                </Left>
+                <Right>
+                  <Dependency path="/pdf8812Line17" />
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line21WorksheetLine8">
+      <Name>i1040s8 Additional Medicare Tax and RRTA Tax Worksheet, line 8 (Tier 1 tax, box 14)</Name>
+      <Description>Worksheet line 8, "Enter the Tier 1 tax (Form(s) W-2, box 14)": the sum of
+        formW2s:/formW2s/*/tier1RrtaTaxUnrounded over EVERY W-2 on the return, cents preserved.
+
+        RETURN-LEVEL, NOT PER-FILER, and that is the shape the worksheet has. Its lines 1 and 2 read
+        "Form(s) W-2, box 4" and "box 6" with no filer split, and this fact's neighbour for those
+        lines (formW2s:/socialSecurityTaxesWithheld) sums the whole /formW2s collection including a
+        spouse's W-2s. Schedule 8812 line 21 is a single return-level entry, so a per-filer split
+        here would have no line to land on. Contrast Schedule 3 line 11, which the instruction
+        explicitly says to "figure separately for you and your spouse" because section 3101 caps
+        that credit per person — a distinction the two computations must keep.
+
+        CENTS PRESERVED, ROUNDED ONCE AT LINE 21. Box-14 amounts carry cents, and i1040gi page 23
+        governs a line built by addition: "include cents when adding the amounts and round off only
+        the total". /sched8812Line21 is where the single Round sits.
+
+        THE FLUSH-TEXT EXCLUSION IS STRUCTURAL HERE. "Do not include amounts in Form W-2, box 14,
+        that are identified as Additional Medicare Tax or Tier 2 tax." This fact reads only
+        ../TIER_1_TAX, and ../TIER_2_TAX and ../ADDITIONAL_MEDICARE_TAX are separate per-code fields
+        with their own consumers, so there is nothing to exclude — the intake shape enforces it
+        rather than a subtraction. See formW2s:/formW2s/*/rrtaMedicareTaxUnrounded for the printed
+        labelling rule that makes the per-code model the faithful one.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="formW2s" path="/formW2s" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency module="formW2s" path="/formW2s/*/tier1RrtaTaxUnrounded" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line21WorksheetLine9">
+      <Name>i1040s8 Additional Medicare Tax and RRTA Tax Worksheet, line 9 (Medicare tax, box 14)</Name>
+      <Description>Worksheet line 9, "Enter the Medicare tax (Form(s) W-2, box 14)": the sum of
+        formW2s:/formW2s/*/rrtaMedicareTaxUnrounded over every W-2 on the return, cents preserved.
+        Exact twin in shape of /sched8812Line21WorksheetLine8 — see that fact for the return-level
+        argument, the rounding call and the structural form of the flush-text exclusion; all apply
+        here unchanged. The box-14 field it reads is the "Medicare (excluding Additional Medicare
+        Tax)" figure the W-2 instructions require the employer to label "Medicare tax", which is why
+        the 0.9% component the same flush text excludes never reaches this line.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="formW2s" path="/formW2s" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency module="formW2s" path="/formW2s/*/rrtaMedicareTaxUnrounded" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line21WorksheetLine11">
+      <Name>i1040s8 Additional Medicare Tax and RRTA Tax Worksheet, line 11 (the railroad-EMPLOYEE tier-1 total)</Name>
+      <Description>Worksheet line 11, "Add lines 8, 9, and 10" — the railroad-EMPLOYEE half of the
+        worksheet's tier-1 section. Line 8 is box-14 Tier 1 tax, line 9 is box-14 Medicare tax, and
+        line 10 is "the Additional Medicare Tax, if any, on RRTA compensation as an employee (Form
+        8959, line 17)", which this dictionary computes as
+        form8959:/additionalMedicareTaxOnRrtaCompensation. Added into /sched8812Line21's worksheet
+        line 16, alongside lines 6 and 7.
+
+        THE DIRECTION OF THE ZERO THIS CLOSES: line 11 is an ADDED term of an ADDED line, so
+        omitting it UNDER-stated Schedule 8812 line 21, under-stated line 23 and so UNDER-claimed
+        the Part II-B additional child tax credit. Taxpayer-ADVERSE, never a false allowance — which
+        is why the two box-14 RRTA submission knockouts that contain this population are the kinder
+        answer until it is modelled, and why this change is a prerequisite of their retirement rather
+        than a consequence of it. Witnessed by
+        tests/nodes/ty2025/ctcOdc/sched8812line21-rrta-tier1-legs-railroad-employee, where a single
+        railroad W-2 moves line 21 from $0 to $14,993.
+
+        LINE 10 IS NOT DOUBLE-COUNTED WITH LINE 14, and the worksheet says so twice: line 10 carries
+        "Do not use the same amount from Form 8959, line 17, for both this line 10 and line 14", and
+        line 14 carries the mirror sentence. The instruction is MOOT in this dictionary today
+        because lines 12-15 are a structural zero (no Form CT-2 intake exists — see the scope gap on
+        /sched8812Line21), but it is recorded rather than dropped: the moment a CT-2 surface is
+        built, whoever builds it inherits an anti-double-count rule that is already printed and
+        already read.
+
+        WHY WKSHT LINE 10 IS ADDED HERE RATHER THAN INSIDE THE LINE-16 SUM DIRECTLY: the worksheet
+        declares line 11 as its own numbered line and Schedule 8812's own instruction sums "lines 6,
+        7, 11, and 15", so a fact standing for line 11 keeps the shipped graph readable against the
+        printed page (the round-at-the-printed-line convention). No rounding happens here — the single Round is at
+        /sched8812Line21, the printed entry line.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/sched8812Line21WorksheetLine8" />
+          <Dependency path="/sched8812Line21WorksheetLine9" />
+          <Dependency module="form8959" path="/additionalMedicareTaxOnRrtaCompensation" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line21">
+      <Name>Schedule 8812 line 21 (withheld social security, Medicare and Additional Medicare taxes)</Name>
+      <Description>Schedule 8812 Part II-B line 21, computed by the Instructions for Schedule 8812
+        "Additional Medicare Tax and RRTA Tax Worksheet" (pp. 8-9) rather than by the bare Form(s) W-2
+        boxes 4 + 6 sum the printed line text shows. Worksheet lines 1+2 = formW2s:/socialSecurityTaxesWithheld
+        (boxes 4 and 6 over all W-2s; box 6 includes any Additional Medicare Tax withheld, which is why line 5
+        subtracts it back out); line 3 = form8959:/additionalMedicareTaxOnWages (Form 8959 line 7), added;
+        line 5 = form8959:/additionalMedicareTaxWithholdingOnWages (Form 8959 line 22, "Enter the Additional
+        Medicare Tax withheld (Form 8959, line 22)" - NOT line 24, which would also subtract a railroad
+        filer's RRTA withholding on line 23), subtracted; line 7 = one-half of
+        form8959:/additionalMedicareTaxOnSelfEmployment (Form 8959 line 13), added; line 11 =
+        /sched8812Line21WorksheetLine11 (Tier 1 RRTA as a railroad employee: box-14 Tier 1 tax + box-14
+        Medicare tax + Form 8959 line 17). Worksheet lines 12-15 (Form CT-2) are structurally zero: no CT-2
+        surface exists; the worksheet's "Do not use the same amount from Form 8959, line 17, for both this
+        line 10 and line 14" becomes live when one is built. One Round, here, at the printed line (line 11
+        can carry cents).</Description>
+
+      <Derived>
+        <Round>
+          <Subtract>
+            <Minuend>
+              <Add>
+                <Dependency module="formW2s" path="/socialSecurityTaxesWithheld" />
+                <Dependency module="form8959" path="/additionalMedicareTaxOnWages" />
+                <Multiply>
+                  <Rational>1/2</Rational>
+                  <Dependency module="form8959" path="/additionalMedicareTaxOnSelfEmployment" />
+                </Multiply>
+                <Dependency path="/sched8812Line21WorksheetLine11" />
+              </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="form8959" path="/additionalMedicareTaxWithholdingOnWages" />
+            </Subtrahends>
+          </Subtract>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/socialSecurityOverEitc">
+      <Name>Social Security taxes in excess of EITC claimed</Name>
+      <Description>Social Security taxes in excess of EITC claimed.</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Add>
+                  <Dependency path="/sched8812Line21" />
+                  <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+                  <Dependency module="form4137" path="/form4137SocialSecurityAndMedicareTaxOnUnreportedTips" />
+                  <Dependency module="form8919" path="/form8919UncollectedSocialSecurityAndMedicareTaxOnWages" />
+                  <Dependency module="formW2s" path="/schedule2Line13UncollectedBox12Tax" />
+                </Add>
+              </Minuend>
+              <Subtrahends>
+                <Dependency module="eitc" path="/earnedIncomeCredit" />
+                <Dependency module="schedule3" path="/excessSocialSecurityTaxWithheld" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line25">
+      <Name>Display value for PDF Schedule 8812, Line 25</Name>
+      <Description>Social Security taxes in excess of EITC claimed if completing Part II-B;
+        undefined otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine20" />
+            </When>
+            <Then>
+              <Dependency path="/socialSecurityOverEitc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maximumActc">
+      <Name>Maximum additional child tax credit</Name>
+      <Description>The maximum amount of the additional child tax credit that could be refunded to
+        you.
+
+        THE PUERTO RICO ARM, added with /isBonaFidePuertoRicoResident. Schedule 8812 line 26 is
+        "the larger of line 20 or line 25", and the population that reaches it is Part II-B's:
+        filers with three or more qualifying children AND bona fide residents of Puerto Rico. The
+        gate below was strictly the three-child test, so a PR-resident return with one or two
+        qualifying children got line 20 alone and under-claimed. Section 24(k)(2)(B)(ii) disregards
+        the "3 or more qualifying children" phrase for such a filer, so the gate is now the Any of
+        the two — and ONLY the gate changed: the larger-of arm and the fallthrough are as they
+        were. Unanswered residency resolves FALSE, so no existing return moves.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Any>
+                  <Dependency path="/threeOrMoreCtcEligibleDependents" />
+                  <Dependency path="/isBonaFidePuertoRicoResident" />
+                </Any>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/regularMaximumActc" />
+                  <Dependency path="/socialSecurityOverEitc" />
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dependency path="/regularMaximumActc" />
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line26">
+      <Name>Display value for PDF Schedule 8812, Line 26</Name>
+      <Description>Maximum additional child tax credit if completing Part II-B; undefined otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine20" />
+            </When>
+            <Then>
+              <Dependency path="/maximumActc" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalCtc">
+      <Name>Additional child tax credit</Name>
+      <Description>The refundable amount of the additional child tax credit. Entered on line 27 of
+        Form 8812 and line 28
+        of Form 1040. The Form 1040 line 28 election NOT to claim the ACTC ("If you do not
+        want to claim the ACTC, check here") zeroes this credit; without that guard,
+        /writableDoesNotWantToClaimActc would reach nothing at all and a filer who checked the box
+        would still be paid the credit through /totalOtherPaymentsRefundableCredits. The guard is deliberately
+        ANSWERED AND TRUE, not a bare reading of the Boolean: the intake carries no complete-safe
+        wrapper, so a bare limb would resolve the election on every return that never saw the question
+        and blank the credit for everyone. Unanswered leaves the IRC 24(d)(1) lesser-of arm exactly as
+        it was, so no return that never answered the box moves.</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableDoesNotWantToClaimActc" />
+                </IsComplete>
+                <Dependency path="/writableDoesNotWantToClaimActc" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Round>
+                <LesserOf>
+                  <Dependency path="/remainingPotentialActc" />
+                  <Dependency path="/maximumActc" />
+                </LesserOf>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+
+    <Fact path="/isCompletingCreditLimitWorksheetB">
+      <Name>The filer is directed to complete Schedule 8812 Credit Limit Worksheet B</Name>
+      <Description>Credit Limit Worksheet A line 3's three-part trigger, verbatim: "Complete Credit
+        Limit Worksheet B only if you meet all the following. 1. You are claiming one or more of the
+        following credits. a. Mortgage interest credit, Form 8396. b. Adoption credit, Form 8839.
+        c. Residential clean energy credit, Form 5695, Part I. d. District of Columbia first-time
+        homebuyer credit, Form 8859. 2. You are not filing Form 2555. 3. Line 4 of Schedule 8812 is
+        more than zero" (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 4).
+
+        THIS FACT IS INPUT-ONLY BY CONSTRUCTION AND MUST STAY THAT WAY. It is the When of every
+        public bridge-credit selector added in steps 2-4, so anything it reads is upstream of those
+        credits. Building it from credit VALUES — "is the mortgage interest credit greater than
+        zero" — would make the selector depend on the very quantity it selects, and the resolver
+        builds EVERY Switch branch eagerly (Switch.scala lines 24-37 via CompNode.scala lines
+        153-166, no by-name and no Thunk), so a cycle through an untaken branch parks the
+        dictionary load at 0% CPU rather than raising. The three conjuncts are therefore:
+        the three modeled credits' own INPUT gates (each is an Any of IsComplete over that
+        module's writables, plus, on Form 8839, the filing-status eligibility test), the Form 2555
+        representability gate, and a Count over /familyAndHousehold. Not one of them touches
+        /totalCtcAndOdc, /sched8812CreditLimit or Schedule 3 lines 5a/6c/6g.
+
+        COMPLETENESS IS THE THIRD SILENT-FAILURE MODE and it is answered here rather than left to
+        chance. If this fact could resolve Incomplete, every public bridge-credit Switch would have
+        no true Case, and /sched3Line6g, /sched3Line6c, /sched3Line5a, /line8OfSchedule3 and total
+        tax would go Incomplete on all 938 corpus cases — a corpus-wide diff that the
+        empty-Worksheet-B-population argument does not protect against, because it is about
+        completeness rather than value. Every conjunct is Complete on every return: IsComplete
+        wrappers are always Complete, a Count is always Complete, /isFilingStatusMFS is always
+        Complete, and form2555:/filesForm2555ForeignEarnedIncomeExclusion is itself the
+        IsComplete/Switch alias that "resolves Complete-FALSE when [the writable] is unanswered".
+        tests/nodes/ty2025/ctcOdc/wsb-trigger-unanswered-complete-safe pins it.
+
+        FORM 8859 IS LIMB 1's FOURTH ARM. dictionary/ty2025/form8859.xml supplies the writable and
+        form8859:/dcFirstTimeHomebuyerCreditIsActive is the arm, so a filer whose ONLY Worksheet-B
+        credit is Form 8859 is routed to
+        Worksheet B. tests/nodes/ty2025/form8859/wsb-8859-only-worksheet-b-credit-triggers-worksheet-b
+        is exactly that filer: no MCC, no adoption, no Form 5695 Part I, a 1,000 DC carryforward,
+        this fact true, and the CTC/ODC 1,000 lower than the Worksheet-A-only limit would have
+        allowed. The credit is still a CARRYFORWARD only — the repeal for post-2011 purchases means
+        no current-year origination exists — so the population is small and closed, which is why
+        this limb was the last of the four to be built rather than the first.
+
+        "CLAIMING" IS READ AS THE MODULE'S OWN IS-ACTIVE GATE, which is the narrowest defensible
+        reading available: form8839:/adoptionCreditIsActive additionally excludes a barred
+        married-filing-separately filer, whose Schedule 3 line 6c is $0, so treating them as not
+        claiming the credit agrees with the amount the return actually carries.
+        TYPE: Boolean; no sign or rounding.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Any>
+            <Dependency module="form8396" path="/mortgageInterestCreditIsActive" />
+            <Dependency module="form8839" path="/adoptionCreditIsActive" />
+            <Dependency module="form5695" path="/residentialCleanEnergyPartIIsActive" />
+            <Dependency module="form8859" path="/dcFirstTimeHomebuyerCreditIsActive" />
+          </Any>
+          <Not>
+            <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+          </Not>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/ctcEligibleDependents" />
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimitWorksheetBLine6UsesSocialSecurityMethod">
+      <Name>Credit Limit Worksheet B line 6 — the social-security method applies (lines 7-11 are computed)</Name>
+      <Description>Worksheet B line 6's routing test, which decides whether lines 7 through 10 are
+        computed or left blank with -0- on line 11: "On line 2 of this worksheet, is the amount
+        $5,100 or more? No. If you are a bona fide resident of Puerto Rico and line 5 above is less
+        than line 1 above, go to line 7. Otherwise, leave lines 7 through 10 blank, enter -0- on
+        line 11, and go to line 12. Yes. If line 5 above is equal to or more than line 1 above,
+        leave lines 7 through 10 blank, enter -0- on line 11, and go to line 12. Otherwise, go to
+        line 7" (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 5).
+
+        Both branches share the "line 5 is less than line 1" condition and differ only in the other
+        conjunct, so the two collapse to ONE expression without loss:
+          line 5 &lt; line 1  AND  ( line 2 &gt;= $5,100  OR  bona fide resident of Puerto Rico ).
+        The $5,100 is written as 3 x /maxActcAmount rather than a literal, the same idiom
+        /pdf8812ContinueFromLine20 uses for the identical Schedule 8812 line-20 test.
+
+        THE "LINE 5 >= LINE 1" HALF IS PROVABLY VALUE-NEUTRAL FOR LINE 14, AND IS BUILT ANYWAY.
+        Suppose line 5 &gt;= line 1. Gated, line 11 is 0, so line 12 = line 5 and line 13 =
+        min(line 2, line 5). Ungated, line 12 = max(line 5, line 11) and line 13 = min(line 2,
+        line 12). Two cases: if line 2 &gt;= line 1 then both line 13 values are &gt;= line 1, so
+        line 14 = 0 either way; if line 2 &lt; line 1 then line 2 &lt; line 1 &lt;= line 5 &lt;=
+        line 12, so both line 13 values are line 2 and line 14 is line 1 - line 2 either way. The
+        gate is written because it is the printed rule, not because line 14 needs it — but the
+        OTHER half of the test is NOT neutral: when line 2 is under $5,100 and the filer is not a
+        bona fide Puerto Rico resident, line 11 is forced to -0- even where the social-security
+        computation would exceed line 5, and dropping that would understate line 13 and overstate
+        line 14.
+
+        NOT THE SAME TEST AS /pdf8812ContinueFromLine20, which routes the printed Schedule 8812:
+        that fact's second Case compares line 20 to line 17 (itself capped by line 16a), where this
+        one compares line 5 to line 1. The 16a cap is precisely what Worksheet B omits.
+        TYPE: Boolean; no sign or rounding.</Description>
+      <Derived>
+        <All>
+          <LessThan>
+            <Left>
+              <Dependency path="/regularMaximumActc" />
+            </Left>
+            <Right>
+              <Dependency path="/dependentCreditLessPhaseout" />
+            </Right>
+          </LessThan>
+          <Any>
+            <GreaterThanOrEqual>
+              <Left>
+                <Dependency path="/totalPotentialActc" />
+              </Left>
+              <Right>
+                <Multiply>
+                  <Int>3</Int>
+                  <Dependency path="/maxActcAmount" />
+                </Multiply>
+              </Right>
+            </GreaterThanOrEqual>
+            <Dependency path="/isBonaFidePuertoRicoResident" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimitWorksheetBLine11">
+      <Name>Credit Limit Worksheet B line 11 (social security taxes in excess of the refundable credits)</Name>
+      <Description>Worksheet B line 11 = "Subtract line 10 from line 9. If the result is zero or
+        less, enter -0-", where line 9 = lines 7 + 8 and line 10 = Form 1040 line 27a + Schedule 3
+        line 11 — GATED by the line-6 routing note, which leaves lines 7 through 10 blank and
+        enters -0- here for a filer the note sends straight to line 12.
+
+        LINES 7 THROUGH 11 ARE ALREADY ONE SHIPPING FACT. /socialSecurityOverEitc is Schedule 8812
+        line 25, and Worksheet B lines 7-11 are Schedule 8812 lines 21-25 term for term: line 7 =
+        line 21 (/sched8812Line21, the i1040s8 Additional Medicare Tax and RRTA Tax Worksheet),
+        line 8 = line 22 (Schedule 1 line 15 plus the three Schedule 2 terms), line 9 =
+        line 23, line 10 = line 24 (the earned income credit plus Schedule 3 line 11, whose
+        excess-OASDI half is schedule3:/excessSocialSecurityTaxWithheld), line 11 = line 25. So this fact is that expression plus the gate, not a
+        re-derivation of it.
+
+        LINE 8 READS ALL FOUR OF LINE 22's PRINTED TERMS. Because this fact reads
+        /socialSecurityOverEitc itself rather than re-deriving line 22, one wiring keeps BOTH
+        directions correct at once: the Part II-B path, where a short line 22 would UNDER-claim the
+        ACTC, and this credit-ordering path, where the same missing dollars would run the other way
+        (line 8 short, so line 14 HIGH, so each bridge credit's limit LOW, so line 15 low, so
+        /sched8812CreditLimit HIGH, so the nonrefundable CTC/ODC OVER-claimed). The Form 8859
+        line-6h term is a separate, already-closed gap.
+
+        THE GATE HAS NO PART II-B COUNTERPART, which is why it is a new fact rather than a reuse of
+        /maximumActc. Schedule 8812 routes the same question at line 20's "Next" note by SKIPPING
+        Part II-B, and /maximumActc encodes that as a Switch on three-or-more-children OR Puerto
+        Rico residency — without the "line 20 is equal to or more than line 17" conjunct, which
+        /additionalCtc's outer min(line 17, line 26) makes value-neutral there. Worksheet B has no
+        such outer minimum, so its line-6 conjunct is carried explicitly here.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (the "-0-" floor is inside
+        /socialSecurityOverEitc); whole dollars, already rounded at that fact.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/sched8812CreditLimitWorksheetBLine6UsesSocialSecurityMethod" />
+            </When>
+            <Then>
+              <Dependency path="/socialSecurityOverEitc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimitWorksheetBLine12">
+      <Name>Credit Limit Worksheet B line 12 (the larger of line 5 or line 11)</Name>
+      <Description>Worksheet B line 12 = "Enter the larger of line 5 or line 11", where line 5 is
+        15% of earned income over $2,500 (/regularMaximumActc, Schedule 8812 line 20) and line 11 is
+        the gated social-security method (/sched8812CreditLimitWorksheetBLine11).
+
+        This is the same comparison Schedule 8812 line 26 makes, but on the GATED line 11 rather
+        than on /socialSecurityOverEitc directly, and with no Puerto-Rico / three-children Switch
+        around it — the routing lives in line 6 and is already inside line 11. Reading /maximumActc
+        here instead would be wrong on a filer with fewer than three qualifying children who IS a
+        bona fide Puerto Rico resident only in the sense that /maximumActc's Switch also covers the
+        line-17 comparison Worksheet B does not make.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (both operands are); whole dollars,
+        already rounded at both operands.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/regularMaximumActc" />
+          <Dependency path="/sched8812CreditLimitWorksheetBLine11" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimitWorksheetBLine13">
+      <Name>Credit Limit Worksheet B line 13 (the smaller of line 2 or line 12)</Name>
+      <Description>Worksheet B line 13 = "Enter the smaller of line 2 or line 12", where line 2 is
+        the qualifying-child count times $1,700 (/totalPotentialActc, Schedule 8812 line 16b).
+
+        ⚠ THE SINGLE MOST LOAD-BEARING LINE IN THIS BUILD, and the one place a careless build reintroduces the fixed point. Schedule 8812 line 27 looks like this line and is not: it is
+        the smaller of line 17 or line 26, and line 17 = min(line 16a, line 16b) where line 16a =
+        line 12 - line 14, i.e. it is capped by the nonrefundable CTC ACTUALLY ALLOWED. Worksheet B
+        line 13 has NO such cap. That is deliberate on the IRS's part — Worksheet B is computing
+        the additional child tax credit the filer could take IGNORING the nonrefundable limit, so
+        that line 14 (line 1 minus line 13) measures the part of the child tax credit that can only
+        ever be used nonrefundably, a quantity that does not depend on the nonrefundable credit.
+        Substituting /remainingPotentialActc (Schedule 8812 line 17) here would make line 14 depend
+        on /totalCtcAndOdc, hence on /sched8812CreditLimit, which after step 5 depends back on
+        line 14 — and the resolver constructs every Switch branch eagerly, so that cycle parks the
+        dictionary load at 0% CPU instead of raising.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (both operands are); whole dollars,
+        already rounded at both operands.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/totalPotentialActc" />
+          <Dependency path="/sched8812CreditLimitWorksheetBLine12" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimitWorksheetBLine14">
+      <Name>Credit Limit Worksheet B line 14 (the CTC term the four bridge credits substitute for Form 1040 line 19)</Name>
+      <Description>Worksheet B line 14 = "Is the amount on line 13 of this worksheet more than the
+        amount on line 1? No. Subtract line 13 from line 1. Enter the result. Yes. Enter -0-" —
+        i.e. max(0, line 1 - line 13), where line 1 is Schedule 8812 line 12
+        (/dependentCreditLessPhaseout, the dependent credits after phaseout) and line 13 is the
+        uncapped smaller-of above.
+
+        WHAT THIS NUMBER IS, in one sentence, because the path name under-advertises it: line 13 is
+        the additional child tax credit the filer could take ignoring the nonrefundable limit, so
+        line 14 is the part of the total child tax credit that can ONLY be taken nonrefundably —
+        and that is exactly the amount Form 8396, Form 8839, Form 5695 Part I and Form 8859 must
+        treat as already applied against tax when they figure their own limits. The i5695 and i8839
+        worksheets say so in the same words: "include the amount in the instructions for Schedule
+        8812 (Form 1040), Credit Limit Worksheet B, line 14, INSTEAD OF the amount from Form 1040
+        ... line 19" (https://www.irs.gov/pub/irs-pdf/i5695.pdf, page 5;
+        https://www.irs.gov/pub/irs-pdf/i8839.pdf, page 7). Because it depends on none of those four
+        credits, substituting it for Form 1040 line 19 is what makes the whole ordering acyclic.
+
+        NOT YET READ BY ANYTHING at this step — the twins that consume it land in steps 2 through 4
+        and Credit Limit Worksheet A line 4 in step 5, so this commit is purely additive. It is
+        exported downstream so the wiring lint sees a live surface rather than an orphan.
+
+        THE ELIGIBILITY GATES ON LINES 1 AND 2 AGREE, so line 14 lands somewhere defensible on a
+        disqualified return rather than by accident. /totalPotentialActc (line 2) returns $0 when
+        /ctcOdcDisqualifiedForImproperClaims or Not(/maybeEligibleForCtc), and
+        /dependentCreditLessPhaseout (line 1) inherits the SAME improper-claims gate through
+        /totalPotentialCtc and /totalPotentialOdc. So a filer disqualified for improper claims has
+        line 1 = line 2 = 0 and line 14 = 0, and a filer eligible for the credit for other
+        dependents but not the child tax credit has line 2 = 0 (no qualifying children to count,
+        which is what the printed line asks for) and line 14 = line 1 — the whole credit for other
+        dependents must be taken nonrefundably, which is correct.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE by the printed "-0-" floor; whole
+        dollars, rounded at this printed worksheet line per the round-at-the-printed-line convention (a no-op in
+        practice — both operands are already Round-wrapped whole dollars).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Dollar>0</Dollar>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/dependentCreditLessPhaseout" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/sched8812CreditLimitWorksheetBLine13" />
+              </Subtrahends>
+            </Subtract>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812CreditLimitWorksheetBLine15">
+      <Name>Credit Limit Worksheet B line 15 (the total the four bridge credits return to Worksheet A)</Name>
+      <Description>Worksheet B line 15 = "Enter the total of the amounts from — Schedule 3, line 5a;
+        Schedule 3, line 6c; Schedule 3, line 6g; and Schedule 3, line 6h", with the marginal
+        direction "Enter this amount on line 4 of Credit Limit Worksheet A"
+        (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 6). It is the second half of this node's
+        obligation: the contract was named for line 14 but spans lines 14 AND 15, and a build that stopped at line 14 would have built the substitution without the feedback that makes it a
+        credit ORDERING rather than a giveaway.
+
+        THE THREE ADDENDS ARE THE TWINS, READ THROUGH schedule3's Worksheet-B pass-throughs, never
+        the public Schedule 3 lines. This is the load-bearing wiring rule of the whole build. The
+        public /sched3Line5a, /sched3Line6c and /sched3Line6g read the public credit SELECTORS, whose
+        plain arms read /totalCtcAndOdc — and /totalCtcAndOdc reads /sched8812CreditLimit, which
+        reads this fact. One public reference here restores the cycle
+        (/sched8812CreditLimit -> 5a -> /form5695CreditLimitWorksheetLine2 -> /totalCtcAndOdc ->
+        /sched8812CreditLimit) that the original contract described, and because Switch construction
+        is all-branch the dictionary would simply stop loading at 0% CPU with no error. It is also
+        the tax-correct choice: line 15 asks for the amounts THIS filer figures, and this filer
+        figures all four credits against worksheet line 14.
+
+        THE FOURTH ADDEND is schedule3:/worksheetBLine15DcHomebuyerTerm
+        (dictionary/ty2025/form8859.xml) — the Worksheet-B TWIN, like the other three. Form 8859
+        also supplies limb 1 of /isCompletingCreditLimitWorksheetB, so a filer whose ONLY
+        Worksheet-B credit is Form 8859 is both detected (routed to Worksheet B) and credited (the
+        addend reaches line 15); leaving either half undone would leave such a filer detected but
+        un-credited, or credited but undetected.
+        tests/nodes/ty2025/form8859/wsb-8859-joins-worksheet-b-line-15 measures the addend half
+        (line 15 1,600 -> 2,600, the CTC/ODC 5,695 -> 4,695) and -only-worksheet-b-credit-triggers-worksheet-b measures the trigger half.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (a total of nonrefundable credits);
+        whole dollars, where the three addends already put them.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/worksheetBLine15CleanEnergyTerm" />
+          <Dependency module="schedule3" path="/worksheetBLine15AdoptionTerm" />
+          <Dependency module="schedule3" path="/worksheetBLine15MortgageInterestTerm" />
+          <Dependency module="schedule3" path="/worksheetBLine15DcHomebuyerTerm" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingActc">
+      <Name>Is receiving actc</Name>
+      <Description>Whether the TP is receiving ACTC</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/additionalCtc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/ctcOdcDisqualifiedForImproperClaims">
+      <Name>CTC Disqualified for Improper Claims</Name>
+      <Description>Whether the TP has been diqualified from taking the CTC due to previous improper
+        claims</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Dependency path="/receivedImproperClaims" />
+          <Not>
+            <Dependency path="/hasFiledCtcOdcSinceNoticeExpired" />
+          </Not>
+          <Dependency path="/hadCtcOdcImproperClaimsBan" />
+          <Not>
+            <Dependency path="/improperClaimsNoticeExpired" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcQualified">
+      <Name>Receiving CTC</Name>
+      <Description>Whether the TP can receive the CTC, prior to MAGI adjustments</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/ctcOdcDisqualifiedForImproperClaims" />
+          </Not>
+          <Dependency path="/maybeEligibleForCtc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/odcQualified">
+      <Name>Receiving ODC</Name>
+      <Description>Whether the TP can receive the ODC, prior to MAGI adjustments</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/ctcOdcDisqualifiedForImproperClaims" />
+          </Not>
+          <Dependency path="/maybeEligibleForOdc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctc8862Required">
+      <Name>ctc8862Required</Name>
+      <Description>Used to indicate whether Part III of Schedule 8862 is applicable</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <All>
+          <Any>
+            <Dependency path="/isReceivingCtc" />
+            <Dependency path="/isReceivingActc" />
+            <Dependency path="/isReceivingOdc" />
+          </Any>
+          <Dependency path="/receivedImproperClaims" />
+          <Not>
+            <Dependency path="/hasFiledCtcOdcSinceNoticeExpired" />
+          </Not>
+          <Any>
+            <All>
+              <Dependency path="/hadCtcOdcImproperClaimsBan" />
+              <Dependency path="/improperClaimsNoticeExpired" />
+            </All>
+            <Equal>
+              <Left>
+                <Dependency path="/receivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">zeroYears</Enum>
+              </Right>
+            </Equal>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/receivedImproperClaims">
+      <Name>Received CTC improper claims</Name>
+      <Description>Since 2015 (TY -8?) the IRS has reduced or disallowed the TP or MFJ spouse's CTC,
+        ACTC, or ODC for
+        reasons other than a math error.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/receivedImproperClaimsNotice">
+      <Name>Received CTC improper Claims notice</Name>
+      <Description>Whether the TP received a letter from the IRS telling them they're not allowed to
+        take CTC, ACTC, or
+        ODC for a number of years</Description>
+      <Writable>
+        <Enum optionsPath="/improperClaimsNoticeOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/improperClaimsNoticeExpired">
+      <Name>CTC improper claims notice expired</Name>
+      <Description>Whether the improper claims notice that the TP previously received is far enough
+        in the past to be
+        expired. E.g. They could not file for 2 years, and it has been at least 2 years</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasFiledCtcOdcSinceNoticeExpired">
+      <Name>CTC Has Filed CTC or ODC since notice expired</Name>
+      <Description>Whether the TP has filed for CTC or ODC again since the notice has expired. The
+        first time a taxpayer
+        files after their notice has expired, they need to fill out form 8862.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hadCtcOdcImproperClaimsBan">
+      <Name>Flow CTC Ask Improper Claims Expiration</Name>
+      <Description>Whether the flow should ask a person if their CTC improper claims notice has
+        expired</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/hasFiledCtcOdcSinceNoticeExpired" />
+          </Not>
+          <Any>
+            <Equal>
+              <Left>
+                <Dependency path="/receivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">twoYears</Enum>
+              </Right>
+            </Equal>
+            <Equal>
+              <Left>
+                <Dependency path="/receivedImproperClaimsNotice" />
+              </Left>
+              <Right>
+                <Enum optionsPath="/improperClaimsNoticeOptions">tenYears</Enum>
+              </Right>
+            </Equal>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePuertoRicoIncomeExclusion933">
+      <Name>Income from Puerto Rico excluded under section 933 (intake)</Name>
+      <Description>The taxpayer's Schedule 8812 line 2a entry: "Enter income from Puerto Rico that
+        you excluded" (https://www.irs.gov/pub/irs-pdf/f1040s8.pdf, page 1). The exclusion is IRC 933(1),
+        which exempts, for "an individual who is a bona fide resident of Puerto Rico during the
+        entire taxable year, income derived from sources within Puerto Rico (except amounts received
+        for services performed as an employee of the United States or any agency thereof)"
+        (26 U.S.C. 933, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section933&amp;num=0&amp;edition=2024, the left column of a two-column extraction).
+
+        THE INTAKE HALF of the trio idiom, and NO shipping fact reads it directly; everything reads
+        /puertoRicoIncomeExclusion933 below. A bare unanswered Writable inside the MAGI chain would
+        take /dependentCreditMagi Incomplete by contagion for every filer in the corpus — the /aotcMagi failure class and the same reason
+        /writableIsBonaFidePuertoRicoResident is never read directly either.
+
+        AN ENTRY, NOT A COMPUTATION. Nothing here sources income to Puerto Rico, applies the section
+        937(a) residence test or removes the US-government-employee carve-out; this writable accepts
+        the figure the taxpayer put on line 2a and enforces only non-negativity. It is also NOT
+        derived from /isBonaFidePuertoRicoResident and does not derive it: residency is a status
+        Schedule 8812 Part II-B reads on its own for a filer with no PR-source income at all, and an
+        excluded dollar must not imply a residency the filer never asserted. Both facts exist; one
+        is not the other.
+
+        Optional - unanswered gives /puertoRicoIncomeExclusion933 $0, or the W-2 wages keyed as Puerto Rico source when there are any. Those keyed wages are already part of line 2a: this entry is the whole line, and the line is never smaller than the keyed wages.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/puertoRicoIncomeExclusion933">
+      <Name>Income excluded under section 933 (Schedule 8812 line 2a), complete-safe</Name>
+      <Description>= /writablePuertoRicoIncomeExclusion933 when answered, else $0, and in either case
+        never less than formW2s:/puertoRicoExcludedWagesOnW2s, the W-2 box 1 wages keyed as Puerto
+        Rico source: line 2a is all the Puerto Rico income excluded, so those wages are part of it,
+        and a filer who both keys a W-2 and types the same wages on line 2a has them counted once.
+        The IsComplete/Switch guard idiom, the same shape as /isBonaFidePuertoRicoResident above and
+        form2555 /form2555Line36HousingExclusion. $0 when unanswered UNDER-states MAGI, which is the
+        taxpayer-FAVOURABLE direction on a phaseout — the reason
+        /knockoutPossessionOrPuertoRicoIncomeExclusion below exists rather than a different tail. The
+        taxpayer who has such income and is never asked is protected by the knockout, not by the
+        tail, exactly as form2555's four entry aliases are.
+
+        CONSUMERS. /sched8812Line2dTotalExcludedIncome below (Schedule 8812 line 2d, which reaches
+        line 3 and is therefore the section 24(b)(1) MAGI), and the knockout.
+        THE SIX OTHER MAGI surfaces that section 24(b)(1)'s sibling statutes point at ARE WIRED to this path: form8863.xml:94, socialSecurity.xml:1669, form8839.xml:673,
+        cleanVehicleCreditRepayment.xml:204, scheduleA.xml:3828, schedule1A.xml:39. A SEVENTH is taxCalculations:/magiForStudentLoanInterestDeduction, the
+        section 221(b)(2)(C) MAGI, at taxCalculations.xml:373.
+        The seven surfaces read the exclusions directly, so this fact's own
+        retirement trigger below is the live record of what the knockout is still for, and
+        condition (A) there is CLOSED. Nothing in this paragraph is a reason to keep the knockout
+        any more.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE, whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePuertoRicoIncomeExclusion933" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <GreaterOf><Dependency path="/writablePuertoRicoIncomeExclusion933" /><Dollar>0</Dollar></GreaterOf>
+                <Dependency module="formW2s" path="/puertoRicoExcludedWagesOnW2s" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency module="formW2s" path="/puertoRicoExcludedWagesOnW2s" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePossessionIncomeExclusion931">
+      <Name>Form 4563 line 15 — income excluded under section 931 (intake)</Name>
+      <Description>The taxpayer's Schedule 8812 line 2c entry: "Enter the amount from line 15 of your
+        Form 4563" (https://www.irs.gov/pub/irs-pdf/f1040s8.pdf, page 1). Form 4563 line 15 is "Add lines 7
+        through 14. This is the amount you may exclude from your gross income this tax year"
+        (https://www.irs.gov/pub/irs-pdf/f4563.pdf, page 1) on the form captioned "Exclusion of Income for
+        Bona Fide Residents of American Samoa" (line 1-2). The exclusion is IRC 931(a): "In the
+        case of an individual who is a bona fide resident of a specified possession during the entire
+        taxable year, gross income shall not include - (1) income derived from sources within any
+        specified possession, and (2) income effectively connected with the conduct of a trade or
+        business by such individual within any specified possession", where "specified possession"
+        means "Guam, American Samoa, and the Northern Mariana Islands"
+        (26 U.S.C. 931, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section931&amp;num=0&amp;edition=2024, the left column of a two-column
+        extraction).
+
+        WHY THE PATH SAYS 931 AND THE FORM SAYS AMERICAN SAMOA. Section 931 covers three specified
+        possessions; Form 4563 is the only one of them with a filing form attached to a Form 1040,
+        because a bona fide resident of Guam or the CNMI files with the possession rather than with
+        the United States. Schedule 8812 line 2c therefore names Form 4563 alone, and this entry is
+        the section 931 term for every purpose the schedule has.
+
+        AN ENTRY, NOT A COMPUTATION: nothing here applies the section 937(a) residence test, sources
+        income to a possession, or enforces the section 931(d) US-employee carve-out. Non-negativity
+        is the only check.
+
+        Optional - unanswered gives /possessionIncomeExclusion931 $0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/possessionIncomeExclusion931">
+      <Name>Income excluded under section 931 (Schedule 8812 line 2c), complete-safe</Name>
+      <Description>Schedule 8812 line 2c / Form 4563 line 15. THREE ARMS, in this
+        order: the COMPUTED line 15 total /form4563Line15TotalExclusion whenever
+        /form4563Part2ComponentLinesAnswered says the filer answered any of the eight Part II component
+        lines; else the filer typed line 15 attestation /writablePossessionIncomeExclusion931 when
+        answered, but never less than the computed total, which on that arm is the W-2 box 1 wages
+        keyed to line 7; else the computed total, which is those keyed wages or $0.
+
+        THE ATTESTATION IS KEPT AS THE FALLBACK, not retired, and the predicate in front of it is a real
+        "was the source answered" test rather than IsComplete on the computed total. That distinction is
+        the whole design: /form4563Line15TotalExclusion is complete safe, so IsComplete on it is true on
+        every return, and using it as the switch would silently override a filer who typed a line 15 and
+        never saw Part II. Precedent: scheduleE /farmRentalNetIncome behind form4835
+        /form4835IncomeLinesAnswered.
+
+        NO COMMITTED SCENARIO MOVES: every scenario that carries this exclusion sets the line 15 intake
+        and leaves all eight component lines blank, so the first arm is false and the second arm returns
+        exactly what the superseded body returned.
+
+        The IsComplete/Switch guard idiom. Same $0 tail and same direction as
+        /puertoRicoIncomeExclusion933 above: unanswered UNDER-states MAGI, taxpayer-favourable on a
+        phaseout, and the protection is /knockoutPossessionOrPuertoRicoIncomeExclusion below rather
+        than the tail.
+
+        A SEPARATE PATH FROM THE SECTION 933 SIBLING, never one conflated Dollar, and separate again
+        from the section 911 figures. The consumer sets differ: Form 8960 line 13, Form 2441 lines
+        4/5, the Foreign Earned Income Tax Worksheet line 2a and section 32(c)(1)(C) all read section
+        911 BY NAME and must never see this amount — form8960
+        /niitMagiForeignEarnedIncomeAddback says so on its own face.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE, whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form4563Part2ComponentLinesAnswered" />
+            </When>
+            <Then>
+              <Dependency path="/form4563Line15TotalExclusion" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionIncomeExclusion931" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <GreaterOf><Dependency path="/writablePossessionIncomeExclusion931" /><Dollar>0</Dollar></GreaterOf>
+                <Dependency path="/form4563Line15TotalExclusion" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form4563Line15TotalExclusion" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line2bForm2555Exclusions">
+      <Name>Schedule 8812 line 2b — the amounts from Form 2555 lines 45 and 50</Name>
+      <Description>Schedule 8812 line 2b, "Enter the amounts from lines 45 and 50 of your Form 2555"
+        (https://www.irs.gov/pub/irs-pdf/f1040s8.pdf, page 1) = form2555
+        /form2555Lines45And50ForeignEarnedIncomeTaxWorksheetLine2a when form2555
+        /filesForm2555ForeignEarnedIncomeExclusion is true, else $0. See the block banner above for
+        why the figure is lines 45+50 and not the line-43 composite the contracts named.
+
+        GATED, for the same reason form8960 /niitMagiForeignEarnedIncomeAddback is gated and it is
+        not belt-and-braces. The Form 2555 amount aliases are ungated; only the two Schedule 1 legs
+        that carry the exclusion OUT of AGI are gated on the attestation. A filer who enters Form
+        2555 figures without answering the attestation therefore has an unreduced AGI, and adding
+        45+50 back to it would invent income. With the gate, the subtraction and the add-back cover
+        exactly the same population and cancel to the pre-exclusion AGI, which is what section
+        24(b)(1) asks for.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents. NO FLOOR, deliberately: form2555
+        /form2555Line45ExclusionsNetOfAllocableDeductions has none either (Form 2555 line 45 prints
+        no "if zero or less" instruction), so a filer whose line 44 exceeds their line 43 carries a
+        negative line 45, a POSITIVE Schedule 1 line 8d, and the matching negative here. Flooring
+        only this end would break the cancellation the paragraph above rests on. The obvious
+        objection - that Schedule 8812 line 2b prints no parentheses and so cannot be meant to go
+        negative - is unreachable in a filable return anyway: a non-zero line 2b requires the Form
+        2555 attestation to be TRUE, and form2555 /knockoutFilesForm2555 refuses every return that
+        answers it true. If that knockout ever retires, this is the arm to re-examine.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+            </When>
+            <Then>
+              <Dependency module="form2555" path="/form2555Lines45And50ForeignEarnedIncomeTaxWorksheetLine2a" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line2dTotalExcludedIncome">
+      <Name>Schedule 8812 line 2d — add lines 2a through 2c</Name>
+      <Description>Schedule 8812 line 2d, "Add lines 2a through 2c"
+        (https://www.irs.gov/pub/irs-pdf/f1040s8.pdf, page 1) = the section 933 Puerto Rico exclusion, the
+        Form 2555 lines 45+50 figure and the Form 4563 line 15 possession exclusion, summed. This is
+        the whole of the section 24(b)(1) modification: "adjusted gross income increased by any
+        amount excluded from gross income under section 911, 931, or 933"
+        (26 U.S.C. 24, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section24&amp;num=0&amp;edition=2024), one term per statute in the order the statute
+        names them, which is also the order the schedule prints them in.
+
+        ROUNDED HERE so that /dependentCreditMagi stays whole after the addition, matching the
+        Round(/agi) it already applied.
+
+        TYPE/SIGN/ROUNDING: Dollar, whole dollars. Normally non-negative; it can go negative only
+        through line 2b's unfloored Form 2555 line-45 leg, which mirrors an equally positive
+        Schedule 1 line 8d.</Description>
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/puertoRicoIncomeExclusion933" />
+            <Dependency path="/sched8812Line2bForm2555Exclusions" />
+            <Dependency path="/possessionIncomeExclusion931" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/possessionApportionmentDenominatorUsable">
+      <Name>The Publication 570 fraction has a denominator it can actually divide by</Name>
+      <Description>TRUE when income:/writableGrossIncomeFromAllSources is both ANSWERED and greater
+        than zero. A KNOCKOUT INPUT and nothing else: it feeds
+        /knockoutPossessionOrPuertoRicoIncomeExclusion below. It changes no deduction, and it is
+        deliberately NOT wired into any apportionment site — every one of those already carries its
+        own copy of this guard, and re-pointing them would be a behaviour change dressed as a
+        refactor.
+
+        WHY THIS IS THE FIRST THING A RETIRING KNOCKOUT MUST TEST. Publication 570 chapter 4's whole
+        apportionment is one fraction, "Gross income subject to U.S. income tax / Gross income from
+        all sources (including excluded territory income)"
+        (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 33, the LEFT column of a two-column
+        extraction), and its denominator is NOT DERIVABLE from anything this graph holds — see
+        income:/writableGrossIncomeFromAllSources, which records why /totalIncome cannot stand in.
+        So the denominator is an ATTESTED optional intake with an unanswered tail, and that tail is
+        the full-deduction arm at EVERY consumer: standardDeduction:/standardDeduction,
+        scheduleA:/allowableStateLocalTaxes and its medical, mortgage and four charitable siblings,
+        schedule1A:/allowableQualifiedCarLoanInterestDeduction, and
+        taxCalculations:/allowableAdjustmentsToIncome. A section 933 filer who is never asked the
+        denominator therefore gets the ENTIRE Publication 570 apportionment build inert: full standard deduction, unreduced
+        itemized deductions, unreduced adjustments — every one of them in the taxpayer-FAVOURABLE
+        direction, and silently. That is a single condition covering every apportionment site at
+        once, which is why it is tested here rather than site by site.
+
+        THE UNANSWERED TAIL IS NOT A BUG AT THOSE SITES and this fact is not a criticism of them: it
+        is what keeps every committed return byte-identical, and it is the right default for the
+        overwhelming majority of filers who exclude nothing. It is wrong only for the population
+        this knockout screens, so the screen is where it belongs.
+
+        GREATER THAN ZERO, NOT MERELY ANSWERED, because a $0 denominator makes the fraction a
+        division by zero rather than a small share. Same test the shipping consumers already make —
+        standardDeduction:/pdfStandardDeductionModifiedForPossessionExclusion is the closest twin
+        and uses the identical IsComplete-plus-GreaterThan pair.
+
+        COMPLETE ON EVERY RETURN BY CONSTRUCTION: IsComplete never propagates incompleteness, and
+        the GreaterThan sits beside it inside an All, which is the shipping idiom at that twin. It
+        resolves FALSE on every return that never answers the intake — which is every committed
+        scenario, and the reason this fact's arrival moves no committed value.</Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form499R2W2Prs/*/reportsSocialSecurityOrMedicareTaxWithheld">
+      <Name>This Form 499R-2/W-2PR shows social security or Medicare tax withheld</Name>
+      <Description>True when this Puerto Rico Form 499R-2/W-2PR has box 21 (social security tax
+        withheld) or box 23 (Medicare tax withheld) answered above zero. Those are the two boxes the
+        Schedule 8812 line 21 worksheet adds to Form W-2 boxes 4 and 6. Each box is read
+        IsComplete-first, so an untranscribed box is not a withholding. Declared here on the
+        formW2s collection because ctcOdc owns Schedule 8812 line 21, the only reader.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete>
+              <Dependency module="formW2s" path="../writableSocialSecurityTaxWithheld" />
+            </IsComplete>
+            <GreaterThan>
+              <Left>
+                <Dependency module="formW2s" path="../writableSocialSecurityTaxWithheld" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete>
+              <Dependency module="formW2s" path="../writableMedicareTaxWithheld" />
+            </IsComplete>
+            <GreaterThan>
+              <Left>
+                <Dependency module="formW2s" path="../writableMedicareTaxWithheld" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/anyForm499R2W2PrShowsSocialSecurityOrMedicareTaxWithheld">
+      <Name>Some Form 499R-2/W-2PR shows social security or Medicare tax withheld</Name>
+      <Description>True when the Form 499R-2/W-2PR collection is answered and at least one of its
+        statements shows box 21 (social security tax withheld) or box 23 (Medicare tax withheld)
+        above zero. FALSE while the collection itself is unanswered, so a return that never reached
+        the Puerto Rico statement screen is unaffected.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="formW2s" path="/form499R2W2Prs" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Count>
+                    <Dependency path="/form499R2W2Prs/*/reportsSocialSecurityOrMedicareTaxWithheld" />
+                  </Count>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutSched8812Line21PuertoRicoWithholdingNotIncluded">
+      <Name>Knockout: Puerto Rico social security or Medicare withholding that Schedule 8812 line 21 does not yet include</Name>
+      <Description>SCREEN TEXT: "Your Puerto Rico Form 499R-2/W-2PR shows social security or
+        Medicare tax withheld (box 21 or box 23). The child tax credit worksheets must count those
+        taxes, and this return cannot include them yet, so the child tax credit cannot be figured
+        here. This return cannot be filed here."
+
+        FIRES WHEN the return has at least one child tax credit qualifying child
+        (/ctcEligibleDependents above zero) and at least one Form 499R-2/W-2PR shows box 21 or box
+        23 above zero (/anyForm499R2W2PrShowsSocialSecurityOrMedicareTaxWithheld). Both legs are complete-safe,
+        so an unanswered collection or dependents section does not fire it.
+
+        WHY IT REFUSES. Schedule 8812 line 21 is the social security, Medicare and Additional
+        Medicare tax withheld, and its worksheet adds Form 499R-2/W-2PR boxes 21 and 23 to Form W-2
+        boxes 4 and 6. /sched8812Line21 reads Form W-2 only. Line 21 feeds Part II-B (a short line
+        21 under-states the additional child tax credit) and Credit Limit Worksheet B line 7 (a short
+        line 21 over-states the credit limit, so the nonrefundable credit is over-claimed): the
+        return would be wrong in one direction or the other. Adding the two boxes alone is not the
+        fix: the worksheet's line 5 subtracts Form 8959 line 22, which reads Form W-2 only, so any
+        Additional Medicare Tax inside box 23 would be added and never taken back out.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency path="/anyForm499R2W2PrShowsSocialSecurityOrMedicareTaxWithheld" />
+          <IsComplete>
+            <Dependency path="/ctcEligibleDependents" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/ctcEligibleDependents" />
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutPossessionOrPuertoRicoIncomeExclusion">
+      <Name>Knockout: a section 931/933 return the Pub. 570 apportionment cannot be applied to</Name>
+      <Description>Refuses a return that enters a non-zero section 933 Puerto Rico income exclusion
+        (/puertoRicoIncomeExclusion933, Schedule 8812 line 2a) or section 931 possession income exclusion
+        (/possessionIncomeExclusion931, line 2c) when the Publication 570 chapter 4 apportionment cannot be
+        applied to that return in full - that is, when any one of these holds: the apportionment
+        denominator is not usable (/possessionApportionmentDenominatorUsable is false); a charitable
+        carryover is not apportioned (scheduleA /possessionUnapportionedCharitableCarryover); the real
+        estate portion is unanswered (scheduleA /possessionRealEstatePortionUnanswered); tips or overtime
+        are untreated (schedule1A /possessionUntreatedTipsOrOvertime); Schedule C net profit is untreated
+        (scheduleC /possessionUntreatedScheduleCNetProfit); or self-employment income outside Schedule C is
+        untreated (scheduleSE /possessionUntreatedNonScheduleCSelfEmployment). A possession return on which
+        none of these holds is not refused and computes. The seven sibling MAGI surfaces read both
+        exclusions directly.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Any>
+            <GreaterThan>
+              <Left>
+                <Dependency path="/puertoRicoIncomeExclusion933" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+            <GreaterThan>
+              <Left>
+                <Dependency path="/possessionIncomeExclusion931" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </GreaterThan>
+          </Any>
+          <Any>
+            <Not>
+              <Dependency path="/possessionApportionmentDenominatorUsable" />
+            </Not>
+            <Dependency module="scheduleA" path="/possessionUnapportionedCharitableCarryover" />
+            <Dependency module="scheduleA" path="/possessionRealEstatePortionUnanswered" />
+            <Dependency module="schedule1A" path="/possessionUntreatedTipsOrOvertime" />
+            <Dependency module="scheduleC" path="/possessionUntreatedScheduleCNetProfit" />
+            <Dependency module="scheduleSE" path="/possessionUntreatedNonScheduleCSelfEmployment" />
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dependentCreditMagi">
+      <Name>Modified AGI for purposes of dependent credits</Name>
+      <Description>
+        Modified AGI for purposes of dependent credits. Reported on line 3 of Schedule 8812, "Add
+        lines 1 and 2d" (https://www.irs.gov/pub/irs-pdf/f1040s8.pdf, page 1), and named as the CTC/ODC MAGI
+        by the instructions in as many words: "Modified AGI. For purposes of the CTC and ODC, your
+        modified AGI is the amount on line 3 of Schedule 8812"
+        (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 2).
+
+        = Round(taxCalculations /agi) + /sched8812Line2dTotalExcludedIncome. Line 2a is
+        /puertoRicoIncomeExclusion933, line 2b is /sched8812Line2bForm2555Exclusions and line 2c is
+        /possessionIncomeExclusion931, and the sum of the three is line 2d. The Round on the AGI term
+        is untouched, and the line-2d total is rounded at its own fact, so a return that answers
+        none of the three entries produces exactly the AGI figure.
+
+        DIRECTION OF THE THREE $0 TAILS: a missing exclusion UNDER-states MAGI, which SHRINKS the
+        section 24(b)(2) phaseout and OVER-claims the credit - taxpayer-favourable, i.e. the
+        non-conservative direction. That is why /knockoutPossessionOrPuertoRicoIncomeExclusion
+        refuses a return with a possession entry the other six MAGI surfaces cannot see, and why
+        form2555 /knockoutFilesForm2555 refuses the section 911 population outright.
+      </Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Add>
+          <Round>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Round>
+          <Dependency path="/sched8812Line2dTotalExcludedIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdfIncludeSchedule8812">
+      <Name>Include Schedule 8812 in tax return PDF</Name>
+      <Description>Whether the tax return PDF should include Schedule 8812.</Description>
+
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/totalCtcAndOdc"></Dependency>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/additionalCtc"></Dependency>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line18a">
+      <Name>Display value for PDF Schedule 8812, Line 18a</Name>
+      <Description>Earned income with all combat pay if completing Part II-A; undefined otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency module="income" path="/earnedIncomeWithAllCombatPay" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line18b">
+      <Name>Display value for PDF Schedule 8812, Line 18b</Name>
+      <Description>Nontaxable combat pay if completing Part II-A; undefined otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine16b" />
+            </When>
+            <Then>
+              <Dependency module="formW2s" path="/allCombatPay" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line21">
+      <Name>Display value for PDF Schedule 8812, Line 21</Name>
+      <Description>Schedule 8812 line 21 if completing Part II-B; undefined otherwise. It is REPOINTED from formW2s:/socialSecurityTaxesWithheld (the plain W-2 boxes 4 + 6 sum) to
+        /sched8812Line21 (the i1040s8 pp.8-9 Additional Medicare Tax and RRTA Tax Worksheet). The
+        repoint is NOT cosmetic and NOT optional: /socialSecurityOverEitc is line 25 = line 21 +
+        line 22 − line 24, so leaving this display fact on the old term would print a Schedule 8812
+        whose line 21 and line 25 cannot be reconciled by the arithmetic printed between them — on
+        tests/nodes/ty2025/ctcOdc/amt-wksht-mfj-employer-withheld-3qc the rendered form would have
+        shown line 21 = 14,288 above a line 25 of 14,108 with line 22 = 0 and line 24 = 0. A form
+        that does not foot on its own face is a worse artifact than a consistent wrong one, which is
+        the same principle that keeps the line-1a leg as it is.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine20" />
+            </When>
+            <Then>
+              <Dependency path="/sched8812Line21" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line24">
+      <Name>Display value for PDF Schedule 8812, Line 24</Name>
+      <Description>Printed Schedule 8812 line 24 if completing Part II-B; undefined otherwise.
+
+        THE PRINTED LINE IS A SUM OF TWO AMOUNTS, NOT ONE. https://www.irs.gov/pub/irs-pdf/f1040s8.pdf, page 2, verbatim: "1040 and 1040-SR filers: Enter the total of the amounts from Form
+        1040 or 1040-SR, line 27a, and Schedule 3 (Form 1040), line 11. 1040-NR filers: Enter the
+        amount from Schedule 3 (Form 1040), line 11." Form 1040 line 27a is the earned income
+        credit, eitc:/earnedIncomeCredit; Schedule 3 line 11 is the excess social security and
+        tier 1 RRTA tax withheld, schedule3:/excessSocialSecurityTaxWithheld. Reading the earned
+        income credit alone would leave the printed Part II-B not footing on its own face for any
+        filer with excess social security withheld: line 23 minus the printed line 24 would not
+        equal the printed line 25.
+
+        PRINT ONLY AND NO DOUBLE COUNT, which is why this is a display correction and not a tax
+        movement. No derived fact reads this one - line 25 is /pdf8812Line25, which reads
+        /socialSecurityOverEitc, and that fact already subtracts BOTH terms inline in its own
+        Subtrahends (eitc:/earnedIncomeCredit and schedule3:/excessSocialSecurityTaxWithheld). So
+        line 25 was already the printed line 25; only the line-24 box was short a leg, and adding
+        it makes the two boxes foot without changing line 25, line 26, line 27 or any dollar on
+        Form 1040. Both addends are total on every return that reaches Part II-B: line 25 reads
+        each of them unwrapped today, so neither needs a complete-safe wrapper here.
+
+        THE 1040-NR ARM IS NOT A SEPARATE ARM. On a Form 1040-NR return the earned income credit
+        is unavailable and eitc:/earnedIncomeCredit is $0, so the same Add prints the 1040-NR line
+        (Schedule 3 line 11 alone) without a branch.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine20" />
+            </When>
+            <Then>
+              <Add>
+                <Dependency module="eitc" path="/earnedIncomeCredit" />
+                <Dependency module="schedule3" path="/excessSocialSecurityTaxWithheld" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableDoesNotWantToClaimActc">
+      <Name>Filer does not want to claim the additional child tax credit (Form 1040 line 28)</Name>
+      <Description>Whether the filer elects not to claim the additional child tax credit from Schedule 8812, which is what the Form 1040 line 28 checkbox reports. /additionalCtc guards its IRC 24(d)(1) lesser-of arm on this election and resolves 0 when the box is answered and checked, so the election is not inert. The guard is answered AND true because this intake has no complete-safe wrapper; an unanswered box leaves the credit untouched. Witness: tests/nodes/ty2025/ctcOdc/line28-actc-opt-out-zeroes-the-credit, whose control sibling sched8812line21-gap3-overclaim-moves-actc-three-qc computes the same return at 5,100.00.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/possessionDidNotMaintainHomeOutsideAmericanSamoa">
+      <Name>Form 4563 line 4a, the No box</Name>
+      <Description>The negation of /writablePossessionMaintainedHomeOutsideAmericanSamoa, so the printed No box on Form 4563 line 4a is checked exactly when the filer answered No. Incomplete while the question is unanswered, which keeps both printed boxes blank rather than checking No by default.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writablePossessionMaintainedHomeOutsideAmericanSamoa" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/possessionFamilyDidNotLiveInAmericanSamoa">
+      <Name>Form 4563 line 3a, the No box</Name>
+      <Description>The negation of /writablePossessionFamilyLivedInAmericanSamoa, so the printed No box on Form 4563 line 3a is checked exactly when the filer answered No. Incomplete while the Yes and No question is unanswered, which is what keeps both printed boxes blank rather than checking No by default.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writablePossessionFamilyLivedInAmericanSamoa" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePossessionBonaFideResidenceBegan">
+      <Name>Form 4563 line 1, the date bona fide residence in American Samoa began (intake)</Name>
+      <Description>Form 4563 line 1, first box: the date the filer's bona fide residence in American Samoa began. The exclusion is available to an individual who is a bona fide resident of a specified possession during the ENTIRE taxable year, and line 1 is where the form asks the filer to state the span. An attested date, not a computation: nothing here applies the section 937 residence test or checks the span against the tax year. Optional, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionBonaFideResidenceEnded">
+      <Name>Form 4563 line 1, the date bona fide residence in American Samoa ended (intake)</Name>
+      <Description>Form 4563 line 1, second box: the date the filer's bona fide residence in American Samoa ended. The companion of /writablePossessionBonaFideResidenceBegan; together the two boxes state the residence span line 1 asks for. An attested date, not a computation. Optional, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionEmployerNameAndAddress">
+      <Name>Form 4563 line 5, name and address of employer (intake)</Name>
+      <Description>Form 4563 line 5, the name and address of the filer's employer, or a statement that the filer was self employed. Free text the form asks for; the graph carries no employer address anywhere a Form 4563 could read, since the Form W-2 intake is not scoped to American Samoa employment. The printed line carries two writing lines; this fact fills the first.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4563Line7WagesOrZero">
+      <Name>Form 4563 line 7, Wages, salaries, tips, etc , complete safe</Name>
+      <Description>Form 4563 line 7: the greater of /writablePossessionExclusionWages (floored at zero, $0 when unanswered) and formW2s:/americanSamoaExcludedWagesOnW2s, the W-2 box 1 wages keyed to this line. Line 7 includes every qualifying wage, so it is never smaller than the wages keyed to it on W-2s, and a filer who both keys a W-2 and types the same wages here has them counted once. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionWages" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <GreaterOf><Dependency path="/writablePossessionExclusionWages" /><Dollar>0</Dollar></GreaterOf>
+                <Dependency module="formW2s" path="/americanSamoaExcludedWagesOnW2s" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency module="formW2s" path="/americanSamoaExcludedWagesOnW2s" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePossessionTypedWagesAreOnNoEnteredW2">
+      <Name>Form 4563 line 7 wages you typed are on no W-2 you entered (attestation)</Name>
+      <Description>SCREEN: "The wages you entered on Form 4563 line 7 are more than the W-2 wages you marked as earned in American Samoa. Are the extra wages on NO Form W-2 you entered on this return?" HELP TEXT: wages you exclude on Form 4563 are reported there instead of on Form 1040 line 1a, not in addition to it (Form 4563 instructions: you must report on your return the worldwide income that does not qualify for the exclusion, and income from American Samoa that qualifies is excluded). If the extra wages are in box 1 of a W-2 you entered, go back to that W-2 and enter the American Samoa part in "Part of box 1 excluded on Form 4563 line 7", so the wages leave line 1a. Answer yes only if the extra wages come from a statement you did not enter as a W-2 (for example a Form W-2AS kept off this return's W-2 list). ASKED WHEN: the typed line 7 amount (/writablePossessionExclusionWages) is more than the W-2 wages keyed to line 7 (formW2s:/americanSamoaExcludedWagesOnW2s) AND some W-2 box 1 wages remain on Form 1040 line 1a (formW2s:/w2WagesStillOnLine1a above $0). UNANSWERED POSTURE: REFUSED — /possessionTypedWagesMayBeOnAnEnteredW2 blocks submission until the answer is yes or the W-2 is keyed. VALIDATION: Boolean. WHAT IT FEEDS: /possessionTypedWagesMayBeOnAnEnteredW2 only; no amount changes.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/possessionTypedWagesMayBeOnAnEnteredW2">
+      <Name>Form 4563 line 7 wages may also be on Form 1040 line 1a</Name>
+      <Description>The wages you typed on Form 4563 line 7 are more than the W-2 wages you marked as earned in American Samoa, and some W-2 wages are still on Form 1040 line 1a. If the extra wages are on one of those W-2s, they would be taxed on line 1a and excluded on Form 4563 at once. Mark the American Samoa part on that W-2, or confirm the extra wages are on no W-2 you entered. TRUE when /writablePossessionExclusionWages is answered and above formW2s:/americanSamoaExcludedWagesOnW2s, formW2s:/w2WagesStillOnLine1a is above $0, and /writablePossessionTypedWagesAreOnNoEnteredW2 is not answered yes; Complete false on every other return, including every return that did not type line 7.
+
+        WHY A BLOCK AND NOT A SUBTRACTION. The graph cannot tell whether typed wages came from an entered W-2 (then they are counted twice: in adjusted gross income, and again when every MAGI adds /possessionIncomeExclusion931 back, against the taxpayer) or from a statement not entered as a W-2 (then line 1a is right). Subtracting them from line 1a would under-report on the second population. The per-W-2 key (formW2s:/formW2s/*/writableAmericanSamoaExcludedWages) is the route that moves wages off line 1a, so the block sends the filer there. A submission block for an input the filer must settle, not a scope refusal.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionWages" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/writablePossessionExclusionWages" />
+            </Left>
+            <Right>
+              <Dependency module="formW2s" path="/americanSamoaExcludedWagesOnW2s" />
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency module="formW2s" path="/w2WagesStillOnLine1a" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writablePossessionTypedWagesAreOnNoEnteredW2" />
+              </IsComplete>
+              <Dependency path="/writablePossessionTypedWagesAreOnNoEnteredW2" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePossessionTypedIncomeIsOffTheReturn">
+      <Name>The Form 4563 Part II amounts you typed are reported nowhere else on the return (attestation)</Name>
+      <Description>SCREEN: "Is each amount you typed on Form 4563 left OFF the other lines of this return?" HELP TEXT: income you exclude on Form 4563 is reported there INSTEAD OF on Form 1040 and its schedules, not in addition to them (Form 4563 instructions: you report on your return only the worldwide income that does not qualify for the exclusion). If, for example, the interest on line 8 is also in the interest you entered from a Form 1099-INT, that interest is being taxed on Form 1040 line 2b and excluded at the same time: remove it from the other entry (or, for a Schedule C, enter it as the business's excluded territory net profit) and answer again. ASKED WHEN: /possessionTypedIncomeMayBeOnTheReturn's population: a typed Part II line 8 to 14 above $0 while the matching return line carries income (line 8 / Form 1040 line 2b, line 9 / line 3b, line 10 / Schedule 1 line 3, line 11 / line 7a, line 12 / Schedule 1 line 5, line 13 / Schedule 1 line 6, line 14 / Form 1040 line 9), or a typed line 15 with no Part II line answered that is above the W-2 wages keyed to line 7 while Form 1040 line 9 is above $0. UNANSWERED POSTURE: REFUSED (the block holds until yes). VALIDATION: Boolean. WHAT IT FEEDS: /possessionTypedIncomeMayBeOnTheReturn only; no amount changes.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/possessionTypedIncomeMayBeOnTheReturn">
+      <Name>Typed Form 4563 income may also be reported on the return</Name>
+      <Description>You typed Form 4563 income that may also be on another line of this return, where it would be taxed and excluded at once. Leave the excluded amount off the other line, or confirm it is not there. TRUE when a typed Part II line 8 to 14 is above $0 and the matching return line carries income, or a typed line 15 with no Part II line answered is above the W-2 wages keyed to line 7 while Form 1040 line 9 is above $0, and /writablePossessionTypedIncomeIsOffTheReturn is not answered yes; Complete false otherwise, including every return that typed nothing.
+
+        WHY A BLOCK AND NOT A SUBTRACTION, the posture /possessionTypedWagesMayBeOnAnEnteredW2 takes for line 7: the graph sources no income item to a possession, so it cannot tell whether a typed amount is also inside the return line (counted twice: in adjusted gross income, and again when every MAGI adds /possessionIncomeExclusion931 back, against the taxpayer) or was correctly left off it. Only the W-2 key moves an amount off a return line by itself (line 7); scheduleC:/scheduleCs/*/writableExcludedTerritoryNetProfit also does, but it mixes section 931 and section 933 so line 10 cannot be computed from it. Where the matching return line is $0 there is nothing to double-count and nothing is asked. A submission block for an input the filer must settle, not a scope refusal.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Any>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionTaxableInterest" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionTaxableInterest" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="interest" path="/interestIncome" /></IsComplete><GreaterThan><Left><Dependency module="interest" path="/interestIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionOrdinaryDividends" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionOrdinaryDividends" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="income" path="/ordinaryDividends" /></IsComplete><GreaterThan><Left><Dependency module="income" path="/ordinaryDividends" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionBusinessIncome" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionBusinessIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="scheduleC" path="/scheduleCNetProfitSubjectToUsTax" /></IsComplete><GreaterThan><Left><Dependency module="scheduleC" path="/scheduleCNetProfitSubjectToUsTax" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionCapitalGain" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionCapitalGain" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="income" path="/capitalGainsOrLosses" /></IsComplete><GreaterThan><Left><Dependency module="income" path="/capitalGainsOrLosses" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionRentalRealEstateAndRoyalties" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionRentalRealEstateAndRoyalties" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="scheduleE" path="/scheduleETotalIncome" /></IsComplete><GreaterThan><Left><Dependency module="scheduleE" path="/scheduleETotalIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionFarmIncome" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionFarmIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="scheduleF" path="/scheduleFNetProfitOrLoss" /></IsComplete><GreaterThan><Left><Dependency module="scheduleF" path="/scheduleFNetProfitOrLoss" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writablePossessionExclusionOtherIncome" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionExclusionOtherIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan><IsComplete><Dependency module="income" path="/totalIncome" /></IsComplete><GreaterThan><Left><Dependency module="income" path="/totalIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><Not><Dependency path="/form4563Part2ComponentLinesAnswered" /></Not><IsComplete><Dependency path="/writablePossessionIncomeExclusion931" /></IsComplete><GreaterThan><Left><Dependency path="/writablePossessionIncomeExclusion931" /></Left><Right><Dependency module="formW2s" path="/americanSamoaExcludedWagesOnW2s" /></Right></GreaterThan><IsComplete><Dependency module="income" path="/totalIncome" /></IsComplete><GreaterThan><Left><Dependency module="income" path="/totalIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          </Any>
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/writablePossessionTypedIncomeIsOffTheReturn" /></IsComplete>
+              <Dependency path="/writablePossessionTypedIncomeIsOffTheReturn" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line8TaxableInterestOrZero">
+      <Name>Form 4563 line 8, Taxable interest , complete safe</Name>
+      <Description>/writablePossessionExclusionTaxableInterest when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionTaxableInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionTaxableInterest" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line9OrdinaryDividendsOrZero">
+      <Name>Form 4563 line 9, Ordinary dividends , complete safe</Name>
+      <Description>/writablePossessionExclusionOrdinaryDividends when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionOrdinaryDividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionOrdinaryDividends" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line10BusinessIncomeOrZero">
+      <Name>Form 4563 line 10, Business income , complete safe</Name>
+      <Description>/writablePossessionExclusionBusinessIncome when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionBusinessIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionBusinessIncome" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line11CapitalGainOrZero">
+      <Name>Form 4563 line 11, Capital gain , complete safe</Name>
+      <Description>/writablePossessionExclusionCapitalGain when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionCapitalGain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionCapitalGain" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line12RentalRealEstateAndRoyaltiesOrZero">
+      <Name>Form 4563 line 12, Rental real estate, royalties, etc , complete safe</Name>
+      <Description>/writablePossessionExclusionRentalRealEstateAndRoyalties when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionRentalRealEstateAndRoyalties" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionRentalRealEstateAndRoyalties" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line13FarmIncomeOrZero">
+      <Name>Form 4563 line 13, Farm income , complete safe</Name>
+      <Description>/writablePossessionExclusionFarmIncome when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionFarmIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionFarmIncome" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line14OtherIncomeOrZero">
+      <Name>Form 4563 line 14, Other income , complete safe</Name>
+      <Description>/writablePossessionExclusionOtherIncome when the filer answered it, else $0. The IsComplete guard idiom this
+        module already uses for /possessionIncomeExclusion931, so that
+        /form4563Line15TotalExclusion (the "Add lines 7 through 14" total) stays Complete on a return
+        that answers only some of the eight Part II component lines. Form 4563 itself says to add the
+        lines whether or not each is filled, so a blank component is $0 and not a missing answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePossessionExclusionOtherIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="/writablePossessionExclusionOtherIncome" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Part2ComponentLinesAnswered">
+      <Name>The filer answered at least one Form 4563 Part II component line (lines 7 through 14)</Name>
+      <Description>Whether ANY of the eight Form 4563 Part II income component intakes has been
+        answered. This is the "was the source answered" predicate that lets /possessionIncomeExclusion931
+        prefer the computed line 15 total over the filer typed line 15 attestation
+        /writablePossessionIncomeExclusion931, and it is deliberately NOT an IsComplete on
+        /form4563Line15TotalExclusion: that total is complete safe by construction, so IsComplete on it
+        is always true and would silently retire the attestation on every return, including returns that
+        typed a line 15 and never saw Part II. Precedent: scheduleE
+        /farmRentalNetIncome reading form4835 /form4835IncomeLinesAnswered for exactly this reason.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionWages" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionTaxableInterest" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionOrdinaryDividends" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionBusinessIncome" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionCapitalGain" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionRentalRealEstateAndRoyalties" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionFarmIncome" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePossessionExclusionOtherIncome" />
+          </IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563Line15TotalExclusion">
+      <Name>Form 4563 line 15, the total income excludable under section 931 (Add lines 7 through 14)</Name>
+      <Description>Form 4563 line 15, "Add lines 7 through 14. This is the amount you may exclude from
+        your gross income this tax year" (https://www.irs.gov/pub/irs-pdf/f4563.pdf, page 1). The sum of the
+        eight complete-safe Part II component wrappers above. Before they existed, the eight
+        printed component lines footed NOWHERE: each carried the
+        obligation "Print only until /possessionIncomeExclusion931 consumes it" in its own Description,
+        while /possessionIncomeExclusion931 read only the filer typed line 15 attestation
+        /writablePossessionIncomeExclusion931. A filer who itemised Part II and left line 15 blank
+        excluded nothing.
+
+        THIS IS LOAD BEARING. /possessionIncomeExclusion931 has nine consumers, including
+        /grossIncomeSubjectToUsTax and /sched8812Line2dTotalExcludedIncome, so a component only return
+        was over stating US taxable income and (through the Schedule 8812 line 2d MAGI add back) the
+        child tax credit phaseout base.
+
+        COMPLETE FOR EVERY RETURN: every addend is an IsComplete guarded $0, so this total resolves on a
+        return that never opened Form 4563.
+
+        obligation: closes the "Print only until /possessionIncomeExclusion931 consumes it" debt recorded
+        in all eight of /writablePossessionExclusionWages, /writablePossessionExclusionTaxableInterest,
+        /writablePossessionExclusionOrdinaryDividends, /writablePossessionExclusionBusinessIncome,
+        /writablePossessionExclusionCapitalGain,
+        /writablePossessionExclusionRentalRealEstateAndRoyalties,
+        /writablePossessionExclusionFarmIncome and /writablePossessionExclusionOtherIncome.
+
+        ═══ THE SHAPE, per the project owner's
+        direction to "resolve the Form 4563 possession-income conflict in the audit's preferred
+        shape": THE DECISION IS THE PER INCOME TYPE SHAPE FOR THE INCOME SIDE, and the reason is
+        that the contract's two candidate shapes are not two shapes of ONE quantity: they are two
+        different quantities its prose ran together.
+
+        WHAT THE CONTRACT SAYS. Replacing /knockoutPossessionOrPuertoRicoIncomeExclusion needs a collection keyed per income item (which Schedule K-1, which Schedule F, which employer), which is not built. Its round-5
+        RECONCILED paragraph set that Shape A beside the Shape B this fact sums, said
+        one-quantity-one-fact prefers Shape A, and referred the call out because 34 promoted facts
+        ride on it.
+
+        WHY THE EIGHT TYPED SCALARS ARE THE RIGHT INCOME SIDE, read off the form rather than
+        chosen for convenience. Form 4563 Part II IS per income TYPE on its own face: lines 7
+        through 14 are wages, taxable interest, ordinary dividends, business income, capital gain,
+        rental real estate and royalties, farm income and other income, and line 15 adds them
+        (https://www.irs.gov/pub/irs-pdf/f4563.pdf, page 1 through 46). The eight intakes are that
+        printed list one for one, and the eight OrZero wrappers above are its eight boxes. A per
+        item collection would still have to print these eight boxes, so it would be a SECOND home
+        for the same dollars rather than a better home for them.
+
+        WHY A COLLECTION IN THIS MODULE WOULD BE THE WRONG PLACE FOR THE PER ITEM QUESTION, which
+        is the half of the ShapeNote that is right about the world. The graph already HAS a per
+        item possession-source convention and it lives on the ITEM, in the item's own module:
+        scheduleC:/scheduleCs/*/writableExcludedTerritoryNetProfit.
+        scheduleSE:/possessionUntreatedNonScheduleCSelfEmployment names the two twins that are
+        missing by name, a per Schedule K-1 box 14 code A amount and a per Schedule F amount, and
+        those belong to scheduleE and scheduleF. A third home for per item possession amounts,
+        sitting in ctcOdc, is exactly the pathology the same audit condemns for the section 179
+        election two rows above this one.
+
+        THE TWO CONDITIONS THE CONTRACT SAID THESE SCALARS CANNOT REACH, ANSWERED ON THE SOURCES
+        RATHER THAN CONCEDED. Condition (ii), the prior year charitable carryover, does NOT need
+        items at all: 26 CFR 1.861-8(e)(12)(i) apportions the section 170 deduction "on the basis
+        of the relative amounts of gross income" (26 CFR 1.861-8, https://www.ecfr.gov/current/title-26/section-1.861-8 through 1050, quoted in full on scheduleA:/possessionUnapportionedCharitableCarryover),
+        which is the RETURN LEVEL Publication 570 chapter 4 fraction that already ships and that
+        /possessionApportionmentDenominatorUsable above already guards. What is missing is a
+        scheduleA computation multiplying the thirteen carryover facts by that fraction, and NO
+        shape of intake in this module supplies it. Condition (vi) DOES need a per item answer,
+        and the paragraph above says whose module owns it. So neither shape discharges either
+        condition from this file: the collection would have cost a build and bought no narrowing.
+
+        THE DIVERGENCE THE CONTRACT ASKED TO HAVE DISCLOSED RATHER THAN LEFT SILENT, in its own
+        words, "if they stay, conditions (ii) and (vi) need an explicitly disclosed divergence
+        rather than silence". THE EIGHT SCALARS ARE THE FORM 4563 INCOME SIDE AND NOTHING ELSE.
+        Measured by grepping the module for each of the eight names: every one is read
+        by its own OrZero wrapper and by /form4563Part2ComponentLinesAnswered, and by nothing else
+        in the dictionary. They apportion no deduction, they source no income ITEM, and they are
+        not the deduction side of section 931(b) or section 933(1).
+
+        THE DEDUCTION SIDE IS UNBUILT IN TWO HALVES AND THIS FACT DOES NOT PRETEND OTHERWISE. The
+        "not definitely related" half is the Publication 570 fraction, built at six consumer sites and missing only the carryover (condition (ii)). The "definitely related" half has
+        NO fact anywhere in the dictionary: Publication 570 chapter 4, "Deductions that
+        specifically apply to your excluded territory income are not allowable on your U.S. income
+        tax return" (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 32 through 2257, the RIGHT column of
+        a two column extraction), which Form 4563's own instructions print as "Deductions and
+        credits you cannot take on Form 1040 or 1040-SR. If you claim the exclusion, you cannot
+        take any deduction or credit on your tax return that is definitely related to the excluded
+        income" (https://www.irs.gov/pub/irs-pdf/f4563.pdf, page 2 through 91, RIGHT column). The
+        section 911 sibling shows the shape such an intake takes when it is built:
+        form2555:/writableForm2555Line44DeductionsAllocableToExcludedIncome. NOTHING IS MINTED FOR
+        IT HERE, deliberately: every consumer that would read it lives in another module, and a
+        writable with no consumer is the debt this closeout exists to retire, not to add to.
+
+        THE KNOCKOUT IS UNTOUCHED. /knockoutPossessionOrPuertoRicoIncomeExclusion below keeps all
+        six conditions and both wirings. Nothing here narrows it.
+        ═══</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+          <Dependency path="/form4563Line7WagesOrZero" />
+          <Dependency path="/form4563Line8TaxableInterestOrZero" />
+          <Dependency path="/form4563Line9OrdinaryDividendsOrZero" />
+          <Dependency path="/form4563Line10BusinessIncomeOrZero" />
+          <Dependency path="/form4563Line11CapitalGainOrZero" />
+          <Dependency path="/form4563Line12RentalRealEstateAndRoyaltiesOrZero" />
+          <Dependency path="/form4563Line13FarmIncomeOrZero" />
+          <Dependency path="/form4563Line14OtherIncomeOrZero" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionBusinessIncome">
+      <Name>Form 4563 line 10, business income from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 10, 'Business income'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionCapitalGain">
+      <Name>Form 4563 line 11, capital gain from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 11, 'Capital gain'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionFarmIncome">
+      <Name>Form 4563 line 13, farm income from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 13, 'Farm income'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionOrdinaryDividends">
+      <Name>Form 4563 line 9, ordinary dividends from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 9, 'Ordinary dividends'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionOtherIncome">
+      <Name>Form 4563 line 14, the amount of other American Samoa source income (intake)</Name>
+      <Description>Form 4563 line 14 amount box, the dollar half of 'Other income. List type and amount'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionOtherIncomeType">
+      <Name>Form 4563 line 14, the type of other American Samoa source income (intake)</Name>
+      <Description>Form 4563 line 14 asks the filer to list the type and the amount of any other qualifying income. This fact is the type, the free text half of the line; the amount is /writablePossessionExclusionOtherIncome. The printed line carries two writing lines for the type; this fact fills the first.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionRentalRealEstateAndRoyalties">
+      <Name>Form 4563 line 12, rental real estate and royalty income from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 12, 'Rental real estate, royalties, etc.'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionTaxableInterest">
+      <Name>Form 4563 line 8, taxable interest from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 8, 'Taxable interest'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionWages">
+      <Name>Form 4563 line 7, wages, salaries and tips from American Samoa sources (intake)</Name>
+      <Description>Form 4563 line 7, 'Wages, salaries, tips, etc.'. Form 4563 Part II asks only for income from sources within American Samoa or effectively connected with the conduct of a trade or business there, and is reported HERE INSTEAD OF on the corresponding Form 1040 line, not in addition to it: the exclusion is by non-reporting, so a filer answers this line with the qualifying source amount and does not also carry that amount on the Form 1040 line it would otherwise sit on. Wages entered on a W-2 are kept off Form 1040 line 1a by keying them on that W-2 (formW2s:/formW2s/*/writableAmericanSamoaExcludedWages), which also carries them to this line: line 7 is never smaller than the keyed wages, so this entry is the whole line and keyed wages need not be typed here again. This dictionary sources no income item to a possession, so nothing here checks that the filer actually left it off the Form 1040 line. So the amount is attested, exactly as the line 15 total already is. Min 0 mirrors the line 15 intake /writablePossessionIncomeExclusion931, which floors at zero because an exclusion component is a positive amount. It is a term of /form4563Line15TotalExclusion (through its complete-safe OrZero wrapper), which /possessionIncomeExclusion931 reads whenever any Part II component line is answered. This intake is the Form 4563 Part II INCOME side and nothing else; it is NOT the per-income-ITEM collection the unbuilt /possessionSourceIncomeAndDeductionApportionmentInputs would need; the argument, the two conditions it does not discharge, and the deduction side that is still unbuilt, are written out on /form4563Line15TotalExclusion above.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionFamilyLivedInAmericanSamoa">
+      <Name>Form 4563 line 3a, family lived with the filer in American Samoa (intake)</Name>
+      <Description>Form 4563 line 3a, the Yes box: did any of the filer's family live with the filer in American Samoa during any part of the tax year. A residence question, not a computation, and nothing here applies the section 937 bona fide residence test. Optional, and unanswered leaves both the Yes and the No box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionFamilyResidencePeriods">
+      <Name>Form 4563 line 3b, who lived with the filer and for what period (intake)</Name>
+      <Description>Form 4563 line 3b, the free text the form asks for when line 3a is Yes: who lived with the filer in American Samoa and for what period. The printed line carries two writing lines; this fact fills the first, and the continuation box stays unmapped.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionLivingQuartersFurnishedByEmployer">
+      <Name>Form 4563 line 2, living quarters in American Samoa were furnished by the employer (intake)</Name>
+      <Description>Form 4563 line 2 third box, 'Quarters furnished by employer'. The type of living quarters the filer occupied in American Samoa, which is one of the facts Form 4563 collects to evidence the bona fide residence the exclusion turns on. Form 4563 line 2 prints four independent boxes rather than a single choice, and the printed form states no rule that only one may be checked, so each box is its own Bool. A filer whose quarters changed during the year checks more than one. Optional, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionLivingQuartersPurchasedHome">
+      <Name>Form 4563 line 2, living quarters in American Samoa were a purchased home (intake)</Name>
+      <Description>Form 4563 line 2 fourth box, 'Purchased home'. The type of living quarters the filer occupied in American Samoa, which is one of the facts Form 4563 collects to evidence the bona fide residence the exclusion turns on. Form 4563 line 2 prints four independent boxes rather than a single choice, and the printed form states no rule that only one may be checked, so each box is its own Bool. A filer whose quarters changed during the year checks more than one. Optional, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionLivingQuartersRentedHouseOrApartment">
+      <Name>Form 4563 line 2, living quarters in American Samoa were a rented house or apartment (intake)</Name>
+      <Description>Form 4563 line 2 second box, 'Rented house or apartment'. The type of living quarters the filer occupied in American Samoa, which is one of the facts Form 4563 collects to evidence the bona fide residence the exclusion turns on. Form 4563 line 2 prints four independent boxes rather than a single choice, and the printed form states no rule that only one may be checked, so each box is its own Bool. A filer whose quarters changed during the year checks more than one. Optional, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionLivingQuartersRentedRoom">
+      <Name>Form 4563 line 2, living quarters in American Samoa were a rented room (intake)</Name>
+      <Description>Form 4563 line 2 first box, 'Rented room'. The type of living quarters the filer occupied in American Samoa, which is one of the facts Form 4563 collects to evidence the bona fide residence the exclusion turns on. Form 4563 line 2 prints four independent boxes rather than a single choice, and the printed form states no rule that only one may be checked, so each box is its own Bool. A filer whose quarters changed during the year checks more than one. Optional, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionMaintainedHomeOutsideAmericanSamoa">
+      <Name>Form 4563 line 4a, the filer maintained a home outside American Samoa (intake)</Name>
+      <Description>Form 4563 line 4a, the Yes box: did the filer maintain any home or homes outside American Samoa. A residence question, not a computation. Optional, and unanswered leaves both the Yes and the No box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/familyAndHousehold/*/failsCitizenOrUsResidentTest">
+      <Name>Dependent fails the citizen or U.S. resident test for the CTC, ACTC and ODC</Name>
+      <Description>The complement of /familyAndHousehold/*/citizenOrUsResidentTest, one per person in the household. Form 8862 Part III line 17 asks, for each person claimed as a qualifying child or other dependent for the CTC/ACTC/ODC, whether that person is a citizen, national, or resident of the United States, and prints a Yes box and a No box for each of the four CTC child slots and each of the four ODC dependent slots. One fact serves all eight No boxes: both printed collections are Filters over /familyAndHousehold, so the leaf is declared once on the source collection and resolves through either filter.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="../citizenOrUsResidentTest" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/failsResidencyTest">
+      <Name>Dependent did not live with the taxpayer for more than half the year</Name>
+      <Description>The complement of /familyAndHousehold/*/residencyTestWithKidnappedChildTreatment (the residency test with the IRC 152(f)(6) kidnapped-child treatment, which covers the child tax credit), one per person in the household. Form 8862 Part III line 14 asks, for each child listed in response to question 12, whether the child lived with the taxpayer for more than half of the year or met an exception described in the instructions, and prints a Yes box and a No box for each of the four printed child slots. The affirmative already exists and the register maps it at the four Yes boxes; a checkbox mapping names one Bool and the filler takes the on state from the widget, so this is the fact the four No boxes need. It lives in ctcOdc because ctcOdc owns Form 8862 Part III (dictionary/pdf/2025/form-modules.tsv line 52), and the leaf is declared on /familyAndHousehold because /form8862CtcDependentsCollection is a Filter over it, which is the shape of its two staged siblings /familyAndHousehold/*/notEligibleCtc and /familyAndHousehold/*/failsCitizenOrUsResidentTest. Incompleteness propagates through Not, so an unanswered residency duration leaves both boxes of the pair blank and the pair can never both print.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="../residencyTestWithKidnappedChildTreatment" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/familyAndHousehold/*/notEligibleCtc">
+      <Name>Dependent is not a qualifying child for the CTC or ACTC</Name>
+      <Description>The complement of /familyAndHousehold/*/eligibleCtc, one per person in the household. Form 8862 Part III line 15 asks, for each child listed on line 12, whether that child met the requirements to be a qualifying child for the CTC/ACTC, and prints a Yes box and a No box for each of the four printed child slots. The affirmative already exists; this is the fact the No box needs. It lives in ctcOdc because ctcOdc owns Form 8862 Part III (dictionary/pdf/2025/form-modules.tsv line 52); the leaf is declared on /familyAndHousehold because /form8862CtcDependentsCollection is a Filter over it, exactly as dictionary/ty2025/dependentsRelationship.xml declares fifteen other /familyAndHousehold item leaves outside familyAndHousehold.xml.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="../eligibleCtc" />
+        </Not>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/ctcOdcZeroDollarFloor">
+      <Name>Zero dollars (ctcOdc structural constant)</Name>
+      <Description>The structural $0 this module needs as the else arm of a two-arm Switch. It exists because /pdf8812Line22 must resolve to something on a return that skips Part II-B, and the twenty-five supported templates have no undefined-otherwise Switch. Every module that needs the same constant ships its own twin (dividendReports, qbi, schedule1A, scheduleD, scheduleE, scheduleH, form1116, form4797, form8606, form8915F, form8959, form8960 among them); ctcOdc had none.</Description>
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line22">
+      <Name>Display value for PDF Schedule 8812, Line 22</Name>
+      <Description>Schedule 8812 line 22 if completing Part II-B, $0 otherwise. The Part II-B display siblings (/pdf8812Line21, /pdf8812Line24, /pdf8812Line25, /pdf8812Line26) are Switches with a single Case and no otherwise arm, so they are blank rather than 0.00 on a return that skips Part II-B; the supported two-arm Switch cannot express that, so this fact prints 0.00 there instead. DISCLOSED CONSEQUENCE, recorded rather than hidden: on a return that skips Part II-B this box prints 0.00 while lines 21 and 23 through 26 stay blank. Retiring that needs an undefined-otherwise arm on dollar_switch; until then line 23 carries the gate for the pair, because an Add over the incomplete /pdf8812Line21 is itself incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/pdf8812ContinueFromLine20" />
+            </When>
+            <Then>
+              <Dependency path="/sched8812Line22" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/ctcOdcZeroDollarFloor" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/pdf8812Line23">
+      <Name>Display value for PDF Schedule 8812, Line 23</Name>
+      <Description>Schedule 8812 line 23: add lines 21 and 22. It reads the two display facts rather than their ungated sources, which is what makes it gated for free: /pdf8812Line21 is undefined on a return that skips Part II-B, an Add over an undefined dependency is incomplete, and the box therefore prints blank exactly where lines 21, 24, 25 and 26 print blank. Before this fact the printed line-23 box carried /pdf8812Line21, which is wrong on every return whose line 22 is non-zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/pdf8812Line21" />
+          <Dependency path="/pdf8812Line22" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/sched8812Line22">
+      <Name>Schedule 8812 line 22</Name>
+      <Description>Schedule 8812 Part II-B line 22: the total of Schedule 1 (Form 1040) line 15 (one-half of the self-employment tax deduction), Schedule 2 line 5 (Form 4137 unreported-tip social security and Medicare tax), Schedule 2 line 6 (Form 8919 uncollected social security and Medicare tax on wages) and Schedule 2 line 13 (uncollected box-12 tax). The four terms are already summed inline inside /socialSecurityOverEitc (line 25 = line 21 + line 22 - line 24); this fact names the sum so the printed line 22 and the printed line 23 read from the same quantity the credit reads, instead of an unnamed sub-expression. Ungated, like /sched8812Line21; the gating for the printed face lives on /pdf8812Line22.</Description>
+      <Derived>
+        <Add>
+          <Dependency module="scheduleSE" path="/selfEmploymentTaxDeduction" />
+          <Dependency module="form4137" path="/form4137SocialSecurityAndMedicareTaxOnUnreportedTips" />
+          <Dependency module="form8919" path="/form8919UncollectedSocialSecurityAndMedicareTaxOnWages" />
+          <Dependency module="formW2s" path="/schedule2Line13UncollectedBox12Tax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePossessionEmployerNameAndAddressLine2">
+      <Name>Form 4563 line 5, employer name and address, second writing line</Name>
+      <Description>Form 4563 line 5, the second of the two printed writing lines carrying the name and address of the filer's employer, or the statement that the filer is self-employed. Its own intake rather than an overflow of the first line, following the Form 2555 continuation precedent. Plays no part in any computation and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionExclusionOtherIncomeTypeLine2">
+      <Name>Form 4563 line 14, other income type, second writing line</Name>
+      <Description>Form 4563 line 14, the second of the two printed writing lines naming the type of other income the filer excludes. The amount box on the same line is /writablePossessionExclusionOtherIncome and the first type line is /writablePossessionExclusionOtherIncomeType; this is the type's continuation only, so it carries no amount and enters no total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionFamilyResidencePeriodsLine2">
+      <Name>Form 4563 line 3b, family residence periods, second writing line</Name>
+      <Description>Form 4563 line 3b, the second of the two printed writing lines saying who of the filer's family lived with them in American Samoa and for what period. Its own intake rather than an overflow of the first line: the filler has no wrapped-text group, so one String mapped to both boxes would print the whole answer twice. A faithful record field that plays no part in any computation; unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionHomesOutsideAmericanSamoa">
+      <Name>Form 4563 line 4b, homes outside American Samoa, first writing line</Name>
+      <Description>Form 4563 line 4b, the first of the two printed writing lines showing the address of each home the filer maintained outside American Samoa, whether it was rented, the name of each occupant and their relationship to the filer. Asked only when line 4a is Yes. A faithful record field: the section 931 exclusion computes nothing from it, and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePossessionHomesOutsideAmericanSamoaLine2">
+      <Name>Form 4563 line 4b, homes outside American Samoa, second writing line</Name>
+      <Description>Form 4563 line 4b, the second of the two printed writing lines of the same answer. Its own intake rather than an overflow of the first line, following the Form 2555 continuation precedent; a single String mapped to both boxes would print the whole answer twice. Plays no part in any computation and unanswered leaves the printed box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/modifiedAgiWithForeignAndPossessionExclusions">
+      <Name>Modified AGI: adjusted gross income plus the section 911, 931 and 933 exclusions</Name>
+      <Description>Form 1040 line 11 adjusted gross income (rounded) plus the three income exclusions that five phase-out surfaces add back in the same words: excluded Puerto Rico income (section 933), the Form 2555 line 45 exclusion and line 50 housing deduction (section 911), and the Form 4563 line 15 American Samoa exclusion (section 931). ONE QUANTITY, ONE FACT: this is the single root that cleanVehicleCreditRepayment /cleanVehicleCurrentYearMagi (Form 8936 line 2, IRC 30D(f)(10)), form8839 /adoptionMagi (Form 8839 line 7, IRC 23(b)(2)(B)), form8863 /form8863Magi (IRC 25A(d)), schedule1A /schedule1AMagi (Schedule 1-A line 2e) and scheduleA /saltMagi (SALT Limit Worksheet line 4, IRC 164(b)(7)) now alias, after an audit found their five Derived bodies byte-identical because the five statutes name the same three sections. Each printed surface keeps its own line name; the arithmetic lives here once. NOT every MAGI: the adoption EXCLUSION (form8839 /adoptionExclusionMagi, which adds employer benefits and the student loan deduction per IRC 137(b)(3)), the IRA and student-loan MAGIs, the child tax credit MAGI, the premium tax credit household income, the net investment income tax and Social Security taxability variants are different statutory lists and stay separate. Complete-safe: each add-back is 0 when its form is absent, so this resolves on every return with an AGI.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Round>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Round>
+          <Dependency path="/puertoRicoIncomeExclusion933" />
+          <Dependency path="/sched8812Line2bForm2555Exclusions" />
+          <Dependency path="/possessionIncomeExclusion931" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4563IsRequired">
+      <Name>This return files Form 4563 (render gate)</Name>
+      <Description>TRUE when the return claims the section 931 American Samoa exclusion: the filer typed line 15 (/writablePossessionIncomeExclusion931 answered), keyed W-2 box 1 wages to line 7 (formW2s:/americanSamoaExcludedWagesOnW2s above $0), or answered any Part II component line (/form4563Part2ComponentLinesAnswered). The register's includeWhen for IRS4563 (dictionary/pdf/2025/gates.tsv) reads this fact, so the form prints when it resolves true. Complete on every return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writablePossessionIncomeExclusion931" />
+          </IsComplete>
+          <Dependency path="/form4563Part2ComponentLinesAnswered" />
+          <GreaterThan>
+            <Left>
+              <Dependency module="formW2s" path="/americanSamoaExcludedWagesOnW2s" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

@@ -1,0 +1,755 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableGamblesAsATradeOrBusiness">
+      <Name>Gambling activities carried on as a trade or business</Name>
+      <Description>Return-level classification for 2025. If this is a joint return, did either you or your
+        spouse engage in gambling activities as a trade or business (professional gambling), rather than as
+        personal or recreational gambling? On a non-joint return, classify the filer's gambling activity. Do
+        not infer the answer from the size or frequency of winnings.
+
+        Ask whenever this return reports gambling winnings or gambling losses, whether or not a Form W-2G
+        was issued. Answer Yes when either person covered by this return carried on gambling as a trade or
+        business. Yes blocks
+        this return because the current graph has no gambling Schedule C activity, Schedule SE tax, or
+        business-expense application of the 2018-2025 IRC 165(d) wagering rule. No keeps the existing
+        nonbusiness Schedule 1 line 8b and Schedule A treatment.
+
+        No safe answer is inferred from silence. The writable stays Incomplete if unanswered; the guard below
+        is complete-safe false when no answer is present so returns with no W-2G intake keep their existing
+        graph values. This posture is safe only with the application handoff: the application requires the answer whenever this return reports gambling winnings or losses, including amounts not on Form W-2G.
+        For a joint return, the classification covers either spouse. An unanswered question is not evidence
+        that the gambling was not a trade or business.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/flowKnockoutGamblingTradeOrBusiness">
+      <Name>Gambling trade or business needs Schedule C and Schedule SE</Name>
+      <Description>An answered Yes refuses submission because this dictionary reports gambling winnings on
+        Schedule 1 line 8b and has no Schedule C gambling activity, Schedule SE tax computation, or IRC 165(d)
+        cap on business expenses. A No answer does not change a number. An unanswered classification is read
+        as false here to preserve the existing complete-safe graph. This posture is safe only with the application
+        handoff: the application requires an answer whenever gambling winnings or losses are reported.
+        This refusal does not compute the Schedule C, Schedule SE, or business-expense limit.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableGamblesAsATradeOrBusiness" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableGamblesAsATradeOrBusiness" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formW2Gs">
+      <Name>Forms W-2G</Name>
+      <Description>Form W-2G: Certain Gambling Winnings — one collection item per W-2G the
+        payer issued. This models the two boxes the 1040 consumes (box 1 reportable
+        winnings; box 4 federal income tax withheld); the wager-type/date/payer detail boxes
+        are not modeled.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableReportableWinnings">
+      <Name>W-2G box 1 — reportable winnings</Name>
+      <Description>Form W-2G box 1: reportable gambling winnings for this W-2G. Flows (via
+        /w2gWinnings) to Schedule 1 line 8b gambling income.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableFederalWithholding">
+      <Name>W-2G box 4 — federal income tax withheld</Name>
+      <Description>Form W-2G box 4: federal income tax withheld on these winnings (regular or
+        backup withholding). Flows (via /w2gWithholding) to Form 1040 line 25c.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableState">
+      <Name>State</Name>
+      <Description>Form W-2G box 13, State/Payer’s state: the state this gambling winning was reported to.
+
+        This is the writable optional fact. Can be left incomplete. Please use the derived fact
+        ../state in downstream calculations. No federal fact reads it: the box is a state key and
+        the federal return has no use for which state a payer withheld for. It exists so the answer
+        can be written down rather than refused, and handed to a state system.</Description>
+
+      <Writable>
+        <Enum optionsPath="/incomeFormStateOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/state">
+      <Name>State</Name>
+      <Description>Alias for writableState to avoid breaking our backend with our convention for
+        optional fields. Form W-2G box 13, State/Payer’s state.
+
+        THE EXPORTED SHAPE, copied from interest:/interestReports/*/state
+        (dictionary/ty2025/interest.xml): the writable stays private and optional and the derived
+        alias carries the state-systems export, so a state system reads one path name on every
+        income collection in this dictionary.
+
+        UNANSWERED IT IS INCOMPLETE, which is the interest alias's behaviour exactly. A state
+        identity has no safe default: constants:/incomeFormStateOptions has two members,
+        sameState and differentState, and neither of them means "not answered".
+
+        THE FEDERAL RETURN READS NOTHING FROM THIS FACT. It is export-only on the federal side and
+        no federal line moves with it.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Dependency path="../writableState" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableStateTaxWithheld">
+      <Name>State income tax withheld</Name>
+      <Description>Form W-2G box 15, the state income tax withheld on this gambling winning.
+
+        This is the writable optional fact. Can be left incomplete. Please use the derived fact
+        ../stateTaxWithheld in downstream calculations.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/stateTaxWithheld">
+      <Name>State income tax withheld</Name>
+      <Description>Form W-2G box 15, the state income tax withheld on this gambling winning.
+
+        COMPLETE-SAFE: $0 when the box is unanswered. That is
+        interest:/interestReports/*/stateTaxWithheld's body exactly, and
+        unemployment:/form1099Gs/*/stateTaxWithheld's - a return that answers nothing resolves this
+        fact Complete $0 on every item of the collection.
+
+        NOT ROUNDED, and deliberately. There is no printed federal line under it; both shipping
+        stateSystems-exported withholding twins in this dictionary are unrounded; and summing
+        already-rounded per-document amounts is the known defect. A consumer that ever puts a total
+        of these on a printed line owes the single Round at that line.
+
+        THE FEDERAL RETURN READS NOTHING FROM THIS FACT. It is export-only on the federal side and
+        no federal line moves with it.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableStateTaxWithheld" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableStateTaxWithheld" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/w2gWinnings">
+      <Name>Total W-2G gambling winnings (Schedule 1 line 8b)</Name>
+      <Description>The sum of box-1 reportable winnings across all Forms W-2G — Schedule 1
+        line 8b ("Gambling. Enter gambling winnings not attributable to a trade or
+        business."). COMPLETE-SAFE via the /alaskaPfdIncome pattern: when the /formW2Gs
+        collection was never answered this resolves 0. Gambling LOSSES are
+        an itemized deduction (Schedule A) and are NOT netted here — Schedule 1 line 8b
+        carries winnings gross. Non-W-2G gambling winnings are a separate writable.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/formW2Gs" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <GreaterOf>
+                    <Dependency path="/formW2Gs/*/writableReportableWinnings" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/w2gWithholding">
+      <Name>Total W-2G federal income tax withheld (Form 1040 line 25c)</Name>
+      <Description>The sum of box-4 federal withholding across all Forms W-2G — Form 1040
+        line 25c ("Other Forms"). COMPLETE-SAFE via the /alaskaPfdIncome pattern (0 when the
+        collection was never answered), so /totalWithholding is unchanged when no Form W-2G is entered.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/formW2Gs" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <GreaterOf>
+                    <Dependency path="/formW2Gs/*/writableFederalWithholding" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasW2Gs">
+      <Name>Has Forms W-2G</Name>
+      <Description>The return reports at least one Form W-2G with reportable winnings
+        (complete-safe: false when the collection was never answered). CONSUMED by
+        income:/flowHasReportedIncome, and the Export below is that consumption's prerequisite,
+        not a decoration: an Export makes a fact non-private to its module, which is what a
+        cross-module Dependency requires (docs-upstream/adr-fact-modules.md).
+
+        THE SELF-DECLARATION THIS REPLACES said the fact was informational, not
+        wired into the flow gates, and named /hasAlaskaPfdIncome as the precedent for leaving it
+        that way. That citation picked the family's one outlier. The seven OTHER per-form income
+        presence gates are all members of income:/flowHasReportedIncome and all exported:
+        formW2s:/hasW2s, unemployment:/receivedUnemploymentCompensation,
+        interest:/hasInterestReports, form1099Misc:/has1099Misc,
+        cdcc:/hasReportedDependentCareBenefits, form1099Rs:/has1099R and
+        socialSecurity:/hasSocialSecurityBenefits. The last of those is this fact's exact twin, an
+        amount test rather than a collection size, which is why the winnings-greater-than-zero
+        body is kept as authored instead of being restated as a CollectionSize.
+
+        AND THE PRECEDENT DOES NOT TRANSFER, for a reason worth stating: /hasAlaskaPfdIncome is
+        redundant to that Any, not missing from it. form1099Misc:/alaskaPfd1099s is a Filter over
+        /form1099Miscs, so an Alaska PFD IS a 1099-MISC and its section is already represented by
+        /has1099Misc. A W-2G is its own intake collection and was represented by nothing.
+
+        THE GAP, MEASURED rather than argued: a return whose only income is W-2G winnings puts
+        that income on Schedule 1 line 8b (via income:/otherIncome) and turns
+        income:/requiresSchedule1 true, yet income:/flowHasReportedIncome resolved Complete FALSE.
+        Witnessed both ways by the minimal pair tests/nodes/ty2025/formW2Gs/: case
+        w2g-only-income-flow-gate (5,000 of winnings, every other income section answered empty)
+        against no-w2g-no-income-flow-gate, the SAME fixture with an empty W-2G collection. The
+        pair differs only in the W-2G, so the flip witnesses THIS membership; before it, the
+        first case resolved false too.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/w2gWinnings" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/w2gWinningsAttributableToTradeOrBusiness">
+      <Name>W-2G winnings attributable to a trade or business</Name>
+      <Description>Exports whether W-2G box 1 winnings are attributable to a gambling trade or
+        business. When complete positive W-2G winnings exist, this follows the required filer
+        attestation; when winnings are zero it is Complete False. A True answer is refused
+        because this dictionary does not yet route the winnings and related expenses through
+        Schedule C and Schedule SE. The income-module Schedule 1 line 8b consumer must also
+        exclude these winnings before the refusal can be retired. Do not interpret False as
+        proving that the filer has no gambling business income from other sources.
+
+        This fact does not itself carry the submission guard: /w2gWinningsBusinessRouteIsUnresolved
+        names the same population affirmatively (positive winnings classified yes, with no modeled
+        route) and carries BlockSubmissionOnTrue and the flow:/flowIsKnockedOut membership instead,
+        because an Incomplete member of that Any would hold the whole aggregate at Placeholder for
+        the entire positive-winnings population and hide any other knockout those returns carry.
+        This fact remains the exported classification contract every consumer of the answer should
+        read.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/w2gWinnings" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThan>
+                      <Left>
+                        <Dependency path="/w2gWinnings" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </GreaterThan>
+                  </When>
+                  <Then>
+                    <Dependency path="/writableGamblesAsATradeOrBusiness" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <False />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/w2gWinningsBusinessRouteIsUnresolved">
+      <Name>Gambling trade-or-business route is unresolved (alias of the S167 refusal)</Name>
+      <Description>Derived alias of /flowKnockoutGamblingTradeOrBusiness: True exactly when the
+        return-level gambling classification /writableGamblesAsATradeOrBusiness is answered Yes, and
+        complete-safe False when it is unanswered or No. It no longer blocks submission itself.
+        RE-DEFINED: the trunk's W-2G-only
+        question (asked only when /w2gWinnings is positive) and block 17's return-level question shared
+        one path; the ruling keeps block 17's population, since a professional-gambler question covers
+        winnings or losses whether or not a Form W-2G was issued, and keeps ONE refusal, the block-17
+        knockout, which is the flow:/flowIsKnockedOut member. This fact's former BlockSubmissionOnTrue
+        and flow membership are removed so the return is refused once. It stays defined, with the same
+        True/False meaning for every return that has positive W-2G winnings, because fixtures and
+        records name it. Ruling 6 still holds: an unanswered classification never refuses.</Description>
+      <Derived>
+        <Dependency path="/flowKnockoutGamblingTradeOrBusiness" />
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/formW2Gs/*/writableCalendarYear">
+      <Name>W-2G calendar year</Name>
+      <Description>The calendar year box in the form header on the Form W-2G this winner received, recorded with fact type String on the W-2G item. The form prints the century as a fixed 20 and leaves a two digit cell, so the recorded value is the two printed digits; the box repeats identically on every copy of the document and all copies record the same year. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableCashier">
+      <Name>W-2G box 8 cashier</Name>
+      <Description>Form W-2G box 8, the cashier or the cashier's station that paid the winnings, recorded with fact type String on the W-2G item. It is an identifier the payer prints so that the payment can be traced. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableCorrected">
+      <Name>W-2G CORRECTED box</Name>
+      <Description>The CORRECTED header checkbox on the Form W-2G this winner received, recorded with fact type Bool on the W-2G item. Copies A and 1 print it as CORRECTED and the winner copies print it as CORRECTED (if checked); both are the one printed box. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableDateWon">
+      <Name>W-2G box 2 date won</Name>
+      <Description>Form W-2G box 2, the date the winnings were won, recorded with fact type Day on the W-2G item. It is a calendar date and the dictionary types dates as Day, never as a String. It fixes the year the winnings belong to, which is what makes a corrected or prior year document recognisable. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableFirstIdentificationNumber">
+      <Name>W-2G box 11 first identification number</Name>
+      <Description>Form W-2G box 11, the first identification number the payer inspected to identify the winner (a driver's licence, a passport, a social security card and so on), recorded with fact type String on the W-2G item. It records an identification document, not a taxpayer identifying number, so it is a String and not a TIN. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableIdenticalWagerWinnings">
+      <Name>W-2G box 7 winnings from identical wagers</Name>
+      <Description>Form W-2G box 7, the winnings from identical wagers, recorded with fact type Dollar on the W-2G item. Identical wagers are separate wagers on the same outcome, and the payer aggregates them for the reporting and withholding thresholds; the winner's declaration printed at the foot of every copy covers both this payment and any payments from identical wagers. It is a winnings amount, so it cannot be negative. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableLocalTaxWithheld">
+      <Name>W-2G box 17 local income tax withheld</Name>
+      <Description>Form W-2G box 17, the local income tax withheld on this gambling winning, recorded with fact type Dollar on the W-2G item. It is the local twin of /formW2Gs/*/writableStateTaxWithheld: no federal line reads it and nothing in this dictionary computes a local tax from it. It is unrounded for the reason that fact gives, that summing already rounded per document amounts is a defect and a consumer that ever prints a total owes the single rounding at that line. A withheld amount cannot be negative. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableLocalWinnings">
+      <Name>W-2G box 16 local winnings</Name>
+      <Description>Form W-2G box 16, the winnings reported to the locality named in box 18, recorded with fact type Dollar on the W-2G item. It is a local figure and no federal line reads it; it exists so the answer can be written down rather than refused, and handed to a state or local system. No federal Code section enumerates the local boxes, so the information return mandate is the honest anchor, exactly as the module's own state facts reason. It is a winnings amount, so it cannot be negative. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableLocalityName">
+      <Name>W-2G box 18 name of locality</Name>
+      <Description>Form W-2G box 18, the name of the locality the box 16 winnings and box 17 withholding were reported to, recorded with fact type String on the W-2G item. A locality has no enumeration in this dictionary, so the box is a String. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerCity">
+      <Name>W-2G payer city or town</Name>
+      <Description>The payer's city or town box in the payer identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. The winner block prints its own city cell, which is a different leaf. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerCountry">
+      <Name>W-2G payer country</Name>
+      <Description>The payer's country box in the payer identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is printed only for a payer with a foreign address. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerName">
+      <Name>W-2G payer name</Name>
+      <Description>The PAYER'S name box on the Form W-2G this winner received, recorded with fact type String on the W-2G item. The payer is the person who made the payment of winnings and who is obliged to render the information return. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerPhone">
+      <Name>W-2G payer telephone number</Name>
+      <Description>The PAYER'S telephone no. box on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is printed as free text with punctuation and possibly an extension, so it is a String. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerRoomOrSuite">
+      <Name>W-2G payer room or suite number</Name>
+      <Description>The payer's room or suite number box in the payer identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is a separate printed cell beside the payer's street address, so it is a separate leaf. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerStateIdNumber">
+      <Name>W-2G box 13 payer state identification number</Name>
+      <Description>Form W-2G box 13, the payer's state identification number, recorded with fact type String on the W-2G item. The printed box carries two things, the state and the payer's identification number for that state, and the register gives it one field: the state half is already carried by /formW2Gs/*/writableState, whose options are the /incomeFormStateOptions routing keys sameState and differentState rather than a printable abbreviation, so this leaf carries the identification number and is what the printed box maps to. It is the disposition formW2s:/formW2s/*/writableStateEmployerId and interest:/interestReports/*/writableStateIdNumber already take. No federal Code section enumerates the state boxes, so the information return mandate is the honest anchor, exactly as the module's own state facts reason. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerStateOrProvince">
+      <Name>W-2G payer state or province</Name>
+      <Description>The payer's state or province box in the payer identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. This is the payer's mailing address line, not box 13: box 13 is the state key the payer withheld for and is carried by /formW2Gs/*/writableState. The box accepts a foreign province as well as a state, so it is a String rather than an Enum. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerStreetAddress">
+      <Name>W-2G payer street address</Name>
+      <Description>The payer's street address box in the payer identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. The writable template has no Address type, so each printed address cell of the payer block is its own String leaf and the block is reassembled at print time. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerTin">
+      <Name>W-2G payer TIN</Name>
+      <Description>The PAYER'S TIN box on the Form W-2G this winner received, recorded with fact type EIN on the W-2G item. A payer of reportable gambling winnings is an entity that files information returns, so the box carries an employer identification number; that is the type interest:/interestReports/*/payer/tin and formW2s:/formW2s/*/ein already give a payer identifier in this dictionary. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writablePayerZip">
+      <Name>W-2G payer ZIP or foreign postal code</Name>
+      <Description>The payer's ZIP or foreign postal code box in the payer identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. A foreign postal code is not numeric, so the box is a String. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableRace">
+      <Name>W-2G box 6 race</Name>
+      <Description>Form W-2G box 6, the race, game or other event that produced the winnings, recorded with fact type String on the W-2G item. It is printed as free text beside the box 5 transaction identifier. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableSecondIdentificationNumber">
+      <Name>W-2G box 12 second identification number</Name>
+      <Description>Form W-2G box 12, the second identification number the payer inspected to identify the winner, recorded with fact type String on the W-2G item. It records an identification document, not a taxpayer identifying number, so it is a String and not a TIN. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableStateWinnings">
+      <Name>W-2G box 14 state winnings</Name>
+      <Description>Form W-2G box 14, the winnings reported to the state named in box 13, recorded with fact type Dollar on the W-2G item. It is a state figure and no federal line reads it; it exists so the answer can be written down rather than refused, and handed to a state system. No federal Code section enumerates the state boxes, so the information return mandate is the honest anchor, exactly as the module's own state facts reason. It is a winnings amount, so it cannot be negative. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableTransaction">
+      <Name>W-2G box 5 transaction</Name>
+      <Description>Form W-2G box 5, the ticket, card or transaction number that identifies the winning wager, recorded with fact type String on the W-2G item. It is an identifier the payer prints so that the payment can be traced, and it is alphanumeric. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableTypeOfWager">
+      <Name>W-2G box 3 type of wager</Name>
+      <Description>Form W-2G box 3, the type of wager that produced the winnings (a slot machine, a keno game, a horse race and so on), recorded with fact type String on the W-2G item. The payer prints free text, so the box is a String rather than an Enum. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableVoid">
+      <Name>W-2G VOID box</Name>
+      <Description>The VOID header checkbox on the Form W-2G this winner received, recorded with fact type Bool on the W-2G item. It appears on Copy A and Copy 1, the copies the payer files with the IRS and with the state, city or local tax department. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWindow">
+      <Name>W-2G box 10 window</Name>
+      <Description>Form W-2G box 10, the window at which the winnings were paid, recorded with fact type String on the W-2G item. It is an identifier the payer prints beside box 8 so that the payment can be traced. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerAptNumber">
+      <Name>W-2G winner apartment number</Name>
+      <Description>The winner's apartment number box in the winner identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is a separate printed cell beside the winner's street address, so it is a separate leaf. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerCity">
+      <Name>W-2G winner city or town</Name>
+      <Description>The winner's city or town box in the winner identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. The payer block prints its own city cell, which is a different leaf. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerCountry">
+      <Name>W-2G winner country</Name>
+      <Description>The winner's country box in the winner identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is printed only for a winner with a foreign address. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerName">
+      <Name>W-2G winner name</Name>
+      <Description>The WINNER'S name box on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is deliberately not an alias of a filer name: the person named on the document is whoever signed the payer's declaration, and on a joint return or a Form 5754 split that need not be the primary filer, so the document records what the payer printed and the graph does not infer a filer from it. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerStateOrProvince">
+      <Name>W-2G winner state or province</Name>
+      <Description>The winner's state or province box in the winner identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. The box accepts a foreign province as well as a state, so it is a String rather than an Enum, and it is the winner's mailing address rather than the box 13 state key. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerStreetAddress">
+      <Name>W-2G winner street address</Name>
+      <Description>The winner's street address box in the winner identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. It is the address the payer printed on the document, which is not necessarily the address on this return. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerTin">
+      <Name>W-2G box 9 winner TIN</Name>
+      <Description>Form W-2G box 9, the WINNER'S TIN, recorded with fact type TIN on the W-2G item. The winner is an individual who furnishes a social security number to the payer, which is the type formW2s:/formW2s/*/tin and formK1s:/formK1s/*/writableK1065ItemEPartnerTin already give a recipient identifier in this dictionary. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/formW2Gs/*/writableWinnerZip">
+      <Name>W-2G winner ZIP or foreign postal code</Name>
+      <Description>The winner's ZIP or foreign postal code box in the winner identity block on the Form W-2G this winner received, recorded with fact type String on the W-2G item. A foreign postal code is not numeric, so the box is a String. Intake only: a faithful record of what the payer printed. IRSW2G renders once per item of /formW2Gs (includeForEach in dictionary/pdf/2025/IRSW2G/en/configuration.yml), so the printed box addresses this leaf as a starred path and every printed copy carries its own W-2G. No federal line computes from it: /w2gWinnings (Schedule 1 line 8b) and /w2gWithholding (Form 1040 line 25c) are the graph's only W-2G consumers and they read boxes 1 and 4 only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

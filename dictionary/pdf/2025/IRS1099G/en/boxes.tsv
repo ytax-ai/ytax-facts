@@ -1,0 +1,66 @@
+# IRS1099G — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099G/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 9f6490a38b83c8d2063c005aeaf0f89f8d25adca7903f430fb27c594cce28845
+# boxes: 26   acroform fields: 100   boxes with a fact: 26
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (6): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 10a row 1 `State`: shared spelling `state` names 2 readings
+# unspelled: box 10a row 2 `State`: shared spelling `state` names 2 readings
+# unspelled: box 10b row 1 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 10b row 2 `State identification no`: shared spelling `state identification no` names 2 readings
+# unspelled: box 11 row 1 `State income tax withheld`: shared spelling `state income tax withheld` names 2 readings
+# unspelled: box 11 row 2 `State income tax withheld`: shared spelling `state income tax withheld` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/form1099Gs/*/writableCalendarYear	String		
+void		VOID	void	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[0]	/form1099Gs/*/writableVoid	Bool		
+corrected		CORRECTED	corrected	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]|topmostSubform[0].CopyB[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[1]	/form1099Gs/*/writableCorrected	Bool		
+payer-name		PAYER'S name	payer's name	topmostSubform[0].CopyA[0].LeftColumn[0].f1_2[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_2[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_2[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_2[0]	/form1099Gs/*/payer	String		
+payer-tin		PAYER'S TIN	payer's tin	topmostSubform[0].CopyA[0].LeftColumn[0].f1_3[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_3[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_3[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_3[0]	/form1099Gs/*/payer/tin	EIN		
+recipient-tin		RECIPIENT'S TIN; the per-item Derived TIN resolved from this report's own filer	recipient's tin; the per-item derived tin resolved from this report's own filer	topmostSubform[0].CopyA[0].LeftColumn[0].f1_4[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_4[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_4[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_4[0]	/form1099Gs/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftColumn[0].f1_5[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_5[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_5[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_5[0]	/form1099Gs/*/writableRecipientName	String		
+recipient-street		Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftColumn[0].f1_6[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_6[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_6[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_6[0]	/form1099Gs/*/writableRecipientStreetAddress	String		
+recipient-city		City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftColumn[0].f1_7[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_7[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_7[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_7[0]	/form1099Gs/*/writableRecipientCityStateZip	String		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftColumn[0].f1_8[0]|topmostSubform[0].Copy1[0].LeftColumn[0].f2_8[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f2_8[0]|topmostSubform[0].Copy2[0].LeftColumn[0].f2_8[0]	/form1099Gs/*/writableAccountNumber	String		
+2nd-tin-not		2nd TIN not. checkbox	2nd tin not. checkbox	topmostSubform[0].CopyA[0].LeftColumn[0].c1_2[0]	/form1099Gs/*/writableSecondTinNotice	Bool		
+1		Unemployment compensation	1 unemployment compensation	topmostSubform[0].CopyA[0].RightColumn[0].f1_9[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_9[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_9[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_9[0]	/form1099Gs/*/amount	Dollar		
+2		State or local income tax refunds, credits, or offsets	state or local income tax refunds, credits, or offsets	topmostSubform[0].CopyA[0].RightColumn[0].f1_10[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_10[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_10[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_10[0]	/form1099Gs/*/writableStateOrLocalIncomeTaxRefundsCreditsOrOffsets	Dollar		
+3		Box 2 amount is for tax year	box 2 amount is for tax year	topmostSubform[0].CopyA[0].RightColumn[0].Box3_ReadOrder[0].f1_11[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box3_ReadOrder[0].f2_11[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box3_ReadOrder[0].f2_11[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box3_ReadOrder[0].f2_11[0]	/form1099Gs/*/writableBox2AmountIsForTaxYear	String		
+4		Federal income tax withheld	4 federal income tax withheld	topmostSubform[0].CopyA[0].RightColumn[0].f1_12[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_12[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_12[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_12[0]	/form1099Gs/*/writableFederalTaxWithheld	Dollar		
+5		RTAA payments	rtaa payments	topmostSubform[0].CopyA[0].RightColumn[0].Box5_ReadOrder[0].f1_13[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box5_ReadOrder[0].f2_13[0]	/form1099Gs/*/writableRtaaPayments	Dollar		
+6		Taxable grants	taxable grants	topmostSubform[0].CopyA[0].RightColumn[0].f1_14[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_14[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_14[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_14[0]	/form1099Gs/*/writableTaxableGrants	Dollar		
+7		Agriculture payments	agriculture payments	topmostSubform[0].CopyA[0].RightColumn[0].Box7_ReadOrder[0].f1_15[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box7_ReadOrder[0].f2_15[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box7_ReadOrder[0].f2_15[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box7_ReadOrder[0].f2_15[0]	/form1099Gs/*/writableAgriculturePayments	Dollar		
+8		Check if box 2 is trade or business income	check if box 2 is trade or business income	topmostSubform[0].CopyA[0].RightColumn[0].c1_3[0]|topmostSubform[0].Copy1[0].RightColumn[0].c2_3[0]|topmostSubform[0].CopyB[0].RightColumn[0].c2_3[0]|topmostSubform[0].Copy2[0].RightColumn[0].c2_3[0]	/form1099Gs/*/writableCheckIfBox2IsTradeOrBusinessIncome	Bool		
+9		Market gain	market gain	topmostSubform[0].CopyA[0].RightColumn[0].f1_16[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_16[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_16[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_16[0]	/form1099Gs/*/writableMarketGain	Dollar		
+10a	1	State		topmostSubform[0].CopyA[0].RightColumn[0].Box10a_ReadOrder[0].f1_17[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box10a_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box10a_ReadOrder[0].f2_17[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box10a_ReadOrder[0].f2_17[0]	/form1099Gs/*/writablePayerStateAbbreviation	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+10a	2	State		topmostSubform[0].CopyA[0].RightColumn[0].Box10a_ReadOrder[0].f1_18[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box10a_ReadOrder[0].f2_18[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box10a_ReadOrder[0].f2_18[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box10a_ReadOrder[0].f2_18[0]	/form1099Gs/*/writablePayerStateAbbreviation2	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+10b	1	State identification no.		topmostSubform[0].CopyA[0].RightColumn[0].Box10b_ReadOrder[0].f1_19[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box10b_ReadOrder[0].f2_19[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box10b_ReadOrder[0].f2_19[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box10b_ReadOrder[0].f2_19[0]	/form1099Gs/*/writableStateIdNumber	String		
+10b	2	State identification no		topmostSubform[0].CopyA[0].RightColumn[0].Box10b_ReadOrder[0].f1_20[0]|topmostSubform[0].Copy1[0].RightColumn[0].Box10b_ReadOrder[0].f2_20[0]|topmostSubform[0].CopyB[0].RightColumn[0].Box10b_ReadOrder[0].f2_20[0]|topmostSubform[0].Copy2[0].RightColumn[0].Box10b_ReadOrder[0].f2_20[0]	/form1099Gs/*/writableStateIdNumber2	String		
+11	1	State income tax withheld		topmostSubform[0].CopyA[0].RightColumn[0].f1_21[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_21[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_21[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_21[0]	/form1099Gs/*/writableStateTaxWithheld	Dollar		
+11	2	State income tax withheld		topmostSubform[0].CopyA[0].RightColumn[0].f1_22[0]|topmostSubform[0].Copy1[0].RightColumn[0].f2_22[0]|topmostSubform[0].CopyB[0].RightColumn[0].f2_22[0]|topmostSubform[0].Copy2[0].RightColumn[0].f2_22[0]	/form1099Gs/*/writableStateTaxWithheld2	Dollar		

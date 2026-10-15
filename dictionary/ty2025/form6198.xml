@@ -1,0 +1,869 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form6198Activities">
+      <Name>Activities requiring Form 6198 detail</Name>
+      <Description>One activity per Form 6198 copy. Schedule C, Schedule E, and Schedule F keep their current activity facts; this collection is the form's reporting surface pending a shared activity identity.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+    <Fact path="/form6198ActivitiesToPrint">
+      <Name>Form 6198 activity copies to render</Name>
+      <Description>Activity entries that incurred a line-5 loss; one Form 6198 is rendered for each such activity.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Filter path="/form6198Activities"><Dependency path="activityRequiresForm" /></Filter></Derived>
+    </Fact>
+    <Fact path="/form6198ReturnFilesThisForm">
+      <Name>Return files Form 6198</Name>
+      <Description>True when at least one modeled activity incurred a line-5 loss. The Switch guard counts the activities whose decision inputs are complete against the activities whose decision-input fact resolves at all, and answers only when the two counts agree, so one activity with an unanswered line 5 withholds the aggregate rather than answering false. An empty collection is complete-false.
+
+        THE ABSENT COLLECTION IS ALSO COMPLETE-FALSE, and that took the first Case. Every ordinary
+        return leaves /form6198Activities UNANSWERED — not [] — and a bare Count over an unanswered
+        collection is a PLACEHOLDER, so this return-level fact resolved Placeholder(false) rather
+        than Complete(false) on every return that has never seen an at-risk activity. Measured, not
+        read: tests/nodes/ty2025/form6198/form6198-absent-activities failed with
+        "completeness Placeholder, want Complete" before the guard. The value was never wrong; the
+        completeness was, and a Placeholder is not an answer a return-level filing decision may
+        give. It matters because an absent collection is the state of the entire
+        population.
+
+        The three states are now all pinned: ABSENT -> Complete false (-absent-activities),
+        [] -> Complete false (-empty-activities), one unanswered line 5 among several activities
+        -> Incomplete (-two-activities-one-incomplete).</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case>
+          <When><Not><IsComplete><Dependency path="/form6198Activities" /></IsComplete></Not></When>
+          <Then><False /></Then>
+        </Case>
+        <Case>
+          <When><Equal><Left><Count><Dependency path="/form6198Activities/*/activityDecisionInputsComplete" /></Count></Left><Right><Count><Dependency path="/form6198Activities/*/activityDecisionFactResolved" /></Count></Right></Equal></When>
+          <Then><GreaterThan><Left><Count><All><Dependency path="/form6198Activities/*/activityRequiresForm" /></All></Count></Left><Right><Int>0</Int></Right></GreaterThan></Then>
+        </Case>
+      </Switch></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableActivityDescription">
+      <Name>Form 6198 activity description</Name>
+      <Description>Identify the activity whose profit, loss, and amount at risk are reported on this copy.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/writableLine1OrdinaryIncomeLoss">
+      <Name>Form 6198 line 1 ordinary income or loss</Name>
+      <Description>Ordinary income or loss from the activity.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine2aScheduleDGainLoss">
+      <Name>Form 6198 line 2a Schedule D gain or loss</Name>
+      <Description>Gain or loss from an activity asset disposition reported on Schedule D.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine2bForm4797GainLoss">
+      <Name>Form 6198 line 2b Form 4797 gain or loss</Name>
+      <Description>Gain or loss from an activity asset disposition reported on Form 4797.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine2cOtherDispositionGainLoss">
+      <Name>Form 6198 line 2c other disposition gain or loss</Name>
+      <Description>Gain or loss from an activity asset disposition reported on another form or schedule.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine3OtherK1IncomeGains">
+      <Name>Form 6198 line 3 other Schedule K-1 income and gains</Name>
+      <Description>Other activity income and gains from Schedule K-1 not already included on lines 1 through 2c.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine4OtherDeductionsLosses">
+      <Name>Form 6198 line 4 other deductions and losses</Name>
+      <Description>Enter the positive deduction or loss amount not already included on lines 1 through 2c; the form prints this amount in parentheses.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/line5ActivityProfitLoss">
+      <Name>Form 6198 line 5 current-year activity profit or loss</Name>
+      <Description>Combine lines 1 through 4, subtracting line 4's positive deduction magnitude.</Description>
+      
+      <Derived><Subtract><Minuend><Add><Dependency path="../writableLine1OrdinaryIncomeLoss" /><Dependency path="../writableLine2aScheduleDGainLoss" /><Dependency path="../writableLine2bForm4797GainLoss" /><Dependency path="../writableLine2cOtherDispositionGainLoss" /><Dependency path="../writableLine3OtherK1IncomeGains" /></Add></Minuend><Subtrahends><GreaterOf><Dependency path="../writableLine4OtherDeductionsLosses" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract></Derived>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/writableLine6BeginningAdjustedBasis">
+      <Name>Form 6198 line 6 beginning adjusted basis</Name>
+      <Description>Adjusted basis in the activity at the beginning of the tax year; the form does not permit an amount below zero.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine7CurrentYearIncreases">
+      <Name>Form 6198 line 7 current-year increases</Name>
+      <Description>Increase in the amount at risk for the tax year under the Form 6198 instructions.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/line8BasisPlusIncreases">
+      <Name>Form 6198 line 8 basis plus increases</Name>
+      <Description>Add lines 6 and 7.</Description>
+      
+      <Derived><Add><GreaterOf><Dependency path="../writableLine6BeginningAdjustedBasis" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="../writableLine7CurrentYearIncreases" /><Dollar>0</Dollar></GreaterOf></Add></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine9CurrentYearDecreases">
+      <Name>Form 6198 line 9 current-year decreases</Name>
+      <Description>Decrease in the amount at risk for the tax year under the Form 6198 instructions.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/line10aRiskAfterDecreases">
+      <Name>Form 6198 line 10a amount at risk after decreases</Name>
+      <Description>Subtract line 9 from line 8.</Description>
+      
+      <Derived><Subtract><Minuend><Dependency path="../line8BasisPlusIncreases" /></Minuend><Subtrahends><GreaterOf><Dependency path="../writableLine9CurrentYearDecreases" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line10bSimplifiedAmountAtRisk">
+      <Name>Form 6198 line 10b simplified amount at risk</Name>
+      <Description>Line 10a when positive; otherwise zero.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dependency path="../line10aRiskAfterDecreases" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/writableLine11BeginningInvestmentAtEffectiveDate">
+      <Name>Form 6198 line 11 investment at effective date</Name>
+      <Description>Investment in the activity at its effective date for the detailed computation.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine12EffectiveDateIncreases">
+      <Name>Form 6198 line 12 effective-date increases</Name>
+      <Description>Increases at the effective date for the detailed amount-at-risk computation.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/line13InvestmentPlusEffectiveDateIncreases">
+      <Name>Form 6198 line 13 investment plus increases</Name>
+      <Description>Add lines 11 and 12.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><GreaterOf><Dependency path="../writableLine11BeginningInvestmentAtEffectiveDate" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="../writableLine12EffectiveDateIncreases" /><Dollar>0</Dollar></GreaterOf></Add></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine14EffectiveDateDecreases">
+      <Name>Form 6198 line 14 effective-date decreases</Name>
+      <Description>Decreases at the effective date for the detailed amount-at-risk computation.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine15AmountAtRiskAtStart">
+      <Name>Form 6198 line 15 beginning amount at risk</Name>
+      <Description>Enter the amount from line 13 less line 14, or the prior-year Form 6198 line 19b amount, as applicable. The Part III checkbox choice remains a register gap.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine16IncreasesSinceStart">
+      <Name>Form 6198 line 16 increases since effective date or prior year end</Name>
+      <Description>Increases since the effective date or the end of the prior year, depending on the activity's Part III method. The checkbox choice remains a register gap.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/line17AmountBeforeLaterDecreases">
+      <Name>Form 6198 line 17 amount before later decreases</Name>
+      <Description>Add lines 15 and 16.</Description>
+      
+      <Derived><Add><GreaterOf><Dependency path="../writableLine15AmountAtRiskAtStart" /><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="../writableLine16IncreasesSinceStart" /><Dollar>0</Dollar></GreaterOf></Add></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableLine18DecreasesSinceStart">
+      <Name>Form 6198 line 18 decreases since effective date or prior year end</Name>
+      <Description>Decreases since the effective date or the end of the prior year. The checkbox choice remains a register gap.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/line19aDetailedAmountAtRisk">
+      <Name>Form 6198 line 19a detailed amount at risk before floor</Name>
+      <Description>Subtract line 18 from line 17.</Description>
+      
+      <Derived><Subtract><Minuend><Dependency path="../line17AmountBeforeLaterDecreases" /></Minuend><Subtrahends><GreaterOf><Dependency path="../writableLine18DecreasesSinceStart" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line19bDetailedAmountAtRisk">
+      <Name>Form 6198 line 19b detailed amount at risk</Name>
+      <Description>Line 19a when positive; otherwise zero.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dependency path="../line19aDetailedAmountAtRisk" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line20AmountAtRisk">
+      <Name>Form 6198 line 20 amount at risk</Name>
+      <Description>"Amount at risk. Enter the larger of line 10b or line 19b" — the printed line,
+        computed. A free writable here would let the form print "the larger of line 10b or line 19b" beside two computed
+        zeros and a typed $1,200 on the branch's own witness; the witness REACHES $1,200 from line 6, which is what the published example means.
+
+        GUARDED, because Part II and Part III are alternatives and the printed form picks between
+        them with checkboxes this module does not yet hold (lines 16 and 18, Part III's "effective
+        date / end of prior year" pair, are declared register gaps). So:
+          * both legs resolve -> the larger, exactly as printed;
+          * only Part II answered -> line 10b, because an unfilled Part III is not a $0 Part III;
+          * only Part III answered -> line 19b, the mirror of the same reading;
+          * neither -> Incomplete. No silent $0, and line 21 stays Incomplete with it.
+        Pinned by tests/nodes/ty2025/form6198/form6198-line20-larger-of-19b (19b $1,500 beats 10b
+        $1,200), -part3-unanswered (19b Incomplete, line 20 falls to 10b $1,200) and
+        -neither-part-answered (both Incomplete, line 20 and line 21 Incomplete).
+
+        THE FOURTH §465 INTAKE IS RETIRED WITH THE WRITABLE. scheduleC
+        (/scheduleCs/*/writableAmountAtRisk), scheduleF (/writableScheduleFAmountAtRisk) and
+        scheduleE (/formK1s/*/atRiskActivityShares/*/writableActivityAmountAtRisk) already ask the
+        filer for an amount at risk; this module asked a fourth time for the same activity. What
+        those three hold is a per-ACTIVITY figure this module cannot read — none of them is
+        exported and the activity identifier is not shared — and that shared-identity hook is the
+        recorded successor, not a fourth writable.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../line10bSimplifiedAmountAtRisk" /></IsComplete>
+                <IsComplete><Dependency path="../line19bDetailedAmountAtRisk" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../line10bSimplifiedAmountAtRisk" />
+                <Dependency path="../line19bDetailedAmountAtRisk" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../line10bSimplifiedAmountAtRisk" /></IsComplete></When>
+            <Then><Dependency path="../line10bSimplifiedAmountAtRisk" /></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../line19bDetailedAmountAtRisk" /></IsComplete></When>
+            <Then><Dependency path="../line19bDetailedAmountAtRisk" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21DeductibleLoss">
+      <Name>Form 6198 line 21 deductible loss</Name>
+      <Description>The smaller of the positive line-5 loss magnitude or line 20. Exported as the successor for Schedule C/E/F at-risk loss allowances.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><LesserOf><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../line5ActivityProfitLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf><Dependency path="../line20AmountAtRisk" /></LesserOf></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21LossItemsTotal">
+      <Name>Form 6198 total of the activity's loss items</Name>
+      <Description>The total of the deduction and loss items entered in Part I: the magnitude of
+        each negative amount on lines 1, 2a, 2b and 2c, plus line 4, which the form already takes
+        as a positive deduction.
+
+        THIS IS THE FRACTION'S DENOMINATOR, and which total it is decides the whole allocation.
+        The instructions call it "the total loss from the activity on line 5", which reads at first
+        like the NET on line 5. It is not. The line-5 passage settles it: there the same fraction is
+        used to multiply the total income and gains, which only works when the fractions sum to one,
+        and they sum to one only over the items' total. Read as the net, a single loss item standing
+        against a gain would take a share LARGER than the whole allowed loss on line 21.
+        Pinned by tests/nodes/ty2025/form6198/form6198-line21-allocation-gain-offset: a $4,600 loss
+        item against a $3,100 gain, net line 5 of -$1,500, and the item's share is the whole of
+        line 21.
+
+        THE IRS'S OWN WORKED EXAMPLE SETTLES IT, and it is the reason this is no longer only a
+        fixture argument. The published Line 5 example is a $4,600 Schedule C loss on line 1
+        against a $3,100 Schedule D gain on line 2a, line 5 a loss of $1,500, and the filer "can
+        deduct $3,100 of the $4,600 loss on Schedule C". The paragraph's rule is: divide each
+        deduction or loss by the total loss, then multiply the total income and gains by that
+        fraction. Over the loss items the fraction is 4,600 / 4,600 = 1 and 1 x $3,100 = $3,100 —
+        the published answer. Over the net it is 4,600 / 1,500 and the same step yields $9,506,
+        which the IRS does not print. The gain-offset fixture reproduces exactly this example.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine1OrdinaryIncomeLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine2aScheduleDGainLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine2bForm4797GainLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine2cOtherDispositionGainLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf><GreaterOf><Dependency path="../writableLine4OtherDeductionsLosses" /><Dollar>0</Dollar></GreaterOf></Add></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21ShareOfOrdinaryLoss">
+      <Name>Form 6198 line 21 share of the ordinary loss</Name>
+      <Description>Line 1's ordinary loss from the activity's share of the allowed loss on line 21: line 21 multiplied by this item's
+        magnitude over the total of the loss items. Zero when the activity has no loss item.
+
+        NOT "the amount of this item allowed". The item's total allowable deduction is this share
+        PLUS the portion absorbed against the activity's own income and gains under the separate
+        line-5 method, which this module does not compute. Naming these facts a share and not an
+        allowance is deliberate: with income or a gain in Part I the two differ, and
+        form6198-line21-allocation-gain-offset is exactly such a case.
+
+        The remainder of each item is disallowed and carried over item by item; this module carries
+        the remainder over only in total (activityDisallowedLossCarriedToNextYear), because a
+        per-item carryover has no reader — no dictionary module reads /form6198Activities at all.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../line21LossItemsTotal" /></Left><Right><Dollar>0</Dollar></Right></Equal></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Divide>
+                <Dividend><Multiply><Dependency path="../line21DeductibleLoss" /><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine1OrdinaryIncomeLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Multiply></Dividend>
+                <Divisors><Dependency path="../line21LossItemsTotal" /></Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21ShareOfScheduleDLoss">
+      <Name>Form 6198 line 21 share of the Schedule D loss</Name>
+      <Description>Line 2a's Schedule D loss's share of the allowed loss on line 21: line 21 multiplied by this item's
+        magnitude over the total of the loss items. Zero when the activity has no loss item.
+
+        NOT "the amount of this item allowed". The item's total allowable deduction is this share
+        PLUS the portion absorbed against the activity's own income and gains under the separate
+        line-5 method, which this module does not compute. Naming these facts a share and not an
+        allowance is deliberate: with income or a gain in Part I the two differ, and
+        form6198-line21-allocation-gain-offset is exactly such a case.
+
+        The remainder of each item is disallowed and carried over item by item; this module carries
+        the remainder over only in total (activityDisallowedLossCarriedToNextYear), because a
+        per-item carryover has no reader — no dictionary module reads /form6198Activities at all.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../line21LossItemsTotal" /></Left><Right><Dollar>0</Dollar></Right></Equal></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Divide>
+                <Dividend><Multiply><Dependency path="../line21DeductibleLoss" /><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine2aScheduleDGainLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Multiply></Dividend>
+                <Divisors><Dependency path="../line21LossItemsTotal" /></Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21ShareOfForm4797Loss">
+      <Name>Form 6198 line 21 share of the Form 4797 loss</Name>
+      <Description>Line 2b's Form 4797 loss's share of the allowed loss on line 21: line 21 multiplied by this item's
+        magnitude over the total of the loss items. Zero when the activity has no loss item.
+
+        NOT "the amount of this item allowed". The item's total allowable deduction is this share
+        PLUS the portion absorbed against the activity's own income and gains under the separate
+        line-5 method, which this module does not compute. Naming these facts a share and not an
+        allowance is deliberate: with income or a gain in Part I the two differ, and
+        form6198-line21-allocation-gain-offset is exactly such a case.
+
+        The remainder of each item is disallowed and carried over item by item; this module carries
+        the remainder over only in total (activityDisallowedLossCarriedToNextYear), because a
+        per-item carryover has no reader — no dictionary module reads /form6198Activities at all.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../line21LossItemsTotal" /></Left><Right><Dollar>0</Dollar></Right></Equal></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Divide>
+                <Dividend><Multiply><Dependency path="../line21DeductibleLoss" /><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine2bForm4797GainLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Multiply></Dividend>
+                <Divisors><Dependency path="../line21LossItemsTotal" /></Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21ShareOfOtherDispositionLoss">
+      <Name>Form 6198 line 21 share of the other disposition loss</Name>
+      <Description>Line 2c's other disposition loss's share of the allowed loss on line 21: line 21 multiplied by this item's
+        magnitude over the total of the loss items. Zero when the activity has no loss item.
+
+        NOT "the amount of this item allowed". The item's total allowable deduction is this share
+        PLUS the portion absorbed against the activity's own income and gains under the separate
+        line-5 method, which this module does not compute. Naming these facts a share and not an
+        allowance is deliberate: with income or a gain in Part I the two differ, and
+        form6198-line21-allocation-gain-offset is exactly such a case.
+
+        The remainder of each item is disallowed and carried over item by item; this module carries
+        the remainder over only in total (activityDisallowedLossCarriedToNextYear), because a
+        per-item carryover has no reader — no dictionary module reads /form6198Activities at all.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../line21LossItemsTotal" /></Left><Right><Dollar>0</Dollar></Right></Equal></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Divide>
+                <Dividend><Multiply><Dependency path="../line21DeductibleLoss" /><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../writableLine2cOtherDispositionGainLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Multiply></Dividend>
+                <Divisors><Dependency path="../line21LossItemsTotal" /></Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21ShareOfOtherDeductions">
+      <Name>Form 6198 line 21 share of the other deductions and losses</Name>
+      <Description>Line 4's other deductions and losses's share of the allowed loss on line 21: line 21 multiplied by this item's
+        magnitude over the total of the loss items. Zero when the activity has no loss item.
+
+        NOT "the amount of this item allowed". The item's total allowable deduction is this share
+        PLUS the portion absorbed against the activity's own income and gains under the separate
+        line-5 method, which this module does not compute. Naming these facts a share and not an
+        allowance is deliberate: with income or a gain in Part I the two differ, and
+        form6198-line21-allocation-gain-offset is exactly such a case.
+
+        The remainder of each item is disallowed and carried over item by item; this module carries
+        the remainder over only in total (activityDisallowedLossCarriedToNextYear), because a
+        per-item carryover has no reader — no dictionary module reads /form6198Activities at all.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../line21LossItemsTotal" /></Left><Right><Dollar>0</Dollar></Right></Equal></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Divide>
+                <Dividend><Multiply><Dependency path="../line21DeductibleLoss" /><GreaterOf><Dependency path="../writableLine4OtherDeductionsLosses" /><Dollar>0</Dollar></GreaterOf></Multiply></Dividend>
+                <Divisors><Dependency path="../line21LossItemsTotal" /></Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/line21AllocationRoundingResidual">
+      <Name>Form 6198 line 21 allocation rounding residual</Name>
+      <Description>Line 21 less the five item shares. It is zero whenever the fraction divides
+        evenly and a cent or two otherwise.
+
+        DECLARED LIMIT: THE FIVE SHARES THEMSELVES DO NOT SUM TO LINE 21. Five shares rounded to
+        cents need not sum to the total they came from, and the instructions prescribe NO
+        reconciliation rule — no residual item, no largest-remainder rule, no "adjust the largest
+        share". Any rule this module invented to make them add up would be an invention with a
+        dollar consequence per item, so it invents none: it exports the difference and names it.
+        A reader that must make the shares add up has the number to do it with, and the choice of
+        WHERE to put it is that reader's, not this module's.
+        Pinned at 0.00 by form6198-line21-allocation-exact and form6198-line21-allocation-rounds
+        (both divide evenly at the cent), and at 0.01 by form6198-line21-allocation-residual —
+        three equal $100 items against a $100 line 21, each share $33.33, the shares summing to
+        $99.99. That last fixture is the witness that this fact is not always zero.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Subtract><Minuend><Dependency path="../line21DeductibleLoss" /></Minuend><Subtrahends><Dependency path="../line21ShareOfOrdinaryLoss" /><Dependency path="../line21ShareOfScheduleDLoss" /><Dependency path="../line21ShareOfForm4797Loss" /><Dependency path="../line21ShareOfOtherDispositionLoss" /><Dependency path="../line21ShareOfOtherDeductions" /></Subtrahends></Subtract></Derived>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/activityDisallowedLossCarriedToNextYear">
+      <Name>Form 6198 disallowed loss carried to next year</Name>
+      <Description>The part of this activity's line-5 loss that the at-risk limit disallowed: the
+        loss magnitude less the allowed amount on line 21, floored at zero.
+
+        The statute makes the disallowed remainder a deduction of the
+        FIRST SUCCEEDING year, and the instructions say the same about each item. The form itself
+        points at it — its deductible-loss caption sends the filer to the instructions "to find out
+        how to report any deductible loss and any carryover" — but this module held no such fact,
+        while Schedules E and F and Form 4835 all expose their own suspended at-risk loss. This
+        closes that asymmetry.
+
+        NOT FOLDED IN, and named so no one mistakes this for the whole carryover: the second
+        component, the amount recaptured into income under 465(e)(1)(A), which that paragraph's
+        (B) makes a deduction of the next year as well. It is exported separately as
+        section465eRecaptureIncome. Nothing in the dictionary reads either yet; what is missing is a shared activity identity, not
+        this fact.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Subtract><Minuend><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../line5ActivityProfitLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Minuend><Subtrahends><Dependency path="../line21DeductibleLoss" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/activityDeductionAllocableToNextYear">
+      <Name>Total deduction allocable to this activity next year</Name>
+      <Description>The two amounts the statute makes a deduction of the FIRST SUCCEEDING year for
+        this activity, added: the loss the at-risk limit disallowed, and the amount recaptured into
+        gross income because the amount at risk ended the year below zero.
+
+        They are separate paragraphs and separate facts, and they are kept separate because they
+        have different characters downstream; this fact exists because the reader that carries an
+        activity forward wants one number, and computing it here beats every reader re-deriving it.
+        Incomplete whenever either half is Incomplete — a total of a known amount and an unknown one
+        is not the known one. Pinned at $400.00, $2,100.00 and Incomplete by
+        tests/nodes/ty2025/form6198/form6198-published-line21-example,
+        -recapture-cap-not-binding and -recapture-part2-below-zero.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="../activityDisallowedLossCarriedToNextYear" /><Dependency path="../section465eRecaptureIncome" /></Add></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/amountAtRiskAtYearEndBeforeFloor">
+      <Name>Amount at risk at the close of the year, before the printed floor</Name>
+      <Description>The activity's amount at risk at the close of the tax year WITHOUT the floor the
+        form prints. It mirrors the printed larger-of choice exactly as line 20 does, but over the
+        unfloored 10a and 19a instead of 10b and 19b, so it can be negative.
+
+        Why it exists: 10b and 19b are where the form says "Otherwise, enter -0- and see Pub. 925
+        for information on the recapture rules". The floor is a printing rule; the statute asks
+        whether zero EXCEEDS the amount at risk at the close of the year, and after the floor that
+        question can no longer be asked. GUARDED the same way line 20 is, and for the same reason:
+        both legs -> the larger; one leg -> that leg, because an unfilled Part is not a zero Part;
+        neither -> Incomplete.
+
+        DECLARED LIMIT, AND THE DIRECTION OF ITS RISK IS UNDER-CHARGE. No source picks the LARGER
+        of the two unfloored amounts. The printed larger-of on line 20 is a choice between two
+        amounts the form has already floored at zero, where "larger" means "more loss allowed";
+        applied BEFORE the floor to two NEGATIVE amounts, "larger" means "the smaller recapture",
+        which is the taxpayer-favourable direction and the harmful one if it is wrong. The printed
+        form attaches the recapture pointer to each Part independently — 10b and 19b each say
+        "Otherwise, enter -0- and see Pub. 925 for information on the recapture rules" — and says
+        nothing about combining them. Mirroring line 20 is chosen for internal consistency (one
+        method decides both the loss limit and the recapture) and is DECLARED, not derived.
+        Pinned by tests/nodes/ty2025/form6198/form6198-recapture-both-parts-negative: Part II
+        -$500 against Part III -$900 yields an excess of $500, not $900. That fixture pins a
+        DECLARED LIMIT and goes RED if a ruling picks the more negative leg.
+
+        NEEDS-SOURCE, twice over, because Pub. 925 is not vendored in sources/ and nothing here
+        rests on it: (a) whether 465(e) measures the amount at risk at the same point as the form's
+        10a/19a — which is the figure BEFORE the current year's allowed loss reduces it, the
+        instructions' own CAUTION being that the PRIOR year's line 21 loss reduces the at-risk
+        investment as of the START of the current year; and (b) the combining rule above. Both are
+        exactly what Pub. 925's recapture discussion covers.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../line10aRiskAfterDecreases" /></IsComplete>
+                <IsComplete><Dependency path="../line19aDetailedAmountAtRisk" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../line10aRiskAfterDecreases" />
+                <Dependency path="../line19aDetailedAmountAtRisk" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../line10aRiskAfterDecreases" /></IsComplete></When>
+            <Then><Dependency path="../line10aRiskAfterDecreases" /></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../line19aDetailedAmountAtRisk" /></IsComplete></When>
+            <Then><Dependency path="../line19aDetailedAmountAtRisk" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/section465eRecaptureExcess">
+      <Name>Amount by which zero exceeds the year-end amount at risk</Name>
+      <Description>Zero less the year-end amount at risk, floored at zero: the excess the statute
+        includes in gross income. Zero for every activity that ends the year at or above zero, which
+        is every activity this form is normally filed for.</Description>
+      
+      <Derived><GreaterOf><Subtract><Minuend><Dollar>0</Dollar></Minuend><Subtrahends><Dependency path="../amountAtRiskAtYearEndBeforeFloor" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableSection465ePriorYearLossReductions">
+      <Name>Prior-year at-risk reductions for this activity</Name>
+      <Description>The total by which losses of prior tax years beginning after 1978 reduced the
+        amount at risk in this activity. It is the first half of the statutory cap on recapture and
+        is asked only of a filer whose amount at risk ended the year below zero.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableSection465ePriorYearRecaptureIncluded">
+      <Name>Recapture already included in income for this activity</Name>
+      <Description>The amounts already taken into gross income for this activity under the same
+        recapture paragraph in earlier years. It is the second half of the statutory cap, subtracted
+        from the prior-year reductions so nothing is recaptured twice.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/section465eRecaptureIncome">
+      <Name>At-risk recapture included in gross income for this activity</Name>
+      <Description>The smaller of the below-base excess (/form6198Activities/*/section465eRecaptureExcessAfterPre1979Base, which is the below-zero excess except for a pre-1979 activity) and the statutory cap (prior-year at-risk
+        reductions less amounts already recaptured, floored at zero).
+
+        This fact is HALF of the section 465(e) recapture. The other half is not in this
+        module's gift: nothing adds this amount to gross income, because no module reads
+        /form6198Activities at all. Until a hub adds it, a filer whose amount at risk ends the year
+        below zero is still under-charged. This fact is the hook that fix will read, and the
+        direction is recorded here so the omission is not silent.
+
+        COMPLETE-SAFETY, deliberate and pinned. The first Case answers $0 whenever the excess is
+        zero and NEVER touches the two prior-year writables, so no ordinary return — every return
+        whose amount at risk ends at or above zero — becomes Incomplete because these questions
+        exist. Only a return that actually has a below-zero amount at risk waits on them, and
+        waiting is right there: a cap of an unknown size is not a cap of zero.
+        Pinned by tests/nodes/ty2025/form6198/form6198-published-line21-example (excess $0, the
+        writables absent, $0.00 out), -recapture-part2-below-zero (excess $500, the writables
+        absent, Incomplete), -recapture-cap-not-binding ($500) and -recapture-cap-binding ($300).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Equal><Left><Dependency path="../section465eRecaptureExcess" /></Left><Right><Dollar>0</Dollar></Right></Equal></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableSection465ePriorYearLossReductions" /></IsComplete>
+                <IsComplete><Dependency path="../writableSection465ePriorYearRecaptureIncluded" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="../section465eRecaptureExcessAfterPre1979Base" />
+                <GreaterOf><Subtract><Minuend><Dependency path="../writableSection465ePriorYearLossReductions" /></Minuend><Subtrahends><GreaterOf><Dependency path="../writableSection465ePriorYearRecaptureIncluded" /><Dollar>0</Dollar></GreaterOf></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/writableAtRiskBelowZeroAtEndOf1978">
+      <Name>This activity's amount at risk was below zero at the end of the 1978 tax year</Name>
+      <Description>ASK: "Was your amount at risk in this activity less than zero at the end of your
+        tax year that began in 1978?" HELP: this matters only for an activity you have held since
+        before 1979; for such an activity the recapture test compares the year-end amount at risk
+        with that 1978 negative amount instead of with zero. ASKED WHEN: this activity's amount at
+        risk ends the year below zero (/form6198Activities/*/section465eRecaptureExcess is more than
+        $0). UNANSWERED: read as No, which is the answer for every activity that began after 1978.
+        VALIDATION: Boolean. FEEDS /form6198Activities/*/section465eRecaptureBase: a Yes asks
+        /form6198Activities/*/writableAtRiskAmountAtEndOf1978 and the recapture test compares the
+        year-end amount at risk with that amount.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/writableAtRiskAmountAtEndOf1978">
+      <Name>This activity's amount at risk at the end of the 1978 tax year</Name>
+      <Description>ASK: "What was your amount at risk in this activity at the end of your tax year
+        that began in 1978? Enter it as a negative number." HELP: the recapture test for an
+        activity held since before 1979 compares this year's ending amount at risk with this 1978
+        amount instead of with zero; if the 1978 amount was minus $50, losses are recaptured only
+        when the amount at risk goes below minus $50. ASKED WHEN:
+        /form6198Activities/*/writableAtRiskBelowZeroAtEndOf1978 is Yes. UNANSWERED: the
+        recapture for this activity stays unresolved (a Yes with no amount is not a zero). VALIDATION:
+        Dollar; an entry above zero is read as zero, since only a negative 1978 amount replaces zero.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form6198Activities/*/atRiskBelowZeroAtEndOf1978AnsweredYes">
+      <Name>The 1978 question is answered Yes</Name>
+      <Description>TRUE only when /form6198Activities/*/writableAtRiskBelowZeroAtEndOf1978 is answered Yes. An unanswered question reads as No, the answer for every activity that began after 1978, so this fact is always complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writableAtRiskBelowZeroAtEndOf1978" /></IsComplete>
+          <Dependency path="../writableAtRiskBelowZeroAtEndOf1978" />
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/section465eRecaptureBase">
+      <Name>The amount the section 465(e) recapture test measures against</Name>
+      <Description>Zero, except for an activity held since before 1979 whose amount at risk was below
+        zero at the end of the 1978 tax year (/form6198Activities/*/writableAtRiskBelowZeroAtEndOf1978
+        Yes): then that negative 1978 amount (/form6198Activities/*/writableAtRiskAmountAtEndOf1978,
+        floored at zero from above, so a positive entry reads as zero). Incomplete on a Yes with no
+        amount. An unanswered Yes/No reads as No, the answer for every activity that began after
+        1978.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../atRiskBelowZeroAtEndOf1978AnsweredYes" /></When>
+            <Then>
+              <LesserOf><Dependency path="../writableAtRiskAmountAtEndOf1978" /><Dollar>0</Dollar></LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><Dependency path="../atRiskBelowZeroAtEndOf1978AnsweredYes" /></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/section465eRecaptureExcessAfterPre1979Base">
+      <Name>Amount by which the recapture base exceeds the year-end amount at risk</Name>
+      <Description>/form6198Activities/*/section465eRecaptureBase less the year-end amount at risk,
+        floored at zero: the excess the statute includes in gross income once the pre-1979
+        substitution is applied. Equal to /form6198Activities/*/section465eRecaptureExcess on every
+        activity whose base is zero, and never larger than it, because the base is never above zero.</Description>
+      <Derived>
+        <GreaterOf><Subtract><Minuend><Dependency path="../section465eRecaptureBase" /></Minuend><Subtrahends><Dependency path="../amountAtRiskAtYearEndBeforeFloor" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/recaptureRestsOnAnUnsourcedChoice">
+      <Name>This activity's section 465(e) recapture rests on a choice no vendored source settles</Name>
+      <Description>TRUE when this activity owes a recapture (/form6198Activities/*/section465eRecaptureExcess
+        more than $0) AND the amount of that recapture depends on one of two choices the statute,
+        the Form 6198 instructions and Pub. 925 leave unsettled here:
+
+        (1) A CURRENT-YEAR PROFIT (line 5 more than $0). Line 7 is told not to include the current
+        year income or gains shown on lines 1 through 3, so line 10a is the amount at risk BEFORE the
+        current year's income, and /form6198Activities/*/amountAtRiskAtYearEndBeforeFloor reads it.
+        The statute measures at the close of the year, and whether the year's own income lifts that
+        amount before the test is not stated in any vendored source. On a loss year the question
+        does not arise: a negative amount at risk allows no loss, so the amount before and after the
+        allowed loss is the same.
+
+        (2) BOTH PARTS NEGATIVE (lines 10a and 19a both answered and both below $0). The printed
+        larger-of on line 20 is mirrored onto the two unfloored amounts, which on two negative
+        amounts picks the SMALLER recapture; the form attaches its recapture pointer to each Part
+        separately and says nothing about combining them.
+
+        Every other recapture - a loss or break-even year measured on one Part, or on two Parts of
+        which at most one is negative, including a pre-1979 activity measured against its 1978
+        negative amount (/form6198Activities/*/section465eRecaptureBase) - is computed as the statute
+        and Pub. 925 state it and still files. COMPLETE-SAFE FALSE: each conjunction reads the completeness of its operands first,
+        and an All short-circuits on a Complete-false operand, so an activity whose recapture
+        inputs are unanswered resolves false here and waits on the recapture figure itself.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="../section465eRecaptureExcess" /></IsComplete>
+            <GreaterThan><Left><Dependency path="../section465eRecaptureExcess" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+            <IsComplete><Dependency path="../line5ActivityProfitLoss" /></IsComplete>
+            <GreaterThan><Left><Dependency path="../line5ActivityProfitLoss" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="../section465eRecaptureExcess" /></IsComplete>
+            <GreaterThan><Left><Dependency path="../section465eRecaptureExcess" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+            <IsComplete><Dependency path="../line10aRiskAfterDecreases" /></IsComplete>
+            <IsComplete><Dependency path="../line19aDetailedAmountAtRisk" /></IsComplete>
+            <LessThan><Left><Dependency path="../line10aRiskAfterDecreases" /></Left><Right><Dollar>0</Dollar></Right></LessThan>
+            <LessThan><Left><Dependency path="../line19aDetailedAmountAtRisk" /></Left><Right><Dollar>0</Dollar></Right></LessThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutForm6198RecaptureRestsOnAnUnsourcedChoice">
+      <Name>Knockout: an at-risk recapture whose amount rests on a choice no source settles</Name>
+      <Description>Blocks submission when any Form 6198 activity owes a section 465(e) recapture whose
+        amount depends on a current-year profit or on two negative Parts (/form6198Activities/*/recaptureRestsOnAnUnsourcedChoice). SCREEN: "This return
+        includes an at-risk activity whose amount at risk ended the year below zero in a way this
+        product cannot yet figure: the activity had a profit this year, both the simplified and the
+        detailed computations of the amount at risk are below zero. The recaptured amount depends on rules the IRS instructions do not spell
+        out, so this return cannot be filed here. A tax professional can figure the recapture from
+        Pub. 925." A return with no at-risk activity, and every recapture outside those two
+        populations, is unaffected. DEFERRAL, not a permanent refusal: the computation that would retire it is not built. COMPLETE-SAFE FALSE: an
+        unanswered or empty activity list reads false before the count is taken, and every member
+        of the count is complete-safe.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form6198Activities" /></IsComplete>
+          <GreaterThan>
+            <Left><Count><Dependency path="/form6198Activities/*/recaptureRestsOnAnUnsourcedChoice" /></Count></Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/activityRequiresForm">
+      <Name>This activity requires Form 6198</Name>
+      <Description>True when the activity incurred a line-5 loss.
+
+        This fact does not add a second test — that the loss also EXCEED line 20 — because that
+        test is in no source. Who Must File names two conditions, a loss and
+        some amount not at risk, and the second one is what puts an activity in this collection at
+        all, so it is not re-tested here. The line 21 example (a) settles the direction: a $400
+        loss against $1,000 at risk is a FILED form, and the old gate refused it. There is no
+        dollar effect — line 21 is read by no other module — but the attachment and the
+        filed-return count were understated.
+
+        STILL NARROWER THAN THE SOURCE — THREE DECLARED LIMITS, each awaiting a ruling, none of
+        them the law:
+
+        (1) DECLARED LIMIT, profit attachment. The line 5 instructions say a current-year PROFIT
+        must "Also attach Form 6198", and this gate is false for a profit. Pinned as the false arm
+        by tests/nodes/ty2025/form6198/form6198-filegate-current-year-profit. That fixture pins a
+        DECLARED LIMIT AWAITING A RULING, not the law: if the ruling says every entered activity
+        files, that fixture goes RED and is re-pinned true.
+
+        (2) DECLARED LIMIT, the second filing trigger. Who Must File carries a SECOND, loss-
+        independent trigger — an activity included in (6) under At-Risk Activities together with
+        amounts borrowed as described in (3) under Amounts Not at Risk — and an exception for a
+        filer whose only such borrowing predates May 4, 2004. Neither is modeled: this gate tests
+        the loss alone, so an activity in (6) with no loss is not flagged.
+
+        (3) DECLARED LIMIT, the "amounts not at risk" condition. Who Must File names TWO conditions,
+        a loss and some amount not at risk. There is NO attestation fact for the second one
+        anywhere in this module or the dictionary; being entered in /form6198Activities is taken to
+        BE that condition. That is an intake convention this dictionary declares, not something a
+        source states, and the application owns the screen that makes it true.
+
+        Line 5 exactly zero is neither a loss nor a profit and is pinned false by
+        tests/nodes/ty2025/form6198/form6198-filegate-break-even.</Description>
+      
+      <Derived><LessThan><Left><Dependency path="../line5ActivityProfitLoss" /></Left><Right><Dollar>0</Dollar></Right></LessThan></Derived>
+    </Fact>
+
+    <Fact path="/form6198Activities/*/activityDecisionInputsComplete">
+      <Name>Form 6198 filing decision inputs complete</Name>
+      <Description>Complete when this activity's line 5 profit or loss is known.
+
+        It does not require line 20, which would make /form6198ReturnFilesThisForm withhold its
+        answer for a filer who has entered the activity's income and deductions but not yet any
+        Part II or Part III amount (pinned by
+        tests/nodes/ty2025/form6198/form6198-line20-neither-part-answered). Who Must File does not consult the amount at risk, so neither
+        does the decision.</Description>
+      
+      <Derived><IsComplete><Dependency path="../line5ActivityProfitLoss" /></IsComplete></Derived>
+    </Fact>
+    <Fact path="/form6198Activities/*/activityDecisionFactResolved">
+      <Name>Form 6198 decision-input completeness fact is resolved</Name>
+      <Description>True for each entered Form 6198 activity because its companion decision-input fact
+        resolves to a complete Boolean even when the source amount is unanswered. This counts every
+        activity against the count of activities whose required line 5 input is complete. (It said
+        "line 5 and line 20" until the FILEGATE narrowing retired the line 20 leg; the text was
+        stale, the arithmetic was not.)
+
+        COUNT COUNTS THE TRUE ELEMENTS, not the resolved ones: CountOperator increments only when
+        the element is true. Read in the core, and WITNESSED — but by the Then side of the Switch,
+        not by this pair. tests/nodes/ty2025/form6198/form6198-filegate-current-year-profit and
+        -filegate-break-even each hold ONE activity whose activityRequiresForm is Complete FALSE,
+        and both assert /form6198ReturnFilesThisForm false. A Count that counted elements would
+        make that Count 1, and 1 is greater than 0, so the gate would say the return files.
+
+        A CORRECTION, since an earlier draft of this Description claimed otherwise:
+        -two-activities-one-incomplete does NOT witness the counting rule. What it witnesses is the
+        WITHHOLDING outcome — one of two activities with line 4 unanswered leaves the return-level
+        fact Incomplete rather than answering over half a return — and that outcome survives
+        whichever way the guard is read (see the next paragraph).
+
+        THIS PAIR IS BELT-AND-BRACES TODAY, AND THAT IS MEASURED. Replacing the count guard with
+        an unconditional True leaves every committed fixture GREEN (review mutation A6, the only survivor of 23): CountOperator itself returns Incomplete as soon as any element is
+        Incomplete, and activityRequiresForm is Incomplete exactly when its line 5 is, so the two
+        routes agree on every input this module can be given. They part company only if
+        activityRequiresForm stops depending on line 5 — which is precisely what the pending
+        profit-attachment ruling would do, by making it a constant — or over a PLACEHOLDER line 5,
+        which no writable here can produce. The guard is kept for the first of those, not deleted
+        as dead code, and this paragraph is why.</Description>
+      
+      <Derived><IsComplete><Dependency path="../activityDecisionInputsComplete" /></IsComplete></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

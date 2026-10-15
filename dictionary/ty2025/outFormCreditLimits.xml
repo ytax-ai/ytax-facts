@@ -1,0 +1,84 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/outFormRegularTaxBeforeCredits">
+      <Name>Regular income tax plus Schedule 2 line 1z</Name>
+      <Description>Regular income tax plus Schedule 2 line 1z. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/tentativeTaxFromTaxableIncome" module="taxCalculations" />
+          <Dependency path="/line1zOfSchedule2" module="schedule2" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/outFormCreditsBefore8834">
+      <Name>Credits preceding the qualified electric vehicle credit</Name>
+      <Description>Form 1040 line 19 and Schedule 3 lines 2-5b and 7, excluding 6a, 6b, this credit itself (6i), 6j and 6k. Sum the preceding credits explicitly to avoid circular dependencies through Schedule 3 line 7.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/totalCtcAndOdc" module="ctcOdc" />
+          <Dependency path="/cdccTotalCredit" module="cdcc" />
+          <Dependency path="/sched3Line3" module="schedule3" />
+          <Dependency path="/qualifiedSaverCreditAmount" module="saversCredits" />
+          <Dependency path="/sched3Line5a" module="schedule3" />
+          <Dependency path="/sched3Line5b" module="schedule3" />
+          <Dependency path="/totalEdc" module="elderlyAndDisabled" />
+          <Dependency path="/sched3Line6c" module="schedule3" />
+          <Dependency path="/sched3Line6f" module="schedule3" />
+          <Dependency path="/sched3Line6g" module="schedule3" />
+          <Dependency path="/sched3Line6l" module="schedule3" />
+          <Dependency path="/sched3Line6m" module="schedule3" />
+          <Dependency path="/sched3Line6h" module="schedule3" />
+          <Dependency path="/sched3Line6z" module="schedule3" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/outFormCreditsBefore8911">
+      <Name>Credits preceding the personal refueling property credit</Name>
+      <Description>Credits preceding the personal refueling property credit. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/outFormCreditsBefore8834" />
+          <Dependency path="/sched3Line6i" module="schedule3" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/outFormCreditsBefore8912">
+      <Name>Credits preceding the bond holder credit</Name>
+      <Description>Credits preceding the bond holder credit. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/outFormCreditsBefore8911" />
+          <Dependency path="/sched3Line6j" module="schedule3" />
+        </Add>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

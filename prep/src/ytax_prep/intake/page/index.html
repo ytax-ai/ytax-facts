@@ -1,0 +1,124 @@
+<!doctype html>
+<!--
+  SPDX-License-Identifier: LicenseRef-PolyForm-Strict-1.0.0
+  Copyright (c) 2026 TRIPLE J AI LLC
+  Contains original software from the ytax project.
+  See the release-root LICENSING.md for scope and separate licensing options.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>yTax — your return, on this computer</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <h1>yTax</h1>
+  <p class="lede">Everything here runs on this computer, and nothing you add leaves it.</p>
+</header>
+<section id="privacy" class="privacy" aria-labelledby="privacy-h">
+  <h2 id="privacy-h">Your privacy</h2>
+  <ul>
+    <li>Your documents, your answers and the filled forms stay on this computer, in the folder you choose.</li>
+    <li>Nothing is sent to us. yTax has no server that receives your return, and nothing is collected: no account, no tracking, no usage data.</li>
+    <li>If you turn on the check by an AI model below, the page images go only to the model at the address that section shows.</li>
+  </ul>
+</section>
+<section id="demo-notice" class="demo-notice" aria-labelledby="demo-h">
+  <h2 id="demo-h">A demonstration release</h2>
+  <p>This release is for demonstration purposes only and is not certified for real filings.
+     The returns it computes and the forms it fills are not for filing with the IRS.</p>
+</section>
+<main>
+  <p id="where" class="where"></p>
+  <p id="resumed" class="where" hidden>
+    <button id="session-restart" type="button" class="quiet">Start this folder again</button>
+    <span id="session-note" class="why" role="status"></span>
+  </p>
+  <div id="busy" class="busy" hidden>
+    <span id="busy-what" role="status">Working…</span>
+    <progress id="busy-bar" aria-label="Working"></progress>
+    <span id="busy-time" aria-hidden="true"></span>
+    <button id="busy-stop" type="button" class="quiet" hidden>Stop the model's check</button>
+  </div>
+  <details id="work-log-box">
+    <summary>What this page has done: every document read, every return computed, every form filled</summary>
+    <textarea id="work-log" readonly rows="10" aria-label="What this page has done"></textarea>
+    <button id="work-log-copy" type="button" class="quiet">Copy this log</button>
+    <span id="work-log-note" class="why"></span>
+  </details>
+  <section id="tray" aria-labelledby="tray-h">
+    <h2 id="tray-h">Your documents</h2>
+    <div class="drop">
+      <button id="choose-documents" type="button">Choose documents</button>
+      Choose your tax documents (PDF), or drop them here.
+      You can also fill in this return’s own workbook and give it back here instead of
+      answering the questions — the figures you typed become your answers.
+      <input id="files" type="file" hidden aria-label="Choose your tax documents"
+             accept="application/pdf,.pdf,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+             multiple>
+    </div>
+    <div id="inbox" class="duplicate" hidden></div>
+    <div id="reads"></div>
+    <ul id="documents" aria-live="polite"></ul>
+    <div id="workbook-edit" class="duplicate" hidden></div>
+  </section>
+  <section id="ai" aria-labelledby="ai-h" hidden>
+    <h2 id="ai-h">A second reading by an AI model on this computer</h2>
+    <div id="ai-body"></div>
+    <p id="ai-status" role="status"></p>
+    <div id="ai-rows"></div>
+    <details id="ai-log-box">
+      <summary>Model log: each request, the model's reply as it came, and any error</summary>
+      <textarea id="ai-log" readonly rows="14" aria-label="Model log"></textarea>
+      <button id="ai-log-copy" type="button" class="quiet">Copy the log</button>
+      <span id="ai-log-note" class="why"></span>
+    </details>
+  </section>
+  <section id="talk" aria-labelledby="talk-h">
+    <h2 id="talk-h">Questions</h2>
+    <div id="turn" aria-live="polite"></div>
+    <p id="error" role="alert"></p>
+  </section>
+  <section id="result" aria-labelledby="result-h" hidden>
+    <h2 id="result-h">Your return</h2>
+    <p id="computed-at" class="why"></p>
+    <table id="lines"><thead><tr><th scope="col">Form 1040 line</th><th scope="col">Amount</th></tr></thead><tbody></tbody></table>
+    <section id="identity" aria-labelledby="identity-h">
+      <h3 id="identity-h">Names and taxpayer IDs, for the forms</h3>
+      <p class="why">The finished forms need these; the figures above were computed without them. They stay on this computer: they go into the filled forms only and are never sent anywhere, not to the calculation and not to any model.</p>
+      <ul id="identity-fields" class="ticks"></ul>
+      <button id="identity-save" type="button">Keep these for the forms</button>
+      <p id="identity-note" class="why"></p>
+    </section>
+    <section id="notations" aria-labelledby="notations-h">
+      <h3 id="notations-h">Notations at the top of Form 1040</h3>
+      <p class="why">Form 1040 prints these above your name, and few returns carry any of them. They change no figure computed here; pay earned in a combat zone reaches this return through your Form W-2, box 12, code Q. They stay on this computer, in the working folder, and go into the filled form only.</p>
+      <ul id="notation-fields" class="ticks"></ul>
+      <button id="notations-save" type="button" class="quiet">Keep these for the forms</button>
+      <p id="notations-note" class="why" role="status"></p>
+    </section>
+    <button id="fill" type="button">Fill the IRS forms</button>
+    <ul id="filled"></ul>
+    <section id="workbook" aria-labelledby="workbook-h" hidden>
+      <h3 id="workbook-h">Trying other figures</h3>
+      <p class="why">The filled forms' folder also holds return-workbook.xlsx: this return's answers in the original workbook, already computed. Change a figure there and save it: this page then asks whether to take the workbook's figures as your answers, and the return on this page changes only on a yes. Compute it again here to see what moves on the workbook's Computed return tab.</p>
+      <button id="workbook-run" type="button" class="quiet">Compute the workbook again</button>
+      <p id="workbook-note" class="why" role="status"></p>
+      <div id="workbook-edit-here" class="duplicate" hidden></div>
+    </section>
+    <section id="filing" aria-labelledby="filing-h">
+      <h3 id="filing-h">Filing</h3>
+      <p class="why">The filled forms are your return as computed here from the documents and answers on this page; every figure is checked against those forms before it is written, and the check's result is listed above. This page does not file a return. A paper return is signed and mailed to the address for your state in the Form 1040 instructions ("Where To File"); the figures can also be entered into e-file software of your choosing. Forms you received (W-2, 1099, W-2G) are not printed here; keep them with your records, and attach a W-2 to a mailed return as the instructions say.</p>
+    </section>
+  </section>
+</main>
+<footer class="app-footer">
+  <a id="about-link" href="about">About ytax-prep</a>
+  <button id="quit" type="button" class="quiet">Quit ytax-prep</button>
+  <span id="quit-note" role="status"></span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

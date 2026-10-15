@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/k1.schema.json",
+  "title": "Schedule K-1",
+  "description": "One Schedule K-1, of any of the three forms — which form comes first (the cheap gate before the expensive entry), because the three number their boxes differently and route to different engine collections: partnership and s_corp to the Schedule E Part II collection, estate_trust to the Part III one. Shared amounts carry captions without box numbers. For a partnership or s_corp K-1 whose box 1 is a loss, the three loss answers (material participation, basis, at-risk) become questions — asked, never defaulted; the engine computes every answered combination, including the suspension. A partnership K-1 always asks item D. An estate_trust box 6 loss is refused: it would deduct as entered, and the passive-activity classification that would limit it is not asked.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "source"
+  ],
+  "properties": {
+    "person": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source": {
+      "enum": [
+        "partnership",
+        "s_corp",
+        "estate_trust"
+      ]
+    },
+    "ordinary_business_income_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Ordinary business income or (loss) — SIGNED, as the box prints it (Form 1065 box 1 / Form 1120-S box 1 / Form 1041 box 6). A partnership or s_corp loss opens the three loss questions; an estate_trust loss is refused."
+    },
+    "interest_income_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Interest income (Form 1065 box 5 / Form 1120-S box 4 / Form 1041 box 1).",
+      "minimum": 0
+    },
+    "dividend_income_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Ordinary dividends (Form 1065 box 6a / Form 1120-S box 5a / Form 1041 box 2a).",
+      "minimum": 0
+    },
+    "qualified_dividends_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Qualified dividends (Form 1065 box 6b / Form 1120-S box 5b / Form 1041 box 2b) — a slice of the ordinary dividends, never more than them. Absence is sent as zero and stated: ordinary rates were applied.",
+      "minimum": 0
+    },
+    "royalties_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Royalties. Carried at the pin for the Form 1065 K-1's box 7 only; refused on the other two forms rather than re-homed.",
+      "minimum": 0
+    },
+    "se_earnings_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Self-employment earnings (loss) — Form 1065 K-1 box 14 code A, SIGNED as printed, partnership only. A blank box is no self-employment earnings (the partnership computes this figure). A negative goes through verbatim and opens one more question: the printed instruction tells the partner to enter only the DEDUCTIBLE amount of an SE loss on Schedule SE, so the deductible part of the loss is asked beside it and the return computes with both answered."
+    },
+    "deductible_se_loss_cents": {
+      "$ref": "cents.schema.json",
+      "description": "The DEDUCTIBLE part of a box 14 code A LOSS — Form 1065 K-1, the loss case only. SIGNED the way box 14A is: a loss is negative, and 0 is a valid answer meaning the whole loss is suspended. The printed partner instruction is what this transcribes — “If the amount in this box is a loss, enter only the deductible amount on Schedule SE (Form 1040)” — so the figure is one the partner already computed off the return, after the section 704(d) basis, 465 at-risk and 469 passive limits. Asked on EVERY Form 1065 K-1 whose box 14 code A is a loss, and only there: on a zero or positive box 14A, before box 14A is answered, or on either of the other two forms, supplying it is refused. The answer must lie between box 14A and 0 inclusive — outside that it is refused rather than clamped, because a deductible loss bigger than the loss it comes from, or a positive deductible part of a loss, is a contradiction and not a number to rewrite. Box 14A itself still goes through as printed: the two are separate facts on purpose. NOT MODELED, and each is a different population from this one: the general-partner reduction of a POSITIVE box 14A by section 179 expense, unreimbursed partnership expenses and oil-and-gas depletion; options- and commodities-dealer partnerships (section 1402(i)); and investment clubs."
+    },
+    "publicly_traded_partnership": {
+      "type": "boolean",
+      "description": "Form 1065 K-1 item D, 'Check if this is a publicly traded partnership (PTP)'. Asked on EVERY partnership K-1 — measured at the pin, the item-D completeness guard stays false without it. The other two forms print no item D; supplying it there is refused."
+    },
+    "materially_participated": {
+      "type": "boolean",
+      "description": "Section 469(h) material participation in the partnership or s_corp activity. Asked when box 1 is a loss: false routes the loss through the modeled Form 8582 suspension — computed, never refused."
+    },
+    "basis_cents": {
+      "$ref": "cents.schema.json",
+      "description": "The partner's adjusted basis (section 704(d)) / shareholder's stock-plus-debt basis (section 1366(d)) before the current-year loss — the ceiling on a deductible K-1 loss. Asked when box 1 is a loss; the engine deducts up to it and suspends the rest.",
+      "minimum": 0
+    },
+    "fully_at_risk": {
+      "type": "boolean",
+      "description": "All investment in the activity is at risk (IRC 465). Asked when box 1 is a loss: true takes the basis-allowed loss in full; false opens one more question beside it — the simplified Form 6198 amount at risk — and the loss is capped at that amount (Form 6198 line 21) rather than refused."
+    },
+    "amount_at_risk_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Amount at risk in this partnership or S corporation activity (IRC 465) \u2014 the simplified Form 6198 Part II line 10b figure: the adjusted basis in the activity on the first day of the year, plus increases, less decreases, entered as not less than zero. It caps what is left of the box 1 loss AFTER the section 704(d) / 1366(d) basis limit, which is applied first (Form 6198 line 21): measured at the pin, a 2,000 basis against a 6,000 loss allows 2,000, and an amount at risk of 3,000 leaves that alone while 1,000 binds instead. Asked on EVERY Schedule K-1 (Form 1065 or 1120-S) whose box 1 is a loss and whose investment is not all at risk, and only there: with all investment at risk, before that answer is given, on a K-1 with no box 1 loss, or on a Schedule K-1 (Form 1041), supplying it is refused rather than dropped. NOT MODELED, and each is a different population from this one: the per-activity at-risk statement a Form 1065 K-1 box 22 carries, which replaces this single item-level figure where it is supplied; the line-by-line Part II build and the detailed Part III of Form 6198; and the mid-year changes Part I covers.",
+      "minimum": 0
+    },
+    "guaranteed_payments_services_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Guaranteed payments for services — Form 1065 K-1 box 4a, partnership only (an S corporation makes no guaranteed payments; supplying it on the other two forms is refused). Flows nonpassive to Schedule E line 28 column (k), never into the Form 8582 pool or the QBI deduction. Reporting one makes box 14 code A a question (0 is an answer): services guaranteed payments are self-employment income, and the engine refuses the return rather than compute it with box 14 unanswered.",
+      "minimum": 0
+    },
+    "guaranteed_payments_capital_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Guaranteed payments for capital — Form 1065 K-1 box 4b, partnership only. Flows like box 4a. Whether it is net investment income turns on item G: above the Form 8960 threshold, a K-1 whose item G is not the general-partner box is refused by the engine's own knockout (the character of a limited partner's capital payment is not determinable at the pin); below the threshold it computes either way.",
+      "minimum": 0
+    },
+    "general_partner": {
+      "type": "boolean",
+      "description": "Form 1065 K-1 Part II item G, the printed checkbox pair: true for 'General partner or LLC member-manager', false for 'Limited partner or other LLC member'. Asked on EVERY partnership K-1 — it decides whether a box 4b payment can be excluded from net investment income, and whether the section 469(h)(2) limited-partner presumption reaches an item-D PTP. The other two forms print no item G; supplying it there is refused."
+    },
+    "qualified_ptp_income_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Qualified publicly traded partnership income or (loss) — Form 1065 K-1 box 20 code Z, the section 199A statement. The only K-1 input to the qualified business income deduction (Form 8995 line 6). SIGNED as the statement reports it: income positive, a loss negative — a minimum of 0 would delete the loss, and the floor is Form 8995 line 8. Asked on EVERY K-1 whose item D is checked, and 0 is an answer: the statement may report nothing. It is asked rather than read — box 20 prints a list of code-and-amount pairs and the code Z figure is on an attached statement, not on the K-1 face. On a partnership that is not publicly traded a code Z amount is per-business qualified business income, an intake this service does not carry: refused, never routed. The other two forms print no box 20 code Z; supplying it there is refused."
+    },
+    "qualified_ptp_is_sstb": {
+      "type": "boolean",
+      "description": "Whether that publicly traded partnership is a specified service trade or business (section 199A). Asked about the partnership, not read: no box on the K-1 states it. Asked on EVERY K-1 whose item D is checked, not optional: at or above the section 199A threshold a true reduces this PTP's qualified amount to the applicable percentage through Schedule A (Form 8995-A) Part II (to nothing once taxable income passes the top of the phase-in range), while a false leaves the amount whole; below the threshold it changes no figure. Absence is refused rather than defaulted, because leaving the amount whole is the taxpayer-favourable side. Answered only on a partnership K-1 whose item D is checked; supplying it anywhere else is refused."
+    },
+    "ptp_prior_year_unallowed_loss_cents": {
+      "$ref": "cents.schema.json",
+      "description": "The prior-year unallowed passive loss carried forward from THIS publicly traded partnership (section 469(k), which applies separately to each PTP). A positive amount: the carry-in is a loss magnitude the engine subtracts, so a negative would invent a gain. Kept by the filer, not printed on this year's K-1. Optional — absence sends nothing and is stated as no prior-year unallowed loss from this PTP. Answered only on a partnership K-1 whose item D is checked; supplying it anywhere else is refused.",
+      "minimum": 0
+    },
+    "section_199a_qbi_cents": {
+      "$ref": "cents.schema.json",
+      "description": "Qualified business income or (loss) from the section 199A statement attached to the K-1 — Form 1065 box 20 code Z on a partnership whose item D is not checked, Form 1120-S box 17 code V on an S corporation. SIGNED as the statement reports it. Asked on EVERY such K-1 whose box 1 is not 0, and 0 is an answer: the statement may report none. Asked rather than read — the figure is on the attached statement, not on the K-1 face. Sent as one qualified business (Form 8995 line 1) when above 0. Refused by name where the statement's amount is not this return's qualified business income and nothing in the covered set turns it into that: beside box 14 code A self-employment earnings (the attributable part of the self-employment tax deduction reduces it), and a loss beside another business's income (it nets only to the extent the K-1 loss is allowed this year). Above the section 199A threshold the return is refused (Form 8995-A, Part II). A publicly traded partnership's statement amount is qualified_ptp_income_cents; an estate or trust K-1 is refused."
+    }
+  }
+}

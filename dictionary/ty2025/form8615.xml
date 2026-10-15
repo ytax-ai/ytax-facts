@@ -1,0 +1,2259 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/form8615ReturnFilesThisForm">
+      <Name>Return files Form 8615</Name>
+      <Description>Passes through the module's Form 8615 filing determination. An unanswered or unresolved determination leaves the render gate closed; a bare return with no child meeting the filing conditions resolves false.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/mustFileForm8615" /></IsComplete></When>
+            <Then><Dependency path="/mustFileForm8615" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615UnearnedIncome">
+      <Name>Form 8615 unearned-income proxy</Name>
+      <Description>The i1040gi Line 16 test's own named examples of unearned income — "taxable
+        interest, ordinary dividends, or capital gains (including capital gain distributions)" —
+        summed as a LOWER BOUND on the real Form 8615 line 1 (Line 16 test says "such as", not
+        an exhaustive list). CAPITAL LOSS: a net capital LOSS used to be floored at $0 here, on the argument that a
+        lower-bound gate only has to be safe upward. That argument is wrong in the direction it
+        ignores. i8615's Capital loss rule takes the child's capital losses INTO ACCOUNT, and the
+        $3,000/$1,500 cap it states is the same cap scheduleD:/capitalGainOrLossForForm1040 has
+        already applied, so the floor did not add conservatism to a lower bound - it discarded a
+        printed subtraction and OVER-refused: a child with $5,000 of interest and a $3,000 capital
+        loss has $2,000 of unearned income and is not a Form 8615 filer at all, yet the gate fired.
+        The sum is now UNFLOORED and identical to /form8615Line1's three-item sum, which was
+        already built this way for exactly this reason. NAMED RESIDUE: this proxy omits taxable social security, taxable pensions/annuities,
+        rents/royalties/passive-activity income, unemployment compensation, taxable scholarships
+        not reported on a W-2, and trust/estate distributable net income — every one of those is
+        also "unearned income" under the real Form 8615 worksheet, so a filer whose ONLY unearned
+        income is one of those omitted classes is not detected by this gate. Detection by this
+        proxy therefore implies real Form 8615 membership; the converse does not hold.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="interest" path="/interestIncome" />
+          <Dependency module="income" path="/ordinaryDividends" />
+          <Dependency module="scheduleD" path="/capitalGainOrLossForForm1040" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615UnearnedIncomeOverThreshold">
+      <Name>Form 8615 condition 1 — unearned income over $2,700</Name>
+      <Description>i1040gi Line 16 condition 1: "You had more than $2,700 of unearned income."
+        Strictly GREATER THAN — a filer with exactly $2,700 does not meet condition 1.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/form8615UnearnedIncome" />
+          </Left>
+          <Right>
+            <Dollar>2700</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8615EarnedIncomeNotMoreThanHalfSupport">
+      <Name>Filer's earned income was not more than half of their own support (Form 8615 conditions 3b/3c)</Name>
+      <Description>Screen question, paraphrasing i1040gi Line 16 conditions 3(b)/3(c) verbatim: "you
+        didn't have earned income that was more than half of your support." An ATTESTATION, not a
+        computation — "support" is not derivable from anything reported on a return (third-party
+        support is never reported), the same reasoning form8863.xml's identically-shaped
+        /writableAotcEarnedIncomeLessThanHalfSupport records for the AOTC's own age-24 gate. NOT the
+        same fact as that one: i8863's test is "less than one-half" (strict), i1040gi's Line 16 test
+        for Form 8615 is "not more than half" (the boundary at EXACTLY half of support is included
+        here and excluded there), so the two attestations diverge at that one boundary value and are
+        kept separate rather than shared. Asked-when: only reached when
+        /form8615UnearnedIncomeOverThreshold is true AND the filer's day-before-DOB age is exactly 18,
+        or 19 through 23 and a student. Unanswered posture: defaults to TRUE (earned income was NOT
+        more than half of support) — the WORLD-1-safe direction for a refusal gate, matching every
+        sibling unanswered default in this module: an unanswered attestation makes the Form 8615 gate
+        MORE likely to fire, never less, so an unanswered return over-refuses rather than silently
+        under-taxing the population the gate exists to catch. HELP TEXT: support is every amount
+        spent to provide the filer with food, lodging, clothing, education, medical and dental care,
+        recreation, transportation, and similar necessities, counting support provided by the
+        parents, by the filer, and by others. A scholarship the filer received is NOT support if the
+        filer was a full-time student.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8615EarnedIncomeNotMoreThanHalfSupportOrDefault">
+      <Name>Earned income not more than half of support, with the absent-answer default applied</Name>
+      <Description>/writableForm8615EarnedIncomeNotMoreThanHalfSupport, defaulting to TRUE when
+        unanswered — see that fact's ABSENT-ANSWER note. Split out so both condition 3(b) and
+        condition 3(c) read one fact rather than duplicating the guard (form8863.xml's
+        /aotcEarnedIncomeLessThanHalfSupport is the template).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8615EarnedIncomeNotMoreThanHalfSupport" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8615EarnedIncomeNotMoreThanHalfSupport" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8615FilerFullTimeStudent">
+      <Name>Filer was a full-time student in 2025 (Form 8615 condition 3c)</Name>
+      <Description>Screen question, the student limb of i8615's printed condition 3(c): "Was a
+        full-time student at least age 19 and under age 24 at the end of 2025". Help text, from the
+        IRC 152(f)(2) definition that condition runs on: you were a full-time student if during each
+        of 5 calendar months of 2025 you were enrolled as a full-time student at an educational
+        organization with a regular faculty, curriculum and enrolled student body, or took a
+        full-time on-farm training course given by such an organization or by a state, county or
+        local government agency. Asked-when: only reached when /form8615UnearnedIncomeOverThreshold
+        is true and the filer's day-before-DOB age is 19 through 23.
+
+        WHY THIS FACT EXISTS.
+        Condition 3(c) read filers:/primaryFiler/isStudent, a bare "Filer is a student" Boolean with
+        no full-time and no 5-month qualifier, and therefore a SUPERSET of the printed test: a
+        PART-TIME student aged 19 through 23 whose earned income was not more than half of their own
+        support was flagged as a Form 8615 filer the statute does not reach. No tax is under-charged
+        by that (over-refusal is the World-1-safe direction for a submission block), but a valid
+        return is blocked, and the module's own Description at /form8615AgeConditionMet admitted the
+        gap. form8863.xml:/writableAotcFilerFullTimeStudent made this same correction for the AOTC
+        age gate. NOT SHARED with that fact: i8863 asks its question of an
+        education-credit claimant under its own scholarship-support definition ("during any part of
+        any 5 calendar months"), while this one is the IRC 152(c)(3)(A)(ii) age-requirement limb
+        (each of 5 calendar months); the printed questions and the asked-when populations differ, so
+        the two are kept separate on the same reasoning that keeps
+        /writableForm8615EarnedIncomeNotMoreThanHalfSupport apart from its i8863 twin.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8615FilerIsFullTimeStudentCompleteSafe">
+      <Name>Complete-safe Form 8615 student status, retaining the unanswered TRUE fallback</Name>
+      <Description>The legacy /primaryFiler/isStudent arm of /form8615FilerIsFullTimeStudent
+        needs the same value as the source fact when answered, but TRUE when the primary
+        student's answer is absent.  Derive both states from the complete /filers collection:
+        a complete primary row with isStudent TRUE yields TRUE, a complete primary row with
+        isStudent FALSE yields FALSE, and no complete primary answer yields TRUE.  The final
+        fallback also keeps a not-yet-complete filer out of an incomplete submission gate.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/filers" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Any>
+                <Not>
+                  <GreaterThan>
+                    <Left>
+                      <CollectionSize>
+                        <Filter path="/filers">
+                          <All>
+                            <Dependency path="isPrimaryFiler" />
+                            <IsComplete>
+                              <Dependency path="isStudent" />
+                            </IsComplete>
+                          </All>
+                        </Filter>
+                      </CollectionSize>
+                    </Left>
+                    <Right><Int>0</Int></Right>
+                  </GreaterThan>
+                </Not>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/filers">
+                        <All>
+                          <Dependency path="isPrimaryFiler" />
+                          <Dependency path="isStudent" />
+                        </All>
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right><Int>0</Int></Right>
+                </GreaterThan>
+              </Any>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><True /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615FilerIsFullTimeStudent">
+      <Name>Filer is a full-time student for condition 3(c), with the legacy fallback and the
+        absent-answer default applied</Name>
+      <Description>/writableForm8615FilerFullTimeStudent when it is answered; otherwise the bare
+        filers:/primaryFiler/isStudent this limb read before the attestation existed; otherwise TRUE. The middle arm
+        is deliberate and narrow: isStudent is a SUPERSET of the printed full-time test, so where
+        the new attestation has not been collected the gate keeps its earlier behaviour exactly
+        and fires on the same broader population (an OVER-refusal, never an under-tax).
+
+        THE THIRD ARM. When isStudent is itself unanswered the gate must not stay Incomplete:
+        Incomplete is not the quiet posture it sounds like. The return filed, at the wrong rate,
+        with nothing said. Incomplete on this gate IS false downstream, which is the
+        silent-under-tax direction the gate exists to prevent.
+
+        WHY TRUE AND NOT SOMETHING CLEVERER: it is the module's existing convention, not a new
+        judgement. Every other unanswered limb of /mustFileForm8615's All already defaults TRUE for
+        exactly this reason — /form8615EarnedIncomeNotMoreThanHalfSupportOrDefault above and
+        /form8615ParentAliveAtEndOfYearOrDefault below, both citing the WORLD-1-safe direction for
+        a refusal gate. The student limb was the only one resolving Incomplete. An unanswered
+        return is now REFUSED (visible, and the filer is told what to answer) instead of filed at
+        the wrong rate (invisible). The over-refusal this buys is bounded: only a filer aged 19
+        through 23 with unearned income over $2,700, on a non-joint return with a parent alive,
+        whom intake has asked NEITHER student question, reaches the third arm — and
+        filers:/primaryFiler/isStudent is already a shipping intake fact, so today that population
+        is the returns the application has not yet asked it of.
+
+        "CAN ONLY NARROW" IS ALSO WITHDRAWN, same pass. The earlier text claimed that answering the
+        full-time question narrows the gate and is the only direction this fact can move it. It
+        does not narrow in the (attestation TRUE, isStudent FALSE) cell, where the gate fires
+        although the legacy read alone would not. That WIDENING is correct — the dedicated
+        attestation is the authoritative answer to printed condition 3(c) and a filer who answers
+        it yes is inside the printed population whatever the older, looser question was answered —
+        but the claim was false.
+
+        When intake routes the new question the middle arm becomes dead
+        weight and should be dropped, leaving the attestation and this same TRUE default.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8615FilerFullTimeStudent" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8615FilerFullTimeStudent" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8615FilerIsFullTimeStudentCompleteSafe" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/form8615FilerIsFullTimeStudentCompleteSafe" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentAliveAtEndOfYearOrDefault">
+      <Name>At least one parent alive at end of year, with the absent-answer default applied</Name>
+      <Description>Form 8615 condition 4 REUSES form8863:/writableAotcParentAliveAtEndOfYear — the
+        printed question is identical in both instructions ("At least one of your parents was alive
+        at the end of 2025"), so this is the same real-world fact asked once, not a second intake.
+        Defaults to TRUE when unanswered, the same WORLD-1-safe direction as the
+        support attestation above and as form8863's own use of this fact.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="form8863" path="/writableAotcParentAliveAtEndOfYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="form8863" path="/writableAotcParentAliveAtEndOfYear" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615AgeConditionCompleteSafe">
+      <Name>Complete-safe Form 8615 age condition</Name>
+      <Description>The printed day-before-DOB age condition is evaluated from the complete
+        /filers collection, whose relative age field avoids an unfenced primary-filer read.
+        A missing date of birth remains FALSE, matching /form8615AgeConditionMet's existing
+        age-unknowable fallback.  Each filter retains the primary-filer selector and requires
+        the age field to be complete before comparing it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/filers" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Any>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/filers">
+                        <All>
+                          <Dependency path="isPrimaryFiler" />
+                          <IsComplete>
+                            <Dependency path="ageCalculatedDayBeforeDOB" />
+                          </IsComplete>
+                          <LessThan>
+                            <Left><Dependency path="ageCalculatedDayBeforeDOB" /></Left>
+                            <Right><Int>18</Int></Right>
+                          </LessThan>
+                        </All>
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right><Int>0</Int></Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/filers">
+                        <All>
+                          <Dependency path="isPrimaryFiler" />
+                          <IsComplete>
+                            <Dependency path="ageCalculatedDayBeforeDOB" />
+                          </IsComplete>
+                          <Equal>
+                            <Left><Dependency path="ageCalculatedDayBeforeDOB" /></Left>
+                            <Right><Int>18</Int></Right>
+                          </Equal>
+                          <Dependency path="/form8615EarnedIncomeNotMoreThanHalfSupportOrDefault" />
+                        </All>
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right><Int>0</Int></Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/filers">
+                        <All>
+                          <Dependency path="isPrimaryFiler" />
+                          <IsComplete>
+                            <Dependency path="ageCalculatedDayBeforeDOB" />
+                          </IsComplete>
+                          <GreaterThan>
+                            <Left><Dependency path="ageCalculatedDayBeforeDOB" /></Left>
+                            <Right><Int>18</Int></Right>
+                          </GreaterThan>
+                          <LessThan>
+                            <Left><Dependency path="ageCalculatedDayBeforeDOB" /></Left>
+                            <Right><Int>24</Int></Right>
+                          </LessThan>
+                          <Dependency path="/form8615FilerIsFullTimeStudent" />
+                          <Dependency path="/form8615EarnedIncomeNotMoreThanHalfSupportOrDefault" />
+                        </All>
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right><Int>0</Int></Right>
+                </GreaterThan>
+              </Any>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615AgeConditionMet">
+      <Name>Form 8615 condition 3 (a OR b OR c)</Name>
+      <Description>i1040gi Line 16 condition 3: under 18, OR 18 with earned income not more than
+        half of support, OR 19-23 and a full-time student with earned income not more than half of
+        support — each "at the end of 2025". AGE READING: this uses the DAY-BEFORE-DOB convention
+        (/filers/*/ageCalculatedDayBeforeDOB), NOT the ordinary anniversary-rule /filers/*/age that
+        most gates in this dictionary use (see filers.xml:489-528's warning against "correcting" that
+        fact to the day-before rule for gates it does NOT list). Form 8615 is the one gate where the
+        day-before rule is not an inference but PRINTED, verbatim, immediately after the condition 3
+        text itself: "A child born on January 1, 2008, is considered to be age 18 at the end of 2025;
+        a child born on January 1, 2007, is considered to be age 19 ...; and a child born on January
+        1, 2002, is considered to be age 24 ..." — exactly the day-before convention, stated for this
+        gate by name. STUDENT READING: limb
+        3(c) now reads /form8615FilerIsFullTimeStudent, which prefers the dedicated
+        /writableForm8615FilerFullTimeStudent attestation and falls back to the bare
+        filers:/primaryFiler/isStudent only where that attestation is unanswered. isStudent alone is
+        a SUPERSET of condition 3(c)'s "full-time student" (IRC 152(f)(2): full-time during each of
+        5 calendar months), so before this fix a PART-TIME student aged 19 through 23 was flagged by
+        a gate the statute does not reach — an OVER-refusal, the safe direction for a submission
+        block (unlike form8863, where the same superset caused an over-CLAIM its
+        /writableAotcFilerFullTimeStudent fix corrected), but a blocked valid return all the same.
+        STUDENT-UNANSWERED: a
+        19-to-23-year-old who has answered NEITHER student question now meets this limb by default,
+        because /form8615FilerIsFullTimeStudent resolves TRUE there rather than Incomplete. Before
+        that third arm this fact went Incomplete for that filer, /mustFileForm8615 went Incomplete
+        with it, and the return FILED at the child's own rate with Form 1040 line 16 Complete — see
+        /form8615FilerIsFullTimeStudent for the measurement. AGE-UNKNOWABLE FALLBACK: resolves FALSE (not the age-condition), deliberately DIFFERENT from
+        form8863's own "unknowable -> bar" default. form8863 guards a MONEY payout, where erring
+        toward not-paying is safe; this fact gates SUBMISSION, and blocking submission before the
+        filer has even entered a date of birth is not a safe default — it would read every freshly
+        started return as gated.
+        WHY THOSE TWO UNKNOWNS POINT OPPOSITE WAYS, since a reader will ask: student-unknown
+        defaults toward the gate and age-unknown defaults away from it, and the discriminator is
+        whether the return can file while the datum is missing. A return with no date of birth is
+        Incomplete in a dozen other places and cannot be submitted at all, so refusing it here buys
+        nothing and its silence is already visible to the filer. A return with no student answer
+        resolves every printed line, including line 16, and files — nothing else is waiting on that
+        datum. Only the second unknown can be SILENTLY wrong, so only the second one is defaulted
+        toward the refusal. See /mustFileForm8615 for how this composes with the other four
+        conditions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency path="/form8615AgeConditionCompleteSafe" /></Derived>
+    </Fact>
+
+    <Fact path="/mustFileForm8615">
+      <Name>Must file Form 8615 (tax on certain unearned income of a child)</Name>
+      <Description>TRUE when i1040gi Line 16's five printed conditions all hold: more than $2,700
+        of unearned income (proxy, see /form8615UnearnedIncome), condition 2 ("required to file")
+        treated as satisfied by construction (RESIDUE, not trivial: a filer who is only VOLUNTARILY
+        filing and not required to would fail condition 2, and this gate does not distinguish that
+        case; the population overlap is small because a filer with more than $2,700 of unearned
+        income almost always independently exceeds the dependent gross-income filing threshold), the
+        age test (/form8615AgeConditionMet), at least one parent alive
+        (/form8615ParentAliveAtEndOfYearOrDefault), and not filing a joint return.
+        BLOCKS SUBMISSION rather than computing the §1(g) allocable-parental tax, which this
+        dictionary cannot build (i8615/f8615 unvendored — see the module header). The actual computation is not built.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency path="/form8615UnearnedIncomeOverThreshold" />
+          <True />
+          <Dependency path="/form8615AgeConditionMet" />
+          <Dependency path="/form8615ParentAliveAtEndOfYearOrDefault" />
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+
+
+    <Fact path="/writableForm8615ParentFilingStatus">
+      <Name>Parent's filing status for Form 8615 (writable)</Name>
+      <Description>Form 8615 line C: the filing status checked on the parent's own Form
+        1040 or 1040-NR used to complete this Form 8615 (Single, Married filing jointly,
+        Married filing separately, Head of household, or Qualifying surviving spouse).
+        Which parent's return to use when the parents don't file jointly is i8615's own
+        "Which Parent's Return To Use" and "Parents Who Don't File a Joint Return"
+        discussion (the filer answers with whichever parent's return i8615 designates).
+        Asked-when: /mustFileForm8615 is true. Unanswered posture: REFUSED — Form 8615
+        cannot be figured without the parent's bracket, so an unanswered value leaves
+        /form8615AllocableParentalTax Incomplete rather than defaulting to any one
+        status. Feeds: the parent-side rate-schedule kernel (line 9) below.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Enum optionsPath="/filingStatusOptionsCapitalized" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8615ParentName">
+      <Name>Parent's name for Form 8615 line A (writable)</Name>
+      <Description>Form 8615 line A: the name (first, initial, and last) of the parent whose return is used to complete this Form 8615. If the parents were married to each other and filed a joint return, the parent listed first on that joint return; if they were married and filed separate returns, the parent with the higher taxable income; otherwise the parent i8615's "Which Parent's Return To Use" names. The parent is not a person this dictionary holds, so this is the filer's own entry. Asked-when: /mustFileForm8615 is true. Unanswered: the printed box stays blank; nothing computes from it. Feeds: the printed line A.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8615ParentTin">
+      <Name>Parent's social security number for Form 8615 line B (writable)</Name>
+      <Description>Form 8615 line B: the social security number of the parent named on line A. The parent must give the TIN to the child and the child must include it on the child's return. Asked-when: /mustFileForm8615 is true. Unanswered: the printed box stays blank; nothing computes from it. Feeds: the printed line B. NEVER the filer's own number: the filer is the child.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8615ParentTaxableIncome">
+      <Name>Parent's taxable income for Form 8615 line 6 (writable)</Name>
+      <Description>Form 8615 line 6: the parent's taxable income from the parent's Form
+        1040 or 1040-NR, line 15 (the return identified by /writableForm8615ParentFilingStatus),
+        even if the filer's spouse isn't the child's parent. Floored at $0 (the printed
+        instruction: "If the parent's taxable income is zero or less, enter zero on line
+        6"). NOT the amount from a Foreign Earned Income Tax Worksheet substitution (i8615's
+        "Parent files Form 2555" residue, gated out by
+        /writableForm8615NoSpecialRateWorksheetRequired). Asked-when: /mustFileForm8615 is
+        true. Unanswered posture: REFUSED (Incomplete) — never assumed zero, because a $0
+        assumption would understate every downstream line.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxableIncomeFloored">
+      <Name>Form 8615 line 6 (floored)</Name>
+      <Description>/writableForm8615ParentTaxableIncome, already Min-limited to $0 at the
+        writable; this fact exists only so line 6 has the same "one quantity, one fact"
+        shape line 8's Add uses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableForm8615ParentTaxableIncome" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8615ParentTax">
+      <Name>Parent's tax for Form 8615 line 10 (writable)</Name>
+      <Description>Form 8615 line 10: the parent's tax from the parent's Form 1040,
+        1040-SR, or 1040-NR, line 16, MINUS any alternative minimum tax, and NOT including
+        any tax from Form 4972 (lump-sum distributions), Form 8814 (parents' election on a
+        child's income), or the recapture of an education credit. Transcribed by the filer
+        from the parent's own return (this graph links no parent return). Asked-when:
+        /mustFileForm8615 is true. Unanswered posture: REFUSED (Incomplete) — never
+        assumed zero.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8615HasOtherChildrenAlsoFiling">
+      <Name>Does this same parent have other children also filing Form 8615? (writable)</Name>
+      <Description>Form 8615 line 7's gate: whether the parent's tax return information
+        identified on lines A-C is ALSO used on any other child's Form 8615 for 2025 (i8615's
+        "other child" — any other child whose Form 8615 uses this same parent's tax
+        information). Asked-when: /mustFileForm8615 is true. Unanswered posture: REFUSED
+        (Incomplete) — never assumed "no", because omitting a real sibling understates the
+        tentative tax this child's income is combined into and allocated from (§1(g)(3)'s
+        combined-income mechanism cannot lower this child's allocated share by adding a
+        sibling's income to the shared pot). Feeds:
+        /writableForm8615OtherChildrenNetUnearnedIncomeTotal (asked only when this is
+        true) and line 7/8/12a/12b/13 below.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8615OtherChildrenNetUnearnedIncomeTotal">
+      <Name>Other children's total net unearned income for Form 8615 line 7 (writable)</Name>
+      <Description>Form 8615 line 7: the TOTAL of the amounts on line 5 of all the OTHER
+        children's Forms 8615 that use this same parent's return (i8615's Persimmon-family
+        example: Sharon's line 7 is the sum of Jerry's and Mike's own line-5 amounts, never
+        her own). This graph does not carry the other children's returns, so the filer
+        transcribes the ONE total rather than each sibling's Form 8615 being modeled
+        separately (a cross-filer aggregation this single-return dictionary does not do).
+        Asked-when: /writableForm8615HasOtherChildrenAlsoFiling is true. Unanswered
+        posture: REFUSED (Incomplete) — never assumed $0 once the filer has said other
+        children exist.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8615OtherChildrenNetUnearnedIncomeTotalOrZero">
+      <Name>Form 8615 line 7</Name>
+      <Description>Line 7 as printed: the other-children total when
+        /writableForm8615HasOtherChildrenAlsoFiling is true, or $0 ("blank") when it is
+        false. Incomplete when the gate itself is unanswered, or when it is true but the
+        total is unanswered — never defaults to $0 on an affirmative "yes there are other
+        children" answer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableForm8615HasOtherChildrenAlsoFiling" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/writableForm8615HasOtherChildrenAlsoFiling" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/writableForm8615HasOtherChildrenAlsoFiling" />
+                <IsComplete>
+                  <Dependency path="/writableForm8615OtherChildrenNetUnearnedIncomeTotal" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8615OtherChildrenNetUnearnedIncomeTotal" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8615ChildHasOnlyOrdinaryUnearnedIncome">
+      <Name>Child's unearned income is limited to interest, dividends and capital gains, with no other complications (writable)</Name>
+      <Description>Screen attestation fencing the population this build computes: TRUE
+        when, other than wages, the child's ONLY income for 2025 is taxable interest,
+        ordinary dividends, and capital gain or loss (Schedule D or the capital gain
+        line); the child does NOT itemize deductions (Schedule A); the child has no
+        adjustment to income such as the early-withdrawal-of-savings penalty; the child
+        has no net loss from self-employment and claims no net operating loss deduction;
+        and the child does not file Form 2555. Each of these narrows i8615's Line 1, Line
+        2, and Alternate Worksheet for Form 8615 Line 1 paths this build does not
+        implement (a full re-derivation of every unearned-income class i1040gi's own gate
+        already discloses as omitted — taxable Social Security, taxable pensions and
+        annuities, rental/royalty/passive income, unemployment compensation, taxable
+        scholarships not reported on a Form W-2, and trust income — is not built). Asked-when:
+        /mustFileForm8615 is true. Unanswered posture: REFUSED (Incomplete) — a FALSE or
+        unanswered value leaves /form8615AllocableParentalTax Incomplete rather than
+        computing a possibly wrong tax on an incompletely-known income base.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8615NoSpecialRateWorksheetRequired">
+      <Name>No Qualified Dividends and Capital Gain Tax Worksheet, Schedule D Tax Worksheet, Schedule J, or Form 2555 is needed to figure Form 8615 lines 9, 15, or 17 (writable)</Name>
+      <Description>Screen attestation fencing the population this build computes to the
+        ordinary Tax Table / Tax Computation Worksheet rate schedule: TRUE when NONE of
+        the child, the parent, or any other child whose Form 8615 uses this same parent's
+        return has qualified dividends or a net capital gain that would be included on
+        Form 8615 line 8 or line 14, has 28% rate gain or unrecaptured section 1250 gain,
+        has farming or fishing income requiring Schedule J, or files Form 2555. Any of
+        those requires a SEPARATE worksheet inside line 9's, line 15's, or line 17's own
+        tax figuring (i8615's own "Figure the tax...using the Tax Table, the Tax
+        Computation Worksheet, the [QDCGTW]...the Schedule D Tax Worksheet...or Schedule J"
+        branch), none of which this build implements — a named residue. Asked-when: /mustFileForm8615 is true.
+        Unanswered posture: REFUSED (Incomplete) — the ordinary ladder this build computes
+        would be WRONG for any of those populations, so a FALSE or unanswered value must
+        never fall through to it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8615ComputableUnderOrdinaryLadder">
+      <Name>Form 8615 falls inside the fenced, ordinary-rate-schedule computable population</Name>
+      <Description>Both fence attestations true:
+        /writableForm8615ChildHasOnlyOrdinaryUnearnedIncome and
+        /writableForm8615NoSpecialRateWorksheetRequired. Incomplete when either is
+        unanswered (unless the other already resolves the All() to FALSE); FALSE resolves
+        the population OUT even with the other unanswered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/writableForm8615ChildHasOnlyOrdinaryUnearnedIncome" />
+          <Dependency path="/writableForm8615NoSpecialRateWorksheetRequired" />
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8615ParentTaxRateScheduleBracketTop10Pct">
+      <Name>Form 8615 line 9 kernel — top of the 10% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBracketTop10Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>23850</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>17000</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>11925</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>11925</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBracketTop12Pct">
+      <Name>Form 8615 line 9 kernel — top of the 12% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBracketTop12Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>96950</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>64850</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>48475</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>48475</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBracketTop22Pct">
+      <Name>Form 8615 line 9 kernel — top of the 22% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBracketTop22Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>206700</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>103350</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>103350</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>103350</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBracketTop24Pct">
+      <Name>Form 8615 line 9 kernel — top of the 24% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBracketTop24Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>394600</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>197300</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>197300</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>197300</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBracketTop32Pct">
+      <Name>Form 8615 line 9 kernel — top of the 32% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBracketTop32Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>501050</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>250500</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>250525</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>250525</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBracketTop35Pct">
+      <Name>Form 8615 line 9 kernel — top of the 35% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBracketTop35Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>751600</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>626350</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>626350</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>375800</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBase12Pct">
+      <Name>Form 8615 line 9 kernel — base tax at the bottom of the 12% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBase12Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>2385</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>1700</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>1192.50</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>1192.50</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBase22Pct">
+      <Name>Form 8615 line 9 kernel — base tax at the bottom of the 22% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBase22Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>11157</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>7442</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>5578.50</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>5578.50</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBase24Pct">
+      <Name>Form 8615 line 9 kernel — base tax at the bottom of the 24% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBase24Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>35302</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>15912</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>17651</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>17651</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBase32Pct">
+      <Name>Form 8615 line 9 kernel — base tax at the bottom of the 32% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBase32Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>80398</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>38460</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>40199</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>40199</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBase35Pct">
+      <Name>Form 8615 line 9 kernel — base tax at the bottom of the 35% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBase35Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>114462</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>55484</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>57231</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>57231</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615ParentTaxRateScheduleBase37Pct">
+      <Name>Form 8615 line 9 kernel — base tax at the bottom of the 37% bracket, by attested parent filing status</Name>
+      <Description>PARENT-SIDE TWIN of taxCalculations:/taxRateScheduleBase37Pct: the
+        SAME Rev. Proc. 2024-40 rate-schedule parameter, but Switched on the ATTESTED parent filing
+        status (/writableForm8615ParentFilingStatus) instead of the return's own /filingStatus,
+        because Form 8615 lines 6-13 figure a tentative tax at the PARENT's bracket, which this
+        single-return dictionary does not otherwise carry. NO UNCONDITIONAL-TRUE FALLTHROUGH ARM,
+        matching the kernel it twins: a literal is unconditionally Complete while this fact is only
+        as Complete as /writableForm8615ParentFilingStatus, so a fallthrough would move Form 8615's
+        line 9 to Complete on an unanswered parent filing status.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingJointly</Enum></Right>
+                </Equal>
+                <Equal>
+                  <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                  <Right><Enum optionsPath="/filingStatusOptionsCapitalized">qualifiedSurvivingSpouse</Enum></Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then><Dollar>202154.50</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">headOfHousehold</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>187031.50</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">single</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>188769.75</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/writableForm8615ParentFilingStatus" /></Left>
+                <Right><Enum optionsPath="/filingStatusOptionsCapitalized">marriedFilingSeparately</Enum></Right>
+              </Equal>
+            </When>
+            <Then><Dollar>101077.25</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8615Line1">
+      <Name>Form 8615 line 1 (computed)</Name>
+      <Description>Form 8615 line 1, computed under the fence
+        (/form8615ComputableUnderOrdinaryLadder): interest + ordinary dividends +
+        scheduleD:/capitalGainOrLossForForm1040, UNFLOORED, because i8615 181-188 takes the
+        child's capital losses INTO ACCOUNT, subtracting the loss (up to the $3,000/$1,500
+        Schedule D cap scheduleD:/capitalGainOrLossForForm1040 already applies) from interest,
+        dividends and other unearned income. This is now the SAME sum /form8615UnearnedIncome
+        computes. With no wages-plus-other-AGI-item to net out (the fence
+        attests no self-employment loss, no NOL, no Form 2555, no early-withdrawal
+        penalty, and no other unearned-income class), the child's AGI is exactly wages
+        plus this UNFLOORED three-item sum, so the i8615 Child's Unearned Income
+        Worksheet's line E (AGI plus adjustments, minus earned income) reduces to this sum
+        exactly — verified against BOTH i8615 worked fragments the module cites: the
+        Amanda Black gain case (dividends $1,300 + interest $1,400 + net capital gain $100
+        (gain $300 less loss $200) = $2,800) and a net capital LOSS case (interest
+        $10,000 + a $5,000 short-term loss capped at −$3,000 by Schedule D's own limit =
+        $7,000, node-test form8615-capital-loss-witness).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form8615ComputableUnderOrdinaryLadder" />
+            </When>
+            <Then>
+              <Add>
+                <Dependency module="interest" path="/interestIncome" />
+                <Dependency module="income" path="/ordinaryDividends" />
+                <Dependency module="scheduleD" path="/capitalGainOrLossForForm1040" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line3">
+      <Name>Form 8615 line 3</Name>
+      <Description>Form 8615 line 3: line 1 minus $2,700 (the fence excludes itemizers,
+        so line 2's itemized-deduction alternative never applies), floored at $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8615Line1" />
+            </Minuend>
+            <Subtrahends>
+              <Dollar>2700</Dollar>
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line5">
+      <Name>Form 8615 line 5 (child's net unearned income)</Name>
+      <Description>Form 8615 line 5: the smaller of line 3 or line 4 (the child's taxable
+        income, taxCalculations:/taxableIncome — the EXACT figure, not the Tax-Table
+        row-midpoint /roundedTaxableIncome, which applies only inside a tax-figuring step,
+        not to a line-to-line dollar comparison). Line 4 itself is that same dependency,
+        read directly wherever "line 4" is needed below rather than duplicated as its own
+        fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8615Line3" />
+          <Dependency module="taxCalculations" path="/taxableIncome" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line8">
+      <Name>Form 8615 line 8</Name>
+      <Description>Form 8615 line 8: the total of lines 5, 6, and 7 — the combined net
+        unearned income the tentative tax at the parent's rate is figured on.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8615Line5" />
+          <Dependency path="/form8615ParentTaxableIncomeFloored" />
+          <Dependency path="/form8615OtherChildrenNetUnearnedIncomeTotalOrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8615RoundedLine8">
+      <Name>Tax Table midpoint rounding for line 8</Name>
+      <Description>STRUCTURAL TWIN of taxCalculations:/roundedTaxableIncome (same Tax
+        Table row-midpoint convention: $25 rows below $3,000, $50 rows from $3,000 to
+        $100,000, exact above $100,000), with its input swapped to line 8
+        (/form8615Line8) instead of the return's own taxable income — the SAME "figure the
+        tax on the amount on line 8 using the Tax Table" instruction the real form
+        prints for every one of Form 8615's own tax-figuring lines. Without this twin, a
+        line 8 amount under $100,000 that is not already a $50/$25 row midpoint
+        would be looked up at its own exact value instead of the row the Tax Table
+        actually prints, moving the computed tax by the mid-row remainder times the
+        bracket rate (verified empirically against hand-computed fixtures: the first
+        drafts of /form8615Line9 and /form8615Line15 skipped this step and came back
+        $3-$25 off).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>5</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then><Dollar>2.50</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>15</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then><Dollar>10</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>25</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then><Dollar>20</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>3000</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand><Dependency path="/form8615Line8" /></Multiplicand>
+                  <Rate><Rational>25/25</Rational></Rate>
+                </StepwiseMultiply>
+                <Dollar>12.50</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand><Dependency path="/form8615Line8" /></Multiplicand>
+                  <Rate><Rational>50/50</Rational></Rate>
+                </StepwiseMultiply>
+                <Dollar>25</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/form8615Line8" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then><Dependency path="/form8615Line8" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8615RoundedLine14">
+      <Name>Tax Table midpoint rounding for line 14</Name>
+      <Description>STRUCTURAL TWIN of taxCalculations:/roundedTaxableIncome (same Tax
+        Table row-midpoint convention: $25 rows below $3,000, $50 rows from $3,000 to
+        $100,000, exact above $100,000), with its input swapped to line 14
+        (/form8615Line14) instead of the return's own taxable income — the SAME "figure the
+        tax on the amount on line 14 using the Tax Table" instruction the real form
+        prints for every one of Form 8615's own tax-figuring lines. Without this twin, a
+        line 14 amount under $100,000 that is not already a $50/$25 row midpoint
+        would be looked up at its own exact value instead of the row the Tax Table
+        actually prints, moving the computed tax by the mid-row remainder times the
+        bracket rate (verified empirically against hand-computed fixtures: the first
+        drafts of /form8615Line9 and /form8615Line15 skipped this step and came back
+        $3-$25 off).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </LessThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>5</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then><Dollar>2.50</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>15</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then><Dollar>10</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>25</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then><Dollar>20</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>3000</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand><Dependency path="/form8615Line14" /></Multiplicand>
+                  <Rate><Rational>25/25</Rational></Rate>
+                </StepwiseMultiply>
+                <Dollar>12.50</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand><Dependency path="/form8615Line14" /></Multiplicand>
+                  <Rate><Rational>50/50</Rational></Rate>
+                </StepwiseMultiply>
+                <Dollar>25</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/form8615Line14" /></Left>
+                <Right><Dollar>100000</Dollar></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then><Dependency path="/form8615Line14" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8615Line9">
+      <Name>Form 8615 line 9 (tentative tax on line 8, at the parent's rate)</Name>
+      <Description>Form 8615 line 9: the tax on line 8 (via the Tax Table row-midpoint,
+        /form8615RoundedLine8), figured with the Tax Table / Tax Computation Worksheet rate
+        schedule ONLY (the fence /form8615ComputableUnderOrdinaryLadder excludes the QDCGTW
+        / Schedule D Tax Worksheet / Schedule J populations), read at the ATTESTED PARENT's
+        filing status via the /form8615ParentTaxRateSchedule* kernel facts above.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop10Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>10/100</Rational>
+                  <Dependency path="/form8615RoundedLine8" />
+                </Multiply>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop12Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form8615ParentTaxRateScheduleBase12Pct" />
+                  <Multiply>
+                    <Rational>12/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine8" /></Minuend>
+                      <Subtrahends><Dependency path="/form8615ParentTaxRateScheduleBracketTop10Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop22Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form8615ParentTaxRateScheduleBase22Pct" />
+                  <Multiply>
+                    <Rational>22/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine8" /></Minuend>
+                      <Subtrahends><Dependency path="/form8615ParentTaxRateScheduleBracketTop12Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop24Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form8615ParentTaxRateScheduleBase24Pct" />
+                  <Multiply>
+                    <Rational>24/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine8" /></Minuend>
+                      <Subtrahends><Dependency path="/form8615ParentTaxRateScheduleBracketTop22Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop32Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form8615ParentTaxRateScheduleBase32Pct" />
+                  <Multiply>
+                    <Rational>32/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine8" /></Minuend>
+                      <Subtrahends><Dependency path="/form8615ParentTaxRateScheduleBracketTop24Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop35Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form8615ParentTaxRateScheduleBase35Pct" />
+                  <Multiply>
+                    <Rational>35/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine8" /></Minuend>
+                      <Subtrahends><Dependency path="/form8615ParentTaxRateScheduleBracketTop32Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left><Dependency path="/form8615RoundedLine8" /></Left>
+                  <Right><Dependency path="/form8615ParentTaxRateScheduleBracketTop35Pct" /></Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency path="/form8615ParentTaxRateScheduleBase37Pct" />
+                  <Multiply>
+                    <Rational>37/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine8" /></Minuend>
+                      <Subtrahends><Dependency path="/form8615ParentTaxRateScheduleBracketTop35Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line11">
+      <Name>Form 8615 line 11 (tentative tax at the parent's rate)</Name>
+      <Description>Form 8615 line 11: line 9 minus line 10 (the parent's actual tax).
+        The result remains UNFLOORED by design, matching the printed form: an attested line
+        10 that overstates the parent's tax relative to this build's own line 9 can drive
+        this negative, and the negative value threads through line 13/16 unguarded —
+        /form8615Line18's own GreaterOf against line 17 is what keeps a negative number
+        from ever being exported. The declared nonnegative line-10 input is floored at $0
+        before this subtraction so a malformed negative seed cannot inflate the result.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8615Line9" />
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableForm8615ParentTax" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line12aThousandths">
+      <Name>Form 8615 line 12b, as thousandths (child's share of net unearned income)</Name>
+      <Description>Form 8615 lines 12a-12b, combined: line 12a is line 5 plus line 7; line
+        12b is line 5 divided by line 12a, "as a decimal (rounded to at least three
+        places)" — carried here as THOUSANDTHS (an Int from 0 to 1000) so the rounding is
+        exact rather than a repeating decimal, then divided back out at line 13. Only
+        meaningful when line 7 is nonzero; line 13 below reads this only in that case.
+        Verified against i8615's own Persimmon-family example: Sharon's line 5 is $3,000,
+        line 7 is $6,000, line 12a is $9,000, and 3,000/9,000 rounds to 0.333 exactly as
+        the instructions print (333 thousandths here).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Divide>
+            <Dividend>
+              <Multiply>
+                <Dependency path="/form8615Line5" />
+                <Int>1000</Int>
+              </Multiply>
+            </Dividend>
+            <Divisors>
+              <Add>
+                <Dependency path="/form8615Line5" />
+                <Dependency path="/form8615OtherChildrenNetUnearnedIncomeTotalOrZero" />
+              </Add>
+            </Divisors>
+          </Divide>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line13">
+      <Name>Form 8615 line 13 (child's share of the tentative tax)</Name>
+      <Description>Form 8615 line 13: when line 7 is blank (zero, i.e. no other children),
+        line 13 equals line 11 directly (the printed "If line 7 is blank, skip lines 12a
+        and 12b and enter the amount from line 11 on line 13"); otherwise line 11 times
+        line 12b (via the thousandths fact above, divided back by 1,000).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form8615OtherChildrenNetUnearnedIncomeTotalOrZero" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="/form8615Line11" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="/form8615Line11" />
+                      <Dependency path="/form8615Line12aThousandths" />
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000</Int>
+                  </Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line14">
+      <Name>Form 8615 line 14</Name>
+      <Description>Form 8615 line 14: line 4 (the child's ACTUAL taxable income,
+        taxCalculations:/taxableIncome — NOT the Tax Table row-midpoint) minus line 5,
+        floored at $0 (the printed "If lines 4 and 5 of Form 8615 are the same, ... enter
+        zero on lines 14 and 15").</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/taxableIncome" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8615Line5" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line15">
+      <Name>Form 8615 line 15 (tax on line 14, at the child's own rate)</Name>
+      <Description>Form 8615 line 15: the tax on line 14 (via the Tax Table row-midpoint,
+        /form8615RoundedLine14) using the Tax Table / Tax Computation Worksheet (the fence
+        excludes the QDCGTW/Schedule D Tax Worksheet/Schedule J populations), at the
+        CHILD's own filing status — a STRUCTURAL TWIN of
+        taxCalculations:/ordinaryTaxOnTaxableIncome with its input swapped to line 14 (the
+        same twin relationship preferentialRateTax:/ordinaryTaxOnWorksheetOrdinaryIncome
+        already has to that same kernel for the QDCG worksheet's own line 22). Reuses the
+        RETURN'S OWN taxCalculations bracket-kernel facts directly (module="taxCalculations"),
+        unlike line 9's parent-side twin, because line 15 is figured at the CHILD's status,
+        which this return already carries.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>10/100</Rational>
+                  <Dependency path="/form8615RoundedLine14" />
+                </Multiply>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase12Pct" />
+                  <Multiply>
+                    <Rational>12/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine14" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase22Pct" />
+                  <Multiply>
+                    <Rational>22/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine14" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase24Pct" />
+                  <Multiply>
+                    <Rational>24/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine14" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase32Pct" />
+                  <Multiply>
+                    <Rational>32/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine14" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase35Pct" />
+                  <Multiply>
+                    <Rational>35/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine14" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left><Dependency path="/form8615RoundedLine14" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase37Pct" />
+                  <Multiply>
+                    <Rational>37/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/form8615RoundedLine14" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line16">
+      <Name>Form 8615 line 16</Name>
+      <Description>Form 8615 line 16: line 13 plus line 15 — the child's tax figured at
+        the parent's rate on the net unearned income and the child's own rate on the
+        rest.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8615Line13" />
+          <Dependency path="/form8615Line15" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line17">
+      <Name>Form 8615 line 17 (tax on line 4, at the child's own rate)</Name>
+      <Description>Form 8615 line 17: the tax on the FULL line 4 amount at the child's own
+        rate — exactly taxCalculations:/ordinaryTaxOnTaxableIncome, since line 4 IS the
+        return's own taxable income (that shipping fact ALREADY applies the Tax Table
+        row-midpoint internally via /roundedTaxableIncome, so no separate twin is needed
+        here — a printed-line alias for the same reason /form8615Line1 aliases
+        /form8615UnearnedIncome).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="taxCalculations" path="/ordinaryTaxOnTaxableIncome" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615Line18">
+      <Name>Form 8615 line 18 (child's tax)</Name>
+      <Description>Form 8615 line 18: the larger of line 16 or line 17, valid ONLY when
+        line 5 &gt; 0. When line 5 is $0, f8615 lines 26-27 print a STOP — "do not complete
+        the rest of this form" — and i8615 281-283 says to "figure the tax on your child's
+        taxable income in the normal manner" instead; this fact still computes lines 16/17
+        (useful as an internal check), but /form8615AllocableParentalTax does NOT read this
+        fact on the line-5 = $0 branch — see that fact's own leading Case.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form8615Line16" />
+          <Dependency path="/form8615Line17" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8615AllocableParentalTax">
+      <Name>Form 8615 tax on a child's net unearned income (the parent's marginal rate)</Name>
+      <Description>The section 1(g) "kiddie tax" child's tax, for the FENCED population
+        /form8615ComputableUnderOrdinaryLadder covers: Incomplete outside that population,
+        or when any input above is unanswered, rather than a silently wrong number. TWO
+        ARMS once the population and every input resolve: line 5 &lt;= $0 prints f8615's own
+        STOP ("do not complete the rest of this form") and resolves to the child's normal
+        tax on taxable income (taxCalculations:/ordinaryTaxOnTaxableIncome) — NOT line 18,
+        which a $0 line 5 would otherwise pull a nonzero parent-rate contribution through
+        via lines 6-13 despite there being no net unearned income to tax at the parent's
+        rate; line 5 &gt; 0 resolves to Form 8615 line 18 (/form8615Line18) as printed.
+        EXPORTED but NOT YET CONSUMED anywhere; until it is wired, it changes no return's tax.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/mustFileForm8615" />
+                <Dependency path="/form8615ComputableUnderOrdinaryLadder" />
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8615Line5" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="taxCalculations" path="/ordinaryTaxOnTaxableIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/mustFileForm8615" />
+                <Dependency path="/form8615ComputableUnderOrdinaryLadder" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form8615Line18" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

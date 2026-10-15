@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/r1099.schema.json",
+  "title": "Form 1099-R",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "distribution_code",
+    "gross_distribution_cents"
+  ],
+  "properties": {
+    "person": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gross_distribution_cents": {
+      "description": "1099-R box 1, gross distribution. Required — the form is issued because a distribution happened, so a blank box 1 is an unread box, not a distribution of nothing (the W-2G posture). Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "taxable_amount_cents": {
+      "description": "1099-R box 2a, taxable amount. Optional — and absence is NOT zero: without it the return KNOCKS OUT (the pinned dictionary's own rule, whether or not box 2b is checked), because determining a taxable amount the payer did not state is advice this service refuses to give. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "taxable_amount_not_determined": {
+      "type": "boolean",
+      "description": "1099-R box 2b, 'taxable amount not determined'. Absent means unchecked, the form's own default. Checked, the return knocks out — see taxable_amount_cents."
+    },
+    "distribution_code": {
+      "description": "Box 7 code(s), e.g. \"3\", \"7\", \"G\". on a form with the IRA/SEP/SIMPLE box checked, a code containing G or H (a direct rollover) is carried as the line 4c rollover election — the rolled-over part leaves Form 1040 line 4b (measured: 10,000 with box 2a 0 files where the return was refused; box 2a 4,000 taxes the 4,000). An indirect rollover (code 7 rolled over within 60 days) is not carried: the engine's own knockout.",
+      "type": "string",
+      "pattern": "^[0-9A-Z]{1,2}$"
+    },
+    "ira_sep_simple": {
+      "type": "boolean",
+      "description": "The IRA/SEP/SIMPLE checkbox beside box 7. Absent means unchecked."
+    },
+    "federal_withholding_cents": {
+      "description": "1099-R box 4, federal income tax withheld. Optional — blank is an ordinary state of the box; absent is computed as zero and stated. Reaches Form 1040 line 25b, inside 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "other_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "1099-R box 8, Other — the amount. Absent means blank, the form's own default (nothing is sent). A nonblank amount is the engine's own knockout at the pin (Form 4972 line 11 would consume it, and Form 4972 is not figured here); 0 computes unchanged."
+    },
+    "other_percentage": {
+      "type": "string",
+      "pattern": "^(100(\\.0{1,3})?|[0-9]{1,2}(\\.[0-9]{1,3})?)$",
+      "maxLength": 7,
+      "description": "1099-R box 8, Other — the percentage beside the amount, in the form's own shape (up to three decimals: 12.345 means 12.345%). Absent means blank. A nonzero entry is the engine's own knockout at the pin; a value outside this shape is refused before resolve."
+    },
+    "percentage_of_total_distribution": {
+      "type": "string",
+      "pattern": "^(100(\\.0{1,3})?|[0-9]{1,2}(\\.[0-9]{1,3})?)$",
+      "maxLength": 7,
+      "description": "1099-R box 9a, Your percentage of total distribution — the share of a distribution paid to more than one person, in the form's own shape (up to three decimals). Absent means blank. A nonzero entry is the engine's own knockout at the pin (Form 4972 Part III would divide by it, and Form 4972 is not figured here); a value outside this shape is refused before resolve."
+    },
+    "qualified_hsa_funding_distribution_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The part of this distribution the IRA trustee transferred directly into the filer's health savings account — a qualified HSA funding distribution (the line 4c election; Form 8889 line 10, Form 1040 line 4b). Asked on each Form 1099-R with the IRA/SEP/SIMPLE box checked whose filer answered yes to persons[].hsa_funding_distribution; 0 if none of this distribution; required there, refused elsewhere and above box 1. Measured: 3,000 transferred with self-only coverage all year leaves line 4b and lands on line 10 (1,235.00 → 928.00); above the year's limit, or beside a prior-year election, the return is the engine's own knockout."
+    },
+    "qualified_charitable_distribution_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The part of this distribution the IRA trustee paid directly to a charity — a qualified charitable distribution (the line 4c election; Form 1040 line 4b). Asked on each Form 1099-R with the IRA/SEP/SIMPLE box checked, box 2a equal to box 1 and above 0, no direct-rollover code and no HSA funding distribution, whose recipient was born through 1953 (the engine's own sufficient age bound: at least 71 on January 1, 2025); 0 if none of this distribution; required there. A positive amount elsewhere is refused by name (a 1954 birth is day-ambiguous), as is one above box 2a. Measured (wages-single-low, filer born 1950, 10,000 with code 7): 10,000 paid to a charity 1,128.00 → 126.00; 4,000 → 728.00."
+    },
+    "qcd_to_split_interest_entity": {
+      "type": "boolean",
+      "description": "Whether the qualified charitable distribution was the one-time election to a split-interest entity (a charitable remainder trust, charitable remainder annuity trust or charitable gift annuity). Asked behind a positive qualified_charitable_distribution_cents; required there, refused elsewhere. false computes; true is the engine's own knockout, served with words."
+    },
+    "rolled_over_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The part of this distribution the recipient rolled over themselves into another retirement account within 60 days — an indirect rollover (Form 1040 line 4b or 5b; the frontier's writableIsIndirectRollover, writableIndirectRolloverAmount, writableIndirectRolloverWithin60Days). Asked on each Form 1099-R with box 2a equal to box 1 and above 0, no direct-rollover code, no HSA funding distribution and no qualified charitable distribution; 0 if none of it, or if later than 60 days; required there. A positive amount elsewhere is refused by name, as is one above box 1 and a PARTIAL one on a form with the IRA/SEP/SIMPLE box checked (an engine defect at this pin: counted on lines 4b and 5b both). Measured (wages-single-low, 10,000 with code 7): a pension form's 10,000 rolled over 2,075.00 → 928.00; 4,000 → 1,595.00; an IRA form's 10,000 → 928.00."
+    },
+    "ira_one_rollover_per_year": {
+      "type": "boolean",
+      "description": "Whether the rollover was the only IRA-to-IRA rollover in the 12 months before it (IRC 408(d)(3)(B); the frontier's writableIraOneRolloverPerYearSatisfied). Asked behind a positive rolled_over_cents on a form with the IRA/SEP/SIMPLE box checked; required there, refused elsewhere. true computes; false is the engine's own knockout, served with words."
+    },
+    "reached_minimum_retirement_age": {
+      "type": "boolean",
+      "description": "Whether the recipient had reached the minimum retirement age set by the employer's plan (Pub 575: generally the age at which the plan first pays a pension to someone who is not disabled). Asked (a required gap) on each Form 1099-R whose box 7 code is 3, 3D or D3 without the IRA/SEP/SIMPLE box; refused elsewhere. false carries the taxable amount to Form 1040 line 1h as wages; true carries it to lines 5a/5b as a pension (measured at the pin; the dictionary's description says a true knocks out). Unanswered, the engine knocks the return out."
+    },
+    "public_safety_officer": {
+      "type": "boolean",
+      "description": "Whether this person is an eligible retired public safety officer (IRC 402(l): a law enforcement officer, firefighter, chaplain, or member of a rescue squad or ambulance crew, retired for disability or after normal retirement age) and this Form 1099-R is from their government retirement plan. Asked (a required gap) on each Form 1099-R with a box 7 code of 2 or 7 and no B, without the IRA/SEP/SIMPLE box (the exclusion does not reach an IRA). false ends the chain; true reaches pso_premiums_paid_by_plan. Refused elsewhere. Measured: the chain answered with 2,500 of premiums, 4,865.00 → 4,565.00."
+    },
+    "pso_premiums_paid_by_plan": {
+      "type": "boolean",
+      "description": "Whether that plan paid accident, health or long-term care insurance premiums directly to the insurer out of this distribution. Asked once public_safety_officer is true; true reaches pso_premiums_cents. Refused elsewhere."
+    },
+    "pso_premiums_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The premiums the plan paid for the year out of this distribution, in integer cents — the amount IRC 402(l) excludes from Form 1040 line 5b, up to 3,000 per officer (the engine's cap: 4,000 → 3,000 excluded). Required once pso_premiums_paid_by_plan is true (a yes with no amount is the engine's own knockout, never an exclusion of 0). Refused elsewhere."
+    },
+    "date_of_payment": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "maxLength": 10,
+      "description": "Box 13, Date of payment, as YYYY-MM-DD — the payer completes it for a reportable death benefit under IRC 6050Y. Required on a Form 1099-R with a box 7 code of C, CD or DC (the code states a reportable death benefit); invited on a code 4, 4D or D4 form, where blank is an ordinary distribution to a beneficiary taxed as box 2a reports (stated). A date opens the death-benefit chain (IRC 101): box1_is_death_benefit_under_contract on a code 4 form, then acquired_in_reportable_policy_sale. The engine reads only that it is answered; its own limit (no later than the first day of the following year) is mirrored. Refused elsewhere, and on a form with the IRA/SEP/SIMPLE box checked. Measured: a code C payment of 10,000 with a 6,000 basis, 4,865.00 → 4,145.00."
+    },
+    "box1_is_death_benefit_under_contract": {
+      "type": "boolean",
+      "description": "Whether the amount in box 1 of this code 4 Form 1099-R is the death benefit paid under the life insurance contract the other questions describe (register row 56). Asked (a required gap) on a code 4, 4D or D4 form with a date in box 13; never on a code C form. true reaches acquired_in_reportable_policy_sale; false is the engine's own knockout (/flowKnockoutForDeathBenefitPaymentDate), served with words. Refused elsewhere."
+    },
+    "acquired_in_reportable_policy_sale": {
+      "type": "boolean",
+      "description": "Whether the policy was acquired in a reportable policy sale — bought, or an interest taken in it, by someone with no substantial family, business or financial relationship with the insured apart from that interest (IRC 101(a)(3)(B); register row 15). Asked on a code C form with a date in box 13, or a code 4 form whose box 1 is attested. true reaches death_benefit_basis_cents (IRC 101(a)(3)(A): the basis cap applies unconditionally); false reaches acquired_for_valuable_consideration. Refused elsewhere."
+    },
+    "acquired_for_valuable_consideration": {
+      "type": "boolean",
+      "description": "Whether the policy, or an interest in it, was transferred to this person for valuable consideration (IRC 101(a)(2); register row 43). Asked once acquired_in_reportable_policy_sale is false. false: the death benefit is fully excluded (measured: 3,665.00); true reaches transfer_has_carryover_basis and transfer_to_insured_or_related_party. Refused elsewhere."
+    },
+    "transfer_has_carryover_basis": {
+      "type": "boolean",
+      "description": "Whether the policy's basis in this person's hands is figured from the transferor's (IRC 101(a)(2)(A); register row 44). Asked, together with transfer_to_insured_or_related_party, once acquired_for_valuable_consideration is true; either true frees the whole benefit; both false reach death_benefit_basis_cents. Refused elsewhere."
+    },
+    "transfer_to_insured_or_related_party": {
+      "type": "boolean",
+      "description": "Whether the transfer was to the insured, to a partner of the insured or a partnership the insured is a partner in, or to a corporation the insured is a shareholder or officer of (IRC 101(a)(2)(B); register row 45). Asked alongside transfer_has_carryover_basis. Refused elsewhere."
+    },
+    "death_benefit_basis_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "What this person paid for the policy in total — the consideration plus every premium and other amount paid since — in integer cents (IRC 101(a)(2) first sentence; register row 16). Box 5 is the payer's estimate of it, never the answer. Required behind acquired_in_reportable_policy_sale true, or behind acquired_for_valuable_consideration true with both carve-outs false; the taxable part is box 1 less this, floored at 0 (measured: 6,000 on 10,000 → 4,000 taxable, 4,145.00; 12,000 → 0, 3,665.00). Refused elsewhere."
+    }
+  }
+}

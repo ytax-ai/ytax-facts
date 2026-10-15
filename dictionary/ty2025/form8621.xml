@@ -1,0 +1,4063 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8621Funds">
+      <Name>PFICs and QEFs (one Form 8621 per fund, with additional Parts V and VI)</Name>
+      <Description>PFICs and QEFs (one Form 8621 per fund, with additional Parts V and VI). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621FundsIsComplete">
+      <Name>PFICs and QEFs (one Form 8621 per fund, with additional Parts V and VI): all entries and applicable zero amounts have been entered</Name>
+      <Description>PFICs and QEFs (one Form 8621 per fund, with additional Parts V and VI): all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/name">
+      <Name>Name on the source statement</Name>
+      <Description>Name on the source statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/identifyingNumber">
+      <Name>Identifying number on the source statement</Name>
+      <Description>Identifying number on the source statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/address">
+      <Name>Foreign corporation address</Name>
+      <Description>Foreign corporation address. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/referenceId">
+      <Name>Foreign corporation reference ID</Name>
+      <Description>Foreign corporation reference ID. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/shareClasses">
+      <Name>Part I line 1: description of share classes</Name>
+      <Description>Part I line 1: description of share classes. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/shareAcquisitionDates">
+      <Name>Part I line 2: acquisition dates</Name>
+      <Description>Part I line 2: acquisition dates. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/jointlyOwned">
+      <Name>Shares jointly owned with spouse</Name>
+      <Description>Shares jointly owned with spouse. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/exceptedAssets">
+      <Name>Excepted specified foreign financial assets reported</Name>
+      <Description>Excepted specified foreign financial assets reported. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/qualifyingInsuranceElection">
+      <Name>Qualifying insurance corporation election</Name>
+      <Description>Qualifying insurance corporation election. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/fundYearStart">
+      <Name>Foreign corporation tax year start</Name>
+      <Description>Foreign corporation tax year start. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/fundYearEnd">
+      <Name>Foreign corporation tax year end</Name>
+      <Description>Foreign corporation tax year end. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/sharesHeld">
+      <Name>Part I line 3: number of shares held (exact decimal text; not rounded as currency)</Name>
+      <Description>Part I line 3: number of shares held (exact decimal text; not rounded as currency). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/yearEndValue">
+      <Name>Part I line 4: fair market value of shares</Name>
+      <Description>Part I line 4: fair market value of shares. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionA">
+      <Name>Part II election A (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election A (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionB">
+      <Name>Part II election B (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election B (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionC">
+      <Name>Part II election C (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election C (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionD">
+      <Name>Part II election D (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election D (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionE">
+      <Name>Part II election E (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election E (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionF">
+      <Name>Part II election F (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election F (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionG">
+      <Name>Part II election G (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election G (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/electionH">
+      <Name>Part II election H (retain all required statements and eligibility evidence)</Name>
+      <Description>Part II election H (retain all required statements and eligibility evidence). See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/isQef">
+      <Name>Part III applies: this is a qualified electing fund</Name>
+      <Description>Part III applies: this is a qualified electing fund. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/markToMarket">
+      <Name>Part IV applies: section 1296 treatment is in effect and first-year section 1291 coordination does not apply</Name>
+      <Description>Part IV applies: section 1296 treatment is in effect and first-year section 1291 coordination does not apply. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line6a">
+      <Name>Part III QEF ordinary earnings</Name>
+      <Description>Part III QEF ordinary earnings. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line6b">
+      <Name>Part III Ordinary earnings included under section 951 or excluded under section 1293(g)</Name>
+      <Description>Part III Ordinary earnings included under section 951 or excluded under section 1293(g). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line7a">
+      <Name>Part III QEF net capital gain</Name>
+      <Description>Part III QEF net capital gain. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line7b">
+      <Name>Part III Net capital gain included under section 951 or excluded under section 1293(g)</Name>
+      <Description>Part III Net capital gain included under section 951 or excluded under section 1293(g). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line8b">
+      <Name>Part III Cash and FMV of property distributed or deemed distributed</Name>
+      <Description>Part III Cash and FMV of property distributed or deemed distributed. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line8c">
+      <Name>Part III Undistributed inclusions attributable to shares disposed of or pledged</Name>
+      <Description>Part III Undistributed inclusions attributable to shares disposed of or pledged. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line6c">
+      <Name>QEF ordinary income</Name>
+      <Description>QEF ordinary income. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../isQefCompleteSafe" />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <GreaterOf><Dependency path="../line6a" /><Dollar>0</Dollar></GreaterOf>
+                </Minuend>
+                <Subtrahends>
+                  <GreaterOf><Dependency path="../line6b" /><Dollar>0</Dollar></GreaterOf>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line7c">
+      <Name>QEF long-term capital gain</Name>
+      <Description>QEF long-term capital gain. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../isQefCompleteSafe" />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <GreaterOf><Dependency path="../line7a" /><Dollar>0</Dollar></GreaterOf>
+                </Minuend>
+                <Subtrahends>
+                  <GreaterOf><Dependency path="../line7b" /><Dollar>0</Dollar></GreaterOf>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/writableLine7cCollectiblesGain">
+      <Name>QEF-reported 28%-rate (collectibles) portion of line 7c</Name>
+      <Description>The part of this fund's Form 8621 line 7c net capital gain that the fund's annual information statement reports as collectibles (28%-rate) gain under the section 1(h) categories. If the fund instead reports its whole net capital gain as subject to the highest capital gain rate, enter the whole line 7c amount here. Enter 0 if the fund reports none, or reports its net capital gain by category with no collectibles gain. It cannot exceed line 7c; an amount above line 7c counts only up to line 7c.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/writableLine7cUnrecapturedSection1250Gain">
+      <Name>QEF-reported unrecaptured section 1250 portion of line 7c</Name>
+      <Description>The part of this fund's Form 8621 line 7c net capital gain that the fund's annual information statement reports as unrecaptured section 1250 gain under the section 1(h) categories. Enter 0 if the fund reports none. It cannot exceed line 7c; an amount above line 7c counts only up to line 7c.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line7cCollectiblesGain">
+      <Name>QEF collectibles (28%-rate) portion of line 7c, floored at 0 and capped at line 7c</Name>
+      <Description>QEF collectibles (28%-rate) portion of line 7c as it counts on the return: the answered amount floored at 0 and limited to this fund's line 7c net capital gain (itself floored at 0). 0 when unanswered. It is a rate reclassification of gain already inside line 7c, not an addition to it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableLine7cCollectiblesGain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <LesserOf>
+                  <Dependency path="../writableLine7cCollectiblesGain" />
+                  <Dependency path="../line7c" />
+                </LesserOf>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line7cUnrecapturedSection1250Gain">
+      <Name>QEF unrecaptured section 1250 portion of line 7c, floored at 0 and capped at line 7c</Name>
+      <Description>QEF unrecaptured section 1250 portion of line 7c as it counts on the return: the answered amount floored at 0 and limited to this fund's line 7c net capital gain (itself floored at 0). 0 when unanswered. It is a rate reclassification of gain already inside line 7c, not an addition to it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableLine7cUnrecapturedSection1250Gain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <LesserOf>
+                  <Dependency path="../writableLine7cUnrecapturedSection1250Gain" />
+                  <Dependency path="../line7c" />
+                </LesserOf>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/writableLine8bExcessPreviouslyIncluded">
+      <Name>Part of the QEF distribution above line 8a shown to have been included in income before</Name>
+      <Description>Screen specification. QUESTION: "Your distributions from this QEF on line 8b are more than the amount you include in income for the year on line 8a. How much of that excess can you show, with the statement the instructions describe, was already included in your income, or in the income of another U.S. person, in an earlier year?" HELP TEXT: "The excess is treated as paid out of the QEF's most recently accumulated earnings and profits. It is not taxable to the extent you can show it was previously included in your income or another U.S. person's income; attach the statement listed under Attachments for Election E (the person's name, address and identifying number, the amount and year included, the provision of law, and how you acquired the stock). Any part you cannot show is taxed under section 301(c) as a dividend." (Instructions for Form 8621, Line 8.) ASKED WHEN: the fund is a QEF (../isQef is Yes) and line 8b is more than line 8a. UNANSWERED: REFUSED: the fund's dividend and the return's Form 8621 dividends stay unresolved; defaulting either way misstates income. VALIDATION: a dollar amount, zero or more; an amount above the excess is read as the whole excess. FEEDS: ../qefDistributionDividend.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/qefDistributionExcess">
+      <Name>QEF distributions above the year's inclusion (line 8b over line 8a)</Name>
+      <Description>For a QEF, the amount by which the line 8b distributions exceed the line 8a inclusion, never below zero; $0 when the fund is not a QEF or line 8b is unanswered. The instructions treat this excess as paid out of the QEF's most recently accumulated earnings and profits.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Not><All><IsComplete><Dependency path="../line8b" /></IsComplete><Dependency path="../isQefCompleteSafe" /></All></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><GreaterOf><Subtract><Minuend><Dependency path="../line8b" /></Minuend><Subtrahends><Dependency path="../line8a" /></Subtrahends></Subtract><Dollar>0</Dollar> </GreaterOf></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/qefDistributionDividend">
+      <Name>QEF distribution taxed under section 301(c) as a dividend</Name>
+      <Description>The part of ../qefDistributionExcess the filer does not show was previously included in income (../writableLine8bExcessPreviouslyIncluded), taxed under section 301(c). Treated wholly as a dividend: the instructions treat the excess as paid out of the most recently accumulated earnings and profits (TAX-INTERPRETATIONS IN-50). Never a qualified dividend, because a dividend from a passive foreign investment company is excluded from qualified dividend income. $0 when there is no excess; when there is one and the previously-included question is unanswered this is Incomplete.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="../qefDistributionExcess" /></IsComplete><Equal><Left><Dependency path="../qefDistributionExcess" /></Left><Right><Dollar>0</Dollar></Right></Equal></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../writableLine8bExcessPreviouslyIncluded" /></IsComplete></When>
+            <Then><Subtract><Minuend><Dependency path="../qefDistributionExcess" /></Minuend><Subtrahends><LesserOf><GreaterOf><Dependency path="../writableLine8bExcessPreviouslyIncluded" /><Dollar>0</Dollar> </GreaterOf><Dependency path="../qefDistributionExcess" /></LesserOf></Subtrahends></Subtract></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line8a">
+      <Name>Part III line 8a: total QEF inclusions</Name>
+      <Description>Part III line 8a: total QEF inclusions. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="../line6c" />
+          <Dependency path="../line7c" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line8d">
+      <Name>Part III line 8d: distributed or disposed amount</Name>
+      <Description>Part III line 8d: distributed or disposed amount. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <GreaterOf><Dependency path="../line8b" /><Dollar>0</Dollar></GreaterOf>
+          <GreaterOf><Dependency path="../line8c" /><Dollar>0</Dollar></GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line8e">
+      <Name>Part III line 8e: undistributed amount</Name>
+      <Description>Part III line 8e: undistributed amount. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../line8a" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line8d" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line9a">
+      <Name>Part III line 9a: total tax before the current section 1294 deferral</Name>
+      <Description>Part III line 9a: total tax before the current section 1294 deferral. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/totalTaxBeforeSection1294Deferral" module="taxCalculations" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line9b">
+      <Name>Part III line 9b: tax recomputed without line 8e</Name>
+      <Description>Part III line 9b: tax recomputed without line 8e. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section951Inclusion">
+      <Name>Any portion of line 6a or 7a is includible under section 951</Name>
+      <Description>Any portion of line 6a or 7a is includible under section 951. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line9c">
+      <Name>Part III line 9c: tax deferred by election B</Name>
+      <Description>Part III line 9c: tax deferred by election B. Election B is available only for a QEF with line 8e above zero and no part of line 6a or 7a includible under section 951; where election B is checked on a fund that fails any of those tests, the election is not permitted and line 9c is $0 (nothing is deferred). Where election B is not checked, line 9c is $0. An unanswered eligibility input leaves line 9c Incomplete.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../electionB" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency path="../isQef" />
+                      <GreaterThan>
+                        <Left>
+                          <Dependency path="../line8e" />
+                        </Left>
+                        <Right>
+                          <Dollar>0</Dollar>
+                        </Right>
+                      </GreaterThan>
+                      <Not>
+                        <Dependency path="../section951Inclusion" />
+                      </Not>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dependency path="../line9cMinimum1" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <All>
+                      <IsComplete>
+                        <Dependency path="../isQef" />
+                      </IsComplete>
+                      <IsComplete>
+                        <Dependency path="../line8e" />
+                      </IsComplete>
+                      <IsComplete>
+                        <Dependency path="../section951Inclusion" />
+                      </IsComplete>
+                    </All>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line10a">
+      <Name>Part IV Year-end fair market value</Name>
+      <Description>Part IV Year-end fair market value. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line10b">
+      <Name>Part IV Year-end adjusted basis</Name>
+      <Description>Part IV Year-end adjusted basis. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line11">
+      <Name>Part IV Unreversed mark-to-market inclusions</Name>
+      <Description>Part IV Unreversed mark-to-market inclusions. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/line10c">
+      <Name>Part IV line 10c: mark-to-market gain or loss</Name>
+      <Description>Part IV line 10c: mark-to-market gain or loss. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="../line10a" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf><Dependency path="../line10b" /><Dollar>0</Dollar></GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line12">
+      <Name>Part IV line 12: deductible ordinary loss</Name>
+      <Description>Part IV line 12: deductible ordinary loss. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dollar>0</Dollar>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line12Minimum2" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/markToMarketIncome">
+      <Name>Year-end section 1296 ordinary income or loss</Name>
+      <Description>Year-end section 1296 ordinary income or loss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../markToMarket" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThanOrEqual>
+                      <Left>
+                        <Dependency path="../line10c" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </GreaterThanOrEqual>
+                  </When>
+                  <Then>
+                    <Dependency path="../line10c" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dependency path="../line12" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales">
+      <Name>Part IV dispositions: each stock block separately</Name>
+      <Description>Part IV dispositions: each stock block separately. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line13a">
+      <Name>Disposition fair market value</Name>
+      <Description>Disposition fair market value. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line13b">
+      <Name>Adjusted basis at disposition</Name>
+      <Description>Adjusted basis at disposition. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14a">
+      <Name>Unreversed inclusions for this disposed block</Name>
+      <Description>Unreversed inclusions for this disposed block. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/longTerm">
+      <Name>Excess capital loss is long-term</Name>
+      <Description>Excess capital loss is long-term. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line13c">
+      <Name>Part IV line 13c: gain or loss</Name>
+      <Description>Part IV line 13c: gain or loss. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="../line13a" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf><Dependency path="../line13b" /><Dollar>0</Dollar></GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14b">
+      <Name>Part IV line 14b: ordinary loss</Name>
+      <Description>Part IV line 14b: ordinary loss. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dollar>0</Dollar>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line14bMinimum2" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14c">
+      <Name>Part IV line 14c: loss exceeding unreversed inclusions</Name>
+      <Description>Part IV line 14c: loss exceeding unreversed inclusions. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dollar>0</Dollar>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line14cMinimum2" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/ordinaryIncome">
+      <Name>Ordinary disposition gain or loss</Name>
+      <Description>Ordinary disposition gain or loss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../line13c" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="../line13c" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../line14b" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/shortTermLoss">
+      <Name>shortTermLoss</Name>
+      <Description>shortTermLoss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../longTerm" />
+                </Left>
+                <Right>
+                  <False />
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="../line14c" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/longTermLoss">
+      <Name>longTermLoss</Name>
+      <Description>longTermLoss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../longTerm" />
+                </Left>
+                <Right>
+                  <True />
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="../line14c" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions">
+      <Name>Part V: one transaction per excess distribution or disposition and stock block</Name>
+      <Description>Part V: one transaction per excess distribution or disposition and stock block. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/transactionType">
+      <Name>Part V transaction type: distribution, disposition, deemedSale or deemedDividend</Name>
+      <Description>Screen specification. QUESTION: "What kind of Part V transaction is this row?" OPTIONS (the stored value in brackets): a distribution from the fund [distribution]; a sale or other disposition of the stock [disposition]; a deemed sale under election D or election F, entered on line 15f as the form directs [deemedSale]; a deemed dividend under election E or G, entered on line 15e(2) [deemedDividend]. HELP TEXT: "Choose deemed sale for an election D or F row. A gain on a deemed sale is taxed as an excess distribution; a loss on a deemed sale is not recognized, so it is not carried to Schedule D (Instructions for Form 8621, elections D and F)." ASKED WHEN: for each row of the fund's Part V transaction list. UNANSWERED: the row's line 15e, 15f and 16 amounts stay unresolved. VALIDATION: one of the four stored values. FEEDS: ../excessToAllocate (a disposition or deemed sale allocates the line 15f gain), ../shortTermLoss and ../longTermLoss (only a real disposition carries a line 15f loss to Schedule D), and the distribution legs.</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/currency">
+      <Name>Three-letter functional currency code</Name>
+      <Description>Three-letter functional currency code. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/date">
+      <Name>Transaction date</Name>
+      <Description>Transaction date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/holdingPeriodDays">
+      <Name>Total days in this stock block holding period</Name>
+      <Description>Total days in this stock block holding period. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15a">
+      <Name>Annual distributions for the applicable stock (functional currency)</Name>
+      <Description>Annual distributions for the applicable stock (functional currency). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15b">
+      <Name>Adjusted preceding distributions under section 1291(b) (functional currency)</Name>
+      <Description>Adjusted preceding distributions under section 1291(b) (functional currency). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/priorYearCount">
+      <Name>Number of preceding tax years, up to three (zero for current-year acquisition)</Name>
+      <Description>Number of preceding tax years, up to three (zero for current-year acquisition). See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>3</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/isQefCompleteSafe">
+      <Name>QEF election selector, false when unanswered</Name>
+      <Description>Complete-safe Boolean view of the optional QEF selector. An unanswered selector follows the existing non-QEF zero branch.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../isQef" /></IsComplete></When>
+            <Then><Dependency path="../isQef" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/priorYearCountCompleteSafe">
+      <Name>Preceding tax-year count, zero when unanswered</Name>
+      <Description>Complete-safe comparison view of the optional preceding-tax-year count. An unanswered count selects the existing zero-result branch.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../priorYearCount" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../priorYearCount" /><Int>0</Int></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Int>0</Int></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15aCompleteSafe">
+      <Name>Annual distributions, zero when unanswered</Name>
+      <Description>Complete-safe comparison view of annual distributions. An unanswered amount is the existing zero amount for line 15e(2) calculations.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../line15a" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../line15a" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/transactionTypeCompleteSafe">
+      <Name>Transaction type selector, empty when unanswered</Name>
+      <Description>Complete-safe comparison view of the optional transaction type. An unanswered selector compares unequal to every named transaction arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../transactionType" /></IsComplete></When>
+            <Then><Dependency path="../transactionType" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><String></String></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/transactionDistribution">
+      <Name>This distribution, in functional currency</Name>
+      <Description>This distribution, in functional currency. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/usdRateNumerator">
+      <Name>Exchange rate to USD numerator</Name>
+      <Description>Exchange rate to USD numerator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/usdRateDenominator">
+      <Name>Exchange rate to USD denominator</Name>
+      <Description>Exchange rate to USD denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15c">
+      <Name>Part V line 15c: preceding distribution average</Name>
+      <Description>Part V line 15c: preceding distribution average. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <GreaterOf><Dependency path="../priorYearCountCompleteSafe" /><Int>0</Int></GreaterOf>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Divide>
+                <Dividend>
+                  <GreaterOf><Dependency path="../line15b" /><Dollar>0</Dollar></GreaterOf>
+                </Dividend>
+                <Divisors>
+                  <GreaterOf><Dependency path="../priorYearCountCompleteSafe" /><Int>0</Int></GreaterOf>
+                </Divisors>
+              </Divide>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15d">
+      <Name>Part V line 15d: 125 percent of average</Name>
+      <Description>Part V line 15d: 125 percent of average. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../line15c" />
+          <Rational>125/100</Rational>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15e1">
+      <Name>Part V line 15e(1): annual excess distribution</Name>
+      <Description>Part V line 15e(1): annual excess distribution. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <GreaterOf><Dependency path="../priorYearCountCompleteSafe" /><Int>0</Int></GreaterOf>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="../line15e1Minimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/deemedDividend">
+      <Name>Deemed dividend election amount in USD</Name>
+      <Description>Deemed dividend election amount in USD. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15e2">
+      <Name>Part V line 15e(2): excess for this distribution in USD</Name>
+      <Description>Part V line 15e(2): excess for this distribution in USD. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../transactionTypeCompleteSafe" />
+                </Left>
+                <Right>
+                  <String>deemedDividend</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../deemedDividend" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency path="../transactionTypeCompleteSafe" />
+                      </Left>
+                      <Right>
+                        <String>distribution</String>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <GreaterThan>
+                            <Left>
+                              <GreaterOf><Dependency path="../line15aCompleteSafe" /><Dollar>0</Dollar></GreaterOf>
+                            </Left>
+                            <Right>
+                              <Dollar>0</Dollar>
+                            </Right>
+                          </GreaterThan>
+                        </When>
+                        <Then>
+                          <Multiply>
+                            <Dependency path="../line15e1" />
+                            <Switch>
+                              <Case>
+                                <When>
+                                  <LessThanOrEqual>
+                                    <Left>
+                                      <GreaterOf><Dependency path="../transactionDistribution" /><Dollar>0</Dollar></GreaterOf>
+                                    </Left>
+                                    <Right>
+                                      <Dollar>0</Dollar>
+                                    </Right>
+                                  </LessThanOrEqual>
+                                </When>
+                                <Then>
+                                  <Rational>0/1</Rational>
+                                </Then>
+                              </Case>
+                              <Case>
+                                <When>
+                                  <GreaterThanOrEqual>
+                                    <Left>
+                                      <GreaterOf><Dependency path="../transactionDistribution" /><Dollar>0</Dollar></GreaterOf>
+                                    </Left>
+                                    <Right>
+                                      <GreaterOf><Dependency path="../line15aCompleteSafe" /><Dollar>0</Dollar></GreaterOf>
+                                    </Right>
+                                  </GreaterThanOrEqual>
+                                </When>
+                                <Then>
+                                  <Rational>1/1</Rational>
+                                </Then>
+                              </Case>
+                              <Case>
+                                <When>
+                                  <True />
+                                </When>
+                                <Then>
+                                  <Divide>
+                                    <Dividend>
+                                      <RoundToInt>
+                                        <Divide>
+                                          <Dividend>
+                                            <Multiply>
+                                              <GreaterOf><Dependency path="../transactionDistribution" /><Dollar>0</Dollar></GreaterOf>
+                                              <Int>1000000000</Int>
+                                            </Multiply>
+                                          </Dividend>
+                                          <Divisors>
+                                            <GreaterOf><Dependency path="../line15aCompleteSafe" /><Dollar>0</Dollar></GreaterOf>
+                                          </Divisors>
+                                        </Divide>
+                                      </RoundToInt>
+                                    </Dividend>
+                                    <Divisors>
+                                      <Int>1000000000</Int>
+                                    </Divisors>
+                                  </Divide>
+                                </Then>
+                              </Case>
+                            </Switch>
+                            <Divide>
+                              <Dividend>
+                                <GreaterOf><Dependency path="../usdRateNumerator" /><Int>0</Int></GreaterOf>
+                              </Dividend>
+                              <Divisors>
+                                <GreaterOf><Dependency path="../usdRateDenominator" /><Int>1</Int></GreaterOf>
+                              </Divisors>
+                            </Divide>
+                          </Multiply>
+                        </Then>
+                      </Case>
+                      <Case>
+                        <When>
+                          <True />
+                        </When>
+                        <Then>
+                          <Dollar>0</Dollar>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15f">
+      <Name>Part V line 15f: signed gain or loss on disposition in USD</Name>
+      <Description>Part V line 15f: signed gain or loss on disposition in USD. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/isLongTermLoss">
+      <Name>Disposition loss is long-term</Name>
+      <Description>Disposition loss is long-term. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/excessToAllocate">
+      <Name>Excess distribution or disposition gain to allocate</Name>
+      <Description>Excess distribution or disposition gain to allocate. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left>
+                    <Dependency path="../transactionType" />
+                  </Left>
+                  <Right>
+                    <String>disposition</String>
+                  </Right>
+                </Equal>
+                <Equal>
+                  <Left>
+                    <Dependency path="../transactionType" />
+                  </Left>
+                  <Right>
+                    <String>deemedSale</String>
+                  </Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="../excessToAllocateMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Equal>
+                  <Left>
+                    <Dependency path="../transactionType" />
+                  </Left>
+                  <Right>
+                    <String>distribution</String>
+                  </Right>
+                </Equal>
+                <Equal>
+                  <Left>
+                    <Dependency path="../transactionType" />
+                  </Left>
+                  <Right>
+                    <String>deemedDividend</String>
+                  </Right>
+                </Equal>
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="../line15e2" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonexcessDividend">
+      <Name>Nonexcess distribution treated under section 301(c)</Name>
+      <Description>Nonexcess distribution treated under section 301(c). See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../transactionType" />
+                </Left>
+                <Right>
+                  <String>distribution</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dependency path="../nonexcessDividendMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonDividendDistribution">
+      <Name>Nonexcess distribution outside earnings and profits, subject to section 301(c)(2) and (3)</Name>
+      <Description>Nonexcess distribution outside earnings and profits, subject to section 301(c)(2) and (3). See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/ordinaryDividend">
+      <Name>Nonexcess taxable ordinary dividend</Name>
+      <Description>Nonexcess taxable ordinary dividend. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../transactionTypeCompleteSafe" />
+                </Left>
+                <Right>
+                  <String>distribution</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <LessThanOrEqual>
+                      <Left>
+                        <GreaterOf><Dependency path="../nonDividendDistribution" /><Dollar>0</Dollar></GreaterOf>
+                      </Left>
+                      <Right>
+                        <Dependency path="../nonexcessDividend" />
+                      </Right>
+                    </LessThanOrEqual>
+                  </When>
+                  <Then>
+                    <Subtract>
+                      <Minuend>
+                        <Dependency path="../nonexcessDividend" />
+                      </Minuend>
+                      <Subtrahends>
+                        <GreaterOf><Dependency path="../nonDividendDistribution" /><Dollar>0</Dollar></GreaterOf>
+                      </Subtrahends>
+                    </Subtract>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears">
+      <Name>Part V line 16a annual allocation statement</Name>
+      <Description>Part V line 16a annual allocation statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/taxYear">
+      <Name>Allocation tax year</Name>
+      <Description>The shareholder's tax year this line 16a allocation row covers. Any year of the holding period may be entered, including years before 1987: section 1291(a)(1)(B)(ii) treats the part of the holding period before the fund's first taxable year beginning after December 31, 1986 as current-year ordinary income, so such a row is marked ../currentOrPrePfic. The latest year is 2025.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Max">
+          <Int>2025</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/days">
+      <Name>Days of this block held in this tax year</Name>
+      <Description>Days of this block held in this tax year. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>366</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/currentOrPrePfic">
+      <Name>Current year or pre-PFIC year</Name>
+      <Description>Current year or pre-PFIC year. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/highestRateBasisPoints">
+      <Name>Highest section 1 rate for this prior year in basis points</Name>
+      <Description>Line 16c: the highest rate of tax in effect under section 1 for this row's tax year, in basis points, taken from the rate table in the Line 16c instructions (calendar years 1987 through 2025): 2018-2025 37%, 2013-2017 39.6%, 2003-2012 35%, 2002 38.6%, 2001 39.1%, 1993-2000 39.6%, 1991-1992 31%, 1988-1990 28%, 1987 38.5%. Derived from ../taxYear, not asked. A year before 1987 has no rate: such a row is current-year ordinary income under section 1291(a)(1)(B)(ii) and is marked ../currentOrPrePfic, so ../taxBeforeCredit never reads this fact for it. The table is stated for a calendar-year taxpayer, and every tax year in this dictionary is a calendar year.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2018</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2025</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3700</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2013</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2017</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3960</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2003</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2012</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3500</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2002</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2002</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3860</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2001</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2001</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3910</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1993</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>2000</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3960</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1991</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1992</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3100</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1988</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1990</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>2800</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../taxYear" />
+                </IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1987</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../taxYear" /></Left>
+                  <Right><Int>1987</Int></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Int>3850</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/foreignTax">
+      <Name>Foreign tax assigned to this prior-year allocation</Name>
+      <Description>Foreign tax assigned to this prior-year allocation. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/allocatedIncome">
+      <Name>Excess allocated to this tax year</Name>
+      <Description>Excess allocated to this tax year. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../../../excessToAllocate" />
+          <Divide>
+            <Dividend>
+              <GreaterOf><Dependency path="../days" /><Int>0</Int></GreaterOf>
+            </Dividend>
+            <Divisors>
+              <GreaterOf><Dependency path="../../../holdingPeriodDays" /><Int>1</Int></GreaterOf>
+            </Divisors>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/ordinaryIncome">
+      <Name>Current and pre-PFIC allocation</Name>
+      <Description>Current and pre-PFIC allocation. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../currentOrPrePfic" />
+            </When>
+            <Then>
+              <Dependency path="../allocatedIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/taxBeforeCredit">
+      <Name>Prior-year tax at that year's maximum rate</Name>
+      <Description>Prior-year tax at that year's maximum rate. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../currentOrPrePfic" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../allocatedIncome" />
+                <Divide>
+                  <Dividend>
+                    <GreaterOf><Dependency path="../highestRateBasisPoints" /><Int>0</Int></GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <Int>10000</Int>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/allowedForeignTax">
+      <Name>Foreign tax limited to this year's allocated tax</Name>
+      <Description>Foreign tax limited to this year's allocated tax. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../taxBeforeCredit" />
+          <GreaterOf><Dependency path="../foreignTax" /><Dollar>0</Dollar></GreaterOf>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/netTax">
+      <Name>Prior-year tax after foreign credit</Name>
+      <Description>Prior-year tax after foreign credit. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../taxBeforeCredit" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../allowedForeignTax" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/interestFactorNumerator">
+      <Name>Section 1291 underpayment-rate interest: cumulative daily compound factor numerator</Name>
+      <Description>Interest-only factor, excluding principal, from a retained section 6621/6622 daily-compounding computation for the stated accrual interval. Enter numerator and denominator explicitly; annual simple interest rates are not a substitute. Use the applicable overpayment or underpayment rate required by this form, including look-back special rate rules.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/interestFactorDenominator">
+      <Name>Section 1291 underpayment-rate interest: factor denominator</Name>
+      <Description>Section 1291 underpayment-rate interest: factor denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/interestFactorStartDate">
+      <Name>Section 1291 underpayment-rate interest: first accrual date</Name>
+      <Description>Section 1291 underpayment-rate interest: first accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/interestFactorEndDate">
+      <Name>Section 1291 underpayment-rate interest: last accrual date</Name>
+      <Description>Section 1291 underpayment-rate interest: last accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationYears/*/interest">
+      <Name>Interest on the net increase in tax</Name>
+      <Description>Interest on the net increase in tax. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../netTax" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../netTax" />
+                <Divide>
+                  <Dividend>
+                    <GreaterOf><Dependency path="../interestFactorNumerator" /><Int>0</Int></GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <GreaterOf><Dependency path="../interestFactorDenominator" /><Int>1</Int></GreaterOf>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/allocationComplete">
+      <Name>All holding-period days have been allocated</Name>
+      <Description>All holding-period days have been allocated. See the cited form and instructions.</Description>
+      <Derived>
+        <Equal>
+          <Left>
+            <CollectionSum>
+              <Dependency path="../allocationYears/*/days" />
+            </CollectionSum>
+          </Left>
+          <Right>
+            <GreaterOf><Dependency path="../holdingPeriodDays" /><Int>1</Int></GreaterOf>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line16b">
+      <Name>Part V line16b</Name>
+      <Description>Part V line16b. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../excessToAllocate" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency path="../allocationComplete" />
+                      <IsComplete>
+                        <Dependency path="../allocationYears" />
+                      </IsComplete>
+                    </All>
+                  </When>
+                  <Then>
+                    <CollectionSum>
+                      <Dependency path="../allocationYears/*/ordinaryIncome" />
+                    </CollectionSum>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line16c">
+      <Name>Part V line16c</Name>
+      <Description>Part V line16c. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../excessToAllocate" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency path="../allocationComplete" />
+                      <IsComplete>
+                        <Dependency path="../allocationYears" />
+                      </IsComplete>
+                    </All>
+                  </When>
+                  <Then>
+                    <CollectionSum>
+                      <Dependency path="../allocationYears/*/taxBeforeCredit" />
+                    </CollectionSum>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line16d">
+      <Name>Part V line16d</Name>
+      <Description>Part V line16d. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../excessToAllocate" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency path="../allocationComplete" />
+                      <IsComplete>
+                        <Dependency path="../allocationYears" />
+                      </IsComplete>
+                    </All>
+                  </When>
+                  <Then>
+                    <CollectionSum>
+                      <Dependency path="../allocationYears/*/allowedForeignTax" />
+                    </CollectionSum>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line16f">
+      <Name>Part V line16f</Name>
+      <Description>Part V line16f. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../excessToAllocate" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency path="../allocationComplete" />
+                      <IsComplete>
+                        <Dependency path="../allocationYears" />
+                      </IsComplete>
+                    </All>
+                  </When>
+                  <Then>
+                    <CollectionSum>
+                      <Dependency path="../allocationYears/*/interest" />
+                    </CollectionSum>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line16e">
+      <Name>Part V line 16e: additional section 1291 tax</Name>
+      <Description>Part V line 16e: additional section 1291 tax. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../line16c" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line16d" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/shortTermLoss">
+      <Name>shortTermLoss</Name>
+      <Description>shortTermLoss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Equal>
+                  <Left>
+                    <Dependency path="../transactionType" />
+                  </Left>
+                  <Right>
+                    <String>disposition</String>
+                  </Right>
+                </Equal>
+                <Equal>
+                  <Left>
+                    <Dependency path="../isLongTermLoss" />
+                  </Left>
+                  <Right>
+                    <False />
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../shortTermLossMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/longTermLoss">
+      <Name>longTermLoss</Name>
+      <Description>longTermLoss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Equal>
+                  <Left>
+                    <Dependency path="../transactionType" />
+                  </Left>
+                  <Right>
+                    <String>disposition</String>
+                  </Right>
+                </Equal>
+                <Equal>
+                  <Left>
+                    <Dependency path="../isLongTermLoss" />
+                  </Left>
+                  <Right>
+                    <True />
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../longTermLossMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections">
+      <Name>Part VI outstanding prior-year section 1294 elections</Name>
+      <Description>Part VI outstanding prior-year section 1294 elections. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line17">
+      <Name>Part VI Election tax year end</Name>
+      <Description>Part VI Election tax year end. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line18">
+      <Name>Part VI Outstanding undistributed earnings</Name>
+      <Description>Part VI Outstanding undistributed earnings. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line19">
+      <Name>Part VI Outstanding deferred tax</Name>
+      <Description>Part VI Outstanding deferred tax. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line20">
+      <Name>Part VI Interest accrued through filing date</Name>
+      <Description>Part VI Interest accrued through filing date. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line21">
+      <Name>Part VI Termination event description</Name>
+      <Description>Part VI Termination event description. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line22">
+      <Name>Part VI Earnings distributed or deemed distributed</Name>
+      <Description>Part VI Earnings distributed or deemed distributed. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/fullyTerminated">
+      <Name>Part VI Election fully terminated</Name>
+      <Description>Part VI Election fully terminated. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/terminationOccurred">
+      <Name>Part VI Election terminated in whole or part this year</Name>
+      <Description>Part VI Election terminated in whole or part this year. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/terminationFraction">
+      <Name>Fraction of election terminated</Name>
+      <Description>Fraction of election terminated. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../terminationOccurred" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="../fullyTerminated" />
+                  </When>
+                  <Then>
+                    <Rational>1/1</Rational>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dependency path="../terminationFractionMinimum1" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Rational>0/1</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line23">
+      <Name>Part VI line 23: deferred tax now due</Name>
+      <Description>Part VI line 23: deferred tax now due. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <GreaterOf><Dependency path="../line19" /><Dollar>0</Dollar></GreaterOf>
+          <Dependency path="../terminationFraction" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/interestFactorNumerator">
+      <Name>Section 1294 interest through termination-year due date: cumulative daily compound factor numerator</Name>
+      <Description>Interest-only factor, excluding principal, from a retained section 6621/6622 daily-compounding computation for the stated accrual interval. Enter numerator and denominator explicitly; annual simple interest rates are not a substitute. Use the applicable overpayment or underpayment rate required by this form, including look-back special rate rules.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/interestFactorDenominator">
+      <Name>Section 1294 interest through termination-year due date: factor denominator</Name>
+      <Description>Section 1294 interest through termination-year due date: factor denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/interestFactorStartDate">
+      <Name>Section 1294 interest through termination-year due date: first accrual date</Name>
+      <Description>Section 1294 interest through termination-year due date: first accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/interestFactorEndDate">
+      <Name>Section 1294 interest through termination-year due date: last accrual date</Name>
+      <Description>Section 1294 interest through termination-year due date: last accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line24">
+      <Name>Part VI line 24: interest due</Name>
+      <Description>Part VI line 24: interest due. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../line23" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../line23" />
+                <Divide>
+                  <Dividend>
+                    <GreaterOf><Dependency path="../interestFactorNumerator" /><Int>0</Int></GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <GreaterOf><Dependency path="../interestFactorDenominator" /><Int>1</Int></GreaterOf>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line25">
+      <Name>Part VI line 25: remaining deferred tax</Name>
+      <Description>Part VI line 25: remaining deferred tax. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="../line19" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line23" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/line26">
+      <Name>Part VI line 26: remaining accrued interest</Name>
+      <Description>Part VI line 26: remaining accrued interest. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="../line20" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line24" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/ordinaryIncome">
+      <Name>QEF, mark-to-market and section 1291 ordinary income</Name>
+      <Description>QEF, mark-to-market and section 1291 ordinary income. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../marketSales" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../section1291Transactions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="../line6c" />
+                <Dependency path="../markToMarketIncome" />
+                <CollectionSum>
+                  <Dependency path="../marketSales/*/ordinaryIncome" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="../section1291Transactions/*/line16b" />
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/longTermGain">
+      <Name>QEF long-term gain, PFIC long-term losses and section 301(c)(3) gain</Name>
+      <Description>QEF long-term gain, PFIC long-term losses and section 301(c)(3) gain. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../marketSales" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../section1291Transactions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="../line7c" />
+                <CollectionSum>
+                  <Dependency path="../marketSales/*/longTermLoss" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="../section1291Transactions/*/longTermLoss" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="../section1291Transactions/*/nonDividendLongTermGain" />
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/shortTermLoss">
+      <Name>shortTermLoss</Name>
+      <Description>shortTermLoss. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../marketSales" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../section1291Transactions" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Add>
+                <CollectionSum>
+                  <Dependency path="../marketSales/*/shortTermLoss" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="../section1291Transactions/*/shortTermLoss" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="../section1291Transactions/*/nonDividendShortTermGain" />
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/ordinaryDividends">
+      <Name>Form 8621 ordinary dividends of this fund</Name>
+      <Description>The fund's dividends taxed as ordinary (never qualified) dividends: the Part V section 301 dividends of its section 1291 transactions plus ../qefDistributionDividend, a QEF distribution above the year's inclusion that is not shown to have been previously taxed.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../section1291Transactions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Add>
+                <CollectionSum>
+                  <Dependency path="../section1291Transactions/*/ordinaryDividend" />
+                </CollectionSum>
+                <Dependency path="../qefDistributionDividend" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/additionalTax">
+      <Name>additionalTax</Name>
+      <Description>additionalTax. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../section1291Transactions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../section1291Transactions/*/line16e" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Interest">
+      <Name>section1291Interest</Name>
+      <Description>section1291Interest. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../section1291Transactions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../section1291Transactions/*/line16f" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredTaxDue">
+      <Name>deferredTaxDue</Name>
+      <Description>deferredTaxDue. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../deferredElections" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../deferredElections/*/line23" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredInterestDue">
+      <Name>deferredInterestDue</Name>
+      <Description>deferredInterestDue. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../deferredElections" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../deferredElections/*/line24" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621OrdinaryIncome">
+      <Name>Total Form 8621 OrdinaryIncome</Name>
+      <Description>Total Form 8621 OrdinaryIncome. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/ordinaryIncome" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621LongTermGain">
+      <Name>Total Form 8621 LongTermGain</Name>
+      <Description>Total Form 8621 LongTermGain. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/longTermGain" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621CollectiblesGain">
+      <Name>Total Form 8621 QEF collectibles (28%-rate) gain</Name>
+      <Description>The QEF-reported collectibles (28%-rate) portion of Form 8621 line 7c, summed across the funds, each fund floored at 0 and capped at its own line 7c. Schedule D reads it as a line-4 leg of the 28% Rate Gain Worksheet. It is part of the long-term gain already in the Form 8621 long-term total, not an addition to it. 0 when there are no funds.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <All>
+                            <IsComplete>
+                              <Dependency path="/form8621FundsIsComplete" />
+                            </IsComplete>
+                            <Dependency path="/form8621FundsIsComplete" />
+                          </All>
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/line7cCollectiblesGain" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621UnrecapturedSection1250Gain">
+      <Name>Total Form 8621 QEF unrecaptured section 1250 gain</Name>
+      <Description>The QEF-reported unrecaptured section 1250 portion of Form 8621 line 7c, summed across the funds, each fund floored at 0 and capped at its own line 7c. Schedule D reads it as a line-11 leg of the Unrecaptured Section 1250 Gain Worksheet. It is part of the long-term gain already in the Form 8621 long-term total, not an addition to it. 0 when there are no funds.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <All>
+                            <IsComplete>
+                              <Dependency path="/form8621FundsIsComplete" />
+                            </IsComplete>
+                            <Dependency path="/form8621FundsIsComplete" />
+                          </All>
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/line7cUnrecapturedSection1250Gain" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621ShortTermLoss">
+      <Name>Total Form 8621 ShortTermLoss</Name>
+      <Description>Total Form 8621 ShortTermLoss. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/shortTermLoss" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621OrdinaryDividends">
+      <Name>Total Form 8621 OrdinaryDividends</Name>
+      <Description>Total Form 8621 OrdinaryDividends. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/ordinaryDividends" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621AdditionalTax">
+      <Name>Total Form 8621 AdditionalTax</Name>
+      <Description>Total Form 8621 AdditionalTax. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/additionalTax" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Section1291Interest">
+      <Name>Total Form 8621 Section1291Interest</Name>
+      <Description>Total Form 8621 Section1291Interest. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/section1291Interest" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621DeferredTaxDue">
+      <Name>Total Form 8621 DeferredTaxDue</Name>
+      <Description>Total Form 8621 DeferredTaxDue. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/deferredTaxDue" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621DeferredInterestDue">
+      <Name>Total Form 8621 DeferredInterestDue</Name>
+      <Description>Total Form 8621 DeferredInterestDue. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8621Funds/*/deferredInterestDue" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8621TotalTaxWithoutElectedUndistributedEarnings">
+      <Name>Total tax figured without the undistributed earnings of every fund making election B</Name>
+      <Description>Screen specification. QUESTION: "You are making election B for more than one fund. What would your total tax for 2025 be if your taxable income did not include the undistributed earnings (line 8e) of ANY of those funds?" HELP TEXT: "Figure your total tax the same way as for line 9b, but leave out the line 8e amounts of all the funds for which you make election B at the same time. The tax whose payment you may extend is your total tax minus this amount (section 1294(b)); adding each fund's own line 9c can extend more than that when the funds push your income into higher brackets." ASKED WHEN: two or more funds on the return have a line 9c amount above zero (election B made and permitted). UNANSWERED: REFUSED: the return's deferred tax (/form8621CurrentTaxDeferral) and Form 1040 line 24 stay unresolved. VALIDATION: a dollar amount, zero or more, not more than the line 9a total tax. FEEDS: /form8621CurrentTaxDeferral. Like line 9b it is a retained counterfactual computation the filer supplies: the graph computes one return, not a second one without these inclusions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621PartIAggregateValue">
+      <Name>PFIC stock value counted for the $25,000 Part I exception</Name>
+      <Description>The Part I line 4 values of every fund on the return, leaving out stock owned through another U.S. person or another PFIC: the total the $25,000 ($50,000 joint) exception to Part I tests on the last day of the tax year. It assumes the fund list holds every PFIC the filer owns. Incomplete while the fund list or a counted value is.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8621Funds" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form8621Funds/*/valueCountedForPartIThreshold" /></CollectionSum></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621CurrentTaxDeferral">
+      <Name>Total Form 8621 CurrentTaxDeferral</Name>
+      <Description>Every Form 8621 Part III line 9c on this return added together and capped at line 9a; with two or more deferring funds also capped at line 9a less /writableForm8621TotalTaxWithoutElectedUndistributedEarnings, the tax figured without all of their undistributed earnings, which is the section 1294(b)(1) excess measured once for the return (TAX-INTERPRETATIONS IN-51). Form 1040 line 24 is the total tax before this deferral less this amount, so the cap is what keeps line 24 from going below zero: each fund's line 9a is the WHOLE return's tax, not that fund's share of it, so two or more funds electing to defer under section 1294 produce line 9c amounts that overlap, and their untrimmed sum exceeds the tax being deferred. The instructions license subtracting the deferred tax from the sum of lines 22 and 23; they do not license a negative total tax. The cap is a floor on the return, not an allocation: the multiple-election allocation of Temp. Reg. 1.1294-1T is NOT modelled here, so a return with two or more elected QEFs gets the right total (the whole tax deferred, nothing more) and the wrong split between the funds. Resolves $0 when the collection is empty or absent.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8621Funds" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8621Funds" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8621FundsIsComplete" />
+                        </When>
+                        <Then>
+                          <Switch>
+                            <Case>
+                              <When><All><IsComplete><CollectionSize><Filter path="/form8621Funds"><All><IsComplete><Dependency path="line9c" /></IsComplete><GreaterThan><Left><Dependency path="line9c" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All></Filter></CollectionSize></IsComplete><LessThan><Left><CollectionSize><Filter path="/form8621Funds"><All><IsComplete><Dependency path="line9c" /></IsComplete><GreaterThan><Left><Dependency path="line9c" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All></Filter></CollectionSize></Left><Right><Int>2</Int></Right></LessThan></All></When>
+                              <Then>
+                                <LesserOf>
+                                  <CollectionSum>
+                                    <Dependency path="/form8621Funds/*/line9c" />
+                                  </CollectionSum>
+                                  <Dependency path="/totalTaxBeforeSection1294Deferral" module="taxCalculations" />
+                                </LesserOf>
+                              </Then>
+                            </Case>
+                            <Case>
+                              <When><All><IsComplete><CollectionSize><Filter path="/form8621Funds"><All><IsComplete><Dependency path="line9c" /></IsComplete><GreaterThan><Left><Dependency path="line9c" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All></Filter></CollectionSize></IsComplete><GreaterThanOrEqual><Left><CollectionSize><Filter path="/form8621Funds"><All><IsComplete><Dependency path="line9c" /></IsComplete><GreaterThan><Left><Dependency path="line9c" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All></Filter></CollectionSize></Left><Right><Int>2</Int></Right></GreaterThanOrEqual><IsComplete><Dependency path="/writableForm8621TotalTaxWithoutElectedUndistributedEarnings" /></IsComplete></All></When>
+                              <Then>
+                                <LesserOf>
+                                  <CollectionSum>
+                                    <Dependency path="/form8621Funds/*/line9c" />
+                                  </CollectionSum>
+                                  <Dependency path="/totalTaxBeforeSection1294Deferral" module="taxCalculations" />
+                                  <GreaterOf>
+                                    <Subtract>
+                                      <Minuend><Dependency path="/totalTaxBeforeSection1294Deferral" module="taxCalculations" /></Minuend>
+                                      <Subtrahends><Dependency path="/writableForm8621TotalTaxWithoutElectedUndistributedEarnings" /></Subtrahends>
+                                    </Subtract>
+                                    <Dollar>0</Dollar>
+                                  </GreaterOf>
+                                </LesserOf>
+                              </Then>
+                            </Case>
+                          </Switch>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line9cMinimum1">
+      <Name>Part III line 9c: tax deferred by election B: intermediate minimum 1</Name>
+      <Description>Part III line 9c: tax deferred by election B: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../line9a" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line9b" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line12Minimum1">
+      <Name>Part IV line 12: deductible ordinary loss: intermediate minimum 1</Name>
+      <Description>Part IV line 12: deductible ordinary loss: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dollar>0</Dollar>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line10c" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line12Minimum2">
+      <Name>Part IV line 12: deductible ordinary loss: intermediate minimum 2</Name>
+      <Description>Part IV line 12: deductible ordinary loss: intermediate minimum 2. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../line12Minimum1" />
+          <GreaterOf><Dependency path="../line11" /><Dollar>0</Dollar></GreaterOf>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14bMinimum1">
+      <Name>Part IV line 14b: ordinary loss: intermediate minimum 1</Name>
+      <Description>Part IV line 14b: ordinary loss: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dollar>0</Dollar>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line13c" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14bMinimum2">
+      <Name>Part IV line 14b: ordinary loss: intermediate minimum 2</Name>
+      <Description>Part IV line 14b: ordinary loss: intermediate minimum 2. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../line14bMinimum1" />
+          <GreaterOf><Dependency path="../line14a" /><Dollar>0</Dollar></GreaterOf>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14cMinimum1">
+      <Name>Part IV line 14c: loss exceeding unreversed inclusions: intermediate minimum 1</Name>
+      <Description>Part IV line 14c: loss exceeding unreversed inclusions: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dollar>0</Dollar>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line13c" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/marketSales/*/line14cMinimum2">
+      <Name>Part IV line 14c: loss exceeding unreversed inclusions: intermediate minimum 2</Name>
+      <Description>Part IV line 14c: loss exceeding unreversed inclusions: intermediate minimum 2. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../line14cMinimum1" />
+            </Minuend>
+            <Subtrahends>
+              <GreaterOf><Dependency path="../line14a" /><Dollar>0</Dollar></GreaterOf>
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/line15e1Minimum1">
+      <Name>Part V line 15e(1): annual excess distribution: intermediate minimum 1</Name>
+      <Description>Part V line 15e(1): annual excess distribution: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <GreaterOf><Dependency path="../line15a" /><Dollar>0</Dollar></GreaterOf>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line15d" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/excessToAllocateMinimum1">
+      <Name>Excess distribution or disposition gain to allocate: intermediate minimum 1</Name>
+      <Description>Excess distribution or disposition gain to allocate: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Dependency path="../line15f" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonexcessDividendMinimum1">
+      <Name>Nonexcess distribution treated under section 301(c): intermediate minimum 1</Name>
+      <Description>Nonexcess distribution treated under section 301(c): intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Multiply>
+                <GreaterOf><Dependency path="../transactionDistribution" /><Dollar>0</Dollar></GreaterOf>
+                <Divide>
+                  <Dividend>
+                    <GreaterOf><Dependency path="../usdRateNumerator" /><Int>0</Int></GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <GreaterOf><Dependency path="../usdRateDenominator" /><Int>1</Int></GreaterOf>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line15e2" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/shortTermLossMinimum1">
+      <Name>shortTermLoss: intermediate minimum 1</Name>
+      <Description>shortTermLoss: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../line15f" />
+          <Dollar>0</Dollar>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/longTermLossMinimum1">
+      <Name>longTermLoss: intermediate minimum 1</Name>
+      <Description>longTermLoss: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="../line15f" />
+          <Dollar>0</Dollar>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/deferredElections/*/terminationFractionMinimum1">
+      <Name>Fraction of election terminated: intermediate minimum 1</Name>
+      <Description>Fraction of election terminated: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <GreaterOf><Dependency path="../line22" /><Dollar>0</Dollar></GreaterOf>
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <GreaterOf><Dependency path="../line22" /><Dollar>0</Dollar></GreaterOf>
+                  </Left>
+                  <Right>
+                    <GreaterOf><Dependency path="../line18" /><Dollar>0</Dollar></GreaterOf>
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <GreaterOf><Dependency path="../line22" /><Dollar>0</Dollar></GreaterOf>
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <GreaterOf><Dependency path="../line18" /><Dollar>0</Dollar></GreaterOf>
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/writableHeldThroughUsPersonOrPfic">
+      <Name>This PFIC's stock is owned through another U.S. person or through another PFIC</Name>
+      <Description>Screen specification. QUESTION: "Do you own this PFIC's stock through another U.S. person (for example a U.S. partnership or trust) or through another PFIC?" HELP TEXT: "Stock you own that way does not count toward the $25,000 ($50,000 on a joint return) total that can excuse you from Part I." (Instructions for Form 8621, Exceptions To Filing Part I.) ASKED WHEN: for every fund. UNANSWERED: the fund is counted toward the total; if that decides the exception, Part I is treated as required (the conservative print). VALIDATION: Yes or No. FEEDS: ../valueCountedForPartIThreshold.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/writableHeldIndirectly">
+      <Name>This PFIC's stock is owned indirectly</Name>
+      <Description>Screen specification. QUESTION: "Do you own this PFIC's stock indirectly, through a foreign entity, rather than directly?" HELP TEXT: "If you own it indirectly and your proportionate share is worth $5,000 or less on the last day of your tax year (Part I line 4), you may not need to complete Part I for it, unless you received an excess distribution or had a gain on a disposition." (Instructions for Form 8621, Exceptions To Filing Part I.) ASKED WHEN: for every fund. UNANSWERED: treated as direct ownership for the exception; Part I then prints unless another exception applies. VALIDATION: Yes or No. FEEDS: ../partIRequired.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/isSection1291Fund">
+      <Name>The fund is a section 1291 fund (neither a QEF nor marked to market)</Name>
+      <Description>True when the fund is neither treated as a QEF (../isQef) nor under the section 1296 mark-to-market election (../markToMarket); Incomplete while either is unanswered.</Description>
+      <Derived>
+        <All>
+          <Not><Dependency path="../isQef" /></Not>
+          <Not><Dependency path="../markToMarket" /></Not>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/hasExcessDistributionOrDispositionGain">
+      <Name>The fund produced an excess distribution or a disposition gain this year</Name>
+      <Description>True when any Part V transaction of the fund has an excess distribution or disposition gain to allocate (../section1291Transactions/*/excessToAllocate above zero).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../section1291Transactions" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><CollectionSum><Dependency path="../section1291Transactions/*/excessToAllocate" /></CollectionSum></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/valueCountedForPartIThreshold">
+      <Name>Part I line 4 value counted toward the $25,000 Part I threshold</Name>
+      <Description>The fund's Part I line 4 value, unless the filer owns it through another U.S. person or another PFIC (then $0). An unanswered ownership question counts the value. A value entered below $0 counts as $0 (the line 4 bands start at $0).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="../writableHeldThroughUsPersonOrPfic" /></IsComplete><Dependency path="../writableHeldThroughUsPersonOrPfic" /></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../yearEndValue" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/partIRequired">
+      <Name>Form 8621 Part I is required for this fund</Name>
+      <Description>False only when one of the two value exceptions to Part I applies: the fund is a section 1291 fund that produced no excess distribution or disposition gain this year, and either the filer's PFIC stock counted for the threshold (/form8621PartIAggregateValue) is $25,000 or less ($50,000 or less on a joint return), or the filer owns this fund indirectly and its Part I line 4 value is $5,000 or less. True otherwise, including when an answer the exceptions need is missing: the conservative print. The estate, trust and chain-of-ownership exceptions of the instructions are not modelled. Read by the application to decide whether Part I prints; no tax amount depends on it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../isSection1291Fund" /></IsComplete>
+                <Dependency path="../isSection1291Fund" />
+                <IsComplete><Dependency path="../hasExcessDistributionOrDispositionGain" /></IsComplete>
+                <Not><Dependency path="../hasExcessDistributionOrDispositionGain" /></Not>
+                <IsComplete><Dependency path="/form8621PartIAggregateValue" /></IsComplete>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/form8621PartIAggregateValue" /></Left>
+                  <Right>
+                    <Switch>
+                      <Case>
+                        <When><All><IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></All></When>
+                        <Then><Dollar>50000</Dollar></Then>
+                      </Case>
+                      <Case>
+                        <When><True /></When>
+                        <Then><Dollar>25000</Dollar></Then>
+                      </Case>
+                    </Switch>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../isSection1291Fund" /></IsComplete>
+                <Dependency path="../isSection1291Fund" />
+                <IsComplete><Dependency path="../hasExcessDistributionOrDispositionGain" /></IsComplete>
+                <Not><Dependency path="../hasExcessDistributionOrDispositionGain" /></Not>
+                <IsComplete><Dependency path="../writableHeldIndirectly" /></IsComplete>
+                <Dependency path="../writableHeldIndirectly" />
+                <IsComplete><Dependency path="../yearEndValue" /></IsComplete>
+                <LessThanOrEqual>
+                  <Left><Dependency path="../yearEndValue" /></Left>
+                  <Right><Dollar>5000</Dollar></Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><True /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/valueRange">
+      <Name>Part I line 4 value band: 1 through 4, or 5 for an exact value above $200,000</Name>
+      <Description>Part I line 4 value band: 1 through 4, or 5 for an exact value above $200,000. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../yearEndValue" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>50000</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Int>1</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../yearEndValue" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Int>2</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../yearEndValue" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>150000</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Int>3</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../yearEndValue" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>200000</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Int>4</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Int>5</Int>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line5a">
+      <Name>Part I line 5a: section 1291 excess distributions and disposition gains</Name>
+      <Description>Part I line 5a: section 1291 excess distributions and disposition gains. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../section1291Transactions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../section1291Transactions/*/excessToAllocate" />
+              </CollectionSum>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line5b">
+      <Name>Part I line 5b: section 1293 inclusions</Name>
+      <Description>Part I line 5b: section 1293 inclusions. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../line6c" />
+          <Dependency path="../line7c" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/line5c">
+      <Name>Part I line 5c: section 1296 inclusion or deduction</Name>
+      <Description>Part I line 5c: section 1296 inclusion or deduction. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../marketSales" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="../markToMarketIncome" />
+                <CollectionSum>
+                  <Dependency path="../marketSales/*/ordinaryIncome" />
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/stockBasisForNonDividendDistribution">
+      <Name>Adjusted stock basis available before this nondividend distribution</Name>
+      <Description>Adjusted stock basis available before this nondividend distribution. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/isLongTermNonDividendGain">
+      <Name>Section 301(c)(3) gain is long-term</Name>
+      <Description>Section 301(c)(3) gain is long-term. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonDividendCapitalGain">
+      <Name>Nondividend distribution exceeding stock basis</Name>
+      <Description>Nondividend distribution exceeding stock basis. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../transactionType" />
+                </Left>
+                <Right>
+                  <String>distribution</String>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <GreaterThan>
+                      <Left>
+                        <GreaterOf><Dependency path="../nonDividendDistribution" /><Dollar>0</Dollar></GreaterOf>
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </GreaterThan>
+                  </When>
+                  <Then>
+                    <Dependency path="../nonDividendCapitalGainMinimum1" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonDividendShortTermGain">
+      <Name>nonDividendShortTermGain</Name>
+      <Description>nonDividendShortTermGain. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../nonDividendCapitalGain" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency path="../isLongTermNonDividendGain" />
+                      </Left>
+                      <Right>
+                        <False />
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="../nonDividendCapitalGain" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonDividendLongTermGain">
+      <Name>nonDividendLongTermGain</Name>
+      <Description>nonDividendLongTermGain. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../nonDividendCapitalGain" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency path="../isLongTermNonDividendGain" />
+                      </Left>
+                      <Right>
+                        <True />
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dependency path="../nonDividendCapitalGain" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8621Funds/*/section1291Transactions/*/nonDividendCapitalGainMinimum1">
+      <Name>Nondividend distribution exceeding stock basis: intermediate minimum 1</Name>
+      <Description>Nondividend distribution exceeding stock basis: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <GreaterOf><Dependency path="../nonDividendDistribution" /><Dollar>0</Dollar></GreaterOf>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../stockBasisForNonDividendDistribution" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

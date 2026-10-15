@@ -1,0 +1,1821 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness">
+      <Name>The highest principal amount of the FEDERALLY SUBSIDIZED indebtedness, line 19's 6.25 percent base</Name>
+      <Description>The base the 6.25 percent rule on line 19 is taken of: the highest principal amount the filer was liable for (/writableForm8828HighestPrincipalAmountOfIndebtedness) LESS the part of that amount that was federally subsidized indebtedness solely by reason of being a qualified home improvement loan (/writableForm8828PrincipalAmountSolelyHomeImprovementLoan). IRC 143(m)(3)(B) removes such a loan from the term "federally-subsidized indebtedness" only "to the extent" the indebtedness is subsidized for that reason alone, so the exclusion is a DOLLAR AMOUNT of principal, not an all-or-nothing switch: a loan that is part qualified home improvement loan and part some other federally subsidized financing keeps the other part inside the term. The wholly qualified home improvement loan case is the separate Boolean /writableForm8828SubsidySolelyFromHomeImprovementLoan, which bars the recapture tax outright; this fact is the partial case, and a filer whose entire principal was such a loan can reach a zero base here too. The subtraction is floored at $0, so a home improvement portion entered larger than the principal it is a part of cannot make the base negative and cannot turn line 19 into a credit. It applies ONLY on the principal path: when the notification figure from the bond issuer or the lender is entered, line 19 reads that figure and never this one, because the notification already states the federally subsidized amount for the subsidized indebtedness alone. Unanswered home improvement portion: this fact is the full principal amount, unchanged, which is what every return that has no qualified home improvement loan reports; with the principal itself unanswered it stays Incomplete, and so does line 19 on the principal path. Feeds /form8828Line19ExactTenThousandthsOfSubsidizedAmount and /form8828Line19UncorrectedRoundedEstimate, the two halves of line 19's single rounding.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableForm8828PrincipalAmountSolelyHomeImprovementLoan" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8828HighestPrincipalAmountOfIndebtedness" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="/writableForm8828HighestPrincipalAmountOfIndebtedness" />
+                  </Minuend>
+                  <Subtrahends>
+                    <LesserOf>
+                      <GreaterOf>
+                        <Dependency path="/writableForm8828PrincipalAmountSolelyHomeImprovementLoan" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                      <Dollar>15000</Dollar>
+                    </LesserOf>
+                  </Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodYearsRoundedUp">
+      <Name>The holding period in full and partial years, line 5 to line 6</Name>
+      <Description>The number of full and partial years between the testing date on line 5 (/writableForm8828OriginalLoanClosingDate) and the date of sale or other disposition on line 6 (/writableForm8828DispositionDate): the whole years elapsed, plus one when any part of a further year has elapsed. It is the row of the IRC 143(m)(4)(C)(i) holding period table the disposition falls in (/form8828Line20TablePercentage) and the count the nine-year bar reads (/form8828SubjectToRecaptureTax). ANNIVERSARY RULE: a year is complete ON its anniversary, and the anniversary day belongs to the year it completes. A disposition exactly 4 years after the testing date is in the 4th year (80 percent) and the next day is in the 5th (100); a disposition exactly 9 years after is in the 9th year (20) and is not MORE than 9 years after the testing date, so recapture still applies, while the next day begins the 10th year, the statute's more than 9 years. Four sources read that way and none reads the other: the instructions index this table row by the number of full and partial years the home was held; the Holding Period Percentage Worksheet reads the first four rows of the same table from a year count rounded UP to the nearest whole year (its lines C and D); IRC 143(m)(2)(B) bars only a disposition more than 9 years after the testing date, which leaves the 9-year anniversary itself subject to recapture and so needs it inside the 9th row, the table having no 10th; and the IRS's own holding-period example treats property bought on June 17 and sold the next June 17 as held not longer than 1 year. The comparison is by calendar month and day: the anniversary is reached when line 6's month and day are on or after line 5's month and day in the later year. A February 29 testing date therefore reaches its anniversary in a common year on March 1; reading February 28 as that anniversary instead would change no row, because February 28 is inside the year under either reading and March 1 is past it under either. A disposition on the testing date itself is in the 1st year, the first year of the 4-year period that IRC 143(m)(4)(C)(ii) says begins ON the testing date, so the count is never below 1. A line 6 date EARLIER than line 5 cannot be a disposition of a home the loan financed; it leaves this count Incomplete, and the table row and line 20 with it, rather than computing from a negative interval, and the nine-year bar does not fire on it. Incomplete until both dates are answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/writableForm8828DispositionDate" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8828OriginalLoanClosingDate" />
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Int>1</Int>
+                <Add>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/writableForm8828DispositionDate/year" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/writableForm8828OriginalLoanClosingDate/year" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Any>
+                          <GreaterThan>
+                            <Left>
+                              <Dependency path="/writableForm8828DispositionDate/month" />
+                            </Left>
+                            <Right>
+                              <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                            </Right>
+                          </GreaterThan>
+                          <All>
+                            <Equal>
+                              <Left>
+                                <Dependency path="/writableForm8828DispositionDate/month" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                              </Right>
+                            </Equal>
+                            <GreaterThan>
+                              <Left>
+                                <Dependency path="/writableForm8828DispositionDate/day" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828OriginalLoanClosingDate/day" />
+                              </Right>
+                            </GreaterThan>
+                          </All>
+                        </Any>
+                      </When>
+                      <Then>
+                        <Int>1</Int>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Int>0</Int>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodWorksheetLineCYears">
+      <Name>Holding Period Percentage Worksheet line C: years from the closing date to the repayment date, rounded up</Name>
+      <Description>Worksheet line C, the number of years between the closing date on line A (Form 8828 line 5, /writableForm8828OriginalLoanClosingDate) and the repayment date on line B (Form 8828 line 8, /writableForm8828FullRepaymentDate), rounded up to the nearest whole year as the worksheet directs: the whole years elapsed plus one when any part of a further year has elapsed, with the anniversary day closing the year it completes, the same calendar month-and-day rule as /form8828HoldingPeriodYearsRoundedUp. A repayment exactly 4 years after closing is 4, inside the worksheet; one day later is 5, which is the worksheet's own more than 4 years after the closing date exclusion, and /form8828HoldingPeriodWorksheetApplies reads it that way. A repayment on the closing date itself is 1, the first year of the 4-year period that begins on the testing date. A line 8 date EARLIER than line 5 leaves this count Incomplete: the worksheet cannot then be excluded on its 4-year test, so line 20 stays Incomplete rather than paying out an unreduced or a zero percentage. Feeds /form8828HoldingPeriodWorksheetApplies and /form8828HoldingPeriodWorksheetLineDPercentage.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/writableForm8828FullRepaymentDate" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8828OriginalLoanClosingDate" />
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Int>1</Int>
+                <Add>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/writableForm8828FullRepaymentDate/year" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/writableForm8828OriginalLoanClosingDate/year" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Any>
+                          <GreaterThan>
+                            <Left>
+                              <Dependency path="/writableForm8828FullRepaymentDate/month" />
+                            </Left>
+                            <Right>
+                              <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                            </Right>
+                          </GreaterThan>
+                          <All>
+                            <Equal>
+                              <Left>
+                                <Dependency path="/writableForm8828FullRepaymentDate/month" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                              </Right>
+                            </Equal>
+                            <GreaterThan>
+                              <Left>
+                                <Dependency path="/writableForm8828FullRepaymentDate/day" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828OriginalLoanClosingDate/day" />
+                              </Right>
+                            </GreaterThan>
+                          </All>
+                        </Any>
+                      </When>
+                      <Then>
+                        <Int>1</Int>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Int>0</Int>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodWorksheetLineFYears">
+      <Name>Holding Period Percentage Worksheet line F: years from the repayment date to the sale date, rounded up</Name>
+      <Description>Worksheet line F, the number of years between the repayment date on line B (Form 8828 line 8, /writableForm8828FullRepaymentDate) and the sale date on line E (Form 8828 line 6, /writableForm8828DispositionDate), rounded up to the nearest whole year as the worksheet directs, by the same calendar month-and-day rule as line C: a sale exactly one year after the repayment is 1 (100 percent on line G), and the next day is 2 (80). It is read only where the worksheet applies, which requires the repayment to be strictly before the sale, so it is always at least 1 there. A line 6 date earlier than line 8 leaves it Incomplete. Feeds /form8828HoldingPeriodWorksheetLineGPercentage.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/writableForm8828DispositionDate" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8828FullRepaymentDate" />
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Int>1</Int>
+                <Add>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/writableForm8828DispositionDate/year" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/writableForm8828FullRepaymentDate/year" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Any>
+                          <GreaterThan>
+                            <Left>
+                              <Dependency path="/writableForm8828DispositionDate/month" />
+                            </Left>
+                            <Right>
+                              <Dependency path="/writableForm8828FullRepaymentDate/month" />
+                            </Right>
+                          </GreaterThan>
+                          <All>
+                            <Equal>
+                              <Left>
+                                <Dependency path="/writableForm8828DispositionDate/month" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828FullRepaymentDate/month" />
+                              </Right>
+                            </Equal>
+                            <GreaterThan>
+                              <Left>
+                                <Dependency path="/writableForm8828DispositionDate/day" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828FullRepaymentDate/day" />
+                              </Right>
+                            </GreaterThan>
+                          </All>
+                        </Any>
+                      </When>
+                      <Then>
+                        <Int>1</Int>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Int>0</Int>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line7ElapsedFullMonths">
+      <Name>Form 8828 line 7 scaffolding: the total full months between line 5 and line 6</Name>
+      <Description>The total number of full months between line 5 (/writableForm8828OriginalLoanClosingDate) and line 6 (/writableForm8828DispositionDate): twelve times the difference in years, plus the difference in months, less one when line 6's day of the month is before line 5's. MONTH-END CONVENTION: the form and its instructions do not define when a month is full. The rule adopted is that a month is full when line 6's day of the month reaches line 5's day of the month, with no end-of-month adjustment, so January 31 to February 28 or 29 is 0 full months and May 31 to June 30 is 0, while May 31 to July 1 is 1. No tax figure depends on the choice: line 7 is printed only, and the holding period table, the nine-year bar and the worksheet read /form8828HoldingPeriodYearsRoundedUp and the worksheet's own rounded-up counts, which do not turn on it. Incomplete when line 6 is earlier than line 5 or either date is unanswered. Feeds /form8828Line7FullMonths. Not itself a printed figure.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/writableForm8828DispositionDate" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8828OriginalLoanClosingDate" />
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Add>
+                    <Multiply>
+                      <Int>12</Int>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency path="/writableForm8828DispositionDate/year" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dependency path="/writableForm8828OriginalLoanClosingDate/year" />
+                        </Subtrahends>
+                      </Subtract>
+                    </Multiply>
+                    <Subtract>
+                      <Minuend>
+                        <Dependency path="/writableForm8828DispositionDate/month" />
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                      </Subtrahends>
+                    </Subtract>
+                  </Add>
+                </Minuend>
+                <Subtrahends>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <LessThan>
+                          <Left>
+                            <Dependency path="/writableForm8828DispositionDate/day" />
+                          </Left>
+                          <Right>
+                            <Dependency path="/writableForm8828OriginalLoanClosingDate/day" />
+                          </Right>
+                        </LessThan>
+                      </When>
+                      <Then>
+                        <Int>1</Int>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Int>0</Int>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line7FullYears">
+      <Name>Form 8828 line 7: full years between line 5 and line 6</Name>
+      <Description>Form 8828 line 7, the Years box: the whole years completed between the closing date on line 5 (/writableForm8828OriginalLoanClosingDate) and the date of sale or other disposition on line 6 (/writableForm8828DispositionDate), derived from the two dates rather than entered. It is the later year less the earlier year, less one when line 6's month and day fall before line 5's month and day. A year is completed on its anniversary, so a disposition exactly 4 years after closing prints 4 here and 0 in the months box. PRINTED ONLY: no tax figure reads this box. The holding period table and the nine-year bar read /form8828HoldingPeriodYearsRoundedUp, the full and partial years, which equals this count on an exact anniversary and this count plus one on every other day. Incomplete when line 6 is earlier than line 5 or either date is unanswered. Feeds the printed line 7 Years box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/writableForm8828DispositionDate" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8828OriginalLoanClosingDate" />
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/writableForm8828DispositionDate/year" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency path="/writableForm8828OriginalLoanClosingDate/year" />
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Any>
+                          <LessThan>
+                            <Left>
+                              <Dependency path="/writableForm8828DispositionDate/month" />
+                            </Left>
+                            <Right>
+                              <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                            </Right>
+                          </LessThan>
+                          <All>
+                            <Equal>
+                              <Left>
+                                <Dependency path="/writableForm8828DispositionDate/month" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828OriginalLoanClosingDate/month" />
+                              </Right>
+                            </Equal>
+                            <LessThan>
+                              <Left>
+                                <Dependency path="/writableForm8828DispositionDate/day" />
+                              </Left>
+                              <Right>
+                                <Dependency path="/writableForm8828OriginalLoanClosingDate/day" />
+                              </Right>
+                            </LessThan>
+                          </All>
+                        </Any>
+                      </When>
+                      <Then>
+                        <Int>1</Int>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Int>0</Int>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line7FullMonths">
+      <Name>Form 8828 line 7: full months after the whole years</Name>
+      <Description>Form 8828 line 7, the Full months box: the full months left over AFTER the whole years in the Years box (/form8828Line7FullYears), 0 through 11, derived from the two dates rather than entered. It is a remainder, not a total: 6 years and 7 months prints 6 and 7, never 79. It is /form8828Line7ElapsedFullMonths taken modulo 12, so it carries that fact's month-end convention (a month is full when line 6's day of the month reaches line 5's; January 31 to February 28 is 0). PRINTED ONLY: no tax figure reads it. Incomplete when line 6 is earlier than line 5 or either date is unanswered. Feeds the printed line 7 Full months box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Modulo>
+          <Dependency path="/form8828Line7ElapsedFullMonths" />
+          <Int>12</Int>
+        </Modulo>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodWorksheetApplies">
+      <Name>The Form 8828 Holding Period Percentage Worksheet applies to this return</Name>
+      <Description>True when the instructions' Holding Period Percentage Worksheet, and not the statutory holding-period table, produces the line 20 percentage: the original federally subsidized loan was fully repaid (line 8) BEFORE the sale or other disposition (line 6), and not more than 4 years after the closing date on line 5. The instructions make that worksheet mandatory for this population, so this fact is what line 20 reads first. The 4-year test reads worksheet line C (/form8828HoldingPeriodWorksheetLineCYears), derived from lines 5 and 8 and rounded up: a repayment exactly 4 years after closing is 4 and inside the worksheet, one day later is 5 and outside it. Complete-safe in both directions: an unanswered repayment date or disposition date leaves this false, so the worksheet never applies on a return that has not established it applies; and a repayment before the disposition whose line C cannot be counted -- the closing date unanswered, or a repayment date EARLIER than the closing date -- leaves this TRUE, so line 20 goes Incomplete rather than silently paying out the unreduced percentage or a zero. The worksheet's "do not use this worksheet if lines 6 and 8 are the same date" exclusion is the strict before-the-disposition test here: equal dates are not before. Feeds /form8828Line20HoldingPeriodPercentage.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableForm8828FullRepaymentDate" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableForm8828DispositionDate" />
+          </IsComplete>
+          <LessThan>
+            <Left>
+              <Dependency path="/writableForm8828FullRepaymentDate" />
+            </Left>
+            <Right>
+              <Dependency path="/writableForm8828DispositionDate" />
+            </Right>
+          </LessThan>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/form8828HoldingPeriodWorksheetLineCYears" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineCYears" />
+                </Left>
+                <Right>
+                  <Int>4</Int>
+                </Right>
+              </GreaterThan>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodWorksheetLineDPercentage">
+      <Name>Holding Period Percentage Worksheet line D: the percentage for the years to repayment</Name>
+      <Description>Worksheet line D, the percentage the worksheet's first table gives for the number of years on line C: 1 year 20, 2 years 40, 3 years 60, 4 years 80. Those four rows are the first four rows of the IRC 143(m)(4)(C)(i) holding-period table, read at the repayment date instead of the disposition date, which is what the statute's "the holding period percentage which would have been determined ... had the taxpayer disposed of his interest in the residence on the date of the repayment" means. There is no fifth row: a line C of 5 or more is the worksheet's own "more than 4 years after the closing date" exclusion, and /form8828HoldingPeriodWorksheetApplies is false there, so this fact is not read. Incomplete until line C resolves: both dates answered and the repayment not before the closing. Feeds /form8828HoldingPeriodWorksheetLineHPercentage.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineCYears" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineCYears" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>40</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineCYears" />
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>60</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineCYears" />
+                </Left>
+                <Right>
+                  <Int>4</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>80</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodWorksheetLineGPercentage">
+      <Name>Holding Period Percentage Worksheet line G: the percentage for the years from repayment to sale</Name>
+      <Description>Worksheet line G, the percentage the worksheet's second table gives for the number of years on line F: 1 year 100, 2 years 80, 3 years 60, 4 years 40, 5 years 20, 6 or more years 0. It is the statute's ratable reduction to zero over the 5 years succeeding the repayment, expressed as the fraction of the line D percentage that survives. Incomplete until line F resolves: both dates answered and the sale not before the repayment. Feeds /form8828HoldingPeriodWorksheetLineHPercentage.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineFYears" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>100</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineFYears" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>80</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineFYears" />
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>60</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineFYears" />
+                </Left>
+                <Right>
+                  <Int>4</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>40</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineFYears" />
+                </Left>
+                <Right>
+                  <Int>5</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodWorksheetLineFYears" />
+                </Left>
+                <Right>
+                  <Int>6</Int>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828HoldingPeriodWorksheetLineHPercentage">
+      <Name>Holding Period Percentage Worksheet line H: the adjusted holding period percentage</Name>
+      <Description>Worksheet line H, the line D percentage multiplied by the line G percentage and rounded to the nearest whole percentage: the adjusted holding period percentage the worksheet says to enter on Form 8828 line 20. Every product the two tables can make is already a whole percentage, so the rounding never moves the figure; it is written because the worksheet writes it. A zero here is a real answer, not a missing one: the worksheet says a zero percentage means no recapture but the filer still completes and files Form 8828, which is why the printed form's own render gate does not read this fact. Incomplete until both line D and line G resolve. Feeds /form8828Line20HoldingPeriodPercentage.</Description>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/form8828HoldingPeriodWorksheetLineDPercentage" />
+            <Divide>
+              <Dividend>
+                <Dependency path="/form8828HoldingPeriodWorksheetLineGPercentage" />
+              </Dividend>
+              <Divisors>
+                <Dependency path="/form8828PercentageDenominator" />
+              </Divisors>
+            </Divide>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828IncomePercentageDivisor">
+      <Name>The 5,000 dollar divisor of the Form 8828 income percentage</Name>
+      <Description>The amount the printed line 18 divides line 17 by, and the amount at or above which the income percentage is 100.</Description>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line11AmountRealized">
+      <Name>Form 8828 line 11: amount realized</Name>
+      <Description>Form 8828 line 11, line 9 less line 10. It is the amount realized on the disposition.
+        The line-10 selling-expense input is declared non-negative; keep the resolution path aligned
+        with that minimum so an invalid negative seed cannot inflate the amount realized.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="/writableForm8828SalesPrice" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableForm8828ExpensesOfSale" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line12AdjustedBasis">
+      <Name>Form 8828 line 12: the adjusted basis this form uses</Name>
+      <Description>Form 8828 line 12, the adjusted basis of the interest disposed of AS SECTION 143(m) requires it to be figured, which is not always the adjusted basis the filer carries for every other purpose. It is the basis the filer entered (/writableForm8828AdjustedBasis) PLUS any amount by which that basis was reduced for gain or loss on an earlier involuntary conversion or rollover (/writableForm8828PriorCasualtyConversionBasisReduction): section 143(m)(6)(A) puts EVERY section 1033(b) and section 1034(e) basis reduction outside the basis this form uses, and section 143(m)(6)(C) adds the gain-or-loss reduction on a same-site casualty rebuild. The intake's path name says "casualty conversion" because that is the case section 143(m)(6)(C) names; the fact it carries is the wider section 143(m)(6)(A) one. The add-back is what the statute directs: section 143(m)(6)(C)'s closing sentence says that for purposes of subparagraph (A) "the adjusted basis of the taxpayer in the residence shall not be adjusted for any gain or loss on a conversion to which this subparagraph applies," and both ordinary effects of such a conversion REDUCE basis -- a gain not recognized reduces the replacement property's basis under section 1033(b), which section 143(m)(6)(A) names, and a deducted casualty loss reduces basis too -- so undoing them adds the amount back. Restoration and rebuilding costs are NOT undone here: they are the cost of the replacement property, not gain or loss on the conversion. Adding the amount back raises the basis, which lowers the gain on line 13 and the ceiling on line 14, so it can only lower the recapture tax; that direction is the statute's, not a choice. NAMED RESIDUE: an adjustment that INCREASED the basis for gain or loss on such a conversion is not modelled, because the intake is floored at $0 and no source in tree describes one. Unanswered reduction: this line is the filer's own entry, unchanged, which is what every return with no earlier casualty conversion of this home reports. With the entry itself unanswered this line stays Incomplete, and line 13 and the rest of the Part II chain with it. Feeds /form8828Line13GainOrLoss (line 13 = line 11 less this line) and the printed line 12 box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableForm8828PriorCasualtyConversionBasisReduction" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8828AdjustedBasis" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Add>
+                <GreaterOf>
+                  <Dependency path="/writableForm8828AdjustedBasis" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <GreaterOf>
+                  <Dependency path="/writableForm8828PriorCasualtyConversionBasisReduction" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line13GainOrLoss">
+      <Name>Form 8828 line 13: gain or loss from the disposition</Name>
+      <Description>Form 8828 line 13, line 11 less line 12, or, when the filer sold at a gain and paid a share of that gain to a qualifying subordinate mortgage loan (QSML) governmental lender, the filer's own share of the gain (/writableForm8828QsmlFilerShareOfGain). A negative result is a loss, and the printed line then stops the computation: no recapture tax is owed. Line 12 is the derived /form8828Line12AdjustedBasis, the entered basis with any section 143(m)(6)(C) casualty-conversion reduction added back, rather than the filer's raw entry.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8828QsmlFilerShareOfGain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="/writableForm8828QsmlFilerShareOfGain" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="/form8828Line11AmountRealized" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/form8828Line12AdjustedBasis" />
+                  </Subtrahends>
+                </Subtract>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableForm8828QsmlFilerShareOfGain" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/form8828Line11AmountRealized" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency path="/form8828Line12AdjustedBasis" />
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line14HalfOfGain">
+      <Name>Form 8828 line 14: half the gain</Name>
+      <Description>Form 8828 line 14, line 13 multiplied by 50 percent. It is the ceiling line 23 applies to the recapture amount.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>1/2</Rational>
+            <Dependency path="/form8828Line13GainOrLoss" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line17IncomeOverQualifyingIncome">
+      <Name>Form 8828 line 17: income above the adjusted qualifying income</Name>
+      <Description>Form 8828 line 17, line 15 less line 16, floored at $0. Zero or less stops the computation and no recapture tax is owed; the numerator of an "excess" (IRC 143(m)(4)(E)(i)) is never negative.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8828Line15ModifiedAdjustedGrossIncome" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/writableForm8828AdjustedQualifyingIncome" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line18TenThousandthsOfIncomePercentage">
+      <Name>Form 8828 line 18 scaffolding: the exact income percentage in ten-thousandths</Name>
+      <Description>Line 17 times the ratio of /form8828PercentageDenominator (100) to /form8828IncomePercentageDivisor (5,000), scaled by 10,000 -- an exact whole-dollar 200, derived from those two facts rather than hardcoded, so the exactness proof below stays tied to the same two facts line 18's own computation reads, instead of a second, independently-drifting copy of their ratio. Equal to the unrounded line 18 percentage times 10,000, always an exact integer since a two-decimal dollar amount divided by 5,000 terminates within four decimal places. Feeds the single-rounding correction on line 18; not itself a printed figure.</Description>
+      <Derived>
+        <Multiply>
+          <Divide>
+            <Dividend>
+              <Multiply>
+                <Dependency path="/form8828PercentageDenominator" />
+                <Dollar>10000</Dollar>
+              </Multiply>
+            </Dividend>
+            <Divisors>
+              <Dependency path="/form8828IncomePercentageDivisor" />
+            </Divisors>
+          </Divide>
+          <Dependency path="/form8828Line17IncomeOverQualifyingIncome" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line18UncorrectedRoundedEstimate">
+      <Name>Form 8828 line 18 scaffolding: the double-rounded estimate before correction</Name>
+      <Description>Line 17 times 100 divided by the $5,000 divisor at two-decimal dollar precision, then rounded to a whole percentage: the historical two-step computation, which quantizes to hundredths of a percentage point before the whole-percentage round and so can land exactly on a rounding tie the true (unrounded) quotient does not have. Provably never more than one whole percentage point above the correct single HALF_UP rounding of the exact quotient; line 18 corrects it down by exactly one point when the exact ten-thousandths value shows the tie was manufactured by this intermediate rounding rather than present in the true quotient. Not itself a printed figure.</Description>
+      <Derived>
+        <Round>
+          <Divide>
+            <Dividend>
+              <Multiply>
+                <Rational>100/1</Rational>
+                <Dependency path="/form8828Line17IncomeOverQualifyingIncome" />
+              </Multiply>
+            </Dividend>
+            <Divisors>
+              <Dependency path="/form8828IncomePercentageDivisor" />
+            </Divisors>
+          </Divide>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line18IncomePercentage">
+      <Name>Form 8828 line 18: income percentage</Name>
+      <Description>Form 8828 line 18, 100 when line 17 is 5,000 dollars or more and otherwise line 17 divided by 5,000 expressed as a whole percentage, rounded once to the nearest whole percentage point with an exact half-point rounding up. The cap and the rounding are the printed line's own instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                <Dependency path="/form8828IncomePercentageDivisor" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <LesserOf>
+                <Switch>
+                  <Case>
+                    <When>
+                      <LessThan>
+                        <Left>
+                          <Dependency path="/form8828Line18TenThousandthsOfIncomePercentage" />
+                        </Left>
+                        <Right>
+                          <Subtract>
+                            <Minuend>
+                              <Multiply>
+                                <Dependency path="/form8828Line18UncorrectedRoundedEstimate" />
+                                <Dollar>10000</Dollar>
+                              </Multiply>
+                            </Minuend>
+                            <Subtrahends>
+                              <Dollar>5000</Dollar>
+                            </Subtrahends>
+                          </Subtract>
+                        </Right>
+                      </LessThan>
+                    </When>
+                    <Then>
+                      <Subtract>
+                        <Minuend>
+                          <Dependency path="/form8828Line18UncorrectedRoundedEstimate" />
+                        </Minuend>
+                        <Subtrahends>
+                          <Dollar>1</Dollar>
+                        </Subtrahends>
+                      </Subtract>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dependency path="/form8828Line18UncorrectedRoundedEstimate" /></Then>
+                  </Case>
+                </Switch>
+                <Dollar>100</Dollar>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line19ExactTenThousandthsOfSubsidizedAmount">
+      <Name>Form 8828 line 19 scaffolding: the exact 6.25 percent figure in ten-thousandths of a dollar</Name>
+      <Description>The highest principal amount of the federally subsidized indebtedness (/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness, the entered principal less any part of it that was subsidized solely as a qualified home improvement loan) multiplied by 10,000 and divided by 16 -- one sixteenth being 6.25 percent exactly -- so this is the unrounded line 19 figure scaled by 10,000. It is always exact: a two-decimal dollar amount times 10,000 is a whole number of dollars, and a whole number divided by 16 terminates within two decimal places, so nothing is quantised away here. Feeds the single-rounding correction on /form8828Line19SixAndOneQuarterPercentOfPrincipal; not itself a printed figure.</Description>
+      <Derived>
+        <Divide>
+          <Dividend>
+            <Multiply>
+              <Dependency path="/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness" />
+              <Dollar>10000</Dollar>
+            </Multiply>
+          </Dividend>
+          <Divisors>
+            <Dollar>16</Dollar>
+          </Divisors>
+        </Divide>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line19FederallySubsidizedAmount">
+      <Name>Form 8828 line 19: federally subsidized amount</Name>
+      <Description>Form 8828 line 19, the federally subsidized amount. It is the figure from the notification the bond issuer or the lender sent when the loan was provided (/writableForm8828FederallySubsidizedAmount) whenever that figure is entered, because the printed instructions say line 19 "should be found on the notification you received"; otherwise it is 6.25 percent of the highest principal amount of the FEDERALLY SUBSIDIZED indebtedness (/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness -- the principal the filer entered on /writableForm8828HighestPrincipalAmountOfIndebtedness, less any part of it that was subsidized solely as a qualified home improvement loan), which is the one rule the statute and the instructions both state, rounded once to whole dollars with an exact half dollar rounding up (/form8828Line19SixAndOneQuarterPercentOfPrincipal). When neither is entered this line stays Incomplete: nothing in this dictionary carries a mortgage's principal history, so there is no third source to fall back on and no default that would be safe. Feeds /form8828Line21SubsidyAfterHoldingPeriod (line 21 = line 19 times the line 20 percentage).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableForm8828FederallySubsidizedAmount" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/form8828Line19SixAndOneQuarterPercentOfPrincipal" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8828FederallySubsidizedAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line19SixAndOneQuarterPercentOfPrincipal">
+      <Name>Form 8828 line 19 figured from the highest principal amount: 6.25 percent, rounded once</Name>
+      <Description>6.25 percent of the highest principal amount of the FEDERALLY SUBSIDIZED indebtedness (/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness, not the raw entered principal), rounded once to whole dollars with an exact half-dollar rounding up. The single rounding is built by estimate-and-correct rather than directly, because no engine operation rounds an exact ratio: every dollar multiplication and division re-scales to cents first, so a figure whose true value is a fraction of a cent below a half dollar is lifted onto the half dollar and then rounded up, one dollar too far. The correction below detects exactly that case from the exact ten-thousandths figure and takes the dollar back. The same limitation, and the same construction, as the line 18 income percentage. Feeds /form8828Line19FederallySubsidizedAmount.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/form8828Line19ExactTenThousandthsOfSubsidizedAmount" />
+                </Left>
+                <Right>
+                  <Subtract>
+                    <Minuend>
+                      <Multiply>
+                        <Dependency path="/form8828Line19UncorrectedRoundedEstimate" />
+                        <Dollar>10000</Dollar>
+                      </Multiply>
+                    </Minuend>
+                    <Subtrahends>
+                      <Dollar>5000</Dollar>
+                    </Subtrahends>
+                  </Subtract>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/form8828Line19UncorrectedRoundedEstimate" />
+                </Minuend>
+                <Subtrahends>
+                  <Dollar>1</Dollar>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8828Line19UncorrectedRoundedEstimate" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line19UncorrectedRoundedEstimate">
+      <Name>Form 8828 line 19 scaffolding: the double-rounded estimate before correction</Name>
+      <Description>One sixteenth of the highest principal amount of the federally subsidized indebtedness (/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness) taken at two-decimal dollar precision and then rounded to whole dollars: the straightforward two-step computation, which quantises to cents before the whole-dollar round and so can land exactly on a rounding tie the true figure does not have. It is never BELOW the correct single half-up rounding of the exact figure and never more than one dollar above it, because the intermediate half-even step can only lift an unrounded value up onto the half-dollar boundary, never carry it down past the true answer. Not itself a printed figure.</Description>
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>1/16</Rational>
+            <Dependency path="/form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line20HoldingPeriodPercentage">
+      <Name>Form 8828 line 20: holding period percentage</Name>
+      <Description>Form 8828 line 20, the holding period percentage. When the Holding Period Percentage Worksheet applies -- the original federally subsidized loan was fully repaid before the disposition and not more than 4 years after the closing date -- it is the worksheet's line H, because the instructions make that redetermination mandatory for that population and it overrides any figure read straight from a table. Otherwise it is the filer's own entry on /writableForm8828HoldingPeriodPercentage, and where that entry is blank it is /form8828Line20TablePercentage, the IRC 143(m)(4)(C)(i) table read at the full and partial years from line 5 to line 6 (/form8828HoldingPeriodYearsRoundedUp). When the worksheet applies but its year counts cannot be counted -- the closing date unanswered, or the repayment date before it -- this line stays Incomplete: an unreduced percentage would overstate the recapture tax and a zero would understate it, and neither is a safe stand-in for an answer the filer has not given. Every count this line depends on is derived from the dates on lines 5, 6 and 8, never entered: the table row, and the worksheet's lines C and F, all count full and partial years, with an anniversary closing the year it completes (see /form8828HoldingPeriodYearsRoundedUp). Feeds /form8828Line21SubsidyAfterHoldingPeriod (line 21 = line 19 times this percentage).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8828HoldingPeriodWorksheetApplies" />
+                </IsComplete>
+                <Dependency path="/form8828HoldingPeriodWorksheetApplies" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form8828HoldingPeriodWorksheetLineHPercentage" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableForm8828HoldingPeriodPercentage" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/form8828Line20TablePercentage" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8828HoldingPeriodPercentage" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line20TablePercentage">
+      <Name>Form 8828 line 20 from the IRC 143(m)(4)(C)(i) holding period table</Name>
+      <Description>The statutory holding-period percentage read straight from the IRC 143(m)(4)(C)(i) table: 1st year after the testing date 20, 2d 40, 3d 60, 4th 80, 5th 100, 6th 80, 7th 60, 8th 40, 9th 20. The table is indexed by the year after the TESTING date that the disposition falls in, and Form 8828 line 5 is defined to already be the testing date (see /writableForm8828OriginalLoanClosingDate), so the row is /form8828HoldingPeriodYearsRoundedUp, the full and partial years from line 5 to line 6: row N for a disposition more than N-1 and at most N years after the testing date. ANNIVERSARY CONVENTION: an anniversary closes the year it completes, so a disposition exactly four years after the testing date is in the 4th year at 80 and the next day is in the 5th at 100 -- the instructions' own "full and partial years that you held your home", the worksheet's rounded-up reading of the same rows, and the only reading under which the nine-year bar's "more than 9 years" leaves the 9-year anniversary a row to fall in (see that fact for the four sources). The printed line 7 years count is NOT the index: it equals this row on an exact anniversary and is one less on every other day. There is no 10th row, and none is needed: a disposition more than 9 years after the testing date is outside recapture entirely (/form8828SubjectToRecaptureTax reads the same count for that bar), so this fact stays Incomplete there and no recapture tax depends on it. Incomplete until both dates are answered, and when line 6 is earlier than line 5. Feeds /form8828Line20HoldingPeriodPercentage.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>1</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>2</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>40</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>3</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>60</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>4</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>80</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>5</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>100</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>6</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>80</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>7</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>60</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>8</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>40</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>9</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line21SubsidyAfterHoldingPeriod">
+      <Name>Form 8828 line 21: line 19 times the line 20 percentage</Name>
+      <Description>Form 8828 line 21, the federally subsidized amount on line 19 reduced by the holding period percentage on line 20. It reads /form8828Line19FederallySubsidizedAmount and /form8828Line20HoldingPeriodPercentage, the two printed line figures, rather than the intakes behind them.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                <Dependency path="/form8828PercentageDenominator" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                  <Dependency path="/form8828PercentageDenominator" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="/form8828Line19FederallySubsidizedAmount" />
+                  <Divide>
+                    <Dividend>
+                      <Dependency path="/form8828Line20HoldingPeriodPercentage" />
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/form8828PercentageDenominator" />
+                    </Divisors>
+                  </Divide>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line22RecaptureAmount">
+      <Name>Form 8828 line 22: recapture amount</Name>
+      <Description>Form 8828 line 22, line 21 multiplied by the line 18 income percentage.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                <Dependency path="/form8828PercentageDenominator" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                  <Dependency path="/form8828PercentageDenominator" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="/form8828Line21SubsidyAfterHoldingPeriod" />
+                  <Divide>
+                    <Dividend>
+                      <Dependency path="/form8828Line18IncomePercentage" />
+                    </Dividend>
+                    <Divisors>
+                      <Dependency path="/form8828PercentageDenominator" />
+                    </Divisors>
+                  </Divide>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828Line23RecaptureTax">
+      <Name>Form 8828 line 23: the recapture tax</Name>
+      <Description>Form 8828 line 23, the smaller of line 14 and line 22, floored at $0, which the filer includes on Schedule 2 line 17b. Zero whenever /form8828SubjectToRecaptureTax is answered false -- one of the statutory exceptions bars recapture entirely, and the printed form can still be filed (dictionary/pdf/2025/gates.tsv reads the narrower /form8828RecaptureQuestionReached, not this fact) with a $0 line 23, rather than showing the raw Part II arithmetic on a return the statute excuses from the tax. Print only until Schedule 2 carries it: schedule2 /line18OfSchedule2 names line 17b as one of the sub lines that is structurally zero because no fact claims it, and this is that fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8828SubjectToRecaptureTax" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/form8828SubjectToRecaptureTax" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <LesserOf>
+                  <Dependency path="/form8828Line14HalfOfGain" />
+                  <Dependency path="/form8828Line22RecaptureAmount" />
+                </LesserOf>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828PercentageDenominator">
+      <Name>The 100 denominator of the Form 8828 percentage lines</Name>
+      <Description>The constant the line 18 and line 20 percentages are taken over when lines 21 and 22 apply them.</Description>
+      <Derived>
+        <Dollar>100</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828RecaptureQuestionReached">
+      <Name>Form 8828's own render gate: the recapture question is reached</Name>
+      <Description>True when the return's Part I answers place it in Form 8828's "Who Must File" population, before any of the four absolute-bar exceptions on /form8828SubjectToRecaptureTax are applied: a federal mortgage subsidy is claimed (/writableForm8828SubsidyFromTaxExemptBond or /writableForm8828SubsidyFromMortgageCreditCertificate) and the loan's testing date (/writableForm8828OriginalLoanClosingDate) is not before January 1, 1991. This is the printed form's own render gate (dictionary/pdf/2025/gates.tsv, IRS8828 includeWhen) and is deliberately narrower than the tax computation's own gate: a filer who reaches this population but then attests a death disposition, a timely same-site casualty replacement, a solely-QHIL-subsidized loan, or a disposition more than 9 years after the testing date can still owe zero recapture tax under /form8828SubjectToRecaptureTax, but the form itself still renders, because a zero recapture amount does not by itself excuse filing the form a return in this population is otherwise required to attach. The two conditions here are exactly the printed form's own "do not complete this form" instructions under line 2 and line 5; none of the four exceptions is folded in, because none of them is sourced as a filing excuse for this population as reliably as those two are (see /writableForm8828DispositionByReasonOfDeath's own named gap). Feeds dictionary/pdf/2025/gates.tsv (IRS8828 includeWhen) and /form8828SubjectToRecaptureTax (the first of its five conjuncts).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Any>
+            <Dependency path="/writableForm8828SubsidyFromTaxExemptBond" />
+            <Dependency path="/writableForm8828SubsidyFromMortgageCreditCertificate" />
+          </Any>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableForm8828OriginalLoanClosingDate" />
+              </IsComplete>
+              <LessThanOrEqual>
+                <Left><Dependency path="/writableForm8828OriginalLoanClosingDate" /></Left>
+                <Right><Day>1990-12-31</Day></Right>
+              </LessThanOrEqual>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8828SubjectToRecaptureTax">
+      <Name>This return owes Form 8828 recapture tax</Name>
+      <Description>True when the return is in Form 8828's filing population (/form8828RecaptureQuestionReached: either kind of federal subsidy claimed AND the loan's testing date is not before January 1, 1991) AND none of four statutory exceptions bars this disposition: death, a timely same-site casualty replacement, a loan federally subsidized solely because it is a qualified home improvement loan, or a disposition more than 9 years after the testing date (/form8828HoldingPeriodYearsRoundedUp above 9: the 9-year anniversary itself still owes recapture). This fact drives the recapture TAX (through /form8828Line23RecaptureTax and /form8828Line23RecaptureTaxOrZero on Schedule 2 line 17b), not the printed form's own render gate: that is /form8828RecaptureQuestionReached (dictionary/pdf/2025/gates.tsv), which does not read the four exceptions, because a zero recapture tax does not by itself excuse filing Form 8828. Each exception is written as NOT (the attestation is answered AND it is true), complete-safe in the direction that matters: an unanswered attestation leaves this fact exactly where the population and the other exceptions put it, and never silently turns recapture tax off.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/form8828RecaptureQuestionReached" />
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableForm8828DispositionByReasonOfDeath" />
+              </IsComplete>
+              <Dependency path="/writableForm8828DispositionByReasonOfDeath" />
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableForm8828CasualtyInvoluntaryConversionWithTimelyReplacement" />
+              </IsComplete>
+              <Dependency path="/writableForm8828CasualtyInvoluntaryConversionWithTimelyReplacement" />
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableForm8828SubsidySolelyFromHomeImprovementLoan" />
+              </IsComplete>
+              <Dependency path="/writableForm8828SubsidySolelyFromHomeImprovementLoan" />
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableForm8828TransferToSpouseWithNoGainOrLossRecognizedUnderSection1041" />
+              </IsComplete>
+              <Dependency path="/writableForm8828TransferToSpouseWithNoGainOrLossRecognizedUnderSection1041" />
+            </All>
+          </Not>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8828HoldingPeriodYearsRoundedUp" />
+                </Left>
+                <Right>
+                  <Int>9</Int>
+                </Right>
+              </GreaterThan>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8828AdjustedBasis">
+      <Name>Form 8828 line 12: adjusted basis of the interest disposed of</Name>
+      <Description>Form 8828 line 12: "Adjusted basis of your interest in the home sold or disposed of." This dictionary holds no basis history for a residence, so enter your own adjusted basis. Two adjustments the printed instructions do not spell out on this line: gain counts toward recapture "whether or not recognized," so do not subtract a section 121 home-sale exclusion before entering this basis or the line 9 sales price; and this basis is determined without regard to section 1033(b) (the involuntary-conversion basis-carryover rule), so no gain you did not recognize on an earlier involuntary conversion or an earlier rollover is allowed to reduce it -- whether this home replaced a home destroyed by a casualty, a home taken by condemnation, or a home you sold before 1997 and rolled the gain into. Do NOT make that second adjustment yourself: enter the adjusted basis as you figure it for every other purpose, and report the reduction on /writableForm8828PriorCasualtyConversionBasisReduction, which adds it back here for you. Asked when /form8828SubjectToRecaptureTax is true. Unanswered: no default is available, so /form8828Line12AdjustedBasis, /form8828Line13GainOrLoss and the rest of the Part II chain stay Incomplete; the complete-safe /form8828Line23RecaptureTaxOrZero still resolves to $0 on the printed return. Dollar, minimum $0. Feeds /form8828Line12AdjustedBasis, and through it /form8828Line13GainOrLoss (line 13 = line 11 less line 12).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828AdjustedQualifyingIncome">
+      <Name>Form 8828 line 16: adjusted qualifying income</Name>
+      <Description>Form 8828 line 16, the adjusted qualifying income figured from the instructions' table of the issuer's income limits and the family size. Neither the limits nor the family size adjustment is vendored here, so the figure is the filer's own entry.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828BondOrCertificateIssuer">
+      <Name>Form 8828 line 3: name of the bond or certificate issuer</Name>
+      <Description>Form 8828 line 3, the issuer of the bond or the mortgage credit certificate together with the state, political subdivision and agency the printed line asks for. One text box on the register, so one String intake.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828DispositionDate">
+      <Name>Form 8828 line 6: date of sale or other disposition</Name>
+      <Description>Form 8828 line 6, the date the filer's interest in the home was sold or otherwise disposed of. One Day behind three printed boxes, like line 5. It is the later end of the holding period: line 7's printed years and months and the full and partial years that index the holding-period table and the nine-year bar are all counted from line 5 to this date, and it must not be earlier than line 5 (an earlier date leaves those counts Incomplete). It also decides whether a full repayment of the loan on line 8 came BEFORE the disposition, which is one of the two conditions the Holding Period Percentage Worksheet applies under. Unanswered: the worksheet never applies, because a repayment cannot be shown to precede a disposition that has no date, and the table row and line 7 stay Incomplete. Feeds /form8828HoldingPeriodWorksheetApplies, /form8828HoldingPeriodYearsRoundedUp, /form8828Line7FullYears, /form8828Line7ElapsedFullMonths and /form8828HoldingPeriodWorksheetLineFYears.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828ExpensesOfSale">
+      <Name>Form 8828 line 10: expenses of sale</Name>
+      <Description>Form 8828 line 10, the sales commissions, advertising, legal fees and other selling expenses the printed line names.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828FederallySubsidizedAmount">
+      <Name>Form 8828 line 19: federally subsidized amount</Name>
+      <Description>Form 8828 line 19: "Federally subsidized amount." Enter the figure from the notification the bond issuer or your lender sent you at the time the loan was provided. It is 6.25 percent of the highest principal amount of the loan that was federally subsidized -- the ONE rule the statute and the Form 8828 instructions both state for every federally subsidized loan, tax-exempt bond financed or mortgage credit certificate alike, with no separate rule for a mortgage credit certificate. If only part of the loan was federally subsidized -- for example if part of it was a qualified home improvement loan, which is not federally subsidized indebtedness at all -- the 6.25 percent is taken only on the part that was federally subsidized, and the notification figure you were sent already reflects that. If you do not have the notification, leave this blank and answer /writableForm8828HighestPrincipalAmountOfIndebtedness instead, and line 19 is figured from it; if both are answered, this figure is the one that is used. Asked when /form8828SubjectToRecaptureTax is true. Unanswered: no default is available, so unless the highest principal amount is answered /form8828Line19FederallySubsidizedAmount, /form8828Line21SubsidyAfterHoldingPeriod and the rest of the Part II chain stay Incomplete; the complete-safe /form8828Line23RecaptureTaxOrZero still resolves to $0 on the printed return. Dollar, minimum $0. Feeds /form8828Line19FederallySubsidizedAmount (the printed line 19 figure).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828FullRepaymentDate">
+      <Name>Form 8828 line 8: date the original loan was fully repaid</Name>
+      <Description>Form 8828 line 8, the date of full repayment of the original loan, including a refinancing other than one for which a replacement mortgage credit certificate was issued. One Day behind three printed boxes. A repayment before the disposition on line 6 and not more than 4 years after the closing date on line 5 puts the return in the Holding Period Percentage Worksheet's population, which redetermines the line 20 percentage downward. Unanswered: the worksheet never applies, so line 20 is the table or the filer's own entry -- an unreduced percentage, which overstates rather than understates the recapture tax. A date earlier than line 5 leaves worksheet line C Incomplete and line 20 with it. Feeds /form8828HoldingPeriodWorksheetApplies, /form8828HoldingPeriodWorksheetLineCYears and /form8828HoldingPeriodWorksheetLineFYears.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828HighestPrincipalAmountOfIndebtedness">
+      <Name>Form 8828 line 19 input: highest principal amount of the indebtedness</Name>
+      <Description>Not a printed form line. Ask "What was the highest principal amount you were ever liable for on this federally subsidized loan?" Enter it only if you do not have the federally subsidized amount itself from the notification the bond issuer or your lender sent you: line 19 is 6.25 percent of this highest principal amount, and answering this lets that line be figured for you. Enter the WHOLE highest principal amount here, including any part of it that was a qualified home improvement loan: do not subtract that part yourself. If part of the loan was federally subsidized only because it was a qualified home improvement loan, which is not federally subsidized indebtedness at all, enter that part on /writableForm8828PrincipalAmountSolelyHomeImprovementLoan and it is taken out of this base for you. Asked when /form8828SubjectToRecaptureTax is true, on the same screen as the line 19 figure itself. Unanswered: no default is available; if the line 19 figure is not entered either, /form8828Line19FederallySubsidizedAmount and the rest of the Part II chain stay Incomplete, and the complete-safe /form8828Line23RecaptureTaxOrZero still resolves to $0 on the printed return. Dollar, minimum $0. Feeds /form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness, and through it /form8828Line19FederallySubsidizedAmount (line 19 = 6.25 percent of this amount, less any qualified home improvement loan portion, when the notification figure is not entered).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828HoldingPeriodPercentage">
+      <Name>Form 8828 line 20: holding period percentage</Name>
+      <Description>Form 8828 line 20: "Holding period percentage." Leave it blank to have it read for you from the IRC 143(m)(4)(C)(i) table at the year after the testing date that the disposition on line 6 falls in -- 1st year 20, 2nd 40, 3rd 60, 4th 80, 5th 100, 6th 80, 7th 60, 8th 40, 9th 20 -- the full and partial years from line 5 to line 6, an anniversary closing the year it completes. Enter a figure here only if you have been told a different percentage applies; an entry wins over the table. Be aware that it wins even when it is wrong: once lines 5 and 6 are answered the table determines this percentage completely, so a figure that disagrees with it understates or overstates the recapture tax, and nothing here can tell a deliberate correction from a slip. Do NOT work the instructions' Holding Period Percentage Worksheet by hand: if you fully repaid or refinanced the original loan (other than by reissuing a mortgage credit certificate) before the sale on line 6 and not more than 4 years after the closing date on line 5, that worksheet is figured for you from the dates on lines 5, 8 and 6 (its year counts /form8828HoldingPeriodWorksheetLineCYears and /form8828HoldingPeriodWorksheetLineFYears are derived), and its answer is what the printed line 20 shows, not the figure entered here. Asked when /form8828SubjectToRecaptureTax is true. Unanswered: the table above supplies line 20 whenever lines 5 and 6 are answered and the worksheet does not apply; with neither those dates nor this entry, /form8828Line20HoldingPeriodPercentage, /form8828Line21SubsidyAfterHoldingPeriod and the rest of the Part II chain stay Incomplete; the complete-safe /form8828Line23RecaptureTaxOrZero still resolves to $0 on the printed return. Dollar, minimum $0, maximum 100 (neither the table nor the worksheet's D-times-G product ever exceeds 100). Feeds /form8828Line20HoldingPeriodPercentage (the printed line 20 figure).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+        <Limit type="Max">
+          <Dollar>100</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8828Line15ModifiedAdjustedGrossIncome">
+      <Name>Form 8828 line 15: modified adjusted gross income</Name>
+      <Description>Form 8828 line 15, as the instructions figure it: the adjusted gross income on Form 1040 line 11 (taxCalculations /agi), plus the tax-exempt interest received or accrued for the year (interest /taxExemptInterest, Form 1040 line 2a), minus the gain included in gross income because of the disposition of this home (/writableForm8828GainIncludedInGrossIncomeFromDisposition; the statute subtracts the gain "(if any)", so an entry below $0 subtracts nothing). IRC 143(m)(5)(B) states the same three terms. Incomplete until all three are known: the gain question has no default, because leaving it out would raise line 15 and the recapture tax.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Add>
+              <Dependency module="taxCalculations" path="/agi" />
+              <Dependency module="interest" path="/taxExemptInterest" />
+            </Add>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableForm8828GainIncludedInGrossIncomeFromDisposition" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8828GainIncludedInGrossIncomeFromDisposition">
+      <Name>Gain included in gross income because of the disposition of the home (Form 8828 line 15)</Name>
+      <Description>The part of the gain on this sale or disposition that is included in gross income on this return, after any section 121 exclusion, entered as a positive amount; $0 when the gain is fully excluded or the sale produced a loss. Form 8828 line 15 subtracts it from adjusted gross income plus tax-exempt interest (/form8828Line15ModifiedAdjustedGrossIncome). Asked on every Form 8828; no default.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828OriginalLendingInstitution">
+      <Name>Form 8828 line 4: name and address of the original lending institution</Name>
+      <Description>Form 8828 line 4. The lender of the original subsidized loan, which no fact in this dictionary carries.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828OriginalLoanClosingDate">
+      <Name>Form 8828 line 5: date of closing of the original loan</Name>
+      <Description>Form 8828 line 5: the month, day and year your original federally subsidized mortgage loan was provided. Held as one Day; the printed boxes are filled from it through the register's date part transforms. Its own instructions say this is generally the date of settlement on the home, but if the loan became federally subsidized debt at a later date, use that date instead -- so this fact is DEFINED to already be the testing date IRC 143(m) measures from, not necessarily the settlement date, and every downstream use of it (the pre-1991 bar below; the full and partial years on /form8828HoldingPeriodYearsRoundedUp, which index both the holding-period table and the 9-year exception; the printed line 7 counts; and worksheet line C) inherits that testing-date meaning without a separate testing-date fact. A loan whose testing date is before January 1, 1991 is outside the recapture regime entirely: /form8828RecaptureQuestionReached reads this date as one of its two conditions and keeps the whole form from rendering (dictionary/pdf/2025/gates.tsv) when it is answered and on or before 1990-12-31; witnesses tests/nodes/ty2025/form8828/f8828-pre-1991-closing-date-bars-recapture-tax and f8828-closing-date-unanswered-leaves-the-gate-on. Asked in Part I, alongside line 6, whenever either subsidy-type box (/writableForm8828SubsidyFromTaxExemptBond or /writableForm8828SubsidyFromMortgageCreditCertificate) is answered true. Unanswered: no default is available, so the pre-1991 bar, line 7, the holding-period table row and worksheet line C all stay unresolved without it -- complete-safe in the direction that matters, since the pre-1991 conjunct only fires when this date IS answered and IS on or before 1990-12-31, never when it is unanswered. Day. Feeds /form8828RecaptureQuestionReached (the pre-1991 bar on the printed form's own render gate), /form8828HoldingPeriodYearsRoundedUp, /form8828Line7FullYears, /form8828Line7ElapsedFullMonths and /form8828HoldingPeriodWorksheetLineCYears, which count calendar years and months from this date.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828PrincipalAmountSolelyHomeImprovementLoan">
+      <Name>Form 8828 line 19 input: the part of the principal that was a qualified home improvement loan</Name>
+      <Description>Not a printed form line. Ask "Of that highest principal amount, how much was federally subsidized ONLY because it was a qualified home improvement loan?" A qualified home improvement loan under section 143(k)(4) is financing of not more than $15,000 for alterations, repairs and improvements that protect or improve the basic livability or energy efficiency of the home; indebtedness that is federally subsidized for that reason alone is not federally subsidized indebtedness at all, so the amount entered here is taken out of the base line 19's 6.25 percent is figured on. Enter it as a DOLLAR AMOUNT of principal, not a percentage: section 143(m)(3)(B) removes the loan from the term only "to the extent" it is subsidized for that reason, so a loan that is part qualified home improvement loan and part some other federally subsidized financing keeps the other part in the base. If the WHOLE loan was federally subsidized only because it was a qualified home improvement loan, answer /writableForm8828SubsidySolelyFromHomeImprovementLoan true instead: that bars the recapture tax outright, where this field only shrinks the base. Do NOT subtract this amount from the highest principal amount yourself; enter the whole principal there and this part here. Asked when /form8828SubjectToRecaptureTax is true, on the same screen as the highest principal amount, and only when that amount is being entered: it does nothing on a return that reports the notification figure, because that figure already covers the federally subsidized indebtedness alone. Unanswered: the whole entered principal is the base, which is the right answer for every loan with no qualified home improvement component, so this field is complete-safe and never makes line 19 Incomplete by itself. An amount larger than the principal is floored, leaving a base of $0 rather than a negative one. Dollar, minimum $0. Feeds /form8828HighestPrincipalAmountOfFederallySubsidizedIndebtedness (the base for line 19's 6.25 percent).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828PriorCasualtyConversionBasisReduction">
+      <Name>Form 8828 line 12 input: basis reduced for gain or loss on an earlier casualty conversion of this home</Name>
+      <Description>Not a printed form line. Ask "Did this home replace an earlier home that was destroyed, condemned or otherwise involuntarily converted? If so, by how much was the adjusted basis you just entered REDUCED for gain or loss on that earlier conversion?" Three reductions count and all three are added back for Form 8828: a gain on ANY earlier involuntary conversion that you did not recognize because you bought or rebuilt a replacement, which reduced the new basis under section 1033(b) -- section 143(m)(6)(A) puts every such reduction outside this form's basis, not only a same-site rebuild after a casualty; a casualty loss you deducted, which reduced your basis as well, in the same-site rebuild case section 143(m)(6)(C) covers; and, for a pre-1997 sale, a gain rolled over under section 1034(e), which section 143(m)(6)(A) names alongside 1033(b). What does NOT count is what you spent to rebuild: those costs are the cost of the replacement property, not gain or loss on the conversion, and they stay in your basis. Enter the whole reduction here and leave the basis above as you figure it everywhere else; do not add it back yourself. Section 143(m)(6)(C) is what makes this a Form 8828 question: for the gain limit this form applies, the adjusted basis "shall not be adjusted for any gain or loss on a conversion to which this subparagraph applies," and section 143(m)(6)(A) says the same for section 1033(b) generally. Adding the reduction back raises the basis and so lowers the gain, so this can only lower the recapture tax; it can never raise it. Asked when /form8828SubjectToRecaptureTax is true, on the same screen as the line 12 adjusted basis. Unanswered: the entered basis is line 12, unchanged, which is the right answer for every home that was never involuntarily converted, so this field is complete-safe and never makes line 12 Incomplete by itself. Dollar, minimum $0: an adjustment in the other direction is not modelled, and no source in tree describes one. DISCLOSURE: that a deducted casualty loss reduces basis, and that a section 1033(b) deferral reduces the replacement property's basis, are general basis rules (section 1016 and section 1033(b) themselves); only section 143(m) is vendored in this tree, so those two mechanisms are stated from general tax law and no section 1016 cite is made or implied. What IS vendored is the instruction this fact acts on: section 143(m)(6)(A) and (C). Feeds /form8828Line12AdjustedBasis (the printed line 12 figure), and through it line 13, line 14 and the line 23 ceiling.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828PropertyAddress">
+      <Name>Form 8828 line 1: address of the home subject to federally subsidized debt</Name>
+      <Description>Form 8828 line 1, the address of the home that was sold or otherwise disposed of. It is not the return's own /address: the home this form describes has just been disposed of, so the filer supplies its address as printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828SalesPrice">
+      <Name>Form 8828 line 9: sales price of the interest disposed of</Name>
+      <Description>Form 8828 line 9: "Sales price of your interest in the home sold or disposed of." The disposition of a personal residence is not carried by any collection in this dictionary, so enter your own sales price. If the home was disposed of other than by sale (for example, a gift), the disposition is treated as a sale at the home's fair market value on the date of disposition, so enter that fair market value instead of an actual sales price. Asked when /form8828SubjectToRecaptureTax is true. Unanswered: no default is available, so /form8828Line11AmountRealized and the rest of the Part II chain stay Incomplete; the complete-safe /form8828Line23RecaptureTaxOrZero still resolves to $0 on the printed return. Dollar, minimum $0. Feeds /form8828Line11AmountRealized (line 11 = line 9 less line 10).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828SubsidyFromMortgageCreditCertificate">
+      <Name>Form 8828 line 2b: the subsidy was a mortgage credit certificate</Name>
+      <Description>Form 8828 line 2b. The filer's own answer, for the same reason as line 2a. A filer who checks neither box is not subject to recapture tax and does not complete the form.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828SubsidyFromTaxExemptBond">
+      <Name>Form 8828 line 2a: the loan came from the proceeds of a tax exempt bond</Name>
+      <Description>Form 8828 line 2a. Nothing in this dictionary records how a mortgage was financed, so the box is the filer's own answer. With line 2b it decides whether any recapture tax is owed at all.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828DispositionByReasonOfDeath">
+      <Name>Form 8828 recapture exception: disposition by reason of death</Name>
+      <Description>Not a printed form line. Ask "Was this disposition of the home by reason of death (for example, the home passed to an heir or the estate because the owner died)?" A disposition by reason of death is an absolute bar to recapture tax: the estate or heirs owe none on this disposition. Asked when line 2a or line 2b is true (the same population the recapture gate reaches). Unanswered: assumed NOT a death disposition, complete-safe in the direction that matters, since an unanswered question must never silently turn recapture tax off. Boolean. Feeds /form8828SubjectToRecaptureTax as an absolute bar on the TAX only -- it does not feed /form8828RecaptureQuestionReached, so the printed Form 8828 still renders with a $0 line 23 rather than being suppressed. NAMED GAP: no source in this dictionary states that a disposition by reason of death excuses FILING Form 8828; IRC 143(m)(2)(A) bars only the tax. This fact is built accordingly, to keep the form rendering rather than invent a filing excuse no source states.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828CasualtyInvoluntaryConversionWithTimelyReplacement">
+      <Name>Form 8828 recapture exception: casualty conversion with a timely same-site replacement</Name>
+      <Description>Not a printed form line. Ask "Was the home destroyed in whole or in part by fire, storm, or other casualty, and did you purchase a replacement home on the same site within the replacement period (generally 2 years after the year of the destruction; longer for a federally declared disaster)?" A same-site replacement purchased within the window bars recapture tax on this disposition entirely. Asked when line 2a or line 2b is true. Unanswered: assumed NOT this exception, complete-safe in the direction that matters, since an unanswered question must never silently turn recapture tax off. Boolean. Feeds /form8828SubjectToRecaptureTax as an absolute bar on the TAX only -- it does not feed /form8828RecaptureQuestionReached, so the printed Form 8828 still renders with a $0 line 23 rather than being suppressed. The instructions' own "If you do not replace the home in time, you must file Form 8828..." sentence implies a TIMELY replacement might excuse filing too, but this build errs toward always printing rather than inferring a filing excuse from that implication. NAMED RESIDUAL: the statute also directs that the adjusted basis in the residence not be adjusted for the conversion's own gain or loss when this exception applies; that basis adjustment is not built here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828SubsidySolelyFromHomeImprovementLoan">
+      <Name>Form 8828 recapture exception: the loan's only subsidy was a qualified home improvement loan</Name>
+      <Description>Not a printed form line. Ask "Was the ONLY reason this loan was federally subsidized that it was a qualified home improvement loan (QHIL) -- limited to $15,000, and used for alterations, repairs, or improvements that protect or improve your home's basic livability or energy efficiency (see IRC 143(k)(4))?" Indebtedness that is federally subsidized SOLELY because it is a QHIL is not "federally-subsidized indebtedness" at all, so no recapture tax applies. Asked when line 2a or line 2b is true. Unanswered: assumed NOT this exception, complete-safe in the direction that matters, since an unanswered question must never silently turn recapture tax off. Boolean. Feeds /form8828SubjectToRecaptureTax as an absolute bar on the TAX only -- it does not feed /form8828RecaptureQuestionReached, so the printed Form 8828 still renders with a $0 line 23 rather than being suppressed. The statute excludes the QHIL indebtedness "to the extent" it is solely QHIL-subsidized, covering a loan that is PARTLY a QHIL and partly some other federally-subsidized financing. That partial case is now modeled as a DOLLAR amount on /writableForm8828PrincipalAmountSolelyHomeImprovementLoan, which shrinks line 19's base; this Boolean stays the WHOLLY case, which bars the tax outright.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828TransferToSpouseWithNoGainOrLossRecognizedUnderSection1041">
+      <Name>Form 8828 recapture exception: a transfer to a spouse or former spouse with no gain or loss recognized under section 1041</Name>
+      <Description>Not a printed form line. Ask "Did you transfer your interest in the home to your spouse, or to your former spouse incident to your divorce, with no gain or loss recognized on the transfer under section 1041?" Paragraph (1) of section 143(m) does not apply to a transfer on which no gain or loss is recognized under section 1041; the instructions say such a transfer incident to divorce results in no recapture tax to either person and the form is not filed. The spouse or former spouse who receives the home is then treated as the transferor would have been, so a later sale by that person is their own recapture question. Asked when line 2a or line 2b is true. Unanswered: assumed NOT this exception, the complete-safe direction, since an unanswered question must never turn recapture tax off. Boolean. Feeds /form8828SubjectToRecaptureTax as a bar on the tax.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8828QsmlFilerShareOfGain">
+      <Name>Form 8828 line 13 input: your share of the gain after the QSML governmental lender's share</Name>
+      <Description>Form 8828 line 13 when the filer had a qualifying subordinate mortgage loan (or grant) and sold the home at a gain within the 9-year recapture period, paying a share of that gain to the QSML governmental lender. Ask "You paid part of the gain on this sale to the QSML governmental lender. What is your own share of the gain?" The instructions have the filer write QSML on the dotted line beside line 13 and enter their share of the gain in the amount column, with an attached worksheet showing how the share was figured, the date the lender was paid and the amount of its share. Asked only when the filer had a QSML and shared the gain; leave it unanswered otherwise, and line 13 is line 11 less line 12. Unanswered is the ordinary case and computes the whole gain. Dollar, minimum $0; a negative entry is floored at $0 where line 13 reads it. Feeds /form8828Line13GainOrLoss.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8828Line23RecaptureTaxOrZero">
+      <Name>Form 8828 line 23 recapture tax as the Schedule 2 line 17b term, 0 when the form does not apply (complete safe)</Name>
+      <Description>/form8828Line23RecaptureTax when this return owes Form 8828 recapture tax (/form8828SubjectToRecaptureTax) and the Part II chain resolves, else $0. The complete-safe wrapper Schedule 2 needs: line 23 goes Incomplete on a return that never answers the Part I subsidy boxes or the Part II sale figures, and a filer the form itself excuses ("if neither box applies, you are not subject to recapture tax," or one of the four statutory exceptions attested on /form8828SubjectToRecaptureTax) owes nothing on line 17b -- and /form8828Line23RecaptureTax itself already reads $0 in that case, so this fact and the printed line agree. schedule2 /line18OfSchedule2 reads this fact as its line 17b term, and taxCalculations /line21OfSchedule2 reads line 18, so printed line 23 reaches Form 1040 line 23.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8828SubjectToRecaptureTax" />
+                </IsComplete>
+                <Dependency path="/form8828SubjectToRecaptureTax" />
+                <IsComplete>
+                  <Dependency path="/form8828Line23RecaptureTax" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form8828Line23RecaptureTax" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

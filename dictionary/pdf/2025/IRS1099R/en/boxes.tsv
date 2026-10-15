@@ -1,0 +1,85 @@
+# IRS1099R — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099R/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 3ec3f5c18419bf8fe39d1cf4e834da0efd26324b7323a6484eefb7c08ada93a6
+# boxes: 39   acroform fields: 192   boxes with a fact: 39
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (12): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 14 row 1 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 14 row 2 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 15 row 1 `State/Payer's state no.`: shared spelling `state/payer's state no` names 2 readings
+# unspelled: box 15 row 2 `State/Payer's state no.`: shared spelling `state/payer's state no` names 2 readings
+# unspelled: box 16 row 1 `State distribution`: shared spelling `state distribution` names 2 readings
+# unspelled: box 16 row 2 `State distribution`: shared spelling `state distribution` names 2 readings
+# unspelled: box 17 row 1 `Local tax withheld`: shared spelling `local tax withheld` names 2 readings
+# unspelled: box 17 row 2 `Local tax withheld`: shared spelling `local tax withheld` names 2 readings
+# unspelled: box 18 row 1 `Name of locality`: shared spelling `name of locality` names 2 readings
+# unspelled: box 18 row 2 `Name of locality`: shared spelling `name of locality` names 2 readings
+# unspelled: box 19 row 1 `Local distribution`: shared spelling `local distribution` names 2 readings
+# unspelled: box 19 row 2 `Local distribution`: shared spelling `local distribution` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:90251d5ff401	VOID	void	topmostSubform[0].CopyA[0].c1_1[0]|topmostSubform[0].Copy1[0].c2_1[0]	/form1099Rs/*/writableVoid	Bool		
+—	caption:9ba6c34da4e6	CORRECTED	corrected	topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].Copy1[0].c2_1[1]|topmostSubform[0].CopyB[0].c2_1[0]|topmostSubform[0].CopyC[0].c2_1[0]|topmostSubform[0].Copy2[0].c2_1[0]	/form1099Rs/*/writableCorrected	Bool		
+payer-name		PAYER'S name	payer's name	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].f1_01[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_01[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_01[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_01[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_01[0]	/form1099Rs/*/payer	String		
+payer-tin		PAYER'S TIN	payer's tin	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].PayersTIN[0].f1_02[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_02[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_02[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_02[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_02[0]	/form1099Rs/*/payer/tin	EIN		
+recipient-tin		RECIPIENT'S TIN	recipient's tin	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].f1_03[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_03[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_03[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_03[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_03[0]	/form1099Rs/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].f1_04[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_04[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_04[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_04[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_04[0]	/form1099Rs/*/writableRecipientName	String		
+recipient-address	1	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].f1_05[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_05[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_05[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_05[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_05[0]	/form1099Rs/*/writableRecipientStreetAddress	String		
+recipient-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].f1_06[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_06[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_06[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_06[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_06[0]	/form1099Rs/*/writableRecipientCityStateZip	String		
+account		Account number	account number	topmostSubform[0].CopyA[0].LeftCol_ReadOrder[0].f1_07[0]|topmostSubform[0].Copy1[0].LeftCol_ReadOrder[0].f2_07[0]|topmostSubform[0].CopyB[0].LeftCol_ReadOrder[0].f2_07[0]|topmostSubform[0].CopyC[0].LeftCol_ReadOrder[0].f2_07[0]|topmostSubform[0].Copy2[0].LeftCol_ReadOrder[0].f2_07[0]	/form1099Rs/*/writableAccountNumber	String		
+1		Gross distribution	1 gross distribution	topmostSubform[0].CopyA[0].f1_08[0]|topmostSubform[0].Copy1[0].f2_08[0]|topmostSubform[0].CopyB[0].f2_08[0]|topmostSubform[0].CopyC[0].f2_08[0]|topmostSubform[0].Copy2[0].f2_08[0]	/form1099Rs/*/writableGrossDistribution	Dollar		
+2a		Taxable amount	2a taxable amount	topmostSubform[0].CopyA[0].f1_09[0]|topmostSubform[0].Copy1[0].f2_09[0]|topmostSubform[0].CopyB[0].f2_09[0]|topmostSubform[0].CopyC[0].f2_09[0]|topmostSubform[0].Copy2[0].f2_09[0]	/form1099Rs/*/writableTaxableAmount	Dollar		
+2b	1	Taxable amount not determined	2b taxable amount not determined	topmostSubform[0].CopyA[0].c1_2[0]|topmostSubform[0].Copy1[0].c2_2[0]|topmostSubform[0].CopyB[0].c2_2[0]|topmostSubform[0].CopyC[0].c2_2[0]|topmostSubform[0].Copy2[0].c2_2[0]	/form1099Rs/*/writableTaxableAmountNotDetermined	Bool		
+2b	2	Total distribution	total distribution	topmostSubform[0].CopyA[0].c1_3[0]|topmostSubform[0].Copy1[0].c2_3[0]|topmostSubform[0].CopyB[0].c2_3[0]|topmostSubform[0].CopyC[0].c2_3[0]|topmostSubform[0].Copy2[0].c2_3[0]	/form1099Rs/*/writableTotalDistribution	Bool		
+3		Capital gain (included in box 2a)	capital gain	topmostSubform[0].CopyA[0].Box3_ReadOrder[0].f1_10[0]|topmostSubform[0].Copy1[0].Box3_ReadOrder[0].f2_10[0]|topmostSubform[0].CopyB[0].Box3_ReadOrder[0].f2_10[0]|topmostSubform[0].CopyC[0].Box3_ReadOrder[0].f2_10[0]|topmostSubform[0].Copy2[0].Box3_ReadOrder[0].f2_10[0]	/form1099Rs/*/writableCapitalGain	Dollar		
+4		Federal income tax withheld	4 federal income tax withheld	topmostSubform[0].CopyA[0].f1_11[0]|topmostSubform[0].Copy1[0].f2_11[0]|topmostSubform[0].CopyB[0].f2_11[0]|topmostSubform[0].CopyC[0].f2_11[0]|topmostSubform[0].Copy2[0].f2_11[0]	/form1099Rs/*/writableFederalWithholding	Dollar		
+5		Employee contributions/Designated Roth contributions or insurance premiums	employee contributions/designated roth contributions or insurance premiums	topmostSubform[0].CopyA[0].Box5_ReadOrder[0].f1_12[0]|topmostSubform[0].Copy1[0].Box5_ReadOrder[0].f2_12[0]|topmostSubform[0].CopyB[0].Box5_ReadOrder[0].f2_12[0]|topmostSubform[0].CopyC[0].Box5_ReadOrder[0].f2_12[0]|topmostSubform[0].Copy2[0].Box5_ReadOrder[0].f2_12[0]	/form1099Rs/*/writableEmployeeOrRothOrInsuranceContributions	Dollar		
+6		Net unrealized appreciation in employer's securities	net unrealized appreciation in employer's securities	topmostSubform[0].CopyA[0].f1_13[0]|topmostSubform[0].Copy1[0].f2_13[0]|topmostSubform[0].CopyB[0].f2_13[0]|topmostSubform[0].CopyC[0].f2_13[0]|topmostSubform[0].Copy2[0].f2_13[0]	/form1099Rs/*/writableNetAppreciation	Dollar		
+7	1	Distribution code(s)	7 distribution code(s)	topmostSubform[0].CopyA[0].Box7_ReadOrder[0].f1_14[0]|topmostSubform[0].Copy1[0].Box7_ReadOrder[0].f2_14[0]|topmostSubform[0].CopyB[0].Box7_ReadOrder[0].f2_14[0]|topmostSubform[0].CopyC[0].Box7_ReadOrder[0].f2_14[0]|topmostSubform[0].Copy2[0].Box7_ReadOrder[0].f2_14[0]	/form1099Rs/*/writableDistributionCode	String		
+7	2	IRA/SEP/SIMPLE	ira/sep/simple	topmostSubform[0].CopyA[0].Box7_ReadOrder[0].c1_4[0]|topmostSubform[0].Copy1[0].Box7_ReadOrder[0].c2_4[0]|topmostSubform[0].CopyB[0].Box7_ReadOrder[0].c2_4[0]|topmostSubform[0].CopyC[0].Box7_ReadOrder[0].c2_4[0]|topmostSubform[0].Copy2[0].Box7_ReadOrder[0].c2_4[0]	/form1099Rs/*/iraSepSimple	Bool		
+8	1	Other, amount	other, amount	topmostSubform[0].CopyA[0].f1_15[0]|topmostSubform[0].Copy1[0].f2_15[0]|topmostSubform[0].CopyB[0].f2_15[0]|topmostSubform[0].CopyC[0].f2_15[0]|topmostSubform[0].Copy2[0].f2_15[0]	/form1099Rs/*/writableOtherDollar	Dollar		
+8	2	Other, percentage	other, percentage	topmostSubform[0].CopyA[0].f1_16[0]|topmostSubform[0].Copy1[0].f2_16[0]|topmostSubform[0].CopyB[0].f2_16[0]|topmostSubform[0].CopyC[0].f2_16[0]|topmostSubform[0].Copy2[0].f2_16[0]	/form1099Rs/*/writableOtherPercentage	String		
+9a		Your percentage of total distribution	your percentage of total distribution	topmostSubform[0].CopyA[0].Box9a_ReadOrder[0].f1_17[0]|topmostSubform[0].Copy1[0].Box9a_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyB[0].Box9a_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyC[0].Box9a_ReadOrder[0].f2_17[0]|topmostSubform[0].Copy2[0].Box9a_ReadOrder[0].f2_17[0]	/form1099Rs/*/writablePercentageTotalDistribution	String		
+9b		Total employee contributions	total employee contributions	topmostSubform[0].CopyA[0].f1_18[0]|topmostSubform[0].Copy1[0].f2_18[0]|topmostSubform[0].CopyB[0].f2_18[0]|topmostSubform[0].CopyC[0].f2_18[0]|topmostSubform[0].Copy2[0].f2_18[0]	/form1099Rs/*/writableTotalEmployeeContributions	Dollar		
+10		Amount allocable to IRR within 5 years	amount allocable to irr within 5 years	topmostSubform[0].CopyA[0].Box10_ReadOrder[0].f1_19[0]|topmostSubform[0].Copy1[0].Box10[0].f2_19[0]|topmostSubform[0].CopyB[0].Box10[0].f2_19[0]|topmostSubform[0].CopyC[0].Box10[0].f2_19[0]|topmostSubform[0].Copy2[0].Box10[0].f2_19[0]	/form1099Rs/*/writableAmountAllocableToIRR	Dollar		
+11		1st year of desig. Roth contrib.	1st year of desig. roth contrib	topmostSubform[0].CopyA[0].f1_20[0]|topmostSubform[0].Copy1[0].f2_20[0]|topmostSubform[0].CopyB[0].f2_20[0]|topmostSubform[0].CopyC[0].f2_20[0]|topmostSubform[0].Copy2[0].f2_20[0]	/form1099Rs/*/writableFirstYearDesignatedRothContributions	String		
+12		FATCA filing requirement	fatca filing requirement	topmostSubform[0].CopyA[0].Box12-13_ReadOrder[0].c1_5[0]|topmostSubform[0].Copy1[0].Box12-13_ReadOrder[0].c2_5[0]|topmostSubform[0].CopyB[0].Box12-13_ReadOrder[0].c2_5[0]|topmostSubform[0].CopyC[0].Box12-13_ReadOrder[0].c2_5[0]|topmostSubform[0].Copy2[0].Box12-13_ReadOrder[0].c2_5[0]	/form1099Rs/*/factaFilingRequirement	Bool		
+13		Date of payment	date of payment	topmostSubform[0].CopyA[0].Box12-13_ReadOrder[0].f1_21[0]|topmostSubform[0].Copy1[0].Box12-13_ReadOrder[0].f2_21[0]|topmostSubform[0].CopyB[0].Box12-13_ReadOrder[0].f2_21[0]|topmostSubform[0].CopyC[0].Box12-13_ReadOrder[0].f2_21[0]|topmostSubform[0].Copy2[0].Box12-13_ReadOrder[0].f2_21[0]	/form1099Rs/*/writableDateOfPayment	Day		
+14	1	State tax withheld		topmostSubform[0].CopyA[0].Box14_ReadOrder[0].f1_22[0]|topmostSubform[0].Copy1[0].Box14_ReadOrder[0].f2_22[0]|topmostSubform[0].CopyB[0].Box14_ReadOrder[0].f2_22[0]|topmostSubform[0].CopyC[0].Box14_ReadOrder[0].f2_22[0]|topmostSubform[0].Copy2[0].Box14_ReadOrder[0].f2_22[0]	/form1099Rs/*/writableStateTaxWithheld	Dollar		
+14	2	State tax withheld		topmostSubform[0].CopyA[0].Box14_ReadOrder[0].f1_23[0]|topmostSubform[0].Copy1[0].Box14_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyB[0].Box14_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyC[0].Box14_ReadOrder[0].f2_23[0]|topmostSubform[0].Copy2[0].Box14_ReadOrder[0].f2_23[0]	/form1099Rs/*/writableStateTaxWithheld2	Dollar		
+15	1	State/Payer's state no.		topmostSubform[0].CopyA[0].Box15_ReadOrder[0].f1_24[0]|topmostSubform[0].Copy1[0].Box15_ReadOrder[0].f2_24[0]|topmostSubform[0].CopyB[0].Box15_ReadOrder[0].f2_24[0]|topmostSubform[0].CopyC[0].Box15_ReadOrder[0].f2_24[0]|topmostSubform[0].Copy2[0].Box15_ReadOrder[0].f2_24[0]	/form1099Rs/*/writablePayerStateNumber	String		
+15	2	State/Payer's state no.		topmostSubform[0].CopyA[0].Box15_ReadOrder[0].f1_25[0]|topmostSubform[0].Copy1[0].Box15_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyB[0].Box15_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyC[0].Box15_ReadOrder[0].f2_25[0]|topmostSubform[0].Copy2[0].Box15_ReadOrder[0].f2_25[0]	/form1099Rs/*/writablePayerStateNumber2	String		
+16	1	State distribution		topmostSubform[0].CopyA[0].f1_26[0]|topmostSubform[0].Copy1[0].f2_26[0]|topmostSubform[0].CopyB[0].f2_26[0]|topmostSubform[0].CopyC[0].f2_26[0]|topmostSubform[0].Copy2[0].f2_26[0]	/form1099Rs/*/writableStateDistribution	Dollar		
+16	2	State distribution		topmostSubform[0].CopyA[0].f1_27[0]|topmostSubform[0].Copy1[0].f2_27[0]|topmostSubform[0].CopyB[0].f2_27[0]|topmostSubform[0].CopyC[0].f2_27[0]|topmostSubform[0].Copy2[0].f2_27[0]	/form1099Rs/*/writableStateDistribution2	Dollar		
+17	1	Local tax withheld		topmostSubform[0].CopyA[0].Box17_ReadOrder[0].f1_28[0]|topmostSubform[0].Copy1[0].Box17_ReadOrder[0].f2_28[0]|topmostSubform[0].CopyB[0].Box17_ReadOrder[0].f2_28[0]|topmostSubform[0].CopyC[0].Box17_ReadOrder[0].f2_28[0]|topmostSubform[0].Copy2[0].Box17_ReadOrder[0].f2_28[0]	/form1099Rs/*/writableLocalTaxWithheld	Dollar		
+17	2	Local tax withheld		topmostSubform[0].CopyA[0].Box17_ReadOrder[0].f1_29[0]|topmostSubform[0].Copy1[0].Box17_ReadOrder[0].f2_29[0]|topmostSubform[0].CopyB[0].Box17_ReadOrder[0].f2_29[0]|topmostSubform[0].CopyC[0].Box17_ReadOrder[0].f2_29[0]|topmostSubform[0].Copy2[0].Box17_ReadOrder[0].f2_29[0]	/form1099Rs/*/writableLocalTaxWithheld2	Dollar		
+18	1	Name of locality		topmostSubform[0].CopyA[0].Box18_ReadOrder[0].f1_30[0]|topmostSubform[0].Copy1[0].Box18_ReadOrder[0].f2_30[0]|topmostSubform[0].CopyB[0].Box18_ReadOrder[0].f2_30[0]|topmostSubform[0].CopyC[0].Box18_ReadOrder[0].f2_30[0]|topmostSubform[0].Copy2[0].Box18_ReadOrder[0].f2_30[0]	/form1099Rs/*/writableLocality	String		
+18	2	Name of locality		topmostSubform[0].CopyA[0].Box18_ReadOrder[0].f1_31[0]|topmostSubform[0].Copy1[0].Box18_ReadOrder[0].f2_31[0]|topmostSubform[0].CopyB[0].Box18_ReadOrder[0].f2_31[0]|topmostSubform[0].CopyC[0].Box18_ReadOrder[0].f2_31[0]|topmostSubform[0].Copy2[0].Box18_ReadOrder[0].f2_31[0]	/form1099Rs/*/writableLocality2	String		
+19	1	Local distribution		topmostSubform[0].CopyA[0].f1_32[0]|topmostSubform[0].Copy1[0].f2_32[0]|topmostSubform[0].CopyB[0].f2_32[0]|topmostSubform[0].CopyC[0].f2_32[0]|topmostSubform[0].Copy2[0].f2_32[0]	/form1099Rs/*/writableLocalDistribution	Dollar		
+19	2	Local distribution		topmostSubform[0].CopyA[0].f1_33[0]|topmostSubform[0].Copy1[0].f2_33[0]|topmostSubform[0].CopyB[0].f2_33[0]|topmostSubform[0].CopyC[0].f2_33[0]|topmostSubform[0].Copy2[0].f2_33[0]	/form1099Rs/*/writableLocalDistribution2	Dollar		

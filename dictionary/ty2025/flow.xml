@@ -1,0 +1,1015 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/flow.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/flowIsKnockedOut">
+      <Description>The user has been knocked out</Description>
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <Dependency module="form1099Ls" path="/knockoutForm1099LsTaxTreatmentUnbuilt" />
+          <Dependency module="form4562" path="/knockoutPassengerAutomobilePlacedInServiceBefore1987" />
+          <Dependency module="form4562" path="/knockoutSection179AllocationDoesNotDivideSummaryLine12" />
+          <Dependency module="form4562" path="/knockoutForm4562DepreciationOrAmortizationRowContradicted" />
+          <Dependency module="form4562" path="/knockoutForm4562CopyLinkedTwiceOrNotAtAll" />
+          <Dependency module="form1099Sb" path="/knockoutForm1099SbTaxTreatmentUnbuilt" />
+          <Dependency module="form1099Rs" path="/knockoutFormRrb1099RTaxTreatmentUnbuilt" />
+          <Dependency module="taxCalculations" path="/knockoutForm8805TaxTreatmentUnbuilt" />
+          <Dependency module="taxCalculations" path="/knockoutForm8288ATaxTreatmentUnbuilt" />
+          <Dependency module="income" path="/knockoutForm1099ATaxTreatmentUnbuilt" />
+          <Dependency module="scheduleD" path="/knockoutForm1099DaNoDispositionReported" />
+          <Dependency module="scheduleD" path="/knockoutForm1099DaCreatorFirstSaleProceedsNotRouted" />
+          <Dependency module="form1042S" path="/knockoutForm1042SIncomeRoutingUnbuilt" />
+          <Dependency module="form1042S" path="/knockoutForm1042SWithholdingCreditUnbuilt" />
+          <Dependency module="form4136" path="/knockoutForm4136IneligibleClaimEntered" />
+          <Dependency module="form6251" path="/knockoutAmtForeignTaxCreditNeedsAmtForm1116" />
+          <Dependency module="form6252" path="/knockoutForm6252InstallmentObligationDisposed" />
+          <Dependency module="form6252" path="/knockoutForm6252PledgedInstallmentObligation" />
+          <Dependency module="scheduleSE" path="/knockoutScheduleSeTraderAttestationSpouseScheduleC" />
+          <Dependency module="scheduleSE" path="/knockoutScheduleSeNonfarmOptionalMethodEligibilityNotVerified" />
+          <Dependency module="scheduleSE" path="/knockoutScheduleSeFarmOptionalMethodEligibilityNotVerified" />
+          <Dependency module="form8959" path="/knockoutCt2EmployeeRepresentativeSchedule8812Worksheet" />
+          <Dependency module="ctcOdc" path="/knockoutSched8812Line21PuertoRicoWithholdingNotIncluded" />
+          <Dependency module="filers" path="/primaryFilerResidencyKnockout" />
+          <Dependency module="filers" path="/flowKnockoutUnsupportedState" />
+          <Dependency module="filers" path="/flowKnockoutHasApplicableRegisteredDomesticPartnership" />
+          <Dependency module="filers" path="/knockoutSubjectToCommunityPropertyLaws" />
+          <Dependency module="filers" path="/flowKnockoutDeceasedSpouseJointReturnReservedToExecutor" />
+          <Dependency module="filers" path="/flowKnockoutSpouseDiedBeforeTaxYear" />
+          <Dependency module="interest" path="/interestReports/hasRequiredFactaFilings" />
+          <Dependency module="interest" path="/knockoutForm1099OidFatcaAboveForm8938Threshold" />
+          <Dependency module="interest" path="/flowKnockoutHasBonds" />
+          <Dependency module="interest" path="/flowKnockoutHasForeignTaxPaid" />
+          <Dependency module="formW2s" path="/knockoutForBox12Value" />
+          <Dependency module="formW2s" path="/knockoutForBox12Dependency" />
+          <Dependency module="formW2s" path="/knockoutFormW2Box12CodeGEmployerContributionsInSaversCredit" />
+          <Dependency module="formW2s" path="/flowKnockoutStatutoryEmployee" />
+          <Dependency module="formW2s" path="/knockoutTerritorialFormW2" />
+          <Dependency module="formW2s" path="/knockoutForm499R2W2PrAmountsNotCarried" />
+          <Dependency module="formW2Gs" path="/flowKnockoutGamblingTradeOrBusiness" />
+
+          <Dependency module="formW2s" path="/flowKnockoutHasRRTACodesInBox14NotInNY" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementTaxableAmountNotDetermined" />
+          <Dependency module="form1099Rs" path="/knockoutForm8606OmitsIraForm1099R" />
+          <Dependency module="form1099Rs"
+            path="/flowKnockoutRetirementTaxableAmountNotDeterminedNotCheckedTaxableAmountBlank" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementTotalDistribution" />
+          <Dependency module="form1099Rs" path="/knockoutForForm1099RBox8Value" />
+          <Dependency module="form1099Rs" path="/knockoutForForm1099RBox8Percentage" />
+          <Dependency module="form1099Rs" path="/knockoutForForm1099RBox9aPercentage" />
+          <Dependency module="form1099Rs" path="/knockoutForForm1099RCodeOneQcdContradiction" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementCapitalGain" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementNetUnrealizedAppreciation" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementAmountAllocableToIRR" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementFactaFilingRequirement" />
+          <Dependency module="form1099Rs" path="/flowKnockoutForRollover" />
+          <Dependency module="form1099Rs" path="/flowKnockoutForDeathBenefitPaymentDate" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementQualifiedDisasterDistribution" />
+          <Dependency module="form8915F" path="/flowKnockoutForm8915FPart1AllocationIsInvalid" />
+          <Dependency module="form2439" path="/knockoutForm2439ShortHoldingPeriodLoss" />
+          <Dependency module="form8915F" path="/knockoutForm8915FBothSpousesRequireTheForm" />
+          <Dependency module="form5329" path="/knockoutForm8915FLine31RepaymentNotOnItsForm1099R" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementQualifiedEarlyDistribution" />
+          <Dependency module="form1099Rs" path="/flowKnockoutRetirementPublicSafetyOfficer" />
+          <Dependency module="form1099Rs" path="/flowKnockoutForPreTaxToPostTaxRollover" />
+          <Dependency module="socialSecurity" path="/socialSecurityLumpSumIntakeIncomplete" />
+          <Dependency module="familyAndHousehold" path="/knockoutHohQpHasNoTin" />
+          <Dependency module="familyAndHousehold" path="/knockoutPersonBornAndDiedInTaxYearWithoutTin" />
+          <Dependency module="familyAndHousehold" path="/knockoutNonParentClaimsQualifyingChildOfAnother" />
+          <Dependency module="dependentsBenefitSplit" path="/knockedOutByNonCustodialParentBenefitSplit" />
+          <Dependency module="dependentsBenefitSplit" path="/knockedOutByContradictory8832" />
+          <Dependency module="form8615" path="/mustFileForm8615" />
+          <Dependency module="scheduleA" path="/knockoutElectToItemizeWithoutScheduleA" />
+          <Dependency module="foreignTaxCredit" path="/knockoutForeignTaxRequiresForm1116" />
+          <Dependency module="foreignTaxCredit" path="/knockoutScheduleK3ForeignTaxesReachNoLine" />
+          <Dependency module="foreignTaxCredit" path="/knockoutSection962ElectionNotSupported" />
+          <Dependency module="scheduleK3" path="/knockoutScheduleK3ForeignAmountsNotCarried" />
+          <Dependency module="scheduleK3" path="/knockoutScheduleK3InternationalReportingNotSupported" />
+          <Dependency module="form3800" path="/knockoutForm3800CreditComponentNotComputed" />
+          <Dependency module="form3800" path="/knockoutForm3800RequiredButNotProduced" />
+          <Dependency module="form8941" path="/knockoutForm8941PremiumDeductionNotReduced" />
+          <Dependency module="form8283" path="/knockoutForm8283PoorConditionClaimNotAllowed" />
+          <Dependency module="form1116" path="/knockoutForm1116CategoryBoxesNotExactlyOne" />
+          <Dependency module="form1116" path="/knockoutForm1116Line34ExceedsLine33" />
+          <Dependency module="scheduleE" path="/knockoutK1CapitalGuaranteedPaymentsNiit" />
+          <Dependency module="scheduleE" path="/knockoutK1NegativeSeEarnings" />
+          <Dependency module="form4952" path="/knockoutInvestmentInterest4gElection" />
+          <Dependency module="form4952" path="/knockoutK1CodeASection163dResidualUndecidable" />
+          <Dependency module="form4952" path="/knockoutK1CodeARoyaltyNetBelowGross" />
+          <Dependency module="form4952" path="/knockoutInvestmentInterestPlacementNotSplit" />
+          <Dependency module="form8881" path="/knockoutForm8881DeductionNotReducedByCredit" />
+          <Dependency module="form8960" path="/knockoutNiitNraSpouseSeparateFiguresNotModeled" />
+          <Dependency module="form8960" path="/knockoutNiitCfcPficAdjustmentNotModeled" />
+          <Dependency module="form4684" path="/knockoutCasualtyGain" />
+          <Dependency module="form4684" path="/knockoutCasualtyPropertyColumnsNotCarried" />
+          <Dependency module="form8829" path="/knockoutForm8829HomeCasualtyNotCarried" />
+          <Dependency module="form8829" path="/knockoutForm8829ItemizerMortgageInterestAndTaxesNotSplit" />
+          <Dependency module="form6251" path="/knockoutAmtUnmodeledPreference" />
+          <Dependency module="form6251" path="/knockoutAmtPart3RefigureUnbuilt" />
+          <Dependency module="form8912" path="/knockoutForm8912CurrentYearDeductionRequiresRefigure" />
+          <Dependency module="form8912" path="/knockoutForm8912AccruedInterestOrPriorYearDeductionUnbuilt" />
+          <Dependency module="form8606" path="/knockoutForm8606Line4ExceedsLine1" />
+          <Dependency module="form8606" path="/knockoutForm8606WithFullyTaxableIntake" />
+          <Dependency module="form8606" path="/knockoutSpouseForm8606Line4ExceedsLine1" />
+          <Dependency module="form8606" path="/knockoutSpouseForm8606WithFullyTaxableIntake" />
+          <Dependency module="form8606" path="/knockoutForm8606RepaymentWorksheetUnmodelled" />
+          <Dependency module="form8606" path="/knockoutSpouseForm8606RepaymentWorksheetUnmodelled" />
+          <Dependency module="income" path="/knockoutIraDistributionDoubleIntake" />
+          <Dependency module="income" path="/knockoutForm8915FQualifiedAmountExceedsOrdinaryRoute" />
+          <Dependency module="income" path="/knockoutForeignGovernmentWagesEnteredWithFica" />
+          <Dependency module="income" path="/knockoutAtRiskRecaptureIncomeRouting" />
+          <Dependency module="income" path="/knockoutW2Box12CodeHNotDeductedOnSchedule1Line24f" />
+          <Dependency module="cleanVehicleCreditRepayment" path="/knockoutCleanVehicleRepaymentOrRecaptureUnmodeled" />
+          <Dependency module="form5329" path="/knockoutForm5329CollectionAndManualIntake" />
+          <Dependency module="form5329" path="/knockoutForm5329PartIiDistributionWithoutExemptPortion" />
+          <Dependency module="form8839" path="/knockoutUnattestedAdoptionReimbursement" />
+          <Dependency module="form8839" path="/knockoutAdoptionCarryforward2020VintageExceedsLine15" />
+          <Dependency module="form8839" path="/knockoutAdoptionForeignRouteLine20Answered" />
+          <Dependency module="form8839" path="/knockoutAdoptionCarryforwardVintagesDoNotSumToLine15" />
+          <Dependency module="form1099Rs" path="/knockoutForForm1099RDistributionCode" />
+          <Dependency module="form1099Rs" path="/knockoutForForm1099RCorrectiveDistributionInputs" />
+          <Dependency module="form1099Rs" path="/knockoutIraSepSimple" />
+          <Dependency module="form1099RFrontier" path="/knockoutForm1099RSimplifiedMethodSimultaneousAnnuitants" />
+          <Dependency module="form1099Rs" path="/knockoutDisabilityAndAnotherCode" />
+          <Dependency module="form1099RFrontier" path="/knockoutForForm1099RNonqualifiedPlanRequiresGeneralRule" />
+          <Dependency module="form1099Rs" path="/knockoutIndirectRollover" />
+          <Dependency module="form1099Rs" path="/knockoutTaxableAmountNotDetermined" />
+          <Dependency module="hsa" path="/flowKnockoutHsaMedicalSavingsAccountType" />
+          <Dependency module="hsa" path="/flowKnockoutArcherMsaEmployerContributionWithoutMsaAnswer" />
+          <Dependency module="hsa" path="/flowKnockoutHsaDistributionCode" />
+          <Dependency module="hsa" path="/flowKnockoutOtherCoveragePartOfYear" />
+          <Dependency module="hsa" path="/flowKnockoutOtherCoverageWholeYear" />
+          <Dependency module="hsa" path="/flowKnockoutHsaTestingPeriodAdditionalIncomeYes" />
+          <Dependency module="hsa" path="/flowKnockoutHsaUnqualifiedDistributions" />
+          <Dependency module="hsa" path="/flowKnockoutHsaDistributionFMV" />
+          <Dependency module="hsa" path="/flowKnockoutMaritalChangeAffectsContributionLimit" />
+          <Dependency module="hsa" path="/knockoutHsaAgreedFamilyLimitDivisionExceedsTheLimit" />
+          <Dependency module="hsa" path="/knockoutArcherMsaAgreedFamilyLimitDivisionExceedsTheLimit" />
+          <Dependency module="hsa" path="/flowKnockoutMFSLine6Check" />
+          <Dependency module="hsa" path="/flowHsaContributionsOverLimitKnockout" />
+          <Dependency module="hsa" path="/flowKnockoutHsaExcessContributions" />
+          <Dependency module="hsa" path="/flowKnockoutContributionSummaryNoneAllowed" />
+          <Dependency module="hsa" path="/flowKnockoutHdhpCoverageStatusNotNeeded" />
+          <Dependency module="hsa" path="/flowKnockoutNotEnrolledInHdhp" />
+          <Dependency module="hsa" path="/flowKnockoutMadeQualifiedHsaFundingDistribution" />
+          <Dependency module="hsa" path="/flowKnockoutHsaCoverage" />
+          <Dependency module="hsa" path="/flowKnockoutFilerIsDependentAndContributesToHsa" />
+          <Dependency module="ptc" path="/dependentTpRequiresAllocations" />
+          <Dependency module="ptc" path="/hasPtcQualifyingPlanAndQsehra" />
+          <Dependency module="ptc" path="/needsAllocations" />
+          <Dependency module="ptc" path="/hasEmployerSponsoredPlan" />
+          <Dependency module="ptc" path="/dependentsRequiredToFile" />
+          <Dependency module="ptc" path="/selfReportedHasMultiple1095As" />
+          <Dependency module="ptc" path="/knockout1095AGroupKeysPartial" />
+          <Dependency module="ptc" path="/hasImmigrationStatusNotEligibleForMarketplace" />
+          <Dependency module="ptc" path="/wantsToUseAltCalculations" />
+          <Dependency module="scheduleC" path="/scheduleCs/communityScheduleCAlsoEnteredAsScheduleSeAddBack" />
+          <Dependency module="scheduleC" path="/knockoutScheduleCStatutoryEmployeeWagesCombinedWithOtherReceipts" />
+          <Dependency module="scheduleC" path="/knockoutScheduleCPassiveActivityNotPooled" />
+          <Dependency module="scheduleC" path="/knockoutScheduleCExcessBusinessLossNotFigured" />
+          <Dependency module="scheduleC" path="/knockoutForm1099NecBox1AboveScheduleCLine1" />
+          <Dependency module="scheduleC" path="/knockoutForm1099NecBox1WithoutScheduleC" />
+          <Dependency module="scheduleSE" path="/knockoutSelfEmployedHealthInsuranceDeduction" />
+          <Dependency module="scheduleSE" path="/knockoutSelfEmploymentTaxSection6013ElectingSpouse" />
+          <Dependency module="saversCredits" path="/saversCreditJointFilingYearAnswerIncomplete" />
+          <Dependency module="cdcc" path="/knockoutStudentOrDisabled" />
+          <Dependency module="cdcc" path="/knockoutBothSpousesDeemedStudentOrDisabled" />
+          <Not>
+            <Dependency module="income" path="/incomeSourcesSupported" />
+          </Not>
+          <Dependency module="income" path="/knockoutDigitalAssetYesWithNothingReported" />
+          <Dependency module="income" path="/knockoutForeignAccountOrTrustAboveForm8938Threshold" />
+          <Dependency module="form8938" path="/knockoutForm8938RequiredButNotProduced" />
+          <Dependency module="form8938" path="/knockoutForm8938AttestedTotalsBelowEnteredAssets" />
+          <Dependency module="iraDeduction" path="/flowKnockoutIraExcessContribution" />
+          <Dependency module="cdcc" path="/flowKnockoutBenefitsDistribution" />
+          <Dependency module="cdcc" path="/knockoutCdccWorksheetA" />
+          <Dependency module="cdcc" path="/knockoutCdccBarredRelatedProvider" />
+          <Dependency module="cdcc" path="/knockoutCdccNoncompliantDependentCareCenter" />
+          <Dependency module="cdcc" path="/knockoutCdccOutsideHouseholdEightHourTest" />
+          <Dependency module="form2555" path="/knockoutFilesForm2555" />
+          <Dependency module="ctcOdc" path="/knockoutPossessionOrPuertoRicoIncomeExclusion" />
+          <Dependency module="form8814" path="/knockoutForm8814ElectionOutsideStatutoryWindow" />
+          <Dependency module="form8814" path="/knockoutForm8814EligibilityNotAttested" />
+          <Dependency module="form8888" path="/knockoutForm8888AllocationDoesNotFootToRefund" />
+          <Dependency module="form8888" path="/knockoutForm8888AttachedWithoutFilingCarrier" />
+          <Dependency module="scheduleE" path="/knockoutK1QualifiedPtpAmountWithoutItemD" />
+          <Dependency module="scheduleH" path="/knockoutScheduleHRequiredButIncomplete" />
+          <Dependency module="dividendReports" path="/dividendReports/secondaryFilerUsedWithoutMFJ" />
+          <Dependency module="scheduleC" path="/form1099Necs/secondaryFilerUsedWithoutMFJ" />
+          <Dependency module="scheduleE" path="/knockoutK1Section179Basis" />
+          <Dependency module="scheduleE" path="/knockoutK1Section179OnPtp" />
+          <Dependency module="scheduleE" path="/knockoutSection179MultipleElectingActivities" />
+          <Dependency module="scheduleE" path="/knockoutK1MultipleAtRiskActivities" />
+          <Dependency module="scheduleE" path="/knockoutK1MultiplePassiveActivities" />
+          <Dependency module="scheduleE" path="/knockoutRoyaltyActivityLoss" />
+          <Dependency module="form2210" path="/knockoutForm2210Section1062aElectionNotBuilt" />
+          <Dependency module="form1040" path="/knockoutForm2210CombatZoneMustFilePostponementNotModeled" />
+          <Dependency module="form2210" path="/knockoutForm2210NonCalendarTaxYearNotBuilt" />
+          <Dependency module="form2210" path="/knockoutForm2210ScheduleAiSecondPart2NotPrinted" />
+          <Dependency module="form2210" path="/knockoutForm2210ScheduleAiScheduleJRouteNotBuilt" />
+          <Dependency module="form8978" path="/knockoutForm8978BothOrNeitherSourceBoxChecked" />
+          <Dependency module="form8396" path="/knockoutMortgageInterestCreditIneligible" />
+
+          <Dependency module="scheduleF" path="/knockoutScheduleFPrepaidPoultryPlacement" />
+          <Dependency module="scheduleF" path="/knockoutScheduleFPrepaidTotalAboveItsFourLines" />
+          <Dependency module="scheduleF" path="/knockoutScheduleFQjvPerSpouseInputNotModeled" />
+          <Dependency module="scheduleF" path="/knockoutScheduleFMoreThanOneFarm" />
+          <Dependency module="scheduleF" path="/knockoutScheduleFPassiveFarmNotPooled" />
+          <Dependency module="scheduleE" path="/knockoutK1DispositionReleaseUnanswered" />
+          <Dependency module="scheduleE" path="/knockoutPassiveEntireDispositionReleaseNotBuilt" />
+          <Dependency module="scheduleE" path="/knockoutRentalPropertyCodedAsRoyalty" />
+          <Dependency module="scheduleE" path="/knockoutRentalDispositionReleaseUnanswered" />
+
+          <Dependency module="form6198" path="/knockoutForm6198RecaptureRestsOnAnUnsourcedChoice" />
+
+          <Dependency module="form7206" path="/knockoutForm7206QjvFarmPlanCeilingNeedsPerSpouseFigure" />
+
+          <Dependency module="dividendReports" path="/knockoutDividendDistributionBasisExhaustionNotComputed" />
+
+          <Dependency module="dividendReports" path="/knockoutCommunityPropertyNomineeDividends" />
+
+          <Dependency module="constants" path="/knockoutWashingtonCapitalGainsExciseAboveThreshold" />
+
+          <Dependency module="form4684" path="/hasSectionBFinancialScamIdentityMissing" />
+
+          <Dependency module="form4684" path="/hasPonziIdentityRequiredButMissing" />
+
+          <Dependency module="form965A" path="/knockoutForm965ATriggeredAmountNotCarriedToPartI" />
+
+          <Dependency module="form4684" path="/knockoutPriorYearCasualtyLossRecoveryIncome" />
+
+          <Dependency module="scheduleD" path="/knockoutForm2439NoticeTotalsDisagreeWithScheduleDEntries" />
+          <Dependency module="schedule3" path="/knockoutForm2439NoticeTotalDisagreesWithSchedule3Line13aEntry" />
+
+          <Dependency module="scheduleD" path="/knockoutQofDeferralScalarDisagreesWithInvestmentList" />
+
+          <Dependency module="scheduleD" path="/knockoutQofInclusionScalarDisagreesWithDispositionList" />
+
+          <Dependency module="form8997" path="/knockoutQofDeferralWithoutTreatyWaiver" />
+          <Dependency module="form8997" path="/knockoutQofDeferralLimitsNotAttested" />
+          <Dependency module="form8997" path="/knockoutQofSection1231GainRowsUnbuilt" />
+          <Dependency module="form8997" path="/knockoutQofInclusionAttestedGainDisagreesWithFormula" />
+
+          <Dependency module="form5329" path="/form5329PrimaryFilerSeppRecaptureIsUnresolved" />
+          <Dependency module="form5329" path="/form5329SecondaryFilerSeppRecaptureIsUnresolved" />
+          <Dependency module="form5329" path="/knockoutForm5329PartIiiOffsetEntryWithoutItsInput" />
+          <Dependency module="form5329" path="/knockoutForm5329DisasterWaiverBesideAnOwnFormExceptionAmount" />
+          <Dependency module="scheduleA" path="/knockoutForm7206MedicalExpenseOverlap" />
+          <Dependency module="hsa" path="/flowKnockoutArcherMsaForm5329Line41AccountValueUnsupplied" />
+          <Dependency module="hsa" path="/flowKnockoutHsaForm5329Line49AccountValueUnsupplied" />
+          <Dependency module="schedule3" path="/knockoutK1CreditCodeHOrBondCreditNotComputed" />
+          <Dependency module="form8606" path="/knockoutSpouseForm8606PartIIIPartiallyAnswered" />
+          <Dependency module="form8606" path="/knockoutSpouseForm8606FirstTimeHomebuyerWithoutQualifyingRothContribution" />
+          <Dependency module="form8606" path="/knockoutForm8606PartIIIPartiallyAnswered" />
+          <Dependency module="form8606" path="/knockoutForm8606FirstTimeHomebuyerWithoutQualifyingRothContribution" />
+          <Dependency module="form5329" path="/knockoutForm5329RothLine25cInTheYear59HalfIsReached" />
+          <Dependency module="form5329" path="/knockoutForm5329ManualLine1BesideForm8606Line25c" />
+
+          <Dependency module="form8606" path="/knockoutForm8606RothForm1099RTaxableAmountBesidePartIII" />
+
+          <Dependency module="form2106" path="/knockoutForm2106PrintGateUndecided" />
+          <Dependency module="schedule3" path="/hasSchedule3Tier1RrtaValidationErrors" />
+          <Dependency module="schedule3" path="/knockoutSchedule3Line6zPositiveEntry" />
+          <Dependency module="taxCalculations" path="/knockoutClaimOfRightComparisonUnbuilt" />
+          <Dependency module="scheduleJ" path="/knockoutScheduleJElectedWithoutFarmingOrFishingBusiness" />
+          <Dependency module="scheduleJ" path="/knockoutScheduleJElectedFarmIncomeOverItsLimits" />
+          <Dependency module="scheduleE" path="/knockoutRoyaltyMultipleProperties" />
+          <Dependency module="scheduleE" path="/knockoutRentalDwellingRentedUnder15Days" />
+          <Dependency module="scheduleE" path="/knockoutRentalDwellingUsedAsHomeLoss" />
+          <Dependency module="scheduleE" path="/knockoutRentalDwellingUsedAsHomePriorLossNotAbsorbed" />
+          <Dependency module="scheduleE" path="/knockoutRentalHomesMortgageInterestOnMoreThanOneSecondHome" />
+          <Dependency module="scheduleE" path="/knockoutRentalWorksheet51ElectionDisagreesWithReturn" />
+          <Dependency module="scheduleE" path="/knockoutRentalWorksheet51SaltPhasedownUnbuilt" />
+          <Dependency module="scheduleE" path="/knockoutRentalWorksheet51CasualtyLossUnbuilt" />
+          <Dependency module="scheduleE" path="/knockoutRentalWorksheet51Section179Unbuilt" />
+          <Dependency module="scheduleE" path="/knockoutK1PassiveSection1231LossNotPooled" />
+          <Dependency module="scheduleE" path="/knockoutRepRoutingBoundaryAnsweredNo" />
+          <Dependency module="scheduleE" path="/knockoutK1RentalRealEstateLoss" />
+          <Dependency module="scheduleE" path="/knockoutRentalActivityClassificationUnbuilt" />
+          <Dependency module="scheduleE" path="/knockoutRentalFiveYearMidQuarterConvention" />
+          <Dependency module="scheduleE" path="/knockoutRoyaltySection613ATaxableIncomeLimit" />
+          <Dependency module="form1099Misc" path="/knockoutForm1099MiscFatcaAboveForm8938Threshold" />
+          <Dependency module="form4137" path="/knockoutForm4137SecondaryFilerWithoutJointReturn" />
+          <Dependency module="form4137" path="/knockoutForm4137AllocatedTipsInLineTwoUnanswered" />
+          <Dependency module="form1099Misc" path="/knockoutForm1099MiscRentsWithoutScheduleE" />
+          <Dependency module="form1099Misc" path="/knockoutForm1099MiscRoyaltiesWithoutScheduleE" />
+          <Dependency module="form1099Misc" path="/knockoutForm1099MiscScheduleCReceiptsWithoutScheduleC" />
+          <Dependency module="form1099Misc" path="/knockoutForm1099MiscCropInsuranceWithoutScheduleF" />
+          <Dependency module="unemployment" path="/knockoutForm1099GAgriculturePaymentsWithoutAFarmSchedule" />
+          <Dependency module="form2555" path="/knockoutForm2555NotExactlyOneOfPartIIOrPartIII" />
+          <Dependency module="form2555Housing" path="/knockoutForm2555SpousesHousingFiguredSeparatelyUnbuilt" />
+          <Dependency module="form8863" path="/knockoutEducationCreditForMoreThanOneStudent" />
+          <Dependency module="form8863" path="/knockoutSecondInstitutionWithoutForm1098T" />
+        </Any>
+      </Derived>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/hasPotentialCredits">
+      <Name>Whether the TP may be eligible for any supported credits</Name>
+      <Description>Whether the flow should walk the user through credits for which they might be eligible.</Description>
+
+      <Derived>
+        <Any>
+          <Dependency module="ptc" path="/maybeEligibleForPtc" />
+          <Dependency module="ctcOdc" path="/maybeEligibleForCtc" />
+          <Dependency module="ctcOdc" path="/maybeEligibleForOdc" />
+          <Dependency module="eitc" path="/maybeEligibleForEitc" />
+          <Dependency module="cdcc" path="/maybeEligibleForCdccWoTaxLiability" />
+          <Dependency module="elderlyAndDisabled"
+            path="/maybeEligibleForCreditForElderlyAndDisabledWoTaxLiability" />
+          <Dependency module="saversCredits" path="/eligibleForSaversCredit" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowCouldHaveQualifiedForAdditionalNrCredit">
+      <Name>TP could qualify for additional nonrefundable credit if limit wasn't reached</Name>
+      <Description>Whether the taxpayer could have qualified for an additional Schedule 3 credit if their tax liability
+        hadn't already been reduced to $0.</Description>
+      <Derived>
+        <All>
+          <Dependency module="schedule3" path="/hasTaxLiabilityBeforeNrCredits" />
+          <Any>
+            <All>
+              <Dependency module="cdcc" path="/maybeEligibleForCdccWoTaxLiability" />
+              <Not>
+                <Dependency module="cdcc" path="/maybeEligibleForCdcc" />
+              </Not>
+            </All>
+            <All>
+              <Dependency module="elderlyAndDisabled"
+                path="/maybeEligibleForCreditForElderlyAndDisabledWoTaxLiability" />
+              <Not>
+                <Dependency module="elderlyAndDisabled" path="/maybeEligibleForCreditForElderlyAndDisabled" />
+              </Not>
+            </All>
+            <All>
+              <Dependency module="saversCredits" path="/qualifiedForSaverCreditWoTaxLiability" />
+              <Not>
+                <Dependency module="saversCredits" path="/qualifiedForSaverCredit" />
+              </Not>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasQualifiedForAtLeastOneCredit">
+      <Name>Whether the TP qualified for at least one credit</Name>
+      <Description>Whether the tax payer has qualified for at least one credit</Description>
+
+      <Derived>
+        <Any>
+          <Dependency module="ptc" path="/needsToFileForm8962" />
+          <Dependency module="ctcOdc" path="/ctcQualified" />
+          <Dependency module="ctcOdc" path="/odcQualified" />
+          <Dependency module="eitc" path="/eitcQualified" />
+          <Dependency module="cdcc" path="/cdccQualified" />
+          <Dependency module="elderlyAndDisabled" path="/qualifiedForCreditForElderlyAndDisabled" />
+          <Dependency module="saversCredits" path="/qualifiedForSaverCredit" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasBeenDisqualifiedForAtLeastOneCredit">
+      <Name>TP disqualified from at least one credit</Name>
+      <Description>Whether the tax payer has been disqualified from at least one credit</Description>
+
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency module="ptc" path="/qualifiedForPtc" />
+          </Not>
+          <Not>
+            <Dependency module="ctcOdc" path="/ctcQualified" />
+          </Not>
+          <Not>
+            <Dependency module="ctcOdc" path="/odcQualified" />
+          </Not>
+          <Not>
+            <Dependency module="eitc" path="/eitcQualified" />
+          </Not>
+          <Not>
+            <Dependency module="cdcc" path="/cdccQualified" />
+          </Not>
+          <Not>
+            <Dependency module="elderlyAndDisabled" path="/qualifiedForCreditForElderlyAndDisabled" />
+          </Not>
+          <Not>
+            <Dependency module="saversCredits" path="/qualifiedForSaverCredit" />
+          </Not>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasOdcOrMaybeEligibleForEitc">
+      <Name>TP has ODC or may be eligible for EITC</Name>
+      <Description>Whether the TP has other child credit or may be eligible for earned income tax credits</Description>
+
+      <Derived>
+        <Any>
+          <Dependency module="ctcOdc" path="/odcQualified" />
+          <Dependency module="eitc" path="/maybeEligibleForEitc" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ctcHasImproperClaimsAndMaybeHasAdditionalCredits">
+      <Name>In CTC flow and has improper claims and maybe has additional credits</Name>
+      <Description>Whether the TP is shown the CTC not qualified screen</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="ctcOdc" path="/ctcOdcDisqualifiedForImproperClaims" />
+          <Dependency path="/hasOdcOrMaybeEligibleForEitc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/odcHasImproperClaimsAndMaybeHasAdditionalCredits">
+      <Name>In ODC flow and has improper claims and maybe has additional credits</Name>
+      <Description>Whether the TP is shown the ODC not qualified screen</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="ctcOdc" path="/ctcOdcDisqualifiedForImproperClaims" />
+          <Dependency module="eitc" path="/maybeEligibleForEitc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingRefundableCredits">
+      <Name>Is Receiving Refundable credits</Name>
+      <Description>Whether the TP is receiving refundable credits -- PTC, ACTC, or EITC</Description>
+
+      <Derived>
+        <Any>
+          <Dependency module="ptc" path="/isReceivingPtc" />
+          <Dependency module="eitc" path="/isReceivingEitc" />
+          <Dependency module="ctcOdc" path="/isReceivingActc" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingNonrefundableCredits">
+      <Name>Is Receiving Refundable credits</Name>
+      <Description>Whether the TP is receiving nonrefundable credits -- CDCC, CTC, ODC, Saver's</Description>
+
+      <Derived>
+        <Any>
+          <Dependency module="cdcc" path="/isReceivingCdccCredit" />
+          <Dependency module="ctcOdc" path="/isReceivingOdc" />
+          <Dependency module="ctcOdc" path="/isReceivingCtc" />
+          <Dependency module="saversCredits" path="/isReceivingSaversCredit" />
+          <Dependency module="elderlyAndDisabled" path="/isReceivingEdc" />
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/flowTrue">
+      <Name>The Source of Truth</Name>
+      <Description>A true value for set fact actions</Description>
+      <Derived>
+        <True />
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowFalse">
+      <Name>The Source of Falsity</Name>
+      <Description>A false value for set fact actions</Description>
+      <Derived>
+        <False />
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowHasSeenDeductions">
+      <Name>Has seen deductions</Name>
+      <Description>A hack to track whether the user's seen the last page of deductions</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/flowHasSeenPaymentMethodAutocorrect">
+      <Name>Flow has seen the Payment Method Autocorrect screen</Name>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/flowHasSeenPaymentPaperPathAssertion">
+      <Name>Flow has seen the Payment Paper Path Assertion screen</Name>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasNeededDeceasedInfo">
+      <Name>Has all deceased info</Name>
+      <Description>Determines whether the TP has the needed deceased info for EITC, for form 8862</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="eitc" path="/form8862RequiredAndHasQualifyingChildren" />
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency module="familyAndHousehold" path="/deceasedEitcEligibleQcCollection" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Equal>
+                <Left>
+                  <CollectionSize>
+                    <Dependency module="familyAndHousehold" path="/deceasedEitcEligibleQcCollection" />
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Count>
+                    <IsComplete>
+                      <Dependency module="familyAndHousehold" path="/familyAndHousehold/*/dateOfDeath" />
+                    </IsComplete>
+                  </Count>
+                </Right>
+              </Equal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/saversCreditComplete">
+      <Name>Has answered all questions regarding savers credit</Name>
+      <Description>Determines whether the TP has answered the required savers credit questions</Description>
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency module="saversCredits" path="/qualifiedForSaverCredit" />
+          </Not>
+          <IsComplete>
+            <Dependency module="saversCredits" path="/hasSelfReportedDistributionsOrContributions" />
+          </IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/creditsSectionComplete">
+      <Name>Credits section complete</Name>
+      <Description>The credits section has been completed</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Not>
+              <Dependency path="/hasPotentialCredits" />
+            </Not>
+            <Dependency path="/flowHasSeenCreditsIntroNoCredits" />
+          </All>
+          <All>
+            <Dependency path="/hasPotentialCredits" />
+            <IsComplete>
+              <Dependency module="ctcOdc" path="/odcQualified" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency module="ctcOdc" path="/ctcQualified" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency module="eitc" path="/eitcQualified" />
+            </IsComplete>
+            <IsComplete>
+              <Dependency module="cdcc" path="/cdccQualified" />
+            </IsComplete>
+            <Dependency module="ptc" path="/ptcSectionIsComplete" />
+            <Dependency path="/saversCreditComplete" />
+            <Dependency path="/hasNeededDeceasedInfo" />
+            <Dependency module="elderlyAndDisabled" path="/isEdcSectionComplete" />
+            <Dependency module="cdcc" path="/cdccSectionIsComplete" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductionsSectionComplete">
+      <Description>The user has completed the deductions section</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="/flowHasSeenDeductions" />
+          <Any>
+            <All>
+              <Not>
+                <Dependency module="filers" path="/isMFJDependent" />
+              </Not>
+              <IsComplete>
+                <Dependency module="educatorAdjustment" path="/educatorExpensesAdjustment" />
+              </IsComplete>
+              <IsComplete>
+                <Dependency module="studentLoanAdjustment" path="/studentLoanInterestAdjustmentAmount" />
+              </IsComplete>
+            </All>
+            <Dependency module="filers" path="/isMFJDependent" />
+          </Any>
+        </All>
+
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowHasSeenCreditsIntroNoCredits">
+      <Name>Has seen credits intro for no credits</Name>
+      <Description>A hack to track whether the user's seen the last page of credits</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/flowHasSeenAmount">
+      <Name>Has seen credits</Name>
+      <Description>A hack to track whether the user's seen the last page of credits</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/flowHasAmountChanged">
+      <Name>Has amount changed</Name>
+      <Description>A hack to track whether the amount has changed since the user saw credits</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/signSectionCompleteSingleFiler">
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="signing" path="/selfSelectPin" />
+          </IsComplete>
+          <Any>
+            <Not>
+              <Dependency module="signing" path='/filedLastYear' />
+            </Not>
+            <Dependency module='filers' path="/primaryFilerHasIpPin" />
+            <All>
+              <Dependency module="signing" path='/willEnterLastYearAgi' />
+              <IsComplete>
+                <Dependency module="signing" path='/lastYearAgi' />
+              </IsComplete>
+            </All>
+            <All>
+              <Dependency module="signing" path='/willEnterLastYearPin' />
+              <IsComplete>
+                <Dependency module="signing" path="/selfSelectPinLastYear" />
+              </IsComplete>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/signSectionCompleteMarriedFilingJointlyFilers">
+      <Derived>
+        <All>
+          <Dependency path="/signSectionCompleteSingleFiler" />
+          <Any>
+            <Dependency module="filers" path="/isWidowedInTaxYear" />
+            <All>
+              <IsComplete>
+                <Dependency module="signing" path="/spouseSelfSelectPin" />
+              </IsComplete>
+              <Any>
+                <Not>
+                  <Dependency module="signing" path='/spouseFiledLastYear' />
+                </Not>
+                <Dependency module='filers' path="/spouseHasIpPin" />
+                <All>
+                  <Dependency module="signing" path='/spouseWillEnterLastYearAgi' />
+                  <IsComplete>
+                    <Dependency module="signing" path="/spouseLastYearAgi" />
+                  </IsComplete>
+                </All>
+                <All>
+                  <Dependency module="signing" path='/spouseWillEnterLastYearPin' />
+                  <IsComplete>
+                    <Dependency module="signing" path="/spouseSelfSelectPinLastYear" />
+                  </IsComplete>
+                </All>
+              </Any>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/signSectionComplete">
+      <Name>Sign section complete</Name>
+      <Description>The sign section has been completed</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="signing" path="/isPaperPath" />
+            </When>
+            <Then>
+              <Dependency path="/flowHasSeenPrintAndMail" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dependency path="/signSectionCompleteMarriedFilingJointlyFilers" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/signSectionCompleteSingleFiler" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowHasSeenPrintAndMail">
+      <Name>Has seen the print and mail explainer</Name>
+      <Description>A hack to track whether the user's seen the print and mail explainer if they are on the paper path</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/flowHasSeenSignPaperFile">
+      <Name>Has seen the paper file screen</Name>
+      <Description>A hack to track whether the user's seen paper file screen</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/flowIncomplete">
+      <Name>Flow is Incomplete</Name>
+      <Description>
+        Whether any required sections are incomplete.
+
+        This should be updated whenever a `completeIf` is
+        updated
+        in the flow
+
+       
+      </Description>
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Not>
+          <All>
+            <Dependency module="refundPrefs" path="/completedOtherPrefsSection" />
+            <Dependency path="/creditsSectionComplete" />
+            <Dependency module="familyAndHousehold" path="/familyAndHouseholdIsDone" />
+            <Dependency path="/flowHasSeenAmount" />
+            <Dependency path="/deductionsSectionComplete" />
+            <Dependency module="unemployment" path="/form1099GsIsDone" />
+            <Dependency module="formW2s" path="/formW2sIsDone" />
+            <Dependency module="interest" path="/interestReportsIsDone" />
+            <Dependency module="paymentMethod" path="/paymentSectionComplete" />
+            <Dependency module="form1099Rs" path="/form1099RsIsComplete" />
+            <Dependency module="form1099Misc" path="/isApfSectionComplete" />
+            <Dependency module="socialSecurity" path="/socialSecurityReportsIsDone" />
+            <Dependency module="spouseSection" path="/spouseSectionCompleted" />
+            <Dependency module="estimatedPayments" path="/estimatedTaxesIsComplete" />
+            <Dependency module="cdcc" path="/cdccSectionIsComplete" />
+            <IsComplete>
+              <Dependency module="filingStatus" path="/isFilingStatusComplete" />
+            </IsComplete>
+            <Dependency module="income" path="/incomeSourcesIsComplete" />
+            <IsComplete>
+              <Dependency module="estimatedPayments" path="/paidEstimatedTaxesOrFromLastYear" />
+            </IsComplete>
+            <Dependency module="filers" path="/aboutYouIsComplete" />
+            <Dependency module="cdcc" path="/dependentCareBenefitsIsComplete" />
+            <Dependency module="hsa" path="/isHsaSectionComplete" />
+            <Dependency module="income" path="/flowHasSeenTotalIncomeSummary" />
+            <Dependency module="form5695" path="/form5695NonbusinessUseAllocationIsComplete" />
+            <Dependency module="form5695" path="/form5695Line7aAnsweredWhenFuelCellAmountEntered" />
+            <Dependency module="form5695" path="/form5695FuelCellJointWorksheetInputsComplete" />
+            <Dependency module="form5695" path="/form5695MfjSecondMainHomeLine30WithinItsCaps" />
+            <Dependency module="form5695" path="/form5695EnablingPropertyQmidsReported" />
+            <Dependency module="form5695" path="/form5695SectionAQuestionsAnswered" />
+            <Dependency module="form5695" path="/form5695SectionBQuestionsAnswered" />
+            <Dependency module="form5695" path="/form5695Line26aAnsweredWhenAuditCostEntered" />
+            <Dependency module="form5695" path="/form5695MfjSecondMainHomeLine30Answered" />
+            <Dependency module="form5695" path="/form5695Line32aOthersPaidAnswered" />
+            <Dependency module="form5695" path="/form5695PartIItemListsMatchLineTotals" />
+            <Dependency module="form5695" path="/form5695Line25aAnsweredWhenEnablingCostEntered" />
+            <Dependency module="form5695" path="/form5695Line10CapacityAnsweredWhenFuelCellAmountEntered" />
+            <Dependency module="form5695" path="/form5695ItemListsResolve" />
+            <Dependency module="form5695" path="/form5695Line5aAnsweredWhenBatteryCostEntered" />
+            <Dependency module="form5695" path="/form5695Line32aAnsweredWhenOthersPaidEntered" />
+            <Dependency module="form5695" path="/form5695MfjTwoMainHomesAnsweredWhenOtherHomeLine30Entered" />
+            <Dependency module="form5695" path="/form5695Line7cAnsweredWhenJointWorksheetAmountEntered" />
+            <Dependency module="form5695" path="/form5695NumericAnswersNotNegative" />
+            <Dependency module="form5695" path="/form5695BusinessUseQuestionAnsweredWhenCostEntered" />
+            <Dependency module="scheduleC" path="/scheduleCLossesHaveLineGAndLine32Answered" />
+            <Dependency module="scheduleC" path="/scheduleCForm8829TotalAreaAnsweredWhenElected" />
+            <Dependency module="scheduleC" path="/scheduleCStatutoryEmployeeWagesOnTheirOwnScheduleC" />
+            <Dependency module="iraDeduction" path="/iraEndowmentAllocationIsComplete" />
+            <Dependency module="scheduleE" path="/formK1sItemDIsComplete" />
+            <Dependency module="form4684" path="/sectionBEmployeeUseIsComplete" />
+            <Dependency module="schedule2" path="/schedule2Line17zChapter1ClassificationIsComplete" />
+            <IsComplete>
+              <Dependency module="form8997" path="/form8997ReturnFilesThisForm" />
+            </IsComplete>
+          </All>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasSeenIncomeNotSupportedIntro">
+      <Description>A fact used to log some data to the backend
+        about whether filers have seen the income soft-knockout
+      </Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isResubmitting">
+      <Name>Is Resubmitting</Name>
+      <Description>Whether the Tax Payer has already submitted their return once, and is now resubmitting.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/isAfterTaxDay">
+      <Description>
+        Is "today" after the filer's tax deadline
+        This fact needs to be re-evaluated.
+      </Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/today" module="signing" />
+          </Left>
+          <Right>
+            <Dependency path="/taxDay" module="filers" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isAfterTaxDayAndNotResubmitting">
+      <Description>
+        Is "today" after the filer's tax deadline and is this not a resubmission (for which the filer
+        would have more time). Derived as All(/isAfterTaxDay, not-resubmitting).
+        COMPLETENESS DECISION: an unanswered /isResubmitting reads as a FIRST submission (False), so
+        this fact stays Complete on a return that never answered the resubmission question -
+        complete-safe. Through the filing deadline (2026-04-15) it resolves False either way; node
+        fixtures deadline-trio-* pin both sides of the boundary with explicit /todayOverride dates.
+        DISCLOSURE/ROUTING ONLY: no dictionary fact reads this; it exists for the application screen
+        routing. It must not join /flowIsKnockedOut: no federal authority makes lateness a bar to
+        computing.
+      </Description>
+      <Derived>
+        <All>
+          <Dependency path="/isAfterTaxDay" />
+          <Not>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/isResubmitting" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <Dependency path="/isResubmitting" />
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <False />
+                </Then>
+              </Case>
+            </Switch>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isAfterResubmissionDeadline">
+      <Description>
+        Is "today" after the resubmission deadline, meaning DF is fully closed. Derived as
+        signing:/today strictly after constants:/resubmissionDeadline. April 20, 2026 itself is
+        the last accepted day; only the day after opens this window. NO STATUTE, DELIBERATELY: the
+        resubmission window is a Direct File operating date set by the service
+        (constants:/resubmissionDeadline, administrative, five days after the filing deadline per
+        the L0 pattern), not a date any Code section fixes, so this fact stays on the
+        statute-anchor allowlist, whose row records that it computes the service window.
+        DISCLOSURE/ROUTING ONLY: no dictionary fact reads this; it exists for the application screen
+        routing. It must not join /flowIsKnockedOut: no federal authority makes lateness a bar to
+        computing.
+      </Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency module="signing" path="/today" />
+          </Left>
+          <Right>
+            <Dependency module="constants" path="/resubmissionDeadline" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isBeforeFederalTaxDeadline">
+      <Description>
+        Is "today" before or up to the federal tax deadline. Derived as the exact complement of the
+        module's anchored comparison /isAfterTaxDay, so "before or up to" means signing:/today less
+        than or equal to filers:/taxDay.
+        DISCLOSURE/ROUTING ONLY: no dictionary fact reads this; it exists for the application screen
+        routing. It must not join /flowIsKnockedOut: no federal authority makes lateness a bar to
+        computing.
+      </Description>
+      <Derived>
+        <Not>
+          <Dependency path="/isAfterTaxDay" />
+        </Not>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

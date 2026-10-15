@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/writableHsaProhibitedTransactionOccurred">
+      <Name>A section 4975 prohibited transaction occurred with respect to an HSA (writable)</Name>
+      <Description>The deemed-distribution character question, prohibited-transaction leg. The
+        source states the situation directly (https://www.irs.gov/pub/irs-pdf/i8889.pdf, page 3,
+        under the "Deemed Distributions From HSAs" heading at line 187): "You engaged in any
+        transaction prohibited by section 4975 with respect to any of your HSAs, at any time in
+        2025. Your account ceases to be an HSA as of January 1, 2025, and you must include the fair
+        market value of all assets in the account as of January 1, 2025, on line 14a", and the
+        section closes at line 209 with "Any deemed distribution will not be treated as used to pay
+        qualified medical expenses. Generally, these distributions are subject to the additional 20%
+        tax."
+
+        RETURN-LEVEL, AND THAT IS THE POINT. When the top-level line 14a scalar was retired onto the /hsaDistributions collection, this
+        attestation was NOT re-pointed at collection items, because a section 4975 prohibited
+        transaction produces no Form 1099-SA — there is no document to enter and therefore no item
+        to carry the answer. Re-pointing would have deleted the refusal rather than moved it. The
+        module header records the decision in full.
+
+        THIS IS A FILER ATTESTATION, NOT A COMPUTATION. The graph holds no transaction history for
+        any HSA, so whether a section 4975 prohibited transaction occurred is not derivable from
+        anything it knows. The filer states it. This is the writable optional fact; use the derived
+        alias /hasNonNormalTopLevelHsaDistribution downstream.
+
+        THE COLLECTION TWIN, for the filer who DOES hold a Form 1099-SA, is
+        /hsaDistributions/*/hsaDistributionCode, whose enum already includes prohibitedTransaction.
+        This is the same question asked of the filer who has no such document.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasNonNormalTopLevelHsaDistribution">
+      <Name>A return-level section 4975 deemed distribution was attested</Name>
+      <Description>Complete-safe alias over /writableHsaProhibitedTransactionOccurred: FALSE when
+        the filer has not answered, which is every return in the committed corpus, so the knockout
+        that reads this fact is byte-identical to the pre-fill graph everywhere.
+
+        THE WRAPPER IS LOAD-BEARING, NOT STYLISTIC. hsa /flowKnockoutHsaDistributionCode is a
+        dependency of flow /flowIsKnockedOut, so a bare unanswered Writable here would take
+        /flowIsKnockedOut Incomplete by completeness contagion on EVERY return in the corpus. That
+        is the /aotcMagi failure class, already documented elsewhere.
+
+        THE NAME KEEPS "TopLevel" ON PURPOSE after the retirement: it now reads as
+        "return-level, not per-1099-SA", which is what this fact is. Renaming it would remove and
+        re-add one key on all 969 committed cases for no behavioural gain.
+
+        CONSUMER: hsa /flowKnockoutHsaDistributionCode (SHIPPING, BlockSubmissionOnTrue), where it
+        is a true-arm beside the collection-side /flowKnockoutHsaDistributionsNotNormal. The pledge
+        leg routes to the OTHER knockout through the sibling alias /hasTopLevelHsaPledgedAsSecurity
+        below; the two are deliberately not one fact.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableHsaProhibitedTransactionOccurred" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableHsaProhibitedTransactionOccurred" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableHsaPledgedAsSecurityForLoan">
+      <Name>An HSA was used as security for a loan (writable)</Name>
+      <Description>The deemed-distribution character question, pledge leg. The source states the
+        situation directly (https://www.irs.gov/pub/irs-pdf/i8889.pdf, page 3, under the "Deemed
+        Distributions From HSAs" heading at line 187): "You used any portion of any of your HSAs as
+        security for a loan at any time in 2025. You must include the fair market value of the
+        assets used as security for the loan as income on Schedule 1 (Form 1040), line 8f."
+
+        RETURN-LEVEL, AND THAT IS THE POINT, for the same reason as its prohibited-transaction
+        sibling above: a pledge produces no Form 1099-SA, so there is no /hsaDistributions item to
+        re-point this onto. See the module header for the retirement in full.
+
+        THIS IS A FILER ATTESTATION, NOT A COMPUTATION: the graph holds no HSA transaction or pledge
+        history. Use the derived alias /hasTopLevelHsaPledgedAsSecurity downstream.
+
+        NOTE WHAT THIS FACT DOES NOT DO, so a later reader does not mistake its scope. The source
+        routes the pledged FMV to Schedule 1 line 8f as income, and this fill does NOT compute that
+        amount or add it to income — the return is REFUSED before the amount matters, exactly as
+        the collection-side /flowKnockoutHsaDistributionFMV already refuses the Box-4 case rather
+        than computing it. Modeling the line 8f amount is the deferred follow-on, and it needs an
+        FMV intake this node deliberately does not add.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasTopLevelHsaPledgedAsSecurity">
+      <Name>A return-level HSA pledge as loan security was attested</Name>
+      <Description>Complete-safe alias over /writableHsaPledgedAsSecurityForLoan: FALSE when the
+        filer has not answered, which is every return in the committed corpus.
+
+        THE WRAPPER IS LOAD-BEARING for the same reason as the sibling alias above: hsa
+        /flowKnockoutHsaDistributionFMV is a dependency of flow /flowIsKnockedOut, so a bare
+        unanswered Writable would take /flowIsKnockedOut Incomplete by contagion corpus-wide. The
+        name keeps "TopLevel" for the reason the sibling states.
+
+        CONSUMER: hsa /flowKnockoutHsaDistributionFMV (SHIPPING, BlockSubmissionOnTrue), where it is
+        a true-arm beside the existing Count over /hsaDistributions/*/causesFmvKnockout. The FMV
+        knockout is the right twin for this leg because both turn on a fair market value the graph
+        does not hold.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableHsaPledgedAsSecurityForLoan" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableHsaPledgedAsSecurityForLoan" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableHsaPledgedAssetsFairMarketValue">
+      <Name>Fair market value of the HSA assets pledged as security for a loan (writable)</Name>
+      <Description>The AMOUNT of the IRC 223(e)(2) / 408(e)(4) pledge deemed distribution, the
+        companion of the character question /writableHsaPledgedAsSecurityForLoan above. This fact supplies the pledged-as-security case of the death treatment, which needs exactly this fair-market-value intake. Read
+        through /schedule1Line8fPledgedHsaFmvIncome, never directly.
+
+        SCREEN SPECIFICATION (operator rule: the application builds the screen from this
+        Description and never opens an IRS document).
+
+        THE QUESTION: "What were the HSA assets you used as security for the loan worth?"
+
+        HELP TEXT: "When you use any part of an HSA as security for a loan, the law treats that part
+        as paid out to you, so it counts as income for 2025. Enter what the pledged portion was
+        worth - not the whole account, unless you pledged the whole account, and not the amount of
+        the loan." (Paraphrasing the 2025 Instructions for Form 8889, "Deemed Distributions From
+        HSAs": "You used any portion of any of your HSAs as security for a loan at any time in 2025.
+        You must include the fair market value of the assets used as security for the loan as income
+        on Schedule 1 (Form 1040), line 8f"; https://www.irs.gov/pub/irs-pdf/i8889.pdf, page 3, the
+        heading at line 187. Pub. 969 says the same in its own words,
+        https://www.irs.gov/pub/irs-pdf/p969.pdf, page 9. The statute is IRC 223(e)(2) applying IRC
+        408(e)(4), "the portion so used is treated as distributed to that individual";
+        26 U.S.C. 408, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section408&amp;num=0&amp;edition=2024.)
+
+        ASKED WHEN: /hasTopLevelHsaPledgedAsSecurity is true - that is, immediately after the filer
+        answers the pledge attestation yes. Asked ONCE FOR THE RETURN, not per filer, because the
+        attestation it follows is return-level (the module header above records why: a pledge
+        produces no Form 1099-SA, so there is no document to attribute) and because its destination,
+        Schedule 1 line 8f, is a return-level line that Form 8889's per-individual structure never
+        touches. Never asked otherwise.
+
+        UNANSWERED POSTURE: REFUSED - and so, for now, is the ANSWERED case.
+        hsa:/flowKnockoutHsaDistributionFMV blocks submission on EVERY attested pledge while the 20%
+        additional-tax question in the banner above is open with the project owner. The application should still ask the question: the amount is computed, it lands on
+        Schedule 1 line 8f, and the ruling that retires the refusal needs no new intake. The
+        PERMANENT part of the residue, the part that survives the ruling either way, is an attested
+        pledge with no amount behind it: the alternative is to file a return that admits a deemed
+        distribution happened and reports $0 of it.
+
+        VALIDATION: Dollar, Limit type="Min" $0. No upper bound - the pledged portion can be the
+        whole account and an HSA balance has no statutory ceiling. $0 is a valid answer (a pledge of
+        assets worth nothing) and is told apart from "unanswered" by IsComplete on this Writable,
+        not by a zero test.
+
+        WHAT THE ANSWER FEEDS: /schedule1Line8fPledgedHsaFmvIncome, which is an addend of BOTH
+        income /schedule1TotalOtherIncome (Schedule 1 line 9, the total) and
+        hsa:/schedule1Line8fForm8889Income (the PRINTED line 8f box, PDF-bound at
+        dictionary/pdf/2025/reviews/forms/IRS1040S1.json field f1_18[0]). Both are required: line 9
+        adds the legs individually and never reads the printed-box fact, so an amount named in only
+        one of the two makes the filed Schedule 1 fail to foot. It does NOT feed Form 8889 line 14a
+        (that line is for the section 4975 case, whose intake is
+        hsa:/filers/*/writableHsaDeemedDistributionJanuary1Fmv). Whether it bears the 20% additional
+        tax is the OPEN OPERATOR QUESTION in the banner above; the screen should say the amount is
+        taxed as income and should NOT promise or deny the 20% until that is ruled.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasAnsweredHsaPledgedAssetsFairMarketValue">
+      <Name>The pledged-assets fair market value was supplied</Name>
+      <Description>The "source answered" predicate for /writableHsaPledgedAssetsFairMarketValue, and
+        the only thing the narrowed guard hsa:/flowKnockoutHsaDistributionFMV reads. IsComplete over
+        a BARE optional Writable with no default and no complete-safe wrapper of its own, so it is
+        false until the filer types a number and true the moment they do, a typed $0 included. It is
+        NOT IsComplete over a complete-safe fact, which would be the always-true trap.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <IsComplete>
+          <Dependency path="/writableHsaPledgedAssetsFairMarketValue" />
+        </IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1Line8fPledgedHsaFmvIncome">
+      <Name>Pledged HSA assets included in income on Schedule 1 line 8f</Name>
+      <Description>The Schedule 1 (Form 1040) line 8f leg of the pledge deemed distribution, and the
+        addend income /schedule1TotalOtherIncome reads. The instructions name that line and no other
+        for this amount: "You must include the fair market value of the assets used as security for
+        the loan as income on Schedule 1 (Form 1040), line 8f"
+        (https://www.irs.gov/pub/irs-pdf/i8889.pdf, page 3).
+
+        IT IS READ TWICE, ON PURPOSE, AND THAT IS THE FIX FOR A DEFECT AN EARLIER REWORK ALMOST SHIPPED
+        (an adversarial-review finding). Its consumers are income
+        /schedule1TotalOtherIncome, which is Schedule 1 line 9 (the TOTAL, built from the individual
+        legs), and hsa:/schedule1Line8fForm8889Income, which IS printed box 8f and is what the PDF
+        binds. As first written this leg reached only the line-9 total, so a pledge return printed
+        $9,500 in the line-9 total and $0 in box 8f and the schedule did not foot. Naming an amount
+        in both places is not double-counting: line 9 never reads the printed-box fact.
+
+        IT ADDS BESIDE THE OTHER 8f LEGS AND CANNOT DOUBLE-COUNT WITH ANY OF THEM. Line 8f is
+        printed "Income from Form 8889" - one line for the whole form - and this return can carry
+        several of its legs at once: hsa:/hsaCollectionRouteTaxableDistributions is the printed line
+        16 (taxable distributions actually paid out of Forms 1099-SA, plus, since this same unit, the
+        section 4975 January-1 value that the instructions route THROUGH line 14a);
+        hsa:/hsaTestingPeriodFailureIncomeAndAdditionalTax is the printed Part III line 20; and this
+        leg is an amount the instructions send to line 8f WITHOUT passing through any printed Form
+        8889 line at all. A pledged portion of an account is not a distribution reported on any Form
+        1099-SA (a pledge produces no such document, which is why the attestation is return-level),
+        and it is not the section 4975 whole-account value either - that is a different subparagraph
+        of IRC 408(e) with a different measure, a different date and a different destination line.
+
+        GATED ON THE ATTESTATION AS WELL AS THE ANSWER, for the reason its section 4975 twin
+        hsa:/filers/*/hsaDeemedDistributionJanuary1Fmv records at length: an amount left behind by an
+        edited interview would otherwise put income on the return with nothing refusing it, which is
+        taxpayer-ADVERSE. With /hasTopLevelHsaPledgedAsSecurity false the leg is a hard $0 and reads
+        no HSA input at all.
+
+        COMPLETE-SAFE $0, load-bearing because the consumer is a shipping income total, and $0 on
+        every committed scenario: no committed scenario answers the pledge attestation, so this sum
+        is byte-identical.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/hasTopLevelHsaPledgedAsSecurity" />
+                <Dependency path="/hasAnsweredHsaPledgedAssetsFairMarketValue" />
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableHsaPledgedAssetsFairMarketValue" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/filers/*/writableHdhpPlanAnnualDeductible">
+      <Description>The filer's HDHP annual deductible as the plan states it — the section
+        223(c)(2)(A)(i) quantity. Taxpayer-attested; there is no IRS form line for it, because the
+        return never reports it. Optional: unanswered means the filer was not asked, and the
+        comparison below then flags nothing.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/writableHdhpPlanAnnualOutOfPocketMaximum">
+      <Description>The filer's HDHP annual out-of-pocket maximum as the plan states it, DEDUCTIBLE
+        INCLUDED — the section 223(c)(2)(A)(ii) sum of the annual deductible and the other annual
+        out-of-pocket expenses required under the plan, premiums excluded. Taxpayer-attested; no
+        return line reports it. Optional: unanswered means the filer was not asked. The printed
+        limit's footnote (out-of-network deductibles and expenses are outside it when the plan uses
+        a provider network) is NOT modelled — see the block above.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/hdhpCoverageFailsStatutoryLimits">
+      <Description>True when this filer answered BOTH plan figures, holds a self-only or family
+        HDHP, and the plan misses either section 223(c)(2)(A) prong. Positive polarity so the
+        return-level roll-up can count failures the way this dictionary's other per-filer gates do.
+        Complete-safe FALSE through the terminal Case: a filer who was not asked, or whose coverage
+        type is Incomplete, or who answered "both" (already knocked out), is never flagged. Both
+        bounds are INCLUSIVE — a deductible exactly at the minimum and an out-of-pocket maximum
+        exactly at the maximum both qualify.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableHdhpPlanAnnualDeductible" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../writableHdhpPlanAnnualOutOfPocketMaximum" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="hsa" path="../hasSelfOnlyHdhp" />
+                </IsComplete>
+                <Dependency module="hsa" path="../hasSelfOnlyHdhp" />
+              </All>
+            </When>
+            <Then>
+              <Not>
+                <All>
+                  <GreaterThanOrEqual>
+                    <Left>
+                      <Dependency path="../writableHdhpPlanAnnualDeductible" />
+                    </Left>
+                    <Right>
+                      <Dependency module="constants" path="/hdhpMinAnnualDeductibleSelf" />
+                    </Right>
+                  </GreaterThanOrEqual>
+                  <LessThanOrEqual>
+                    <Left>
+                      <Dependency path="../writableHdhpPlanAnnualOutOfPocketMaximum" />
+                    </Left>
+                    <Right>
+                      <Dependency module="constants" path="/hdhpMaxOOPExpensesSelf" />
+                    </Right>
+                  </LessThanOrEqual>
+                </All>
+              </Not>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableHdhpPlanAnnualDeductible" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../writableHdhpPlanAnnualOutOfPocketMaximum" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="hsa" path="../hasFamilyHdhp" />
+                </IsComplete>
+                <Dependency module="hsa" path="../hasFamilyHdhp" />
+              </All>
+            </When>
+            <Then>
+              <Not>
+                <All>
+                  <GreaterThanOrEqual>
+                    <Left>
+                      <Dependency path="../writableHdhpPlanAnnualDeductible" />
+                    </Left>
+                    <Right>
+                      <Dependency module="constants" path="/hdhpMinAnnualDeductibleFamily" />
+                    </Right>
+                  </GreaterThanOrEqual>
+                  <LessThanOrEqual>
+                    <Left>
+                      <Dependency path="../writableHdhpPlanAnnualOutOfPocketMaximum" />
+                    </Left>
+                    <Right>
+                      <Dependency module="constants" path="/hdhpMaxOOPExpensesFamily" />
+                    </Right>
+                  </LessThanOrEqual>
+                </All>
+              </Not>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hdhpCoverageMeetsStatutoryLimits">
+      <Description>Every filer's HDHP meets the section 223(c)(2)(A) deductible and out-of-pocket
+        limits — the ADVISORY output of triage finding FED-1040-8889-HDHPTHRESH-001, and the fact
+        that finally consumes the four TY2025 HDHP constants. TRUE unless some filer's answered plan
+        figures miss a prong, so on every return that does not answer the new questions it is
+        Complete true and nothing is flagged, exactly today's behaviour. NON-BLOCKING BY
+        CONSTRUCTION: no computed line reads it and it is deliberately NOT a knockout — the finding
+        asks to flag the mismatch, not to refuse the return. Its consumer is downstream of this
+        repo, which is what the Export declares; the moment anything here reads it to alter a
+        deduction or block a submission, it has become a different change with a different
+        review.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <Dependency path="/filers/*/hdhpCoverageFailsStatutoryLimits" />
+              </Count>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hdhpCoverageStatutoryLimitsWarning">
+      <Description>True when the completed plan-figure comparison indicates that one or more
+        filers' reported HDHP figures miss a section 223(c)(2)(A) deductible or out-of-pocket
+        limit. Show this as an advisory asking the filer to review the plan figures and HSA
+        eligibility. It is not an eligibility determination, does not change a deduction or
+        exclusion, and must not block filing. The out-of-network footnote can make the comparison
+        flag a plan that is still an HDHP, so the filer-facing warning must disclose that caveat.
+        False when the plan figures were not supplied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/hdhpCoverageMeetsStatutoryLimits" />
+        </Not>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

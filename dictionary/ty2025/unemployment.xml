@@ -1,0 +1,2438 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/unemployment.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/xmlHasRepaidUnemploymentCompensation">
+      <Name>Has repaid Unemployment Compensation</Name>
+      <Description>Whether unemployment compensation has been received along with any repaid benefits amount.</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/receivedUnemploymentCompensation" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/unemploymentCompRepaidAmt" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unemploymentCompensation">
+      <Name>Unemployment Compensation Total</Name>
+      <Description>
+        Unemployment compensation for Schedule 1, line 7
+      </Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+              <Then>
+                <Add>
+                  <CollectionSum>
+                    <Dependency path="/form1099Gs/*/netUnemploymentComp" />
+                  </CollectionSum>
+                  <Dependency path="/communityPropertyUnemploymentAllocationAdjustmentUnrounded" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/xmlUnemploymentCompensation">
+      <Name>Unemployment Compensation Total</Name>
+      <Description>
+        Unemployment compensation for Schedule 1, line 7. With ExportZero for XML purposes.
+      </Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Dependency path="/unemploymentCompensation" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/receivedUnemploymentCompensation">
+      <Name>Has Unemployment Compensation</Name>
+      <Description>Whether unemployment compensation has been received.</Description>
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form1099Gs/*/amount" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableNondeductibleGovernmentalProgramContributions">
+      <Name>Writable nondeductible contributions to this governmental unemployment program not yet recovered</Name>
+      <Description>Question: "Did you pay into this unemployment compensation program, and were those payments
+        NOT deductible? If so, counting only what you had gotten back BEFORE the benefits in box 1 of this
+        Form 1099-G, how much of what you paid in have you not yet gotten back?" Help: a
+        governmental unemployment compensation program you contribute to with nondeductible contributions does not
+        produce taxable unemployment compensation until you recover those contributions (2025 Publication 525,
+        Unemployment Benefits, "Governmental program", https://www.irs.gov/pub/irs-pdf/p525.pdf, page 29). If every
+        contribution to the program was deducted there is nothing to recover and the answer is $0 or unanswered; the
+        whole benefit is then included.
+        Per Form 1099-G, because the recovery is measured against the program that issued the benefit, not against
+        the return - and because the payer of such a program "must issue a separate Form 1099-G to report this amount
+        to you" (Form 1099-G, Instructions for Recipient, box 1, https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 5).
+        If you itemized and deducted these contributions on Schedule A as taxes paid, answer $0 here: the same box 1
+        instruction gives the exclusion only to a filer who does not itemize ("If you do not itemize, only include in
+        income the amount that is in excess of your contributions.", line 119). This dictionary does not gate the
+        answer on the itemizing decision, which is downstream of AGI and so of Schedule 1 line 7; the question states
+        the condition instead. Unanswered is complete-safe $0: the benefit is fully included, which is the answer for every
+        filer who did not contribute or who deducted what they contributed.
+        THE MEASUREMENT DATE IS PART OF THE QUESTION, not decoration. This fact carries no prior-year state and
+        nothing reconciles it across returns, so the wording is the only thing that stops a filer from entering
+        the same contribution total a second year and excluding it twice. "Not yet gotten back, before this
+        form's benefits" is the unrecovered balance Publication 525 measures the recovery against, and it
+        already nets out every dollar recovered in an earlier year, so no separate prior-recovery question is
+        owed. The anchor is THIS FORM'S BENEFITS, not the start of the year: contributions the filer made
+        earlier in the same year are recovered against these same benefits and so must still be counted as
+        unrecovered when answering. Contributions larger than this Form 1099-G box 1 are recovered against a
+        LATER year's benefits;
+        this dictionary does not carry that remainder forward (records overlay, residue (3)).
+        Feeds ../nondeductibleGovernmentalProgramContributions and through it ../netUnemploymentComp and
+        Schedule 1 line 7.</Description>
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/nondeductibleGovernmentalProgramContributions">
+      <Name>Nondeductible governmental-program contributions not yet recovered</Name>
+      <Description>The writable above, defaulted to $0 when unanswered so that the Schedule 1 line 7 total stays
+        complete-safe for the ordinary filer, who has no unrecovered nondeductible contributions. Read only by
+        ../netUnemploymentComp.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableNondeductibleGovernmentalProgramContributions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableNondeductibleGovernmentalProgramContributions" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/netUnemploymentComp">
+      <Name>Net unemployment comp</Name>
+      <Description>The net (compensation received - amount repaid) unemployment compensation for a specific form 1099-G </Description>
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../amount" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../amountPaidBackForBenefitsInTaxYear" />
+              <Dependency path="../nondeductibleGovernmentalProgramContributions" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unemploymentCompRepaidAmt">
+      <Name>Repaid Unemployment Compensation Total</Name>
+      <Description>The sum total amount of money paid back in the tax year for the benefits received in the tax year.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+              <Then>
+                <Add>
+                  <CollectionSum>
+                    <Dependency path="/form1099Gs/*/amountPaidBackForBenefitsInTaxYear" />
+                  </CollectionSum>
+                  <Dependency path="/communityPropertyUnemploymentRepaymentAllocationAdjustmentUnrounded" />
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs">
+      <Name>Forms 1099-G received</Name>
+      <Description>One item per Form 1099-G, Certain Government Payments, the filer received, whatever boxes it carries: unemployment compensation (box 1), a state or local income tax refund (boxes 2, 3 and 8), withholding (box 4), RTAA payments, taxable grants, agriculture payments and market gain (boxes 5, 6, 7 and 9), and the state rows. A document is entered once; a refund-only form is an item whose box 1 is entered as 0.</Description>
+      <Export downstreamFacts="true" />
+
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/unemploymentPrimaryFiler">
+      <Description>The primary filer used by Form 1099-G attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isPrimaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+    <Fact path="/unemploymentSecondaryFiler">
+      <Description>The secondary filer used by Form 1099-G attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/belongsToPrimaryFiler">
+      <Name>Form 1099-g belongs to primary filer</Name>
+      <Description>The form 1099-g belongs to the primary filer</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="../filer" />
+          </Left>
+          <Right>
+            <Dependency path="/unemploymentPrimaryFiler" />
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/belongsToSecondaryFiler">
+      <Name>Form 1099-g belongs to secondary filer</Name>
+      <Description>The form 1099-g belongs to the secondary filer</Description>
+
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="../filer" />
+          </Left>
+          <Right>
+            <Dependency path="/unemploymentSecondaryFiler" />
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/secondaryFilerUsedWithoutMFJ">
+      <Name>Secondary filer has form 1099-gs when primary filer is not filing jointly</Name>
+      <Description>Whether secondary filer has form 1099-gs when primary filer is not filing jointly
+
+       </Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/unemploymentSecondaryFiler" />
+          </IsComplete>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <Dependency path="../belongsToSecondaryFiler" />
+          <Not>
+            <All>
+              <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+              <Dependency path="../isCommunityIncome" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/secondaryFilerUsedWithoutMFJ">
+      <Name>Secondary filer has form 1099-gs when primary filer is not filing jointly</Name>
+      <Description>Whether secondary filer has Social Securityinterest reports when primary filer is not filing jointly</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/form1099Gs/*/secondaryFilerUsedWithoutMFJ" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099GsIsDone">
+      <Name>form1099Gs is Done</Name>
+      <Description>The user has clicked "Done" for their form1099Gs</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+      <Placeholder>
+        <False />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/primaryFilerHasIncompleteForm1099Gs">
+      <Name>At least one of Primary Filer's Form 1099Gs are incomplete</Name>
+      <Description>Whether at least one of Primary Filer's Form 1099Gs are incomplete</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <All>
+                <Dependency path="/form1099Gs/*/belongsToPrimaryFiler" />
+                <Not>
+                  <Dependency path="/form1099Gs/*/isComplete" />
+                </Not>
+              </All>
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerHasIncompleteForm1099Gs">
+      <Name>At least one of Secondary Filer's Form 1099Gs are incomplete</Name>
+      <Description>Whether at least one of Secondary Filer's Form 1099Gs are incomplete</Description>
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <All>
+                <Dependency path="/form1099Gs/*/belongsToSecondaryFiler" />
+                <Not>
+                  <Dependency path="/form1099Gs/*/isComplete" />
+                </Not>
+              </All>
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/hasSeenLastAvailableScreen">
+      <Name>Has seen last available screen</Name>
+      <Description>Whether the user has navigated to the last available screen in the unemployment section</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/isComplete">
+      <Name>Is Complete</Name>
+      <Description>Whether this unemployment form is complete</Description>
+
+      <Derived>
+        <All>
+          <Dependency path="../hasSeenLastAvailableScreen" />
+          <IsComplete>
+            <Dependency path="../federalTaxWithheld" />
+          </IsComplete>
+          <Any>
+            <Equal>
+              <Left>
+                <Dependency path="../federalTaxWithheld" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </Equal>
+            <IsComplete>
+              <Dependency path="../payer/tin" />
+            </IsComplete>
+          </Any>
+          <IsComplete>
+            <Dependency path="../amount" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/has1099">
+      <Name>Has 1099</Name>
+      <Description>Whether this unemployment income report has an attached 1099-G</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/filer">
+      <Name>Form 1099-G Filer</Name>
+      <Description>The filer who received income for this report.</Description>
+
+      <Writable>
+        <CollectionItem collection="/filers" />
+      </Writable>
+      <Placeholder>
+        <Dependency path="/unemploymentPrimaryFiler" />
+      </Placeholder>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/recipientTin">
+      <Description>The recipient's TIN</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../belongsToPrimaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/unemploymentPrimaryFiler/tin" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="../belongsToSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/unemploymentSecondaryFiler/tin" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/isMfjAndSpouses1099G">
+      <Name>Is MFJ and is spouses 1099G</Name>
+      <Description>Used to show specific language mentioning the spouse by name and checks MFJ to ensure the spouse is
+        actually eligible</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="../belongsToSecondaryFiler" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/payer">
+      <Name>Payer</Name>
+      <Description>The entity that paid the unemployment compensation. Form 1099-G box payer-name (PAYER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no.).</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <String />
+        <Limit type="Match">
+          <String><![CDATA[[\sA-Za-z0-9\-]+]]></String>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/payer/tin">
+      <Name>TIN</Name>
+      <Description>
+        The taxpayer identification number of the payer on the 1099-G.
+      </Description>
+      <Export mef="true" stateSystems="true" />
+
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/amount">
+      <Name>Amount</Name>
+      <Description>The amount of unemployment compensation. Form 1099-G box 1 (Unemployment compensation). Enter 0 when box 1 is blank, as on a form that reports only a state or local income tax refund.</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+      </Writable>
+      <Placeholder>
+        <Dollar>0</Dollar>
+      </Placeholder>
+    </Fact>
+
+
+
+
+
+    <Fact path="/form1099Gs/*/repaid">
+      <Name>Repaid</Name>
+      <Description>Whether the taxpayer repaid unemployment compensation received in the same year.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableAmountPaidBackForBenefitsInTaxYear">
+      <Name>Amount Paid Back For Benefits In Tax Year</Name>
+      <Description>
+        The amount of money paid back in the tax year for the benefits received in the tax year. This is the
+        writable fact.
+      </Description>
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/form1099Gs/*/amountPaidBackForBenefitsInTaxYear">
+      <Name>Writable Amount Paid Back For Benefits In Tax Year</Name>
+      <Description>The amount of money paid back in the tax year for the benefits received in the tax year. Takes a
+        written value, but defaults to zero if it hasn't been written. We have to use a default like this, instead of a
+        placeholder, make sure that the user's amount paid back is complete.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableAmountPaidBackForBenefitsInTaxYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="../writableAmountPaidBackForBenefitsInTaxYear" />
+                <Dependency path="../amount" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form1099Gs/*/writableAmountPaidBackForBenefitsBeforeTaxYear">
+      <Name>Writable Amount Paid Back For Benefits Before Tax Year</Name>
+      <Description>
+        The amount of money paid back in the tax year for the benefits received before the tax year. This is
+        the
+        writable fact.
+      </Description>
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/amountPaidBackForBenefitsBeforeTaxYear">
+      <Name>Amount Paid Back For Benefits Before Tax Year</Name>
+      <Description>The amount of money paid back in the tax year for the benefits received before the tax year. Takes a
+        written value, but defaults to zero if it hasn't been written. We have to use a default like this, instead of a
+        placeholder, to make sure that the user's amount paid back is complete.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableAmountPaidBackForBenefitsBeforeTaxYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableAmountPaidBackForBenefitsBeforeTaxYear" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAmountPaidBackForBenefitsBeforeTaxYear">
+      <Name>Total Amount Paid Back For Benefits Before Tax Year</Name>
+      <Description>
+        The amount of money paid back in the tax year for the benefits received before the tax year for all
+        filers.
+      </Description>
+
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form1099Gs/*/amountPaidBackForBenefitsBeforeTaxYear" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableFederalTaxWithheld">
+      <Name>Federal Tax Withheld</Name>
+      <Description>The federal income tax withheld from this unemployment compensation. Only collected when a TP has a
+        1099G. Form 1099-G box 4 (Federal income tax withheld).</Description>
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/federalTaxWithheldUnrounded">
+      <Name>Federal tax withheld (box 4), cents preserved</Name>
+      <Description>Box 4 of Form 1099-G, federal income tax withheld from this unemployment
+        compensation, AS REPORTED — cents preserved, not rounded. Complete-safe (0 when the writable
+        is left unanswered): the Switch defaults rather than using a Placeholder, so the
+        filer's total withholding stays complete.
+
+        WHY THIS EXISTS (the line-25b leg). This is the ADDEND fact — what
+        taxCalculations:/form1099Withholding (Form 1040 line 25b) sums. i1040gi routes 1099
+        unemployment withholding to that line by name ("If you received a 2025 Form 1099 showing
+        federal income tax withheld on ... unemployment compensation ... include the amount withheld
+        in the total on line 25b"), and line 25b adds two or more amounts, so i1040gi page 23 governs
+        it in full: "include cents when adding the amounts and round off only the total". Summing
+        already-rounded per-document box 4s is what that sentence forbids. Line 25b has already been given
+        its single Round, so the term does its job by handing the cents upward and rounding
+        nothing itself.
+
+        DO NOT use this fact as a stand-in for box 4 on a printed line or in an export — it
+        deliberately carries cents. The per-document whole-dollar image is
+        /form1099Gs/*/federalTaxWithheld, which is this fact wrapped in Round.
+
+        WHY THE SIBLING SHAPE, and not an in-place unwrap of the Round on the per-document fact.
+        Taking the Round off /form1099Gs/*/federalTaxWithheld would be a FLOW change, not a
+        rounding change. Three readers depend on its whole-dollar image: /form1099Gs/*/isComplete
+        tests it for equality with 0 to decide whether a payer TIN is required,
+        /form1099Gs/*/flowHasFederalTaxWithheld gates that same TIN screen on it being greater than
+        0, and it is Export mef="true", standing for one document's printed box. A box 4 of 0.40
+        rounds to 0; unwrapped it would stop doing so and the return would begin demanding a
+        payer TIN it does not need. form1099Rs can unwrap in place because its MeF
+        surface is a SEPARATE fact (/form1099Rs/*/federalWithholdingExport) and nothing reads its
+        rounded image. Here the item fact IS the MeF surface, the
+        /formW2s/*/federalWithholdingUnrounded shape, the same shape
+        /interestReports/*/taxWithheldUnrounded uses.
+
+        </Description>
+
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableFederalTaxWithheld" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableFederalTaxWithheld" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/federalTaxWithheld">
+      <Name>Federal Tax Withheld</Name>
+      <Description>The federal income tax withheld from this unemployment compensation. Takes a written value, but
+        defaults to zero if it hasn't been written. We have to use a default like this, instead of a placeholder, to
+        make sure that the user's total tax withheld (and therefore total number) remain complete.
+
+        Whole dollars: this is /form1099Gs/*/federalTaxWithheldUnrounded rounded at the per-document
+        entry, and the default-not-Placeholder behaviour the paragraph above describes lives on
+        that sibling. Deliberately unchanged in value: Form 1040 line 25b sums the cents-bearing
+        sibling rather than this ROUNDED image, because summing a rounded image across documents
+        is sum-of-rounded-addends, which i1040gi page 23 forbids for a line that totals ("include
+        cents when adding the amounts and round off only the total"). This fact keeps its Round,
+        its Export and its exact value regardless.
+
+        KEEPING THE ROUND HERE IS NOT COSMETIC RESTRAINT. Three things read this fact's whole-dollar image and would
+        change behaviour had the Round come off it: /form1099Gs/*/isComplete tests it for
+        equality with 0 to decide whether a payer TIN is required,
+        /form1099Gs/*/flowHasFederalTaxWithheld gates that same TIN screen on it being greater than
+        0, and it is Export mef="true", standing for one document's printed box 4. This is the
+        /formW2s/*/federalWithholding shape, not the /form1099Rs/*/federalWithholding
+        one, because there the MeF surface is a separate fact and here it is this one. See
+        /form1099Gs/*/federalTaxWithheldUnrounded for the full derivation.</Description>
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <Dependency path="../federalTaxWithheldUnrounded" />
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/flowHasFederalTaxWithheld">
+      <Name>Flow Has Federal Tax Withheld</Name>
+      <Description>If there has been feder tax withheld. Controls the flow for shwoing the payer tin.</Description>
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="../federalTaxWithheld" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableState">
+      <Name>State</Name>
+      <Description>The state where this 1099G was received. Form 1099-G box 10a (State).</Description>
+
+      <Writable>
+        <Enum optionsPath="/incomeFormStateOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/state">
+      <Name>State</Name>
+      <Description>Alias for writableState to avoid breaking our backend with our convention for
+        optional fields. Form 1099-G box 10a, the state this Form 1099-G was received in.
+
+        THE ALIAS, NOT AN EXPORT ON THE WRITABLE, and this is the contract's "decide and say why". The
+        house exports the DERIVED alias and keeps the intake private - interest:/interestReports/*/state
+        is that shape and it is the one the sibling /form1099Gs/*/stateTaxWithheld already follows (a
+        private writable, an exported derived twin). Exporting the writable instead would make this the
+        only exported writable of the five collections this fact touches and would give state systems two
+        different path shapes to learn.
+
+        THE EXPORTED SHAPE, copied from interest:/interestReports/*/state
+        (dictionary/ty2025/interest.xml): the writable stays private and optional and the derived
+        alias carries the state-systems export, so a state system reads one path name on every
+        income collection in this dictionary.
+
+        UNANSWERED IT IS INCOMPLETE, which is the interest alias's behaviour exactly. A state
+        identity has no safe default: constants:/incomeFormStateOptions has two members,
+        sameState and differentState, and neither of them means "not answered".
+
+        THE FEDERAL RETURN READS NOTHING FROM THIS FACT. It is export-only on the federal side and
+        no federal line moves with it.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Dependency path="../writableState" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writablePayerStateAbbreviation">
+      <Name>Form 1099-G box 10a state, first row</Name>
+      <Description>The two-letter state printed in Form 1099-G box 10a, first state row. Leave
+        blank when the form has no state row; this is distinct from writableState's
+        sameState/differentState federal intake choice.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Enum optionsPath="/statesAndDistrictsOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writablePayerStateAbbreviation2">
+      <Name>Form 1099-G box 10a state, second row</Name>
+      <Description>The two-letter state printed in Form 1099-G box 10a, second state row. Leave
+        blank when the form has only one state row.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Enum optionsPath="/statesAndDistrictsOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableStateIdNumber2">
+      <Name>Form 1099-G box 10b state identification number, second row</Name>
+      <Description>The payer's state identification number printed in Form 1099-G box 10b, second
+        state row. Leave blank when the form has only one state row.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableStateTaxWithheld2">
+      <Name>Form 1099-G box 11 state income tax withheld, second row</Name>
+      <Description>The state income tax withheld printed in Form 1099-G box 11, second state row.
+        Leave blank when the form has only one state row.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/flowKnockoutUnemploymentCompensationUnsupportedState">
+      <Name>Flow Knockout Unemployment Compensation Unsupported State</Name>
+      <Description>Whether any of the filer's Forms 1099-G was issued by a State other than the one
+        they are filing in. This is an exported observation with no federal consequence of its own
+        — the path name still says Knockout, historically, though the fact no longer blocks
+        submission. See the retirement block immediately above.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/form1099Gs/*/hasKnockoutUnemploymentCompensationInDifferentState" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/hasKnockoutUnemploymentCompensationInDifferentState">
+      <Name>Has Knockout Unemployment Compensation In Different State</Name>
+      <Description>Checks to see if the unemployment comepensation is in a different state.</Description>
+
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../writableState" />
+          </IsComplete>
+          <Equal>
+            <Left>
+              <Dependency path="../writableState" />
+            </Left>
+            <Right>
+              <Enum optionsPath="/incomeFormStateOptions">differentState</Enum>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableStateIdNumber">
+      <Name>State Id</Name>
+      <Description>The state Id number of the payer.
+
+        This is the writable optional fact. Can be left incomplete. Please
+        use the derived fact in downstream calculations. Form 1099-G box 10b (State identification no.).</Description>
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/stateIdNumber">
+      <Name>State Id</Name>
+      <Description>
+        The state Id number of the payer
+      </Description>
+      <Export stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableStateIdNumber" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableStateIdNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableStateTaxWithheld">
+      <Name>State Tax Withheld</Name>
+      <Description>The amount of state tax that has been withheld.
+
+        This is the writable optional fact. Can be left
+        incomplete. Please use the derived fact in downstream calculations. Form 1099-G box 11 (State income tax withheld).</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/stateTaxWithheld">
+      <Name>State Tax Withheld</Name>
+      <Description>The amount of state tax that has been withheld.</Description>
+      <Export stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableStateTaxWithheld" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableStateTaxWithheld" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFiler1099Gs">
+      <Description>1099Gs belonging to the primary filer</Description>
+
+      <Derived>
+        <Filter path="/form1099Gs">
+          <Dependency path="belongsToPrimaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFiler1099GsWithAmount">
+      <Description>1099Gs belonging to the primary filer that have an amount</Description>
+
+      <Derived>
+        <Filter path="/primaryFiler1099Gs">
+          <IsComplete>
+            <Dependency path="amount" />
+          </IsComplete>
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFiler1099GsTotal">
+      <Description>Total 1099Gs amount belonging to the primary filer</Description>
+
+      <Derived>
+        <CollectionSum>
+          <Dependency path="/primaryFiler1099GsWithAmount/*/amount" />
+        </CollectionSum>
+
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler1099Gs">
+      <Description>1099Gs belonging to the secondary filer</Description>
+
+      <Derived>
+        <Filter path="/form1099Gs">
+          <Dependency path="belongsToSecondaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler1099GsWithAmount">
+      <Description>1099Gs belonging to the secondary filer that have an amount</Description>
+
+      <Derived>
+        <Filter path="/secondaryFiler1099Gs">
+          <IsComplete>
+            <Dependency path="amount" />
+          </IsComplete>
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFiler1099GsTotal">
+      <Description>Total 1099Gs amount belonging to the secondary filer</Description>
+
+      <Derived>
+        <CollectionSum>
+          <Dependency path="/secondaryFiler1099GsWithAmount/*/amount" />
+        </CollectionSum>
+
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form1099GsTotal">
+      <Name>total 1099Gs</Name>
+      <Description>Total amount reported on Form 1099Gs.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isPrimaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/primaryFiler1099GsTotal" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFiler1099GsTotal" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maximumRepaymentUnemploymentCompensation">
+      <Name>Maximum Repayment Unemployment Compensation</Name>
+      <Description>
+        Maximum dollar amount of repayment of prior year unemployment compensation that direct file can
+        handle.
+      </Description>
+      <Derived>
+        <Dollar>3000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowKnockout1099GRepayTooHigh">
+      <Name>Earlier-year unemployment repayment over $3,000 with the section 1341 earlier-year tax figures unanswered (disclosure)</Name>
+      <Description>A disclosure, not a refusal: TRUE when the unemployment compensation repaid this year that was included in an earlier year's income (/totalAmountPaidBackForBenefitsBeforeTaxYear) exceeds /maximumRepaymentUnemploymentCompensation ($3,000) and the earlier-year decrease in tax, /claimOfRightRepaymentCreditSection1341, is not yet figured because an earlier-year tax figure (/writablePriorYearTaxAsFiled, /writablePriorYearTaxRefiguredWithoutRepaidIncome) is unanswered. It is not a member of flow:/flowIsKnockedOut.
+        Both methods compute: the deduction on Schedule A line 16 (scheduleA:/claimOfRightRepaymentDeduction) and the credit on Schedule 3 line 13b (/claimOfRightRepaymentCreditSection1341, from the two prior-year figures). The method is computed (taxCalculations:/claimOfRightDeductionGivesLesserTax) and needs the decrease either way; this flag names the return that still owes the two earlier-year figures.
+        It measures unemployment repayment alone. The threshold the application asks on is the whole return's, scheduleA:/claimOfRightRepaymentExceedsThreshold, which also counts repaid social security benefits and other claim-of-right repayments.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form1099Gs" /></IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/totalAmountPaidBackForBenefitsBeforeTaxYear" />
+            </Left>
+            <Right>
+              <Dependency path="/maximumRepaymentUnemploymentCompensation" />
+            </Right>
+          </GreaterThan>
+          <Not>
+            <IsComplete>
+              <Dependency path="/claimOfRightRepaymentCreditSection1341" />
+            </IsComplete>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form1099Gs/*/writableIsCommunityIncome">
+      <Name>(Writable) Is this payer's unemployment compensation community income?</Name>
+      <Description>THE PER-ITEM CHARACTER INPUT. Form 8958 characterises WAGES with no state law
+        qualifier — "sole proprietorship are community income and must be evenly split."
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 3) — but it puts unemployment compensation on LINE
+        12, among the items it does not characterise at all: "Identify any item not previously reported, such as social security"
+        continuing "benefits, unemployment compensation, deductions, credits, etc., on"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, RIGHT column of a two column extraction;
+        the LEFT column is EMPTY at line 203 and carries only the "Line 1" heading at line 204, so the
+        Line 12 instruction must be read DOWN the right column — correction #5).
+        PUBLICATION 555 SAYS NOTHING ABOUT IT EITHER, and that is a measured claim rather than an
+        omission: a grep for "unemployment" over https://www.irs.gov/pub/irs-pdf/p555.pdf run to completion
+        (correction #8) returns exactly ONE hit, line 701, inside the boilerplate list of wage and
+        earnings statements a filer gathers before preparing a return. No characterisation rule for
+        this item type exists in any vendored source.
+
+        So the question falls where Form 8958 itself puts it — on the filer, under state law:
+        "You and your spouse or RDP must be able to identify your" community and separate income
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 3, LEFT column). One writable per Form 1099-G.
+
+        NO DEFAULT, DELIBERATELY. An unanswered character makes ../isCommunityIncome FALSE, which
+        leaves the item UNALLOCATED (its whole amount stays on this return) and leaves
+        ../secondaryFilerUsedWithoutMFJ REFUSING when the item is the spouse's. Fail closed: this
+        dictionary never assumes community. ONE FLAG PER DOCUMENT GOVERNS ALL THREE ALLOCATED FIGURES — box 1 net of the same year
+        repayment, the repayment itself and box 4 — because Form 8958 allocates per PAYER row, not
+        per box, and because a benefit and the tax withheld from it cannot have different characters.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/isCommunityIncome">
+      <Name>This payer's unemployment compensation is community income</Name>
+      <Description>../writableIsCommunityIncome read complete safe. IsComplete FIRST, so an unanswered
+        character resolves FALSE rather than Incomplete: nothing downstream may be dragged Incomplete
+        by a question nobody has been asked yet, and FALSE is the fail closed direction (no
+        allocation, refusal left standing).
+
+        AN ANSWERED FALSE AND AN UNANSWERED CHARACTER ARE THE SAME HERE AND DIFFERENT AT THE GUARD.
+        Both leave the item unallocated. They part company at ../secondaryFilerUsedWithoutMFJ, which
+        keeps refusing the spouse's Form 1099-G in BOTH cases — deliberately, because a spouse's
+        SEPARATE income has no line on this return at all, which is the same input contradiction the
+        guard was opened for.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableIsCommunityIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableIsCommunityIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/communityPropertyCharacterisationMissing">
+      <Name>This payer's community-property character question is unanswered</Name>
+      <Description>Not(IsComplete(../writableIsCommunityIncome)) and nothing else: TRUE while the
+        per-item character question this collection already carries has no answer, FALSE the moment
+        the filer answers it either way.
+        WHY IT EXISTS: filers:/communityPropertyAllocationInputsComplete may lift the arm of
+        filers:/knockoutSubjectToCommunityPropertyLaws that reads the allocation gate only on a
+        return whose EVERY present item is characterised, so an unanswered character must be VISIBLE
+        at the return level rather than silently defaulted. This fact changes no figure: an
+        unanswered character still allocates nothing (../isCommunityIncome stays false) exactly as
+        before. Read only by /form1099Gs/communityPropertyCharacterisationIncomplete.</Description>
+      <Derived>
+        <Not>
+          <IsComplete>
+            <Dependency path="../writableIsCommunityIncome" />
+          </IsComplete>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/communityPropertyCharacterisationIncomplete">
+      <Name>Some Form 1099-G community-property character is unanswered</Name>
+      <Description>GreaterThan(Count of per-item unanswered characters, 0), the same return-level
+        shape as /form1099Gs/secondaryFilerUsedWithoutMFJ. Read by
+        filers:/communityPropertyAllocationInputsComplete, whose IsComplete-first wrapper is what
+        keeps filers:/knockoutSubjectToCommunityPropertyLaws complete-safe when this collection is
+        absent: an absent root is Placeholder on the JVM, the wrapper reads that as NOT complete,
+        and the refusal stands. Fail closed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/form1099Gs/*/communityPropertyCharacterisationMissing" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/communityPropertyAllocatedUnemploymentCompUnrounded">
+      <Name>The community half of this payer's unemployment compensation that Form 8958 line 12 moves</Name>
+      <Description>HALF of ONE Form 1099-G's net benefit, on a return that must allocate community
+        income AND on an item the filer has characterised as community income. $0 on every other item
+        and on every other return.
+
+        WHAT THIS FACT IS NOT, stated first because the name is easy to misread. This is NOT the Form 8958 line 12 column B figure for this payer. Column A
+        of a Form 8958 row is the item's WHOLE amount — the form's own instruction puts separate income
+        in column A too, "Enter the total amount of your community or separate income," / "deductions,
+        credits, and other return amounts on their respective" / "lines in column A."
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column of a two column extraction) — and
+        columns B and C must sum back to it, "amounts in columns B and C. Together, columns B and C should"
+        / "equal column A." (lines 201-202, LEFT column). Column B for THIS taxpayer is therefore
+        "half of all community income and all of your" separate income (line 124, LEFT column): half of
+        a community item, but ALL of an item that is the taxpayer's own separate income. This fact
+        computes only the first half of that and reads $0 on a separate item, so it is the amount the
+        allocation MOVES, not the amount the form prints. The printed column B figure for a whole
+        collection is /unemploymentCompensation itself.
+
+        IT IS HALF THE NET, AND THAT IS THE MODULE'S OWN TRAP AVOIDED RATHER THAN INHERITED. The
+        multiplicand is ../netUnemploymentComp: box 1 LESS the amount repaid in the same year. Halving the gross and
+        leaving the repayment whole would produce a Schedule 1 line 7 figure that is neither spouse's:
+        the repayment is a subtraction inside the same unscoped CollectionSum, so it has to move with
+        the benefit it reduces. The repayment DISCLOSURE moves in step through the sibling fact
+        ../communityPropertyAllocatedUnemploymentRepaymentUnrounded.
+
+        CENTS ARE NOT PRESERVED HERE AND THE FACT SAYS SO ON ITSELF (a disclosure that lives only in the records is not a disclosure). MEASURED: Multiply(Rational
+        1/2, Dollar) rounds at the CENT, HALF EVEN. A net of 3,000.01 allocates 1,500.00, not
+        1,500.005, because 1,500.005 rounds to the EVEN cent; a net of 3,000.00 allocates 1,500.00.
+        THE CONSEQUENCE IS NOT A FOOTING CLAIM: this fact is not an operand of Form 8958's own footing
+        rule at all, and on a MIXED collection the gap between the sum of these halves and the printed
+        column B figure is the whole of the taxpayer's own separate income. What the
+        HALF_EVEN cent
+        actually costs is bounded and local: two spouses each computing their own half of the same odd
+        cent item can each get the low cent, so the two halves can sum to one cent less than the item.
+        It is at most half a cent per payer and cannot accumulate into a dollar on Schedule 1 line 7
+        without more than 200 Forms 1099-G, and it is not fixable inside the dictionary — the engine's
+        rounding mode is engine behaviour.
+
+        NOT ROUNDED TO THE DOLLAR, though: this is an addend of the Schedule 1 line 7 chain and that
+        line rounds once, at its own printed line.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../netUnemploymentComp" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/communityPropertyAllocatedUnemploymentRepaymentUnrounded">
+      <Name>This return's half of this payer's same-year unemployment repayment</Name>
+      <Description>The taxpayer's allocated share of ONE Form 1099-G's same year repayment, on the
+        same items and the same halves as ../communityPropertyAllocatedUnemploymentCompUnrounded.
+        $0 on every non community item and on every non allocation return. Cents preserved.
+
+        WHY THIS EXISTS AT ALL, and it is a ROUTINE CALL made rather than asked. Schedule 1 line 7 is
+        printed as the total received LESS the amount repaid, with the repaid amount going in the
+        line's own entry space: "subtract the amount you repaid from the" / "total amount you received. Enter the re" /
+        "sult on line 7. Also, check the box on" / "line 7 and enter the amount you repaid" /
+        "in the entry space." (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 89, the RIGHT column of
+        a three column extraction). The allocation already halves the NET. If the entry space kept the
+        WHOLE repayment, the transmitted return would state a repayment larger than the line it nets
+        against — a return that does not foot on its own face, which is the footing defect class. So the
+        entry space figure moves with the line. Form 8958 line 12's instruction covers it in terms
+        ("deductions, credits, etc."); the ratio is the same one half, and it is this repo's reading
+        rather than a printed rule, recorded here and in unemployment_memory.json.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../amountPaidBackForBenefitsInTaxYear" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/communityPropertyAllocatedUnemploymentWithholdingUnrounded">
+      <Name>The community half of this payer's box 4 withholding that Form 8958 line 11 moves</Name>
+      <Description>The taxpayer's allocated share of ONE Form 1099-G's box 4 federal withholding, on
+        the same items and the same halves as ../communityPropertyAllocatedUnemploymentCompUnrounded,
+        because the credit follows the income it was withheld from. $0 on every non community item and
+        on every non allocation return. Cents preserved; Form 1040 line 25b rounds once at its own
+        line.
+
+        THE READING, STATED BECAUSE THE HALF IS NOT PRINTED FOR THIS BOX. Form 8958 line 11 is a
+        printed line covering withholding from ANY payer ("11 Taxes withheld", line 81; its
+        instruction "Identify the taxes withheld from each payer or entity on separate", line 196
+        RIGHT column), and its instruction says to ALLOCATE without stating a ratio. The ratio one
+        half comes from IRC 31(a)(1), which allows the credit to "the recipient of the income": where
+        the item's income is split in half by state law, the credit on it follows in half. The form's
+        own "Federal income tax withheld" paragraph states that conclusion explicitly for community
+        WAGES only ("each of you is entitled to credit for half the income tax withheld on", line
+        182), which is why this fact carries the reasoning rather than a quote that covers it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../federalTaxWithheldUnrounded" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyAllocatedUnemploymentCompensation">
+      <Name>Community-property allocated unemployment compensation (Form 8958 line 12)</Name>
+      <Description>THE CONTRACT PATH. The total this fact carries under Form 8958 line 12: the sum of
+        the per payer community halves, over every payer whose benefit the filer has characterised as
+        community income. Whole dollars — the per payer halves are summed WITH CENTS and the total is
+        rounded once here.
+
+        IT IS NOT THE FORM 8958 COLUMN B FIGURE, and the distinction
+        matters because it is not the thing a filer copies onto the form.
+        Column A carries the item's WHOLE amount including separate income
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column of a two column extraction) and
+        columns B and C must sum back to it (lines 201-202, LEFT column), so column B for this taxpayer
+        is "half of all community income and all of your" separate income (line 124, LEFT column). THE
+        FIGURE THAT SATISFIES THAT IS /unemploymentCompensation, which is the unscoped collection total
+        plus this fact's negative adjustment — i.e. half of the community part PLUS the whole of the
+        taxpayer's own separate part. The filer's own separate Form 1099-G belongs in column B in full, so it is the difference between this fact and /unemploymentCompensation.
+
+        THE SPLIT RUNS BOTH WAYS on a community item — half the taxpayer's own benefit leaves this
+        return as well as half the spouse's arriving — and does NOT run at all on an item the filer
+        has characterised as separate. So this total is NOT half of the collection: it is half of the
+        COMMUNITY part of the collection, net of same year repayments, and the separate part reaches
+        Schedule 1 line 7 untouched.
+
+        This fact is the DISCLOSURE figure. The number Schedule 1 line 7 actually carries moves
+        through /communityPropertyUnemploymentAllocationAdjustmentUnrounded.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/form1099Gs/*/communityPropertyAllocatedUnemploymentCompUnrounded" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyAllocatedUnemploymentRepayment">
+      <Name>Community-property allocated same-year unemployment repayment (Schedule 1 line 7 entry space)</Name>
+      <Description>The allocated share of the same year repayments on the community Forms 1099-G:
+        whole dollars, rounded once here over cents bearing addends. This is what the Schedule 1
+        line 7 entry space carries on an allocation return, and it is the figure that keeps that entry
+        space consistent with the halved line it sits beside.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/form1099Gs/*/communityPropertyAllocatedUnemploymentRepaymentUnrounded" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyAllocatedUnemploymentWithholding">
+      <Name>Community-property allocated unemployment withholding (Form 8958 line 11, 1099-G leg)</Name>
+      <Description>The withholding this fact carries under Form 8958 line 11, Form 1099-G box 4 only:
+        half the federal withholding on the benefits this return reports half of. Whole dollars,
+        rounded once here over cents bearing addends.
+
+        IT IS NOT THE FORM 8958 LINE 11 COLUMN B FIGURE, for the same
+        reason as its income twin: column B carries half the withholding on community items PLUS the
+        whole of the withholding on the taxpayer's own separate items, because columns B and C must sum
+        to column A (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column of a two column
+        extraction). The figure that satisfies that for the 1099-G leg is what
+        taxCalculations:/form1099Withholding carries once this fact's negative adjustment is in it.
+        The filer's own separate Form 1099-G belongs in column B in full, so it is the difference between this fact and /unemploymentCompensation.
+
+        IT IS A LEG, NOT THE LINE. Form 8958 line 11 covers every payer's withholding; this fact is
+        the 1099-G part of it and the wage part is
+        formW2s:/communityPropertyAllocatedFederalWithholding. The SSA-1099 and RRB-1099 legs are
+        deliberately NOT allocated by this fact, because the benefit they were withheld from is not
+        allocated either — see the dated discharge block on
+        socialSecurity:/communityPropertyAllocatedSocialSecurityBenefits. The remaining 1040 line 25b
+        legs (1099-INT, 1099-DIV, 1099-MISC, 1099-R) are named as inherited gaps in
+        unemployment_memory.json.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/form1099Gs/*/communityPropertyAllocatedUnemploymentWithholdingUnrounded" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyUnemploymentAllocationAdjustmentUnrounded">
+      <Name>The community unemployment half that leaves this return under Form 8958</Name>
+      <Description>A NEGATIVE, cents bearing addend of Schedule 1 line 7: MINUS the sum of the per
+        payer community halves.
+
+        WHY THE NEGATION AND NOT THE WAGES UNIT'S FORMULA. formW2s:/communityPropertyWagesAllocationAdjustmentUnrounded
+        is allocated MINUS unscoped, which is right only because EVERY W-2 is community income, so
+        unscoped minus that adjustment collapses to the half. Here the collection is MIXED — the
+        character flag is per document — and on a mixed collection that formula silently DELETES the
+        filer's own separate income from the printed line. A $4,000 community benefit and a $700
+        separate benefit of the taxpayer's own give an unscoped line 7 base of $4,700 and a reportable
+        figure of $2,000 plus $700 equals $2,700; allocated minus unscoped is 2,000 minus 4,700 equals
+        minus 2,700, which prints $2,000. The NEGATION is minus 2,000 and prints $2,700. It degenerates
+        to the wages formula exactly when every item is community. This is the correction interest:/communityPropertyAllocatedInterest made to the shape the wages row supplied;
+        it is followed here, not rediscovered.
+
+        WHY AN ADDEND AND NOT A REPLACEMENT: the footing discipline. Schedule 1 line 7 is reached
+        by ONE chain in this module (/unemploymentCompensation, whose MeF alias
+        /xmlUnemploymentCompensation reads that same fact), so one addend is all this line needs — but
+        it is written as an addend anyway, so that a second chain reaching this line can take the same
+        adjustment instead of a second, differently rounded copy of it.
+
+        NO GATE ON THIS FACT, deliberately: every addend of the CollectionSum is already $0 whenever
+        filers:/isCommunityPropertyAllocationReturn is false, so this fact is $0 there too, with one
+        fewer gate read in front of Schedule 1 line 7. That gate is complete safe FALSE.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <CollectionSum>
+                    <Dependency path="/form1099Gs/*/communityPropertyAllocatedUnemploymentCompUnrounded" />
+                  </CollectionSum>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyUnemploymentRepaymentAllocationAdjustmentUnrounded">
+      <Name>The community unemployment repayment half that leaves this return</Name>
+      <Description>A NEGATIVE, cents bearing addend of the Schedule 1 line 7 entry space: MINUS the sum
+        of the per payer community repayment halves. Same shape and same reasoning as
+        /communityPropertyUnemploymentAllocationAdjustmentUnrounded — the negation, not the wages
+        fact's allocated minus unscoped, because a repayment of a SEPARATE benefit is entirely the
+        repaying spouse's and must stay whole on this return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <CollectionSum>
+                    <Dependency path="/form1099Gs/*/communityPropertyAllocatedUnemploymentRepaymentUnrounded" />
+                  </CollectionSum>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyUnemploymentWithholdingAllocationAdjustmentUnrounded">
+      <Name>The community unemployment withholding half that leaves this return</Name>
+      <Description>A NEGATIVE, cents bearing addend of Form 1040 line 25b: MINUS the sum of the per
+        payer box 4 halves. Same shape and same reasoning as
+        /communityPropertyUnemploymentAllocationAdjustmentUnrounded — the negation, not the wages
+        fact's allocated minus unscoped, because withholding on a SEPARATE benefit is entirely its
+        recipient's credit and must stay whole on this return.
+
+        IT DOES NOT TOUCH THE PER DOCUMENT MeF IMAGE. /form1099Gs/*/federalTaxWithheld is what box 4
+        of one Form 1099-G reports and it is unchanged: an allocation is a return level reporting
+        rule, not a restatement of what the payer withheld. Only the line 25b TOTAL moves.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form1099Gs" /></IsComplete></When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <CollectionSum>
+                    <Dependency path="/form1099Gs/*/communityPropertyAllocatedUnemploymentWithholdingUnrounded" />
+                  </CollectionSum>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableClaimOfRightRepaymentCreditSection1341">
+      <Name>Section 1341 credit, self-reported (deprecated; not asked, not read)</Name>
+      <Description>Deprecated. Retained so that saved returns holding this key still load. Not asked, and not read by any computation: Schedule 3 line 13b (schedule3:/sched3Line13b) reads the computed /claimOfRightRepaymentCreditSection1341, figured from /writablePriorYearTaxAsFiled and /writablePriorYearTaxRefiguredWithoutRepaidIncome. A stored value here changes nothing on the return.
+        Validation: Dollar, minimum $0.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePriorYearTaxAsFiled">
+      <Name>Earlier-year tax as shown on the return (section 1341 credit)</Name>
+      <Description>Question: "What was the total tax on your return for the earlier year, or years, in which the repaid amount was included in income?" Help: under the credit method the decrease in tax is figured against "the tax shown on your return for the earlier year" (2025 Publication 525, Repayments, Method 2 step 3, https://www.irs.gov/pub/irs-pdf/p525.pdf, page 36); for repaid social security benefits Publication 915 subtracts the refigured amounts "from the total of your actual tax amounts" across every earlier year the repayment reaches (https://www.irs.gov/pub/irs-pdf/p915.pdf, page 15). Use the same measure of tax in this figure and in /writablePriorYearTaxRefiguredWithoutRepaidIncome: the income tax on the earlier return as filed, and that same tax refigured. Do not pair a total that includes other taxes with a refigured income tax. One return-level total, not one per repayment or per filer: IRC 1341(a)(5)(B) is one decrease "for the prior taxable year (or years)", and the $3,000 test is measured on the whole return.
+        Asked when scheduleA:/claimOfRightRepaymentExceedsThreshold is true, whichever method the return ends up taking: the section 1341 comparison (taxCalculations:/claimOfRightDeductionGivesLesserTax) needs the decrease to choose. Never asked otherwise.
+        Unanswered: /claimOfRightRepaymentCreditSection1341 and Schedule 3 line 13b stay Incomplete. The figure comes from a return this dictionary does not hold, so it is never defaulted and the return is never refused for it.
+        Validation: Dollar, minimum $0. Feeds /claimOfRightRepaymentCreditSection1341.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writablePriorYearTaxRefiguredWithoutRepaidIncome">
+      <Name>Earlier-year tax refigured without the repaid income (section 1341 credit)</Name>
+      <Description>Question: "Refigure the tax for that earlier year, or years, as if the amount you repaid had never been included in income. What is that refigured tax?" Help: "Refigure your tax from the earlier year without including in income the amount you repaid" (2025 Publication 525, Repayments, Method 2 step 2, https://www.irs.gov/pub/irs-pdf/p525.pdf, page 36); for repaid social security benefits, refigure each earlier year's taxable benefits with that year's benefits reduced by the part of the repayment that belongs to it, then refigure that year's tax, and enter the total (2025 Publication 915, https://www.irs.gov/pub/irs-pdf/p915.pdf, page 15). Same return-level total, the same years and the same measure of tax as /writablePriorYearTaxAsFiled: refigure exactly the tax that figure reports, so the difference comes only from excluding the repaid amount.
+        Asked when scheduleA:/claimOfRightRepaymentExceedsThreshold is true, whichever method the return ends up taking: the section 1341 comparison (taxCalculations:/claimOfRightDeductionGivesLesserTax) needs the decrease to choose. Never asked otherwise.
+        Unanswered: /claimOfRightRepaymentCreditSection1341 and Schedule 3 line 13b stay Incomplete; never defaulted, never a refusal.
+        Validation: Dollar, minimum $0. A refigured tax above the tax as filed is accepted and yields a $0 credit. Feeds /claimOfRightRepaymentCreditSection1341.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/claimOfRightRepaymentCreditSection1341">
+      <Name>Section 1341(a)(5)(B) credit: the decrease in earlier-year tax from excluding the repaid amount</Name>
+      <Description>The decrease in the earlier year's tax: /writablePriorYearTaxAsFiled minus /writablePriorYearTaxRefiguredWithoutRepaidIncome, floored at $0, since a refigured tax above the tax as filed is no decrease. Incomplete while either figure is unanswered, never a silent $0. This is the amount Publication 525 Method 2 step 3 calls "the credit".
+        It reaches Schedule 3 line 13b (schedule3:/sched3Line13b) only when the whole return's claim-of-right repayment exceeds $3,000 and the credit gives the lesser tax rather than the Schedule A line 16 deduction. It covers repaid unemployment compensation, repaid social security benefits and other claim-of-right repayments (scheduleA:/writableOtherClaimOfRightRepaymentIncludedInEarlierYearIncome) alike, because all three are summed into scheduleA:/claimOfRightRepaymentTotal.
+        Which method yields less tax is not decided here. IRC 1341(a) makes the year's tax the lesser of the two; taxCalculations:/claimOfRightDeductionGivesLesserTax compares them, subtracting this decrease from the tax computed without the deduction.
+        No cap at the year's tax: line 13b is a payment line (Schedule 3 Part II), which is how IRC 1341(b)(1) treats a decrease larger than that tax.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/writablePriorYearTaxAsFiled" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/writablePriorYearTaxRefiguredWithoutRepaidIncome" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form1099Gs/*/writableCalendarYear">
+      <Name>Form 1099-G calendar year</Name>
+      <Description>The "For calendar year" entry printed in the form's title block, as a four-digit year (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2). A form for a year other than 2025 belongs on that year's return or is a corrected prior-year form. Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns (Copy 2 is the recipient's state copy) and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+        <Limit type="Match">
+          <String><![CDATA[[0-9]{4}]]></String>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableVoid">
+      <Name>Form 1099-G VOID box</Name>
+      <Description>The VOID checkbox in the form's header. It prints on Copy A, Copy 1 and Copy 2 (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, pages 2, 3, 6); the recipient's Copy B does not carry it. Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableCorrected">
+      <Name>Form 1099-G CORRECTED box</Name>
+      <Description>The CORRECTED checkbox in the form's header: "CORRECTED" on Copy A, Copy 1 and Copy 2, "CORRECTED (if checked)" on the recipient's Copy B (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, pages 2, 3, 4, 6). A payer that fixes a form it already filed sends a new one with this box checked; the amounts on it replace the original's. Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableRecipientName">
+      <Name>Form 1099-G recipient's name</Name>
+      <Description>The RECIPIENT'S name box, as printed (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, pages 2, 4). Which person on this return received the form is ../filer, not this box; the name is copied even when it differs from the name on the return. Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableRecipientStreetAddress">
+      <Name>Form 1099-G recipient's street address</Name>
+      <Description>The recipient's "Street address (including apt. no.)" box, as printed (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, pages 2, 4), even when it is an old address. Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableRecipientCityStateZip">
+      <Name>Form 1099-G recipient's city, state and ZIP</Name>
+      <Description>The recipient's "City or town, state or province, country, and ZIP or foreign postal code" box, as printed (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, pages 2, 4). One cell on the form, one writable here. Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableAccountNumber">
+      <Name>Form 1099-G account number</Name>
+      <Description>The "Account number (see instructions)" box (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, pages 2, 4): an account or other unique number the payer assigned to distinguish the recipient's account (Instructions for Recipient, same file lines 106-107, LEFT column); a payer filing more than one Form 1099-G for one recipient must show it (https://www.irs.gov/pub/irs-prior/i1099g--2024.pdf, page 1, RIGHT column). Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns, where it tells two forms from one payer apart, and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableSecondTinNotice">
+      <Name>Form 1099-G 2nd TIN notice box</Name>
+      <Description>The "2nd TIN not." checkbox. It prints on Copy A only (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2), so it is answered only from a Copy A. The payer checks it after the IRS told it twice within 3 calendar years that the recipient's TIN was incorrect (https://www.irs.gov/pub/irs-prior/i1099g--2024.pdf, page 1, RIGHT column). Unanswered it is complete-safe: ../isComplete does not read it. Feeds nothing federal; stored for the state and local returns and bound in the Form 1099-G register (Copy A).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableRtaaPayments">
+      <Name>Form 1099-G box 5 RTAA payments</Name>
+      <Description>Form 1099-G box 5, "RTAA payments": reemployment trade adjustment assistance payments (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 108-109, RIGHT column: include on the "Other income" line of Schedule 1). Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: income:/schedule1Line8zForm1099GRtaaPayments, which puts it on Schedule 1 line 8z and so in line 9 (an RTAA amount on a Form 1099-G entered here is not also typed on the Schedule 1 line 8z list). Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableTaxableGrants">
+      <Name>Form 1099-G box 6 taxable grants</Name>
+      <Description>Form 1099-G box 6, "Taxable grants" from a federal, state, or local government (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 110-111, RIGHT column). Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: with ../writableTaxableGrantIsTradeOrBusinessIncome answered no, income:/schedule1Line8zForm1099GTaxableGrants (Schedule 1 line 8z); answered yes, nothing on Schedule 1 (the grant is included in the business's other income). Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableAgriculturePayments">
+      <Name>Form 1099-G box 7 agriculture payments</Name>
+      <Description>Form 1099-G box 7, "Agriculture payments": taxable Department of Agriculture payments, or a nominee's pass-through of them (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 112-118, RIGHT column: see the Schedule F instructions). Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: split by ../writableAgriculturePaymentsAreCropDisasterPayments into Schedule F line 4 (scheduleF:/scheduleFLine4b when the filer leaves line 4b blank) or the line 6a floor (scheduleF:/scheduleFLine6aDocumentedProceeds); on a return with neither Schedule F nor a Form 4835 it is refused (/knockoutForm1099GAgriculturePaymentsWithoutAFarmSchedule). Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableMarketGain">
+      <Name>Form 1099-G box 9 market gain</Name>
+      <Description>Form 1099-G box 9, "Market gain" on Commodity Credit Corporation loans, whether repaid in cash or CCC certificates (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 123-124, RIGHT column: see the Schedule F instructions). Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: scheduleF:/scheduleFLine4b when the filer leaves line 4b blank (not when a CCC loan election is in effect, since the gain is then not reported on line 4b); on a return with neither Schedule F nor a Form 4835 it is refused (/knockoutForm1099GAgriculturePaymentsWithoutAFarmSchedule). Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/form1099Gs/*/writableStateOrLocalIncomeTaxRefundsCreditsOrOffsets">
+      <Name>Form 1099-G box 2 state or local income tax refunds, credits, or offsets</Name>
+      <Description>Form 1099-G box 2, "State or local income tax refunds, credits, or offsets" (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 120-122, LEFT column: "Shows refunds, credits, or offsets of state or local income tax you received. It may be taxable to you if you deducted the state or local income tax paid on Schedule A (Form 1040)."). Leave it blank when box 2 is blank; blank reads as no refund on this document. Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: the Schedule 1 line 1 recovery, through ../box2PersonalRefundForTaxYear2024 and ../box2PersonalRefundForAnotherTaxYear, which income:/stateAndLocalIncomeTaxRefundReceived adds up; an amount entered here is not entered again as the return-level refund. A box 2 amount with box 8 checked stays off Schedule 1 line 1. Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableBox2AmountIsForTaxYear">
+      <Name>Form 1099-G box 3 box 2 amount is for tax year</Name>
+      <Description>Form 1099-G box 3, "Box 2 amount is for tax year", as a four-digit year (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 132-133, LEFT column: "Identifies the tax year for which the box 2 refunds, credits, or offsets shown were made."). The payer leaves it blank when the box 2 amount is for the current tax year, so an unanswered box is not an assertion that the year is missing. Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: ../box2RefundIsForTaxYear2024, which decides whether the box 2 refund goes through the 2024 State and Local Income Tax Refund Worksheet or, as a refund for another year, through Publication 525. When this box is blank the filer answers ../writableBox2RefundIsForTaxYear2024WhenBox3Blank instead. Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+        <Limit type="Match">
+          <String><![CDATA[[0-9]{4}]]></String>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableCheckIfBox2IsTradeOrBusinessIncome">
+      <Name>Form 1099-G box 8 check if box 2 is trade or business income</Name>
+      <Description>Form 1099-G box 8, "Check if box 2 is trade or business income" (https://www.irs.gov/pub/irs-prior/f1099g--2024.pdf, page 2; Instructions for Recipient, same file lines 119-122, RIGHT column: "If this box is checked, the amount in box 2 is attributable to an income tax that applies exclusively to income from a trade or business and is not a tax of general application."). An unchecked box is false; unanswered does not assert either state. Unanswered it is complete-safe: ../isComplete does not read it. WHAT IT FEEDS: ../box2PersonalRefundForTaxYear2024 and ../box2PersonalRefundForAnotherTaxYear. Checked, the box 2 amount stays off Schedule 1 line 1; a taxable trade-or-business refund is included in the other income of the Schedule C or Schedule F business it belongs to. On a document with a box 2 amount an unanswered box leaves the Schedule 1 line 1 recovery Incomplete, because unanswered is neither checked nor unchecked. Also stored for the state and local returns and bound in the Form 1099-G register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/form1099Gs/*/writableBox2RefundIsForTaxYear2024WhenBox3Blank">
+      <Name>Form 1099-G box 2 refund is for tax year 2024 (box 3 blank)</Name>
+      <Description>Box 3 of this Form 1099-G is blank. Is the box 2 refund, credit, or offset for state or local income tax you paid for 2024? Answer yes when the refund is for your 2024 tax. Answer no when it is for another year: that refund is figured under Publication 525 rather than the 2024 State and Local Income Tax Refund Worksheet. Asked only when box 2 has an amount and box 3 is blank; when box 3 shows a year, that year decides and this question is not asked.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/box2RefundOrZero">
+      <Name>Form 1099-G box 2 refund, zero when blank</Name>
+      <Description>Box 2 of this Form 1099-G floored at $0, and $0 when box 2 is blank. A blank box 2 means the document reports no state or local income tax refund, so the recovery facts of a document that carries only unemployment or other boxes read $0 and stay complete.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableStateOrLocalIncomeTaxRefundsCreditsOrOffsets" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableStateOrLocalIncomeTaxRefundsCreditsOrOffsets" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="../writableStateOrLocalIncomeTaxRefundsCreditsOrOffsets" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/box2RefundIsForTaxYear2024">
+      <Name>Form 1099-G box 2 refund is for tax year 2024</Name>
+      <Description>Whether the box 2 refund of this Form 1099-G is for tax paid for 2024: the year printed in box 3 when box 3 shows one (true only for 2024), otherwise the filer's answer to ../writableBox2RefundIsForTaxYear2024WhenBox3Blank. Incomplete when box 3 is blank and that question is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableBox2AmountIsForTaxYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Equal>
+                <Left>
+                  <Dependency path="../writableBox2AmountIsForTaxYear" />
+                </Left>
+                <Right>
+                  <String>2024</String>
+                </Right>
+              </Equal>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="../writableBox2AmountIsForTaxYear" />
+                  </IsComplete>
+                </Not>
+                <IsComplete>
+                  <Dependency path="../writableBox2RefundIsForTaxYear2024WhenBox3Blank" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../writableBox2RefundIsForTaxYear2024WhenBox3Blank" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/box2PersonalRefundForTaxYear2024">
+      <Name>Form 1099-G personal box 2 refund for tax year 2024</Name>
+      <Description>The box 2 refund of this Form 1099-G that goes through the 2024 State and Local Income Tax Refund Worksheet: the box 2 amount when box 8 is not checked and the refund is for 2024; $0 when box 2 is blank or $0, when box 8 is checked, or when the refund is for another year. With a box 2 amount it is Incomplete until box 8 and the refund year are known.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../box2RefundOrZero" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </Not>
+                <IsComplete>
+                  <Dependency path="../box2RefundIsForTaxYear2024" />
+                </IsComplete>
+                <Dependency path="../box2RefundIsForTaxYear2024" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../box2RefundOrZero" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </Not>
+                <IsComplete>
+                  <Dependency path="../box2RefundIsForTaxYear2024" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../box2RefundIsForTaxYear2024" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/box2PersonalRefundForAnotherTaxYear">
+      <Name>Form 1099-G personal box 2 refund for a year other than 2024</Name>
+      <Description>The box 2 refund of this Form 1099-G that is for a tax year other than 2024 with box 8 not checked. Such a refund is figured under Publication 525 instead of the 2024 State and Local Income Tax Refund Worksheet. $0 when box 2 is blank or $0, when box 8 is checked, or when the refund is for 2024. With a box 2 amount it is Incomplete until box 8 and the refund year are known.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../box2RefundOrZero" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </Not>
+                <IsComplete>
+                  <Dependency path="../box2RefundIsForTaxYear2024" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../box2RefundIsForTaxYear2024" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../box2RefundOrZero" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableCheckIfBox2IsTradeOrBusinessIncome" />
+                </Not>
+                <IsComplete>
+                  <Dependency path="../box2RefundIsForTaxYear2024" />
+                </IsComplete>
+                <Dependency path="../box2RefundIsForTaxYear2024" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableTaxableGrantIsTradeOrBusinessIncome">
+      <Name>Form 1099-G box 6 grant is trade or business income</Name>
+      <Description>Box 6 of this Form 1099-G shows a taxable grant. Did you receive this grant in your trade or business (including farming)? Answer yes when the grant was paid to your business, for example a grant for business property or operations; you then include it in that business's other income on Schedule C line 6 or Schedule F line 8, and it is not entered on Schedule 1. Answer no when it is a personal grant, for example an energy conservation grant for your home; it then goes on Schedule 1 line 8z. Asked only when box 6 has an amount.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/taxableGrantForScheduleOneLine8z">
+      <Name>Form 1099-G box 6 personal taxable grant</Name>
+      <Description>The box 6 taxable grant of this Form 1099-G that goes on Schedule 1 line 8z: box 6 when the filer says the grant is not trade or business income; $0 when box 6 is blank or $0, or when the grant is business income (reported on the business schedule instead). With a box 6 amount it is Incomplete until ../writableTaxableGrantIsTradeOrBusinessIncome is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency path="../writableTaxableGrants" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="../writableTaxableGrants" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableTaxableGrantIsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Dependency path="../writableTaxableGrantIsTradeOrBusinessIncome" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableTaxableGrantIsTradeOrBusinessIncome" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableTaxableGrantIsTradeOrBusinessIncome" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../writableTaxableGrants" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/writableAgriculturePaymentsAreCropDisasterPayments">
+      <Name>Form 1099-G box 7 agriculture payments are crop disaster payments</Name>
+      <Description>Box 7 of this Form 1099-G shows agriculture payments. Are they federal crop disaster payments? Answer yes for disaster payments: Schedule F reports them with crop insurance proceeds on line 6a. Answer no for other agricultural program payments (for example price loss coverage, agriculture risk coverage, market facilitation, Conservation Reserve Program or cost-share payments): Schedule F reports them on line 4a. Asked only when box 7 has an amount.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/agriculturalProgramPaymentsForScheduleFLine4">
+      <Name>Form 1099-G box 7 agricultural program payments (Schedule F line 4a)</Name>
+      <Description>Box 7 of this Form 1099-G when the filer says it is not a crop disaster payment: an agricultural program payment that Schedule F totals on line 4a. $0 when box 7 is blank or $0, or when it is a disaster payment. With a box 7 amount it is Incomplete until ../writableAgriculturePaymentsAreCropDisasterPayments is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency path="../writableAgriculturePayments" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="../writableAgriculturePayments" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+                </IsComplete>
+                <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../writableAgriculturePayments" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/cropDisasterPaymentsForScheduleFLine6">
+      <Name>Form 1099-G box 7 crop disaster payments (Schedule F line 6a)</Name>
+      <Description>Box 7 of this Form 1099-G when the filer says it is a federal crop disaster payment, which Schedule F reports with crop insurance proceeds on line 6a. $0 when box 7 is blank or $0, or when it is another agricultural program payment. With a box 7 amount it is Incomplete until ../writableAgriculturePaymentsAreCropDisasterPayments is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency path="../writableAgriculturePayments" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="../writableAgriculturePayments" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+                </IsComplete>
+                <Dependency path="../writableAgriculturePaymentsAreCropDisasterPayments" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="../writableAgriculturePayments" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099Gs/*/marketGainOrZero">
+      <Name>Form 1099-G box 9 market gain, zero when blank</Name>
+      <Description>Box 9 of this Form 1099-G floored at $0, and $0 when box 9 is blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableMarketGain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableMarketGain" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="../writableMarketGain" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099GAgriculturePaymentsAndMarketGainTotal">
+      <Name>Form 1099-G boxes 7 and 9 total</Name>
+      <Description>The agriculture payments (box 7) and market gain (box 9) on the filer's Forms 1099-G, each floored at $0 and $0 when blank. $0 when no Form 1099-G is listed. Read by the refusal of these amounts on a return with no farm schedule.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/form1099Gs" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form1099Gs" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Add>
+                <CollectionSum>
+                  <Dependency path="/form1099Gs/*/marketGainOrZero" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <IsComplete>
+                          <Dependency path="/form1099Gs/*/writableAgriculturePayments" />
+                        </IsComplete>
+                      </When>
+                      <Then>
+                        <GreaterOf>
+                          <Dependency path="/form1099Gs/*/writableAgriculturePayments" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <Not>
+                          <IsComplete>
+                            <Dependency path="/form1099Gs/*/writableAgriculturePayments" />
+                          </IsComplete>
+                        </Not>
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm1099GAgriculturePaymentsWithoutAFarmSchedule">
+      <Name>Form 1099-G agriculture payments or market gain on a return with no farm schedule</Name>
+      <Description>Blocks submission when this return's Forms 1099-G report agriculture payments (box 7) or market gain on a CCC loan (box 9) and the return has opened neither of the places the recipient instructions send them: Schedule F farm income (scheduleF:/claimsScheduleFFarmIncome) or a Form 4835 farm rental (scheduleE:/claimsFarmRentalIncome). With neither the amounts reach no line of the return. Once either is open this guard is silent.
+
+        SCREEN: "You entered a Form 1099-G with agriculture payments in box 7 or market gain in box 9. They are reported on Schedule F (Form 1040), or on Form 4835 for a farm you rent out. Add the farm these payments belong to."</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form1099GAgriculturePaymentsAndMarketGainTotal" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Not>
+            <Dependency module="scheduleF" path="/claimsScheduleFFarmIncome" />
+          </Not>
+          <Not>
+            <Dependency module="scheduleE" path="/claimsFarmRentalIncome" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

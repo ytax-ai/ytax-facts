@@ -1,0 +1,50 @@
+# IRS1099QA — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099QA/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: abc3eac2dcaf0c9b67dcad1f912a8ff610a4826ef97f4ab4d93abd36450c337b
+# boxes: 16   acroform fields: 31   boxes with a fact: 16
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	Form1099-QA[0].CopyA[0].CopyHeader[0].f1_1[0]|Form1099-QA[0].CopyB[0].CopyHeader[0].f1_1[0]	/form1099Qas/*/writableCalendarYear	String		
+void		VOID checkbox	void checkbox	Form1099-QA[0].CopyA[0].CopyHeader[0].c1_1[0]	/form1099Qas/*/writableVoid	Bool		
+corrected		CORRECTED checkbox	corrected checkbox	Form1099-QA[0].CopyA[0].CopyHeader[0].c1_1[1]|Form1099-QA[0].CopyB[0].CopyHeader[0].c1_1[0]	/form1099Qas/*/writableCorrected	Bool		
+payer-name		PAYER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no.	payer's name, street address, city or town, state or province, country, zip or foreign postal code, and telephone no	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_2[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_2[0]	/form1099Qas/*/writablePayerNameAndAddress	String		
+payer-tin		PAYER'S TIN	payer's tin	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_3[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_3[0]	/form1099Qas/*/writablePayerTin	EIN		
+recipient-tin		RECIPIENT'S TIN	recipient's tin	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_4[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_4[0]	/form1099Qas/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_5[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_5[0]	/form1099Qas/*/writableRecipientName	String		
+recipient-address		Street address (including apt. no.)	street address	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_6[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_6[0]	/form1099Qas/*/writableRecipientStreetAddress	String		
+recipient-city		City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_7[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_7[0]	/form1099Qas/*/writableRecipientCityStateZip	String		
+account		Account number (see instructions)	account number	Form1099-QA[0].CopyA[0].LeftColumn[0].f1_8[0]|Form1099-QA[0].CopyB[0].LeftColumn[0].f1_8[0]	/form1099Qas/*/writableAccountNumber	String		
+1		Gross distribution	gross distribution	Form1099-QA[0].CopyA[0].f1_9[0]|Form1099-QA[0].CopyB[0].f1_9[0]	/form1099Qas/*/writableGrossDistribution	Dollar		
+2		Earnings	earnings	Form1099-QA[0].CopyA[0].f1_10[0]|Form1099-QA[0].CopyB[0].f1_10[0]	/form1099Qas/*/writableEarnings	Dollar		
+3		Basis	basis	Form1099-QA[0].CopyA[0].Box3_ReadOrder[0].f1_11[0]|Form1099-QA[0].CopyB[0].Box3_ReadOrder[0].f1_11[0]	/form1099Qas/*/writableBasis	Dollar		
+4		Program-to-program transfer	program-to-program transfer	Form1099-QA[0].CopyA[0].c1_2[0]|Form1099-QA[0].CopyB[0].c1_2[0]	/form1099Qas/*/writableProgramToProgramTransfer	Bool		
+5		Check if ABLE account terminated in the calendar year reported	check if able account terminated in the calendar year reported	Form1099-QA[0].CopyA[0].Box5_ReadOrder[0].c1_3[0]|Form1099-QA[0].CopyB[0].Box5_ReadOrder[0].c1_3[0]	/form1099Qas/*/writableAbleAccountTerminatedInCalendarYear	Bool		
+6		Check if the recipient is not the designated beneficiary	check if the recipient is not the designated beneficiary	Form1099-QA[0].CopyA[0].c1_4[0]|Form1099-QA[0].CopyB[0].c1_4[0]	/form1099Qas/*/writableRecipientIsNotDesignatedBeneficiary	Bool		

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/oid1099.schema.json",
+  "title": "Form 1099-OID",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person"
+  ],
+  "properties": {
+    "person": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "original_issue_discount_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 1, original issue discount for the year. Optional — a form carries any subset of its boxes; absent is computed as zero and stated. Reaches Form 1040 line 2b as a Schedule B Part I entry (measured on the pinned engine: 1,000.00 moves line 9 by 1,000.00)."
+    },
+    "other_periodic_interest_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 2, other periodic interest (qualified stated interest). Optional; absent is SENT as zero, because the engine leaves an item whose box 2 is unanswered out of the return altogether (measured). Taxable unless box 11 has an amount or box2_is_tax_exempt is yes."
+    },
+    "early_withdrawal_penalty_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 3, early withdrawal penalty. Optional; absent is zero. Reaches Schedule 1 line 18 and so AGI."
+    },
+    "federal_withholding_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 4, federal income tax withheld. Optional; absent is zero. Reaches Form 1040 line 25b and the withholding total."
+    },
+    "market_discount_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 5, market discount. Optional; absent is zero. Added to taxable interest."
+    },
+    "acquisition_premium_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 6, acquisition premium. Optional; absent is zero. Reduces the OID included in income."
+    },
+    "treasury_oid_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 8, original issue discount on U.S. Treasury obligations. Optional; absent is zero. Taxable federally."
+    },
+    "bond_premium_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 10, bond premium. Optional; absent is zero. Reduces the box 2 interest it is allocable to."
+    },
+    "tax_exempt_oid_cents": {
+      "$ref": "cents.schema.json",
+      "description": "1099-OID box 11, tax-exempt OID. Optional; absent is SENT as zero for the same reason as box 2. An amount here makes the obligation tax-exempt: box 2 joins it on Form 1040 line 2a and box2_is_tax_exempt is not asked."
+    },
+    "box2_is_tax_exempt": {
+      "type": "boolean",
+      "description": "Whether the box 2 interest is tax-exempt. Asked only when box 2 has an amount and box 11 has none — the one case the form does not settle (with box 11 above 0 its instructions classify box 2 as tax-exempt); refused when answered otherwise. The engine requires it on exactly that case and drops the whole form from the return without it (measured on the pinned engine)."
+    },
+    "fatca_filing_requirement": {
+      "type": "boolean",
+      "description": "The FATCA filing requirement checkbox. Optional; absent is unchecked. A checked box is refused by name: the Form 8938 reporting it points to is not in the covered set (the 1099-INT posture)."
+    }
+  }
+}

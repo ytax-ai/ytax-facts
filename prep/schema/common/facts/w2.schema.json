@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/w2.schema.json",
+  "title": "Form W-2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "wages_cents"
+  ],
+  "properties": {
+    "person": {
+      "description": "Index into persons[].",
+      "type": "integer",
+      "minimum": 0
+    },
+    "wages_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "withholding_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "social_security_wages_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "medicare_wages_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "social_security_withheld_cents": {
+      "description": "W-2 box 4, Social Security tax withheld. Required when ONE filer holds more than one W-2 — without it the excess Social Security credit resolves to zero however many employers there were, a silently wrong number. Refused when it exceeds the statutory rate on box 3, which is a caller-input fault the engine would otherwise turn into a knockout plus a fabricated credit.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "medicare_withheld_cents": {
+      "description": "W-2 box 6, Medicare tax withheld. Optional; absent means the box is blank. Feeds Form 8959 Part IV: the amount above the regular 1.45% rate on box 5 is Additional Medicare Tax withholding (line 24), which reaches Form 1040 lines 25d and 33 as tax already paid.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "dependent_care_benefits_cents": {
+      "description": "Form W-2 box 10, dependent care benefits. Optional; absent or 0 means the box is blank. Above 0 it opens Form 2441 Part III: this filer's dependent_care_plan_maximum_cents is then required and dependent_care_forfeited_cents is asked at the root; the benefit is excluded up to the least of the qualified expenses, the earned-income limit, the plan maximum, and the section 129 limit (5,000; 2,500 on a separate return), and the rest is taxed on Form 1040 line 1e. A joint return where both spouses report a benefit and either earned less than the care expenses is the engine's own knockout, served with words (the division of taxable benefits is not entered here).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_a_cents": {
+      "description": "Form W-2 box 12, code A — Uncollected social security or RRTA tax on tips. Optional; absent or 0 means no code A entry. Above 0 it is Schedule 2 line 13 (uncollected social security and Medicare or RRTA tax on tips or group-term life insurance), summed with the other three such codes into Form 1040 line 24.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_b_cents": {
+      "description": "Form W-2 box 12, code B — Uncollected Medicare tax on tips. Optional; absent or 0 means no code B entry. Above 0 it is Schedule 2 line 13 (uncollected social security and Medicare or RRTA tax on tips or group-term life insurance), summed with the other three such codes into Form 1040 line 24.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_c_cents": {
+      "description": "Form W-2 box 12, code C — Taxable cost of group-term life insurance over $50,000. Optional; absent or 0 means no code C entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_d_cents": {
+      "description": "Form W-2 box 12, code D — Elective deferrals under a section 401(k) cash or deferred arrangement plan. Optional; absent or 0 means no code D entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_e_cents": {
+      "description": "Form W-2 box 12, code E — Elective deferrals under a section 403(b) salary reduction agreement. Optional; absent or 0 means no code E entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_f_cents": {
+      "description": "Form W-2 box 12, code F — Elective deferrals under a section 408(k)(6) salary reduction SEP. Optional; absent or 0 means no code F entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_g_cents": {
+      "description": "Form W-2 box 12, code G — Elective deferrals and employer contributions to a section 457(b) deferred compensation plan. Optional; absent or 0 means no code G entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked, and box12_g_governmental_plan on this W-2; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_g_governmental_plan": {
+      "type": "boolean",
+      "description": "Form W-2 box 12 code G: whether the section 457(b) plan is a governmental plan. Asked as a gap on every W-2 whose code G amount is above 0 — only a governmental plan's deferrals count toward Form 8880 line 2 (measured: 2,000 of code G gives the credit with true and 0 with false). Refused on a W-2 without a code G amount."
+    },
+    "box12_h_cents": {
+      "description": "Form W-2 box 12, code H — Elective deferrals to a section 501(c)(18)(D) tax-exempt organization plan. Optional; absent or 0 means no code H entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_j_cents": {
+      "description": "Form W-2 box 12, code J — Nontaxable sick pay. Optional; absent or 0 means no code J entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_k_cents": {
+      "description": "Form W-2 box 12, code K — 20% excise tax on excess golden parachute payments. Optional; absent or 0 means no code K entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_l_cents": {
+      "description": "Form W-2 box 12, code L — Substantiated employee business expense reimbursements. Optional; absent or 0 means no code L entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_m_cents": {
+      "description": "Form W-2 box 12, code M — Uncollected social security or RRTA tax on taxable cost of group-term life insurance over $50,000. Optional; absent or 0 means no code M entry. Above 0 it is Schedule 2 line 13 (uncollected social security and Medicare or RRTA tax on tips or group-term life insurance), summed with the other three such codes into Form 1040 line 24.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_n_cents": {
+      "description": "Form W-2 box 12, code N — Uncollected Medicare tax on taxable cost of group-term life insurance over $50,000. Optional; absent or 0 means no code N entry. Above 0 it is Schedule 2 line 13 (uncollected social security and Medicare or RRTA tax on tips or group-term life insurance), summed with the other three such codes into Form 1040 line 24.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_p_cents": {
+      "description": "Form W-2 box 12, code P — Excludable moving expense reimbursements paid directly to a member of the U.S. Armed Forces. Optional; absent or 0 means no code P entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_q_cents": {
+      "description": "Form W-2 box 12, code Q — Nontaxable combat pay. Optional; absent or 0 means no code Q entry. Carried to the engine (Schedule 8812 line 18b unconditionally); above 0 on a filer's W-2 it reaches the combat pay elections — combat_pay_election (Form 1040 line 1i), and with care expenses cdcc_combat_pay_election, with box 10 benefits dependent_care_benefits_combat_pay_election — each asked, never defaulted.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_r_cents": {
+      "description": "Form W-2 box 12, code R — Employer contributions to an Archer MSA. Optional; absent or 0 means no code R entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_s_cents": {
+      "description": "Form W-2 box 12, code S — Employee salary reduction contributions under a section 408(p) SIMPLE plan. Optional; absent or 0 means no code S entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_t_cents": {
+      "description": "Form W-2 box 12, code T — Adoption benefits. Optional; absent or 0 means no code T entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_v_cents": {
+      "description": "Form W-2 box 12, code V — Income from exercise of nonstatutory stock option(s). Optional; absent or 0 means no code V entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_w_cents": {
+      "description": "Form W-2 box 12, code W — Employer contributions (including employee contributions through a cafeteria plan) to an employee's health savings account (HSA). Optional; absent or 0 means no code W entry. Above 0 it is Form 8889 line 9 and this filer's Form 8889 Part I questions are asked (hsa_medicare first); the amount over the line 8 limit is other income on Schedule 1 line 8z and a 6% excise on Form 5329 (measured: 5,000 self-only moves line 24 from 928.00 to 1,040.00; 3,000 moves nothing).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_y_cents": {
+      "description": "Form W-2 box 12, code Y — Deferrals under a section 409A nonqualified deferred compensation plan. Optional; absent or 0 means no code Y entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_z_cents": {
+      "description": "Form W-2 box 12, code Z — Income under a nonqualified deferred compensation plan that fails to satisfy section 409A. Optional; absent or 0 means no code Z entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_aa_cents": {
+      "description": "Form W-2 box 12, code AA — Designated Roth contributions under a section 401(k) plan. Optional; absent or 0 means no code AA entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_bb_cents": {
+      "description": "Form W-2 box 12, code BB — Designated Roth contributions under a section 403(b) plan. Optional; absent or 0 means no code BB entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_dd_cents": {
+      "description": "Form W-2 box 12, code DD — Cost of employer-sponsored health coverage. Optional; absent or 0 means no code DD entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_ee_cents": {
+      "description": "Form W-2 box 12, code EE — Designated Roth contributions under a governmental section 457(b) plan. Optional; absent or 0 means no code EE entry. Above 0 it is Form 8880 line 2 (the retirement savings contributions credit, Schedule 3 line 4): the filer's Form 8880 questions are then asked; measured 20% of 2,000 at 25,000 of wages.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_ff_cents": {
+      "description": "Form W-2 box 12, code FF — Permitted benefits under a qualified small employer health reimbursement arrangement. Optional; absent or 0 means no code FF entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_gg_cents": {
+      "description": "Form W-2 box 12, code GG — Income from qualified equity grants under section 83(i). Optional; absent or 0 means no code GG entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_hh_cents": {
+      "description": "Form W-2 box 12, code HH — Aggregate deferrals under section 83(i) elections as of the close of the calendar year. Optional; absent or 0 means no code HH entry. Carried to the engine; it moves no line this service serves at the pin (the DAG agrees).",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "box12_ii_cents": {
+      "description": "Form W-2 box 12, code II — Medicaid waiver payments excluded from gross income under Notice 2014-7. Optional; absent or 0 means no code II entry. Above 0 it is a code the engine knocks a return out for, so the return is refused by name rather than computed without it.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "statutory_employee": {
+      "type": "boolean",
+      "description": "Form W-2 box 13, the “Statutory employee” checkbox. Asked on every W-2. A checked box is outside what this service computes: the wages belong on Schedule C, and the return is served as knocked out, never as a computed figure."
+    },
+    "retirement_plan": {
+      "type": "boolean",
+      "description": "Form W-2 box 13, the “Retirement plan” checkbox. Asked on every W-2. It reaches the IRA-deduction limit chain; no served line moves on it at this pin because IRA contributions are not asked."
+    },
+    "third_party_sick_pay": {
+      "type": "boolean",
+      "description": "Form W-2 box 13, the “Third-party sick pay” checkbox. Asked on every W-2; nothing in the pinned dictionary reads it, so it moves no line."
+    },
+    "has_rrta_codes": {
+      "type": "boolean",
+      "description": "Form W-2 box 14 — whether it lists Railroad Retirement Tax Act (RRTA) codes (RRTA compensation, Tier 1 or Tier 2 tax). Asked on every W-2. A yes is outside what this service computes: Form 8959 Part III is sized by box-14 RRTA amounts this service does not carry, and the return is served as knocked out, never as a computed figure."
+    },
+    "employer_ref": {
+      "description": "Opaque, case-local employer grouping label. W-2s sharing a value came from the SAME employer; different values mean different employers. NOT an employer identifier — no name, EIN, or address, and meaningless outside this request; it is normalised to a dense ordinal before use, so its magnitude never reaches the engine. Required when ONE filer holds more than one W-2, because the excess Social Security credit turns on having had more than one employer and nothing else here can express that.",
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

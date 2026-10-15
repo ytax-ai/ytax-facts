@@ -1,0 +1,459 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8866Years">
+      <Name>Form 8866 redetermination years</Name>
+      <Description>Form 8866 redetermination years. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866YearsIsComplete">
+      <Name>Form 8866 redetermination years: all entries and applicable zero amounts have been entered</Name>
+      <Description>Form 8866 redetermination years: all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/yearEnd">
+      <Name>Prior tax year ending date</Name>
+      <Description>Prior tax year ending date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/line1">
+      <Name>Regular method line 1: previously adjusted taxable income or loss</Name>
+      <Description>Regular method line 1: previously adjusted taxable income or loss. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/incomeAdjustment">
+      <Name>Regular method line 2: signed income adjustment from the contract or property schedule</Name>
+      <Description>Regular method line 2: signed income adjustment from the contract or property schedule. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/supportingSchedule">
+      <Name>Contract-by-contract or property-by-property computation and pass-through details</Name>
+      <Description>Contract-by-contract or property-by-property computation and pass-through details. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/line3">
+      <Name>Regular method line 3: adjusted taxable income</Name>
+      <Description>Regular method line 3: adjusted taxable income. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../line1" />
+          <Dependency path="../incomeAdjustment" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866Years/*/line4">
+      <Name>Regular method line 4: recomputed prior-year income tax</Name>
+      <Description>Regular method line 4: recomputed prior-year income tax. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/line5">
+      <Name>Regular method line 5: previous income tax liability</Name>
+      <Description>Regular method line 5: previous income tax liability. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/line6">
+      <Name>Regular method line 6: increase or decrease in tax</Name>
+      <Description>Regular method line 6: increase or decrease in tax. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../line4" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="../line5" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866Years/*/taxChange">
+      <Name>Tax increase or decrease</Name>
+      <Description>Tax increase or decrease. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="../line6" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8866Years/*/interestFactorNumerator">
+      <Name>Look-back interest for this year, with section-specific accrual and rate rules: cumulative daily compound factor numerator</Name>
+      <Description>Interest-only factor, excluding principal, from a retained daily-compounding computation for the stated accrual interval. Enter numerator and denominator explicitly; annual simple interest rates are not a substitute. The rate is the adjusted overpayment rate (section 167(g)(2)(C), which takes its definition from section 460(b)(7)) for BOTH directions: a hypothetical underpayment (tax increase on line 6) and a hypothetical overpayment (tax decrease) accrue at the same overpayment rate, never the underpayment rate. For each interest accrual period, which runs from the day after the prior year's return due date (not including extensions) to the next year's return due date, the rate is the section 6621(a)(1) overpayment rate in effect on the first day of that period and stays fixed for the whole period even though the published rates change quarterly; interest is compounded daily.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/interestFactorDenominator">
+      <Name>Look-back interest for this year, with section-specific accrual and rate rules: factor denominator</Name>
+      <Description>Look-back interest for this year, with section-specific accrual and rate rules: factor denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/interestFactorStartDate">
+      <Name>Look-back interest for this year, with section-specific accrual and rate rules: first accrual date</Name>
+      <Description>Look-back interest for this year, with section-specific accrual and rate rules: first accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/interestFactorEndDate">
+      <Name>Look-back interest for this year, with section-specific accrual and rate rules: last accrual date</Name>
+      <Description>Look-back interest for this year, with section-specific accrual and rate rules: last accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866Years/*/interestDue">
+      <Name>Interest due for this prior year</Name>
+      <Description>Interest due for this prior year. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../taxChange" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Multiply>
+                <GreaterOf>
+                  <Dependency path="../taxChange" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Divide>
+                  <Dividend>
+                    <GreaterOf>
+                      <Dependency path="../interestFactorNumerator" />
+                      <Int>0</Int>
+                    </GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <GreaterOf>
+                      <Dependency path="../interestFactorDenominator" />
+                      <Int>1</Int>
+                    </GreaterOf>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866Years/*/interestRefund">
+      <Name>Interest refundable for this prior year</Name>
+      <Description>Interest refundable for this prior year. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="../taxChange" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Multiply>
+                <Subtract>
+                  <Minuend>
+                    <Dollar>0</Dollar>
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="../taxChange" />
+                  </Subtrahends>
+                </Subtract>
+                <Divide>
+                  <Dividend>
+                    <GreaterOf>
+                      <Dependency path="../interestFactorNumerator" />
+                      <Int>0</Int>
+                    </GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <GreaterOf>
+                      <Dependency path="../interestFactorDenominator" />
+                      <Int>1</Int>
+                    </GreaterOf>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866InterestDueTotal">
+      <Name>Sum of look-back interest due</Name>
+      <Description>Sum of look-back interest due. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8866Years" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8866Years" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8866YearsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8866Years/*/interestDue" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866InterestRefundTotal">
+      <Name>Sum of look-back interest refundable</Name>
+      <Description>Sum of look-back interest refundable. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8866Years" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8866Years" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8866YearsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8866Years/*/interestRefund" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866NetInterestOwed">
+      <Name>Net look-back interest owed; Schedule 2 line 17n</Name>
+      <Description>Net look-back interest owed; Schedule 2 line 17n. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Dependency path="/form8866NetInterestOwedMinimum1" />
+        </Round>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866SeparateRefundClaim">
+      <Name>Net look-back interest refundable on a separately filed form</Name>
+      <Description>File this claim separately from the income tax return. Do not add it to Form 1040 or Schedule 3 payments.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Dependency path="/form8866SeparateRefundClaimMinimum1" />
+        </Round>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866RefundBankAccount">
+      <Name>Form 8866 lines 9b to 9d: direct deposit account for the separate refund</Name>
+      <Description>Form 8866 lines 9b (routing number), 9c (Checking or Savings) and 9d (account number): the account for a direct deposit of the net look-back interest refund claimed on the separately filed form (/form8866SeparateRefundClaim). The same validated BankAccount type paymentMethod:/bankAccount and form8697:/form8697RefundBankAccount use, so the instructions' rules ride on the type: the routing number is nine digits whose first two are 01 through 12 or 21 through 32, the account number is up to 17 characters, and exactly one account type is chosen. Leave it unanswered for a refund by check.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <BankAccount />
+      </Writable>
+    </Fact>
+    <Fact path="/form8866NetInterestOwedMinimum1">
+      <Name>Net look-back interest owed; Schedule 2 line 17n: intermediate minimum 1</Name>
+      <Description>Net look-back interest owed; Schedule 2 line 17n: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8866InterestDueTotal" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8866InterestRefundTotal" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8866SeparateRefundClaimMinimum1">
+      <Name>Net look-back interest refundable on a separately filed form: intermediate minimum 1</Name>
+      <Description>Net look-back interest refundable on a separately filed form: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8866InterestRefundTotal" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8866InterestDueTotal" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

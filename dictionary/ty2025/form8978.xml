@@ -1,0 +1,978 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm8978NumberOfReportingYears">
+      <Name>Number of applicable tax-year columns reported on Form 8978</Name>
+      <Description>Select zero through four affected or intervening years. Only the selected columns contribute to line 14; an inactive column contributes no tax change.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Int /><Limit type="Min"><Int>0</Int></Limit><Limit type="Max"><Int>4</Int></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm8978PartnerName">
+      <Name>Form 8978 partner name</Name>
+      <Description>Partner name shown on the return.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978PartnerTin">
+      <Name>Form 8978 partner taxpayer identifying number</Name>
+      <Description>Partner tax ID shown on the return.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978BbaAuditSource">
+      <Name>Form 8978 BBA Audit source checkbox</Name>
+      <Description>Select when the reporting-year adjustment comes from a BBA audit.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978AarFilingSource">
+      <Name>Form 8978 AAR Filing source checkbox</Name>
+      <Description>Select when the reporting-year adjustment comes from an AAR filing.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnAYearEnded">
+      <Name>Form 8978 column (A) tax year ending date</Name>
+      <Description>Tax year represented in Form 8978 column (A).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine1aOriginalIncome">
+      <Name>Form 8978 column (A) Line 1a original or previously adjusted income</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 1a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine1bIncomeAdjustments">
+      <Name>Form 8978 column (A) Line 1b Schedule A income adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 1b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine3aOriginalDeductions">
+      <Name>Form 8978 column (A) Line 3a original or previously adjusted deductions</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 3a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine3bDeductionAdjustments">
+      <Name>Form 8978 column (A) Line 3b Schedule A deduction adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 3b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine5CorrectedTaxableIncomeFromStatement">
+      <Name>Form 8978 column (A) Line 5 corrected taxable income from the tax-attribute statement</Name>
+      <Description>OPTIONAL. Answer this only when a change in tax attributes makes the corrected taxable income for the year in column (A) different from line 2 minus line 4; the instructions then require a separate statement showing how that amount was figured, and line 5 prints the amount from the statement. Left unanswered, line 5 is line 2 minus line 4.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine6CorrectedIncomeTax">
+      <Name>Form 8978 column (A) Line 6 corrected income tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 6. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine7CorrectedAmt">
+      <Name>Form 8978 column (A) Line 7 corrected alternative minimum tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 7. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine9aOriginalCredits">
+      <Name>Form 8978 column (A) Line 9a original or previously adjusted credits</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 9a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine9bCreditAdjustments">
+      <Name>Form 8978 column (A) Line 9b Schedule A credit adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 9b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine11CorrectedTaxLiabilityFromStatement">
+      <Name>Form 8978 column (A) Line 11 corrected income tax liability from the separate statement</Name>
+      <Description>OPTIONAL. Answer this only when a change NOT reflected on a line item of the form or schedule makes the corrected income tax liability after credits for the year in column (A) different from line 8 minus line 10; the instructions then require a separate statement showing how that liability was figured, and line 11 prints the amount from the statement. Left unanswered, line 11 is line 8 minus line 10.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine12PreviouslyReportedTax">
+      <Name>Form 8978 column (A) Line 12 tax shown on return or as previously adjusted</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 12. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine15Penalties">
+      <Name>Form 8978 column (A) Line 15 applicable penalties</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 15. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnALine17Interest">
+      <Name>Form 8978 column (A) Line 17 interest on an increase in tax</Name>
+      <Description>Enter the amount for Form 8978 column (A), line 17. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8978ColumnALine2CorrectedIncome">
+      <Name>Form 8978 column (A) line 2 corrected income</Name>
+      <Description>Add lines 1a and 1b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnALine1aOriginalIncome" /><Dependency path="/writableForm8978ColumnALine1bIncomeAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnALine4CorrectedDeductions">
+      <Name>Form 8978 column (A) line 4 corrected deductions</Name>
+      <Description>Add lines 3a and 3b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnALine3aOriginalDeductions" /><Dependency path="/writableForm8978ColumnALine3bDeductionAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnALine5CorrectedTaxableIncome">
+      <Name>Form 8978 column (A) line 5 corrected taxable income</Name>
+      <Description>Subtract line 4 from line 2. When a change in tax attributes makes the corrected taxable income a different amount, the instructions call for a separate statement and for that amount on line 5, so an answered /writableForm8978ColumnALine5CorrectedTaxableIncomeFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnALine5CorrectedTaxableIncomeFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnALine5CorrectedTaxableIncomeFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnALine2CorrectedIncome" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnALine4CorrectedDeductions" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnALine8TotalCorrectedIncomeTax">
+      <Name>Form 8978 column (A) line 8 total corrected income tax</Name>
+      <Description>Add lines 6 and 7.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnALine6CorrectedIncomeTax" /><Dependency path="/writableForm8978ColumnALine7CorrectedAmt" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnALine10TotalCorrectedCredits">
+      <Name>Form 8978 column (A) line 10 total corrected credits</Name>
+      <Description>Add lines 9a and 9b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnALine9aOriginalCredits" /><Dependency path="/writableForm8978ColumnALine9bCreditAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnALine11CorrectedTaxLiability">
+      <Name>Form 8978 column (A) line 11 corrected income tax liability</Name>
+      <Description>Subtract line 10 from line 8. When a change not reflected on a line item of the form or schedule makes the corrected income tax liability after credits a different amount, the instructions call for a separate statement and for that amount on line 11, so an answered /writableForm8978ColumnALine11CorrectedTaxLiabilityFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnALine11CorrectedTaxLiabilityFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnALine11CorrectedTaxLiabilityFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnALine8TotalCorrectedIncomeTax" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnALine10TotalCorrectedCredits" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnALine13IncreaseDecreaseToTax">
+      <Name>Form 8978 column (A) line 13 increase or decrease to tax</Name>
+      <Description>Subtract line 12 from line 11; the result may be positive or negative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Subtract><Minuend><Dependency path="/form8978ColumnALine11CorrectedTaxLiability" /></Minuend><Subtrahends><Dependency path="/writableForm8978ColumnALine12PreviouslyReportedTax" /></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBYearEnded">
+      <Name>Form 8978 column (B) tax year ending date</Name>
+      <Description>Tax year represented in Form 8978 column (B).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine1aOriginalIncome">
+      <Name>Form 8978 column (B) Line 1a original or previously adjusted income</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 1a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine1bIncomeAdjustments">
+      <Name>Form 8978 column (B) Line 1b Schedule A income adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 1b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine3aOriginalDeductions">
+      <Name>Form 8978 column (B) Line 3a original or previously adjusted deductions</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 3a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine3bDeductionAdjustments">
+      <Name>Form 8978 column (B) Line 3b Schedule A deduction adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 3b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine5CorrectedTaxableIncomeFromStatement">
+      <Name>Form 8978 column (B) Line 5 corrected taxable income from the tax-attribute statement</Name>
+      <Description>OPTIONAL. Answer this only when a change in tax attributes makes the corrected taxable income for the year in column (B) different from line 2 minus line 4; the instructions then require a separate statement showing how that amount was figured, and line 5 prints the amount from the statement. Left unanswered, line 5 is line 2 minus line 4.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine6CorrectedIncomeTax">
+      <Name>Form 8978 column (B) Line 6 corrected income tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 6. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine7CorrectedAmt">
+      <Name>Form 8978 column (B) Line 7 corrected alternative minimum tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 7. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine9aOriginalCredits">
+      <Name>Form 8978 column (B) Line 9a original or previously adjusted credits</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 9a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine9bCreditAdjustments">
+      <Name>Form 8978 column (B) Line 9b Schedule A credit adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 9b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine11CorrectedTaxLiabilityFromStatement">
+      <Name>Form 8978 column (B) Line 11 corrected income tax liability from the separate statement</Name>
+      <Description>OPTIONAL. Answer this only when a change NOT reflected on a line item of the form or schedule makes the corrected income tax liability after credits for the year in column (B) different from line 8 minus line 10; the instructions then require a separate statement showing how that liability was figured, and line 11 prints the amount from the statement. Left unanswered, line 11 is line 8 minus line 10.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine12PreviouslyReportedTax">
+      <Name>Form 8978 column (B) Line 12 tax shown on return or as previously adjusted</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 12. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine15Penalties">
+      <Name>Form 8978 column (B) Line 15 applicable penalties</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 15. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnBLine17Interest">
+      <Name>Form 8978 column (B) Line 17 interest on an increase in tax</Name>
+      <Description>Enter the amount for Form 8978 column (B), line 17. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8978ColumnBLine2CorrectedIncome">
+      <Name>Form 8978 column (B) line 2 corrected income</Name>
+      <Description>Add lines 1a and 1b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnBLine1aOriginalIncome" /><Dependency path="/writableForm8978ColumnBLine1bIncomeAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnBLine4CorrectedDeductions">
+      <Name>Form 8978 column (B) line 4 corrected deductions</Name>
+      <Description>Add lines 3a and 3b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnBLine3aOriginalDeductions" /><Dependency path="/writableForm8978ColumnBLine3bDeductionAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnBLine5CorrectedTaxableIncome">
+      <Name>Form 8978 column (B) line 5 corrected taxable income</Name>
+      <Description>Subtract line 4 from line 2. When a change in tax attributes makes the corrected taxable income a different amount, the instructions call for a separate statement and for that amount on line 5, so an answered /writableForm8978ColumnBLine5CorrectedTaxableIncomeFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnBLine5CorrectedTaxableIncomeFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnBLine5CorrectedTaxableIncomeFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnBLine2CorrectedIncome" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnBLine4CorrectedDeductions" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnBLine8TotalCorrectedIncomeTax">
+      <Name>Form 8978 column (B) line 8 total corrected income tax</Name>
+      <Description>Add lines 6 and 7.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnBLine6CorrectedIncomeTax" /><Dependency path="/writableForm8978ColumnBLine7CorrectedAmt" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnBLine10TotalCorrectedCredits">
+      <Name>Form 8978 column (B) line 10 total corrected credits</Name>
+      <Description>Add lines 9a and 9b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnBLine9aOriginalCredits" /><Dependency path="/writableForm8978ColumnBLine9bCreditAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnBLine11CorrectedTaxLiability">
+      <Name>Form 8978 column (B) line 11 corrected income tax liability</Name>
+      <Description>Subtract line 10 from line 8. When a change not reflected on a line item of the form or schedule makes the corrected income tax liability after credits a different amount, the instructions call for a separate statement and for that amount on line 11, so an answered /writableForm8978ColumnBLine11CorrectedTaxLiabilityFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnBLine11CorrectedTaxLiabilityFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnBLine11CorrectedTaxLiabilityFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnBLine8TotalCorrectedIncomeTax" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnBLine10TotalCorrectedCredits" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnBLine13IncreaseDecreaseToTax">
+      <Name>Form 8978 column (B) line 13 increase or decrease to tax</Name>
+      <Description>Subtract line 12 from line 11; the result may be positive or negative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Subtract><Minuend><Dependency path="/form8978ColumnBLine11CorrectedTaxLiability" /></Minuend><Subtrahends><Dependency path="/writableForm8978ColumnBLine12PreviouslyReportedTax" /></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCYearEnded">
+      <Name>Form 8978 column (C) tax year ending date</Name>
+      <Description>Tax year represented in Form 8978 column (C).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine1aOriginalIncome">
+      <Name>Form 8978 column (C) Line 1a original or previously adjusted income</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 1a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine1bIncomeAdjustments">
+      <Name>Form 8978 column (C) Line 1b Schedule A income adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 1b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine3aOriginalDeductions">
+      <Name>Form 8978 column (C) Line 3a original or previously adjusted deductions</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 3a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine3bDeductionAdjustments">
+      <Name>Form 8978 column (C) Line 3b Schedule A deduction adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 3b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine5CorrectedTaxableIncomeFromStatement">
+      <Name>Form 8978 column (C) Line 5 corrected taxable income from the tax-attribute statement</Name>
+      <Description>OPTIONAL. Answer this only when a change in tax attributes makes the corrected taxable income for the year in column (C) different from line 2 minus line 4; the instructions then require a separate statement showing how that amount was figured, and line 5 prints the amount from the statement. Left unanswered, line 5 is line 2 minus line 4.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine6CorrectedIncomeTax">
+      <Name>Form 8978 column (C) Line 6 corrected income tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 6. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine7CorrectedAmt">
+      <Name>Form 8978 column (C) Line 7 corrected alternative minimum tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 7. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine9aOriginalCredits">
+      <Name>Form 8978 column (C) Line 9a original or previously adjusted credits</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 9a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine9bCreditAdjustments">
+      <Name>Form 8978 column (C) Line 9b Schedule A credit adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 9b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine11CorrectedTaxLiabilityFromStatement">
+      <Name>Form 8978 column (C) Line 11 corrected income tax liability from the separate statement</Name>
+      <Description>OPTIONAL. Answer this only when a change NOT reflected on a line item of the form or schedule makes the corrected income tax liability after credits for the year in column (C) different from line 8 minus line 10; the instructions then require a separate statement showing how that liability was figured, and line 11 prints the amount from the statement. Left unanswered, line 11 is line 8 minus line 10.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine12PreviouslyReportedTax">
+      <Name>Form 8978 column (C) Line 12 tax shown on return or as previously adjusted</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 12. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine15Penalties">
+      <Name>Form 8978 column (C) Line 15 applicable penalties</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 15. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnCLine17Interest">
+      <Name>Form 8978 column (C) Line 17 interest on an increase in tax</Name>
+      <Description>Enter the amount for Form 8978 column (C), line 17. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8978ColumnCLine2CorrectedIncome">
+      <Name>Form 8978 column (C) line 2 corrected income</Name>
+      <Description>Add lines 1a and 1b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnCLine1aOriginalIncome" /><Dependency path="/writableForm8978ColumnCLine1bIncomeAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnCLine4CorrectedDeductions">
+      <Name>Form 8978 column (C) line 4 corrected deductions</Name>
+      <Description>Add lines 3a and 3b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnCLine3aOriginalDeductions" /><Dependency path="/writableForm8978ColumnCLine3bDeductionAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnCLine5CorrectedTaxableIncome">
+      <Name>Form 8978 column (C) line 5 corrected taxable income</Name>
+      <Description>Subtract line 4 from line 2. When a change in tax attributes makes the corrected taxable income a different amount, the instructions call for a separate statement and for that amount on line 5, so an answered /writableForm8978ColumnCLine5CorrectedTaxableIncomeFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnCLine5CorrectedTaxableIncomeFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnCLine5CorrectedTaxableIncomeFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnCLine2CorrectedIncome" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnCLine4CorrectedDeductions" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnCLine8TotalCorrectedIncomeTax">
+      <Name>Form 8978 column (C) line 8 total corrected income tax</Name>
+      <Description>Add lines 6 and 7.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnCLine6CorrectedIncomeTax" /><Dependency path="/writableForm8978ColumnCLine7CorrectedAmt" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnCLine10TotalCorrectedCredits">
+      <Name>Form 8978 column (C) line 10 total corrected credits</Name>
+      <Description>Add lines 9a and 9b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnCLine9aOriginalCredits" /><Dependency path="/writableForm8978ColumnCLine9bCreditAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnCLine11CorrectedTaxLiability">
+      <Name>Form 8978 column (C) line 11 corrected income tax liability</Name>
+      <Description>Subtract line 10 from line 8. When a change not reflected on a line item of the form or schedule makes the corrected income tax liability after credits a different amount, the instructions call for a separate statement and for that amount on line 11, so an answered /writableForm8978ColumnCLine11CorrectedTaxLiabilityFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnCLine11CorrectedTaxLiabilityFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnCLine11CorrectedTaxLiabilityFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnCLine8TotalCorrectedIncomeTax" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnCLine10TotalCorrectedCredits" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnCLine13IncreaseDecreaseToTax">
+      <Name>Form 8978 column (C) line 13 increase or decrease to tax</Name>
+      <Description>Subtract line 12 from line 11; the result may be positive or negative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Subtract><Minuend><Dependency path="/form8978ColumnCLine11CorrectedTaxLiability" /></Minuend><Subtrahends><Dependency path="/writableForm8978ColumnCLine12PreviouslyReportedTax" /></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDYearEnded">
+      <Name>Form 8978 column (D) tax year ending date</Name>
+      <Description>Tax year represented in Form 8978 column (D).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine1aOriginalIncome">
+      <Name>Form 8978 column (D) Line 1a original or previously adjusted income</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 1a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine1bIncomeAdjustments">
+      <Name>Form 8978 column (D) Line 1b Schedule A income adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 1b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine3aOriginalDeductions">
+      <Name>Form 8978 column (D) Line 3a original or previously adjusted deductions</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 3a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine3bDeductionAdjustments">
+      <Name>Form 8978 column (D) Line 3b Schedule A deduction adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 3b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine5CorrectedTaxableIncomeFromStatement">
+      <Name>Form 8978 column (D) Line 5 corrected taxable income from the tax-attribute statement</Name>
+      <Description>OPTIONAL. Answer this only when a change in tax attributes makes the corrected taxable income for the year in column (D) different from line 2 minus line 4; the instructions then require a separate statement showing how that amount was figured, and line 5 prints the amount from the statement. Left unanswered, line 5 is line 2 minus line 4.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine6CorrectedIncomeTax">
+      <Name>Form 8978 column (D) Line 6 corrected income tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 6. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine7CorrectedAmt">
+      <Name>Form 8978 column (D) Line 7 corrected alternative minimum tax from supporting calculation</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 7. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine9aOriginalCredits">
+      <Name>Form 8978 column (D) Line 9a original or previously adjusted credits</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 9a. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine9bCreditAdjustments">
+      <Name>Form 8978 column (D) Line 9b Schedule A credit adjustments</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 9b. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine11CorrectedTaxLiabilityFromStatement">
+      <Name>Form 8978 column (D) Line 11 corrected income tax liability from the separate statement</Name>
+      <Description>OPTIONAL. Answer this only when a change NOT reflected on a line item of the form or schedule makes the corrected income tax liability after credits for the year in column (D) different from line 8 minus line 10; the instructions then require a separate statement showing how that liability was figured, and line 11 prints the amount from the statement. Left unanswered, line 11 is line 8 minus line 10.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine12PreviouslyReportedTax">
+      <Name>Form 8978 column (D) Line 12 tax shown on return or as previously adjusted</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 12. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine15Penalties">
+      <Name>Form 8978 column (D) Line 15 applicable penalties</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 15. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/writableForm8978ColumnDLine17Interest">
+      <Name>Form 8978 column (D) Line 17 interest on an increase in tax</Name>
+      <Description>Enter the amount for Form 8978 column (D), line 17. Tax and AMT lines 6-7 require a supporting calculation statement; penalties and interest are separately computed inputs.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form8978ColumnDLine2CorrectedIncome">
+      <Name>Form 8978 column (D) line 2 corrected income</Name>
+      <Description>Add lines 1a and 1b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnDLine1aOriginalIncome" /><Dependency path="/writableForm8978ColumnDLine1bIncomeAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnDLine4CorrectedDeductions">
+      <Name>Form 8978 column (D) line 4 corrected deductions</Name>
+      <Description>Add lines 3a and 3b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnDLine3aOriginalDeductions" /><Dependency path="/writableForm8978ColumnDLine3bDeductionAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnDLine5CorrectedTaxableIncome">
+      <Name>Form 8978 column (D) line 5 corrected taxable income</Name>
+      <Description>Subtract line 4 from line 2. When a change in tax attributes makes the corrected taxable income a different amount, the instructions call for a separate statement and for that amount on line 5, so an answered /writableForm8978ColumnDLine5CorrectedTaxableIncomeFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnDLine5CorrectedTaxableIncomeFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnDLine5CorrectedTaxableIncomeFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnDLine2CorrectedIncome" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnDLine4CorrectedDeductions" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnDLine8TotalCorrectedIncomeTax">
+      <Name>Form 8978 column (D) line 8 total corrected income tax</Name>
+      <Description>Add lines 6 and 7.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnDLine6CorrectedIncomeTax" /><Dependency path="/writableForm8978ColumnDLine7CorrectedAmt" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnDLine10TotalCorrectedCredits">
+      <Name>Form 8978 column (D) line 10 total corrected credits</Name>
+      <Description>Add lines 9a and 9b.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Dependency path="/writableForm8978ColumnDLine9aOriginalCredits" /><Dependency path="/writableForm8978ColumnDLine9bCreditAdjustments" /></Add></Derived>
+    </Fact>
+    <Fact path="/form8978ColumnDLine11CorrectedTaxLiability">
+      <Name>Form 8978 column (D) line 11 corrected income tax liability</Name>
+      <Description>Subtract line 10 from line 8. When a change not reflected on a line item of the form or schedule makes the corrected income tax liability after credits a different amount, the instructions call for a separate statement and for that amount on line 11, so an answered /writableForm8978ColumnDLine11CorrectedTaxLiabilityFromStatement REPLACES the subtraction. The precedence is an explicit Switch on presence (IsComplete), never a silent replacement, and a zero statement amount counts as answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8978ColumnDLine11CorrectedTaxLiabilityFromStatement" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8978ColumnDLine11CorrectedTaxLiabilityFromStatement" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend><Dependency path="/form8978ColumnDLine8TotalCorrectedIncomeTax" /></Minuend>
+                <Subtrahends><Dependency path="/form8978ColumnDLine10TotalCorrectedCredits" /></Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ColumnDLine13IncreaseDecreaseToTax">
+      <Name>Form 8978 column (D) line 13 increase or decrease to tax</Name>
+      <Description>Subtract line 12 from line 11; the result may be positive or negative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Subtract><Minuend><Dependency path="/form8978ColumnDLine11CorrectedTaxLiability" /></Minuend><Subtrahends><Dependency path="/writableForm8978ColumnDLine12PreviouslyReportedTax" /></Subtrahends></Subtract></Derived>
+    </Fact>
+    <Fact path="/form8978Line14TotalAdditionalReportingYearTax">
+      <Name>Form 8978 line 14 total additional reporting-year tax</Name>
+      <Description>Line 14 of this Form 8978: line 13 summed across the affected tax-year columns explicitly selected. Inactive columns contribute zero; every active column requires a complete line 13. The signed amount a return reports is /form8978AllFormsLine14Total, which adds the filer's other Forms 8978.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>1</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>1</Int></Right></GreaterThanOrEqual></When><Then><Dependency path="/form8978ColumnALine13IncreaseDecreaseToTax" /></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>2</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>2</Int></Right></GreaterThanOrEqual></When><Then><Dependency path="/form8978ColumnBLine13IncreaseDecreaseToTax" /></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>3</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>3</Int></Right></GreaterThanOrEqual></When><Then><Dependency path="/form8978ColumnCLine13IncreaseDecreaseToTax" /></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>4</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>4</Int></Right></GreaterThanOrEqual></When><Then><Dependency path="/form8978ColumnDLine13IncreaseDecreaseToTax" /></Then></Case>
+    </Switch></Add></Derived>
+    </Fact>
+    <Fact path="/form8978TotalPenalties">
+      <Name>Form 8978 line 16 total penalties</Name>
+      <Description>Sum the corresponding reported line across the selected applicable years. Inactive columns contribute zero; active columns require a complete amount.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>1</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>1</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnALine15Penalties" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>2</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>2</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnBLine15Penalties" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>3</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>3</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnCLine15Penalties" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>4</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>4</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnDLine15Penalties" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch></Add></Derived>
+    </Fact>
+    <Fact path="/form8978TotalInterest">
+      <Name>Form 8978 line 18 total interest</Name>
+      <Description>Sum the corresponding reported line across the selected applicable years. Inactive columns contribute zero; active columns require a complete amount.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Add><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>1</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>1</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnALine17Interest" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>2</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>2</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnBLine17Interest" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>3</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>3</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnCLine17Interest" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch><Switch>
+      <Case><When><LessThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>4</Int></Right></LessThan></When><Then><Dollar>0</Dollar></Then></Case>
+      <Case><When><GreaterThanOrEqual><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>4</Int></Right></GreaterThanOrEqual></When><Then><GreaterOf><Dependency path="/writableForm8978ColumnDLine17Interest" /><Dollar>0</Dollar></GreaterOf></Then></Case>
+    </Switch></Add></Derived>
+    </Fact>
+    <Fact path="/writableForm8978OtherFormsLine14Total">
+      <Name>Total of line 14 from the filer's other Forms 8978</Name>
+      <Description>The sum of line 14 of every other Form 8978 the filer files for this reporting year: the separate form for the other source of adjustments (AAR filing or BBA audit), and any additional form for applicable tax years beyond the fourth. Negative for a total decrease. Leave it unanswered when this is the only Form 8978.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Dollar /></Writable>
+    </Fact>
+    <Fact path="/form8978AllFormsLine14Total">
+      <Name>Total increase or decrease to reporting year tax from all Forms 8978</Name>
+      <Description>Line 14 of this Form 8978 (zero when no applicable year is selected) plus the stated total of line 14 from the filer's other Forms 8978 (zero when unanswered). This signed total is the amount the instructions report on the appropriate line of the return: a positive total is additional tax, a negative total a decrease.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/writableForm8978NumberOfReportingYears" /></IsComplete></When>
+              <Then><Dependency path="/form8978Line14TotalAdditionalReportingYearTax" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar> </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/writableForm8978OtherFormsLine14Total" /></IsComplete></When>
+              <Then><Dependency path="/writableForm8978OtherFormsLine14Total" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar> </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978Line14TotalEntered">
+      <Name>A Form 8978 line 14 amount is entered on this return</Name>
+      <Description>True when this Form 8978 has one or more applicable years selected, or the line 14 total of the filer's other Forms 8978 is answered. When true, the amount the return reports from Form 8978 is /form8978AllFormsLine14Total: its positive part is Form 1040 line 16 tax (taxCalculations /otherFormForm8978Tax) and its negative part, as a positive number, is line 2 of the Schedule 3 line 6l worksheet (schedule3 /sched3Line6lWorksheetLine2NegativeForm8978Amount). False on a return that enters no Form 8978.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/form8978ReturnFilesThisForm" /></IsComplete>
+            <Dependency path="/form8978ReturnFilesThisForm" />
+          </All>
+          <IsComplete><Dependency path="/writableForm8978OtherFormsLine14Total" /></IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutForm8978BothOrNeitherSourceBoxChecked">
+      <Name>This Form 8978 marks both sources of adjustments, or neither</Name>
+      <Description>Refuses a return whose Form 8978 has an applicable year selected and answers the two source-of-adjustments boxes the same way, both BBA Audit and AAR Filing, or neither. Adjustments from an AAR filing and from a BBA audit are reported on separate Forms 8978, each with one box checked; the other form's line 14 goes in the other-forms total. The filer corrects it by checking the one box that matches this form.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form8978ReturnFilesThisForm" /></IsComplete>
+          <Dependency path="/form8978ReturnFilesThisForm" />
+          <IsComplete><Dependency path="/writableForm8978BbaAuditSource" /></IsComplete>
+          <IsComplete><Dependency path="/writableForm8978AarFilingSource" /></IsComplete>
+          <Equal>
+            <Left><Dependency path="/writableForm8978BbaAuditSource" /></Left>
+            <Right><Dependency path="/writableForm8978AarFilingSource" /></Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form8978ReturnFilesThisForm">
+      <Name>Return files Form 8978</Name>
+      <Description>True when one or more applicable tax-year columns are included on the Form 8978.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterThan><Left><Dependency path="/writableForm8978NumberOfReportingYears" /></Left><Right><Int>0</Int></Right></GreaterThan></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

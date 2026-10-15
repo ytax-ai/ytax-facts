@@ -1,0 +1,2791 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form4137Employers">
+      <Name>The employers a filer under-reported tips to, one row per employer (Form 4137 line 1)</Name>
+      <Description>The per-employer collection the printed line-1 table holds: "Complete a separate
+        row for each employer" (lines 79-80). Each row carries the four printed columns — (a) the
+        employer's name, (b) their identification number, (c) total cash and charge tips received
+        from them, (d) total cash and charge tips reported to them — plus the spouse whose Form
+        4137 the row belongs on.
+
+        NO INTAKE ASKS IT TODAY, so an unanswered collection is the normal state and most
+        committed scenarios leave it so; the collection root then resolves Incomplete and is
+        omitted from every snapshot. That state is safe because it is the THIRD arm of lines 2 and
+        3, the complete-safe $0 — the footing arm fires only when this root IS answered, and each
+        row's amount is read through a complete-safe ../totalTipsReceivedOrZero or
+        ../tipsReportedToEmployerOrZero so a partly filled row cannot make a line Incomplete.
+        Modelling the intake before a screen exists is the BUILD-FIRST directive's instruction,
+        and it is what lets the employer names and identification numbers be carried at all.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/writableEmployerName">
+      <Name>Column (a): the employer's name</Name>
+      <Description>Column (a) of the printed line-1 row: "Name of employer to whom you were
+        required to but didn't report all your tips". The instruction ties it to the W-2: "Enter
+        your employer's name exactly as shown on your Form W-2" (lines 88-89).
+
+        NOT LINKED TO /formW2s, and that is a decision rather than an omission. The employer a
+        filer under-reported tips to need not have issued a Form W-2 this return carries — the
+        printed instruction says to copy the name off the W-2 when there is one, not that there
+        always is one — so a CollectionItem link into /formW2s would refuse rows the form
+        admits. The name is carried as text, exactly as formW2s:/formW2s/*/employerName carries
+        it.
+
+        THE MaxLength BOUND IS COPIED FROM THAT FACT; ITS Match REGEX IS NOT, and the omission is
+        deliberate. formW2s:/formW2s/*/employerName restricts its character set because it is the
+        source of an MeF employer-name ELEMENT, which is why
+        formW2s:/formW2s/*/mefEmployerNameLine1 exists to strip what the regex still admits. This
+        column is not that element — it is a line on a Form 4137 the printed instruction routes to
+        an attachment — so importing a transmission-format constraint would refuse names the paper
+        form accepts. If a future MeF surface needs the narrower set, the place for it is a derived
+        strip fact of the mefEmployerNameLine1 shape, not a limit on the intake.</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>75</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/writableEmployerIdentificationNumber">
+      <Name>Column (b): the employer's identification number, or the words "Applied For"</Name>
+      <Description>Column (b) of the printed line-1 row. NOT AN EIN TYPE, and the printed
+        instruction is why: "enter the employer identification number (EIN) or the words 'Applied
+        For' exactly as shown on your Form W-2" (lines 90-92). A typed EIN writable could not hold
+        the second alternative, and the alternative is not an edge case — it is what a filer copies
+        off a W-2 issued before the employer's EIN came through. Carried as text for that reason,
+        bounded at 11 characters, which is the longer of a formatted EIN (XX-XXXXXXX, 10) and the
+        literal words (11).</Description>
+      <Export mef="true" />
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>11</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/writableTotalTipsReceived">
+      <Name>Column (c): total cash and charge tips received from this employer</Name>
+      <Description>Column (c) of the printed line-1 row: "Total cash and charge tips you received
+        (including unreported tips)". The instruction for columns (c) and (d) lists four kinds of
+        tip that must be included, among them the ones never reported at all and the ones under the
+        $20 monthly threshold (lines 93-119), so this figure is the GROSS receipt from this
+        employer and not a residual.
+
+        SIGN: NON-NEGATIVE, carried as a declared Limit. No upper bound is declared: the printed
+        column has none. The rows DO sum to line 2 through ../totalTipsReceivedOrZero whenever the
+        filer leaves the line-2 attestation blank; where the attestation is made it wins, and the
+        table may then legitimately be a partial decomposition of it.
+
+        NOT FOR RRTA TIPS. "Don't use Form 4137 to report tips received for work covered by the
+        Railroad Retirement Tax Act. To get railroad retirement credit, you must report these tips
+        to your employer." (lines 106-109.) Nothing in this dictionary tags a tip as RRTA-covered
+        and no document reports it, so the rule can only be carried as the instruction the filer
+        reads before entering the amount.
+
+        INCLUDES W-2 BOX 8 ALLOCATED TIPS. Column (c) counts "Tips you didn't report at all
+        (include any allocated tips (see Allocated tips, earlier) shown on your Form(s) W-2, box 8,
+        unless you can prove that your unreported tips are less than the amount in box 8). Include
+        these tips in column (c)." (lines 111-114.) This row's figure must already contain this
+        employer's box 8 amount, added to any other tips never reported. A filer whose rows leave box 8
+        out answers No to /writablePrimaryFilerTotalTipsIncludesAllocatedTips (or its secondary twin),
+        and line 2 then adds the filer's box 8 total.
+
+        NOT FOR A MISCLASSIFIED WORKER. A worker paid on Form 1099-MISC or Form 1099-NEC who believes
+        they are an employee does not use this form "to report the social security and Medicare tax
+        on that income. Instead, use Form 8919" (lines 64-66).</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/writableTipsReportedToEmployer">
+      <Name>Column (d): total cash and charge tips reported to this employer</Name>
+      <Description>Column (d) of the printed line-1 row: "Total cash and charge tips you reported
+        to your employer". On a correctly prepared row this is a subset of column (c), which is why
+        the return-level line 4 (line 2 less line 3) has no printed floor — but NO ROW-LEVEL
+        RELATION IS ENFORCED HERE, deliberately. A row-level refusal would reject a filer whose
+        table is a partial decomposition of an attested combined total, which the printed
+        more-than-five-employers instruction expressly permits, and the return-level floor on line
+        4 already catches the transposition this would guard against.
+
+        SIGN: NON-NEGATIVE, carried as a declared Limit.</Description>
+      <Export mef="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/totalTipsReceivedOrZero">
+      <Name>Column (c) for this row, complete-safe: the tips received, or $0 when the cell is blank</Name>
+      <Description>The ADDEND form of column (c): ../writableTotalTipsReceived when the cell is
+        answered and $0 when it is not, so that the line-2 CollectionSums over
+        /primaryFilerForm4137Employers and /secondaryFilerForm4137Employers stay Complete on a table
+        whose rows are only partly filled in. Built to form8919:/form8919Firms/*/wagesOrZero's
+        shape, which is this dictionary's precedent for a complete-safe per-item addend on a
+        printed row table.
+
+        CENTS ARE PRESERVED ON PURPOSE. This fact carries no Round; the single Round sits on
+        /primaryFilerForm4137Line2 and /secondaryFilerForm4137Line2, which is what i1040gi page 23
+        requires of a line built by addition: "If you have to add two or more amounts to figure the
+        amount to enter on a line, include cents when adding the amounts and round off only the
+        total." Do NOT use this fact for the printed column (c) cell — the register prints
+        ../writableTotalTipsReceived.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableTotalTipsReceived" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableTotalTipsReceived" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/tipsReportedToEmployerOrZero">
+      <Name>Column (d) for this row, complete-safe: the tips reported, or $0 when the cell is blank</Name>
+      <Description>The ADDEND form of column (d), the twin of ../totalTipsReceivedOrZero:
+        ../writableTipsReportedToEmployer when the cell is answered and $0 when it is not, so that
+        the line-3 CollectionSums stay Complete on a partly filled table. A blank column (d) on a
+        row whose column (c) is filled is the ordinary case this exists for — it is the filer who
+        reported NOTHING to that employer, which is the population Form 4137 collects.
+
+        CENTS ARE PRESERVED, and the single Round sits on /primaryFilerForm4137Line3 and
+        /secondaryFilerForm4137Line3; see ../totalTipsReceivedOrZero. Do NOT use this fact for the
+        printed column (d) cell — the register prints ../writableTipsReportedToEmployer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableTipsReportedToEmployer" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableTipsReportedToEmployer" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/writableEmployerFiler">
+      <Name>Which spouse's Form 4137 this employer row belongs on</Name>
+      <Description>The per-row filer attribution, built to the shape
+        scheduleH:/householdEmployees/*/writableEmployerFiler uses. Form 4137 is filed per spouse
+        ("If married, complete a separate Form 4137 for each spouse with unreported tips", line
+        11), so an employer row belongs to one spouse's form, not to the return.
+
+        UNANSWERED IS THE PRIMARY FILER, which is exact for the single-filer and single-form
+        majority: one Form 4137 means one set of rows and the attribution question never needs to
+        be asked. The mirror is ../belongsToSecondaryFiler, which requires an ANSWERED value, so
+        every row belongs to exactly one filer.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <CollectionItem collection="/filers" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/belongsToPrimaryFiler">
+      <Name>This employer row is on the primary filer's Form 4137</Name>
+      <Description>The primary half of the row attribution, built to the shape
+        scheduleH:/householdEmployees/*/belongsToPrimaryFiler uses. AN UNANSWERED
+        ../writableEmployerFiler counts as the primary filer, for the reason given there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Not>
+            <IsComplete>
+              <Dependency path="../writableEmployerFiler" />
+            </IsComplete>
+          </Not>
+          <Equal>
+            <Left>
+              <Dependency module="filers" path="../writableEmployerFiler" />
+            </Left>
+            <Right>
+              <Dependency module="filers" path="/primaryFiler" />
+            </Right>
+          </Equal>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4137Employers/*/belongsToSecondaryFiler">
+      <Name>This employer row is on the secondary filer's Form 4137</Name>
+      <Description>The secondary half of the row attribution. It requires an ANSWERED
+        ../writableEmployerFiler, the mirror of ../belongsToPrimaryFiler's default, so that every
+        row belongs to exactly one filer.
+
+        GUARDED ON /secondaryFiler'S OWN COMPLETENESS, which is what makes that "exactly one" claim
+        true rather than merely intended. filers:/secondaryFiler resolves INCOMPLETE on a return
+        whose /filers holds a single item, and a bare Equal against it is then Incomplete too — so
+        an ANSWERED ../writableEmployerFiler on a single-filer return would carry that Incomplete
+        into /secondaryFilerForm4137Employers and out through the secondary filer's lines 2 and 3.
+        The guard is the FIRST conjunct so the All short-circuits on it. It is the shape
+        form8919:/form8919Firms/*/belongsToSecondaryFiler already ships, for the same reason.
+
+        THE GUARD TESTS /filers CARDINALITY, NOT FILING STATUS: filers:/secondaryFiler resolves
+        Complete on any return whose /filers holds two items, married or not, so this fact and the
+        views it feeds resolve the same way for a second single-status filer as for an MFJ spouse.
+        "Secondary filer" names the /filers collection's second item, not a marital relationship.
+
+        NO SUCH GUARD IS NEEDED ON THE PRIMARY SIDE: filers:/primaryFiler is Complete on every
+        return, which is already what keeps ../belongsToPrimaryFiler Complete. Where no secondary
+        filer exists, no row belongs to one. Pinned by
+        tests/nodes/ty2025/form4137/f4137-single-filer-attributed-row-resolves.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="filers" path="/secondaryFiler" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableEmployerFiler" />
+          </IsComplete>
+          <Equal>
+            <Left>
+              <Dependency module="filers" path="../writableEmployerFiler" />
+            </Left>
+            <Right>
+              <Dependency module="filers" path="/secondaryFiler" />
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePrimaryFilerTotalTipsReceived">
+      <Name>Primary filer's total cash and charge tips received in 2025 (Form 4137 line 2)</Name>
+      <Description>The primary filer's attested total of Form 4137 line 1 column (c) across every
+        employer — all cash and charge tips received, INCLUDING the unreported ones. Optional: a
+        filer with no unreported tips never answers it.
+
+        IT IS NO LONGER THE ONLY SOURCE OF LINE 2. This writable still WINS whenever it is
+        answered, because the printed more-than-five-employers rule makes the attested figure the
+        combined total of every Form 4137 and attached statement. Where it is UNANSWERED and
+        /form4137Employers is answered, /primaryFilerForm4137Line2 adds this filer's own column (c)
+        rows instead, because that is what the printed line says; with neither, it resolves $0. See
+        /primaryFilerForm4137Line2.
+
+        NOT FOR RRTA TIPS. "Don't use Form 4137 to report tips received for work covered by the
+        Railroad Retirement Tax Act. To get railroad retirement credit, you must report these tips
+        to your employer." (lines 106-109.) Nothing in this dictionary tags a tip as RRTA-covered,
+        so the rule is carried here, as the instruction the filer reads before entering the
+        amount.
+
+        INCLUDES W-2 BOX 8 ALLOCATED TIPS. Column (c) counts "Tips you didn't report at all
+        (include any allocated tips (see Allocated tips, earlier) shown on your Form(s) W-2, box 8,
+        unless you can prove that your unreported tips are less than the amount in box 8). Include
+        these tips in column (c)." (lines 111-114.) The filer's figure must already contain every
+        employer's box 8 amount, added to any other tips never reported. A filer whose figure leaves box
+        8 out answers No to /writablePrimaryFilerTotalTipsIncludesAllocatedTips, and
+        /primaryFilerForm4137Line2 then adds the box 8 total (/primaryFilerAllocatedTipsAddedToLineTwo);
+        left unanswered on that population the return is refused
+        (/knockoutForm4137AllocatedTipsInLineTwoUnanswered).
+
+        NOT FOR A MISCLASSIFIED WORKER. A worker paid on Form 1099-MISC or Form 1099-NEC who believes
+        they are an employee does not use this form "to report the social security and Medicare tax
+        on that income. Instead, use Form 8919" (lines 64-66).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerTotalTipsReceived">
+      <Name>Secondary filer's total cash and charge tips received in 2025 (Form 4137 line 2)</Name>
+      <Description>The secondary filer's twin of /writablePrimaryFilerTotalTipsReceived. Separate
+        because the form is filed per spouse.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Line2">
+      <Name>Form 4137 line 2, primary filer</Name>
+      <Description>Form 4137 line 2: total cash and charge tips received in 2025, the line-1
+        column (c) total. Complete-safe — $0 when neither the attestation nor the table is
+        answered.
+
+        THREE ARMS, and the order is the argument. THE FORM TEXT IS THE PROOF: line 2 reads "Total
+        cash and charge tips you received in 2025. Add the amounts from line 1," / "column (c)"
+        (lines 29-30). The FIRST arm is the attested /writablePrimaryFilerTotalTipsReceived, which
+        still wins whenever it is answered, because the printed more-than-five-employers rule tells
+        a filer with six or more employers to complete line 1 on additional forms and to put "the
+        combined totals of all your Forms 4137 and attached statements" on the one form's lines 2
+        and 3 (lines 83-87): the attested total may legitimately exceed the five rows this
+        collection prints, so it is the better statement of the line WHEN THE FILER MAKES IT. That
+        rule defends the attestation winning when answered; it says nothing about the return that
+        never answers it, where the table is the only statement of the amount. So the SECOND arm
+        fires exactly when the writable is NOT complete and /form4137Employers IS, and adds this
+        filer's own column (c) rows: CollectionSum over
+        /primaryFilerForm4137Employers/*/totalTipsReceivedOrZero. The predicate is a real "was the
+        source answered" test on a WRITABLE, never an IsComplete on a complete-safe derived fact,
+        which would always be true. The THIRD arm is the unchanged complete-safe $0.
+
+        PER FILER, NOT PER RETURN, which is why the sum is over the FILTERED view: Form 4137 is
+        filed per spouse (line 11), so the primary filer's line 2 may never pick up a row
+        attributed to the secondary filer.
+
+        THE SINGLE Round IS DELIBERATE. /form4137Employers/*/totalTipsReceivedOrZero preserves
+        cents so the Round applies to the total and not to each addend, which is what i1040gi page
+        23 requires of a line built by addition.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerTotalTipsReceived" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writablePrimaryFilerTotalTipsReceived" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/form4137Employers" />
+                </IsComplete>
+              </When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/primaryFilerForm4137Employers/*/totalTipsReceivedOrZero" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+          <Dependency path="/primaryFilerAllocatedTipsAddedToLineTwo" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line2">
+      <Name>Form 4137 line 2, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line2. Same three arms in the same
+        order: the attested /writableSecondaryFilerTotalTipsReceived when it is answered, else the
+        sum of this filer's own column (c) rows (CollectionSum over
+        /secondaryFilerForm4137Employers/*/totalTipsReceivedOrZero) when /form4137Employers is
+        answered, else the complete-safe $0. See the primary twin for the printed line-2 text that
+        proves the addition and for the more-than-five-employers rule that keeps the attested arm
+        first.
+
+        ITS FILTERED VIEW IS EMPTY, NOT INCOMPLETE, ON A SINGLE-FILER RETURN, which is what keeps
+        this fact Complete at $0 there: /form4137Employers/*/belongsToSecondaryFiler guards
+        filers:/secondaryFiler's own completeness and resolves Complete false when no secondary
+        filer exists, so /secondaryFilerForm4137Employers filters to nothing and the CollectionSum
+        is $0.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerTotalTipsReceived" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableSecondaryFilerTotalTipsReceived" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/form4137Employers" />
+                </IsComplete>
+              </When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/secondaryFilerForm4137Employers/*/totalTipsReceivedOrZero" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+          <Dependency path="/secondaryFilerAllocatedTipsAddedToLineTwo" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePrimaryFilerTipsReportedToEmployer">
+      <Name>Primary filer's tips reported to employers in 2025 (Form 4137 line 3)</Name>
+      <Description>The primary filer's attested total of Form 4137 line 1 column (d) — the tips
+        already reported to employers, which are therefore already inside Form W-2 box 1. Optional.
+
+        IT IS NO LONGER THE ONLY SOURCE OF LINE 3, on the same three arms as its line-2 twin: the
+        attestation when answered, else this filer's own column (d) rows, else $0. See
+        /primaryFilerForm4137Line3.
+
+        NOT FOR RRTA TIPS. Tips for work covered by the Railroad Retirement Tax Act are reported to
+        the employer for railroad retirement credit and do not belong on this form at all (lines
+        106-109).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerTipsReportedToEmployerAtLeastZero">
+      <Name>Primary filer's reported-tip amount, floored at zero for Form 4137 line 3</Name>
+      <Description>Complete-only nonnegative reader for /writablePrimaryFilerTipsReportedToEmployer. The writable declares a minimum of $0, and the reported-tip total is already included in wages, so a persisted negative answer must not increase unreported tips or reduce the related tax calculation. Unanswered input remains Incomplete.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writablePrimaryFilerTipsReportedToEmployer" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerTipsReportedToEmployer">
+      <Name>Secondary filer's tips reported to employers in 2025 (Form 4137 line 3)</Name>
+      <Description>Secondary-filer twin of /writablePrimaryFilerTipsReportedToEmployer.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryFilerTipsReportedToEmployerAtLeastZero">
+      <Name>Secondary filer's reported-tip amount, floored at zero for Form 4137 line 3</Name>
+      <Description>Complete-only nonnegative reader for /writableSecondaryFilerTipsReportedToEmployer. The writable declares a minimum of $0, and the reported-tip total is already included in wages, so a persisted negative answer must not increase unreported tips or reduce the related tax calculation. Unanswered input remains Incomplete.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableSecondaryFilerTipsReportedToEmployer" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Line3">
+      <Name>Form 4137 line 3, primary filer</Name>
+      <Description>Form 4137 line 3: total cash and charge tips reported to the employer(s) in
+        2025, the line-1 column (d) total, on the same three arms as line 2 — the attested
+        /writablePrimaryFilerTipsReportedToEmployer when it is answered, else CollectionSum over
+        /primaryFilerForm4137Employers/*/tipsReportedToEmployerOrZero when /form4137Employers is
+        answered, else the complete-safe $0. The printed line is "Add the amounts from line 1," /
+        "column (d)" (lines 31-32) and the more-than-five-employers rule names lines 2 AND 3
+        together, so the two lines take the same shape for the same reason; see
+        /primaryFilerForm4137Line2 for the full argument and the single-Round rule.
+
+        A BLANK COLUMN (d) ON A FILLED ROW IS $0, NOT A GAP — it is the filer who reported nothing
+        to that employer, which is the population this form collects.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerTipsReportedToEmployer" />
+              </IsComplete>
+            </When>
+            <Then>
+                <Dependency path="/primaryFilerTipsReportedToEmployerAtLeastZero" />
+            </Then>
+            </Case>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/form4137Employers" />
+                </IsComplete>
+              </When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/primaryFilerForm4137Employers/*/tipsReportedToEmployerOrZero" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line3">
+      <Name>Form 4137 line 3, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line3, over
+        /secondaryFilerForm4137Employers/*/tipsReportedToEmployerOrZero. Complete at $0 on a
+        single-filer return for the reason /secondaryFilerForm4137Line2 records.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerTipsReportedToEmployer" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/secondaryFilerTipsReportedToEmployerAtLeastZero" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/form4137Employers" />
+                </IsComplete>
+              </When>
+              <Then>
+                <CollectionSum>
+                  <Dependency path="/secondaryFilerForm4137Employers/*/tipsReportedToEmployerOrZero" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePrimaryFilerHasAdequateRecordsForAllocatedTips">
+      <Name>Primary filer has adequate records supporting unreported tips below W-2 box 8</Name>
+      <Description>Optional attestation for the Form 4137 allocated-tips exception. If unanswered,
+        box 8 remains the minimum. If true, the LINE 2 amount must also be supplied before the
+        lower actual difference can control: a blank line 3 is $0 on the printed form and the
+        exception still has its stated basis, but a blank line 2 would drop the box-8 floor to $0
+        on no stated basis at all.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerHasAdequateRecordsForAllocatedTips">
+      <Name>Secondary filer has adequate records supporting unreported tips below W-2 box 8</Name>
+      <Description>The secondary-filer twin of /writablePrimaryFilerHasAdequateRecordsForAllocatedTips, including its line-2 condition.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerHasAdequateRecordsForAllocatedTips">
+      <Name>Primary filer can use the Form 4137 allocated-tips exception</Name>
+      <Description>Complete-safe reading of the primary filer's adequate-records attestation.
+        Unanswered is false, because the printed exception requires the filer to have records.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writablePrimaryFilerHasAdequateRecordsForAllocatedTips" /></IsComplete></When>
+            <Then><Dependency path="/writablePrimaryFilerHasAdequateRecordsForAllocatedTips" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerHasAdequateRecordsForAllocatedTips">
+      <Name>Secondary filer can use the Form 4137 allocated-tips exception</Name>
+      <Description>Secondary-filer twin of /primaryFilerHasAdequateRecordsForAllocatedTips.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableSecondaryFilerHasAdequateRecordsForAllocatedTips" /></IsComplete></When>
+            <Then><Dependency path="/writableSecondaryFilerHasAdequateRecordsForAllocatedTips" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePrimaryFilerTotalTipsIncludesAllocatedTips">
+      <Name>Primary filer's line 2 already includes the Form W-2 box 8 allocated tips</Name>
+      <Description>QUESTION, asked when the primary filer's Forms W-2 show allocated tips in box 8, the adequate-records exception is not claimed, and line 2 is more than line 3: "Does your total of cash and charge tips received (Form 4137 line 2) already include the allocated tips shown in box 8 of your Forms W-2?" Column (c) includes box 8 allocated tips; No adds them to line 2. Unanswered on that population refuses the return through /knockoutForm4137AllocatedTipsInLineTwoUnanswered.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerTotalTipsIncludesAllocatedTips">
+      <Name>Secondary filer's line 2 already includes the Form W-2 box 8 allocated tips</Name>
+      <Description>The secondary-filer twin of /writablePrimaryFilerTotalTipsIncludesAllocatedTips, asked on the secondary filer's own Form 4137.</Description>
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerAllocatedTipsAddedToLineTwo">
+      <Name>Primary filer's box 8 allocated tips added to line 2</Name>
+      <Description>The primary filer's Forms W-2 box 8 total when the filer answers that line 2 leaves those allocated tips out and does not claim the adequate-records exception, because column (c), and so line 2, includes them; $0 otherwise.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writablePrimaryFilerTotalTipsIncludesAllocatedTips" /></IsComplete>
+                <Not><Dependency path="/writablePrimaryFilerTotalTipsIncludesAllocatedTips" /></Not>
+                <Not><Dependency path="/primaryFilerHasAdequateRecordsForAllocatedTips" /></Not>
+              </All>
+            </When>
+            <Then><Dependency module="formW2s" path="/primaryFilerAllocatedTips" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerAllocatedTipsAddedToLineTwo">
+      <Name>Secondary filer's box 8 allocated tips added to line 2</Name>
+      <Description>The secondary-filer twin of /primaryFilerAllocatedTipsAddedToLineTwo.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableSecondaryFilerTotalTipsIncludesAllocatedTips" /></IsComplete>
+                <Not><Dependency path="/writableSecondaryFilerTotalTipsIncludesAllocatedTips" /></Not>
+                <Not><Dependency path="/secondaryFilerHasAdequateRecordsForAllocatedTips" /></Not>
+              </All>
+            </When>
+            <Then><Dependency module="formW2s" path="/secondaryFilerAllocatedTips" /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar> </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm4137AllocatedTipsInLineTwoUnanswered">
+      <Name>Knockout: whether line 2 includes the box 8 allocated tips is unanswered</Name>
+      <Description>Refuses a return on which a filer's Forms W-2 show allocated tips in box 8, the adequate-records exception is not claimed, line 2 is more than line 3, and the filer has not said whether line 2 already includes those allocated tips. Column (c) must include them; if line 2 does, line 4 is line 2 less line 3 and box 8 is only its floor, and if it does not, line 4 is that amount plus box 8. The two readings differ by up to the whole box 8 amount and nothing else on the return tells them apart, so the question is required. Answering it clears the refusal. Complete false whenever any of the conditions is known not to hold.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <GreaterThan>
+              <Left><Dependency module="formW2s" path="/primaryFilerAllocatedTips" /></Left>
+              <Right><Dollar>0</Dollar> </Right>
+            </GreaterThan>
+            <Not><Dependency path="/primaryFilerHasAdequateRecordsForAllocatedTips" /></Not>
+            <GreaterThan>
+              <Left><Dependency path="/primaryFilerForm4137Line2" /></Left>
+              <Right><Dependency path="/primaryFilerForm4137Line3" /></Right>
+            </GreaterThan>
+            <Not><IsComplete><Dependency path="/writablePrimaryFilerTotalTipsIncludesAllocatedTips" /></IsComplete></Not>
+          </All>
+          <All>
+            <GreaterThan>
+              <Left><Dependency module="formW2s" path="/secondaryFilerAllocatedTips" /></Left>
+              <Right><Dollar>0</Dollar> </Right>
+            </GreaterThan>
+            <Not><Dependency path="/secondaryFilerHasAdequateRecordsForAllocatedTips" /></Not>
+            <GreaterThan>
+              <Left><Dependency path="/secondaryFilerForm4137Line2" /></Left>
+              <Right><Dependency path="/secondaryFilerForm4137Line3" /></Right>
+            </GreaterThan>
+            <Not><IsComplete><Dependency path="/writableSecondaryFilerTotalTipsIncludesAllocatedTips" /></IsComplete></Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm4137Line4">
+      <Name>Form 4137 line 4, primary filer (Form 1040 line 1c)</Name>
+      <Description>Form 4137 line 4 = line 2 less line 3: the tips received but NOT reported to
+        the employer. W-2 box 8 is the minimum when allocated tips exist, unless the filer attests
+        that adequate records support a lower line-2-less-line-3 amount. This fact reads that
+        complete-safe per-filer result from formW2s; it therefore carries both the Form 1040 line
+        1c income leg and the Form 4137 FICA chain. The underlying subtraction remains floored at
+        zero so a transposed line 2/line 3 cannot create negative tip income.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="formW2s" path="/primaryFilerAllocatedTipsIncludibleInUnreportedTips" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line4">
+      <Name>Form 4137 line 4, secondary filer (Form 1040 line 1c)</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line4, including the box-8
+        minimum and adequate-records exception.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="formW2s" path="/secondaryFilerAllocatedTipsIncludibleInUnreportedTips" />
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePrimaryFilerTipsBelowTwentyDollarMonthlyThreshold">
+      <Name>Primary filer's tips under the $20 monthly threshold (Form 4137 line 5)</Name>
+      <Description>Tips the primary filer received but was NOT required to report because the
+        month's total was under $20. These are excluded from social security and Medicare tax but
+        remain income (they are already inside line 4). Optional.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerTipsBelowTwentyDollarMonthlyThresholdAtLeastZero">
+      <Name>Primary filer's under-$20 tip amount, floored at zero for Form 4137 line 5</Name>
+      <Description>Complete-only nonnegative reader for /writablePrimaryFilerTipsBelowTwentyDollarMonthlyThreshold. The writable declares a minimum of $0, and line 5 is subtracted from taxable unreported tips, so a persisted negative answer must not increase the Form 4137 tax. Unanswered input remains Incomplete.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writablePrimaryFilerTipsBelowTwentyDollarMonthlyThreshold" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerTipsBelowTwentyDollarMonthlyThreshold">
+      <Name>Secondary filer's tips under the $20 monthly threshold (Form 4137 line 5)</Name>
+      <Description>Secondary-filer twin of
+        /writablePrimaryFilerTipsBelowTwentyDollarMonthlyThreshold.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/secondaryFilerTipsBelowTwentyDollarMonthlyThresholdAtLeastZero">
+      <Name>Secondary filer's under-$20 tip amount, floored at zero for Form 4137 line 5</Name>
+      <Description>Complete-only nonnegative reader for /writableSecondaryFilerTipsBelowTwentyDollarMonthlyThreshold. The writable declares a minimum of $0, and line 5 is subtracted from taxable unreported tips, so a persisted negative answer must not increase the Form 4137 tax. Unanswered input remains Incomplete.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableSecondaryFilerTipsBelowTwentyDollarMonthlyThreshold" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Line5">
+      <Name>Form 4137 line 5, primary filer</Name>
+      <Description>Form 4137 line 5: cash and charge tips received but not reported to the
+        employer because the month's total was under $20. Complete-safe $0 unanswered, which is
+        the correct default — a filer who does not claim the exclusion is taxed on the whole of
+        line 4, the taxpayer-ADVERSE direction.</Description>
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writablePrimaryFilerTipsBelowTwentyDollarMonthlyThreshold" />
+              </IsComplete>
+            </When>
+              <Then>
+                <Dependency path="/primaryFilerTipsBelowTwentyDollarMonthlyThresholdAtLeastZero" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line5">
+      <Name>Form 4137 line 5, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line5.</Description>
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableSecondaryFilerTipsBelowTwentyDollarMonthlyThreshold" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency path="/secondaryFilerTipsBelowTwentyDollarMonthlyThresholdAtLeastZero" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm4137Line6">
+      <Name>Form 4137 line 6, primary filer (also Form 8959 line 2)</Name>
+      <Description>Form 4137 line 6 = line 4 less line 5: the unreported tips subject to MEDICARE
+        tax. Medicare has no wage base, so this figure — not the social-security-capped line 10 —
+        is what line 12 multiplies, and it is also the figure Form 8959 line 2 carries into the
+        Additional Medicare Tax base ("Enter this amount on Form 8959, line 2, if you're required
+        to file that form").
+
+        FLOORED AT ZERO on the same reasoning as line 4: line 5 is by construction a subset of
+        line 4 (both are tips the filer did not report to the employer), the printed line carries
+        no "if zero or less" clause, and an unfloored negative would flow into Form 8959's line-4
+        base and REDUCE Additional Medicare Tax — a false allowance. Floored, an over-stated line
+        5 costs the filer the social security and Medicare tax on tips they need not have
+        excluded, which is taxpayer-adverse.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/primaryFilerForm4137Line4" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/primaryFilerForm4137Line5" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line6">
+      <Name>Form 4137 line 6, secondary filer (also Form 8959 line 2)</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line6.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/secondaryFilerForm4137Line4" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/secondaryFilerForm4137Line5" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4137Line6Total">
+      <Name>Form 4137 line 6, both filers (Form 8959 line 2)</Name>
+      <Description>Both filers' Form 4137 line 6, summed — the amount Form 8959 line 2 carries.
+        Form 8959 is a RETURN-level form (one per return, with a joint threshold at line 5) while
+        Form 4137 is filed per spouse, so the two per-filer line-6 figures add here.
+        Complete-safe $0 on every return with no tip intake, which keeps Form 8959 line 4 and
+        therefore Schedule 2 line 11 byte-identical on the committed corpus.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryFilerForm4137Line6" />
+            <Dependency path="/secondaryFilerForm4137Line6" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form4137Line7MaxWagesSubjectToOasdi">
+      <Name>Form 4137 line 7, maximum wages subject to social security tax</Name>
+      <Description>Form 4137 line 7: the 2025 social security (OASDI) contribution and benefit
+        base, $176,100, printed on the form itself. Not per filer — it is the same statutory
+        figure on both spouses' forms; the per-person capping happens at line 9, which subtracts
+        each filer's OWN line 8.</Description>
+      
+      <Derived>
+        <Dollar>176100</Dollar>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm4137Line8">
+      <Name>Form 4137 line 8, primary filer</Name>
+      <Description>Form 4137 line 8: this filer's total social security wages and social security
+        tips, "total of your Form(s) W-2, boxes 3 and 7". Summed over
+        formW2s:/primaryFilerW2s — the filer's OWN W-2s — because the social security wage base
+        is a per-person limit; a graph-wide sum over both spouses' W-2s would let one spouse's
+        under-cap position mask the other's, exactly the error
+        formW2s:/primaryFilerTotalOasdiWithholding's Description argues against for Schedule 3
+        line 11.
+
+        CENTS PRESERVED IN THE ADDENDS. It sums /formW2s/*/oasdiWagesUnrounded and
+        /oasdiTipsUnrounded — the cents-bearing twins added with this fill — rather than the
+        rounded per-W-2 entry facts, and rounds once here at the printed line. Line 8 is an "add
+        two or more amounts" line in i1040gi page 23's sense, so summing already-rounded per-W-2
+        items is the construction that rule forbids; this is the same remedy already applied to
+        boxes 5, 4 and 1. Both twins are complete-safe ($0 when the box is
+        unanswered), so a CollectionSum over an empty or partly-answered set is Complete, and a
+        return with no W-2 at all gives line 8 = $0 rather than Incomplete.
+
+        THE THIRD ADDEND IS THE RRTA TERM, and the printed line has always carried it: "...boxes 3 and 7) and railroad retirement (RRTA) compensation (subject to 6.2%
+        rate)". It is this filer's box-14 railroad retirement compensation
+        (formW2s:/formW2s/*/rrtaCompensationUnrounded), summed over that filer's own W-2s like the
+        other two. It CANNOT double-count the box-3 term: the W-2 instructions reserve boxes 3
+        through 7 for social security and Medicare wages and say in terms that those boxes "are not
+        to be used to report railroad retirement compensation and taxes", so a railroad employer's
+        box 3 is empty and box 14 is the only place the figure appears.
+
+        AND IT IS CAPPED, WHICH IS THE ONE PLACE THIS LINE PARTS COMPANY WITH ITS NEAR-TWIN ON
+        SCHEDULE SE. Form 4137's own Specific Instruction reads "Line 8. For railroad retirement
+        (RRTA) compensation, don't include an amount greater than $176,100, which is the amount
+        subject to the 6.2% rate for 2025." (lines 127-129). The cap is line 7's own figure, so it
+        is READ FROM /form4137Line7MaxWagesSubjectToOasdi rather than typed a second time — the
+        instruction identifies it as "the amount subject to the 6.2% rate", which is what line 7
+        is. Schedule SE prints NO such instruction on its line 8a (checked against both
+        https://www.irs.gov/pub/irs-pdf/f1040sse.pdf and https://www.irs.gov/pub/irs-pdf/i1040sse.pdf: the only
+        176,100 on that schedule is line 7's own), which is why scheduleSE:/primaryFilerScheduleSeLine8a
+        is uncapped and this fact is not, and why the two cannot be expressed through one another
+        however the rounding is arranged. That fact's FORWARD POINTER — "once that term lands, that
+        module can grow the unrounded sibling and one of these two facts can be expressed through
+        the other" — is falsified by this landing, on substance rather than on shape: an unrounded
+        sibling of this fact would carry a ceiling Schedule SE must not have.
+
+        THE CAP BINDS THE PER-FILER TOTAL, NOT EACH W-2. The instruction says not to INCLUDE more
+        than $176,100 of RRTA compensation on the line, and what is included on the line is the
+        total; two railroad W-2s of $100,000 and $90,000 therefore contribute $176,100, not
+        $190,000. THE REJECTED ALTERNATIVE, priced rather than dismissed: a per-employer ceiling,
+        which would let that filer's line 8 read $190,000. It is rejected because the printed
+        sentence governs the amount entered on one line, and because the per-employer reading has
+        no anchor in the instruction's own words; and its stakes are small and stated — whenever
+        either reading's cap can bite, the un-capped RRTA total already exceeds line 7, so line 9
+        floors to $0 under both and only line 8's own printed entry differs. The boundary case
+        tests/nodes/ty2025/form4137/f4137-line8-rrta-two-w2s-capped-at-the-wage-base holds exactly
+        that pair of W-2s and asserts line 8 = 176,100, which is the only assertion that can tell
+        the two readings apart.
+
+        DIRECTION: TAXPAYER-FAVOURABLE, closing a disclosed adverse gap. A larger line 8 leaves a
+        smaller line 9, hence a line 10 at or below its old value, hence line 11 and line 13 at or
+        below theirs. Witnessed by
+        tests/nodes/ty2025/form4137/f4137-line8-rrta-compensation-consumes-base: a railroad filer
+        with $174,000 of box-14 compensation and $3,750 of unreported tips pays $184 of Schedule 2
+        line-5 tax, against $287 before this term existed.
+
+        THE FORM 8919 LEG COMES WITH IT, and that is by construction rather than by accident.
+        form8919:/primaryFilerForm8919Line8 reuses this fact as its boxes-3-and-7 half, and printed
+        Form 8919 line 8 names railroad retirement compensation in the same breath and carries the
+        IDENTICAL cap instruction (https://www.irs.gov/pub/irs-pdf/f8919.pdf, page 2, word for word).
+        So this landing closes that form's line-8 RRTA gap too, correctly and with the right
+        ceiling, and the prose disclosing that gap in form8919.xml is falsified by this commit
+        rather than by anything in that module.
+
+        SCHEDULE SE IS UNMOVED, and that is a proof rather than a hope — BY CASES (the min()
+        shorthand that stood here failed at its own boundary when R exceeds the base; corrected
+        loop-8 per the fg-review, conclusion unchanged). Writing R for the filer's railroad
+        compensation: if R is at or above 176,100 then 8d is at or above 176,100 on both sides of
+        this change; if R is below 176,100 then either the capped term is unclamped on both sides
+        (8d equal) or 8d is at least R + (176,100 minus R) = 176,100 on both sides. In every case
+        Schedule SE line 9, which
+        is the base less 8d floored at zero, is $0 in both
+        worlds and self-employment tax cannot move. Witnessed by
+        tests/nodes/ty2025/form4137/f4137-line8-rrta-leaves-schedule-se-base-unmoved, where line 8d
+        moves 179,750 to 176,100 while /selfEmploymentTax holds at 803 on both sides.
+
+        THE DISCLOSED RESIDUAL, pointing the other way, because a reader is owed it. Box 14 reports
+        TOTAL RRTA compensation, which is Medicare-equivalent and uncapped, while this line wants
+        the compensation subject to the 6.2% rate. The two coincide for an ordinary railroad
+        employee and diverge for one with pay that is Medicare-taxable but tier-1-exempt, whose
+        box-14 figure then overstates this term — line 8 high, line 9 low, line 10 and the tax at
+        or below correct. It is bounded by the printed cap above and by line 7 below it, and no
+        W-2 field reports the tier-1 base separately, so closing it needs an intake that does not
+        exist. schedule3:/formW2s/*/oasdiAndTier1WagesForExcessEligibility and
+        scheduleSE:/primaryFilerScheduleSeLine8a record the same residual.
+
+        NOT form8959:/rrtaCompensationAndTips, although it is this dictionary's existing box-14
+        total. That fact is a deliberate JOINT aggregate — Form 8959 line 15 applies one threshold
+        to the couple — while Form 4137 is filed per spouse and line 8 reads that spouse's own
+        Forms W-2. Reading it here would charge one spouse's railroad compensation against the
+        other's wage base.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <CollectionSum>
+              <Dependency module="formW2s" path="/primaryFilerW2s/*/oasdiWagesUnrounded" />
+            </CollectionSum>
+            <CollectionSum>
+              <Dependency module="formW2s" path="/primaryFilerW2s/*/oasdiTipsUnrounded" />
+            </CollectionSum>
+            <LesserOf>
+              <CollectionSum>
+                <Dependency module="formW2s" path="/primaryFilerW2s/*/rrtaCompensationUnrounded" />
+              </CollectionSum>
+              <Dependency path="/form4137Line7MaxWagesSubjectToOasdi" />
+            </LesserOf>
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line8">
+      <Name>Form 4137 line 8, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line8, summed over
+        formW2s:/secondaryFilerW2s — see that fact for the three printed addends, the printed cap
+        on the RRTA term and its aggregate-versus-per-employer reading, the single-Round rule, the
+        Form 8919 leg that comes with it, the Schedule SE invariance proof and the box-14 residual.
+        All of them apply here unchanged, and the two facts must stay the same shape: leaving one
+        of a couple's two Forms 4137 on a different reading of line 8 is the same defect class in
+        miniature. On a non-MFJ return formW2s:/secondaryFilerW2s is empty and this resolves $0,
+        Complete.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <CollectionSum>
+              <Dependency module="formW2s" path="/secondaryFilerW2s/*/oasdiWagesUnrounded" />
+            </CollectionSum>
+            <CollectionSum>
+              <Dependency module="formW2s" path="/secondaryFilerW2s/*/oasdiTipsUnrounded" />
+            </CollectionSum>
+            <LesserOf>
+              <CollectionSum>
+                <Dependency module="formW2s" path="/secondaryFilerW2s/*/rrtaCompensationUnrounded" />
+              </CollectionSum>
+              <Dependency path="/form4137Line7MaxWagesSubjectToOasdi" />
+            </LesserOf>
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm4137Line9">
+      <Name>Form 4137 line 9, primary filer</Name>
+      <Description>Form 4137 line 9 = line 7 less line 8, floored at zero — the social security
+        wage base this filer has left. The floor IS printed here ("If line 8 is more than line 7,
+        enter -0-"), unlike lines 4 and 6.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form4137Line7MaxWagesSubjectToOasdi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/primaryFilerForm4137Line8" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line9">
+      <Name>Form 4137 line 9, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line9.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form4137Line7MaxWagesSubjectToOasdi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/secondaryFilerForm4137Line8" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writablePrimaryFilerGovernmentEmployeeTips">
+      <Name>Primary filer's line-6 tips earned as a government employee whose pay was subject only to the 1.45% Medicare tax (Form 4137 line 10)</Name>
+      <Description>The primary filer's attested amount of the line-6 tips received for work done as
+        a federal, state or local government employee whose pay was subject ONLY to the 1.45%
+        Medicare tax. Optional: a filer with no such employment never answers it and
+        /primaryFilerForm4137Line10GovernmentEmployeeTips resolves $0, which reproduces the
+        no-carve-out behaviour this module shipped before the carve-out landed and is the
+        taxpayer-ADVERSE default.
+
+        NO DOCUMENT REPORTS IT, which is why it is an attestation rather than a derivation. No Form
+        W-2 box distinguishes government employment subject only to the Medicare rate, so it cannot
+        be read off the documents this dictionary already models; the printed instruction asks the
+        filer for the amount directly and routes the disclosure to a dotted line next to line 10
+        rather than to a numbered entry.
+
+        SIGN: NON-NEGATIVE, carried as a declared Limit. The upper bound (line 6) is NOT a Limit,
+        because a Limit takes a literal and this ceiling is another fact; it is applied at
+        /primaryFilerForm4137Line10GovernmentEmployeeTips instead.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerGovernmentEmployeeTips">
+      <Name>Secondary filer's line-6 tips earned as a government employee subject only to the 1.45% Medicare tax (Form 4137 line 10)</Name>
+      <Description>Secondary-filer twin of /writablePrimaryFilerGovernmentEmployeeTips. Separate
+        because the form is filed per spouse, and because the carve-out is a property of THAT
+        spouse's own employment.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Line10GovernmentEmployeeTips">
+      <Name>Form 4137 line 10 government-employee carve-out, primary filer (the "1.45% tips" dotted-line amount)</Name>
+      <Description>The amount the line-10 instruction subtracts from line 6 "only for the purpose
+        of comparing lines 6 and 9" — the filer's attestation, BOUNDED ABOVE BY LINE 6.
+
+        THE BOUND IS THE WHOLE POINT OF THIS FACT EXISTING SEPARATELY from the writable. The
+        printed instruction subtracts these tips FROM line 6, so they are by construction a subset
+        of line 6; nothing on the form says what to do when a filer attests more. Unclamped, an
+        over-stated attestation would drive the comparison value NEGATIVE, and a negative
+        comparison value flows straight into /primaryFilerForm4137Line10 (whose printed smaller-of
+        carries no floor of its own, unlike lines 4, 6 and 9) and from there into line 11 as a
+        NEGATIVE social security tax — a false allowance manufactured by a data-entry error. The
+        REJECTED alternative is the literal unclamped subtraction; it is rejected because a
+        negative tax line is not a return the law admits and the engine would propagate it
+        silently. Clamped, the same over-statement costs the filer nothing they were owed: line 10
+        floors at $0 and only the Medicare half of line 13 survives, which is exactly what a filer
+        whose whole line 6 was 1.45%-only employment should pay.
+
+        COMPLETE-SAFE $0 when the writable is unanswered, so every return that never meets this
+        question keeps the arithmetic the module shipped with.</Description>
+      
+      <Derived>
+        <LesserOf>
+          <Round>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/writablePrimaryFilerGovernmentEmployeeTips" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <GreaterOf>
+                    <Dependency path="/writablePrimaryFilerGovernmentEmployeeTips" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+          </Round>
+          <Dependency path="/primaryFilerForm4137Line6" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line10GovernmentEmployeeTips">
+      <Name>Form 4137 line 10 government-employee carve-out, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line10GovernmentEmployeeTips,
+        clamped at that spouse's own line 6 for the same stated reason.</Description>
+      
+      <Derived>
+        <LesserOf>
+          <Round>
+            <Switch>
+              <Case>
+                <When>
+                  <IsComplete>
+                    <Dependency path="/writableSecondaryFilerGovernmentEmployeeTips" />
+                  </IsComplete>
+                </When>
+                <Then>
+                  <GreaterOf>
+                    <Dependency path="/writableSecondaryFilerGovernmentEmployeeTips" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Then>
+              </Case>
+              <Case>
+                <When>
+                  <True />
+                </When>
+                <Then>
+                  <Dollar>0</Dollar>
+                </Then>
+              </Case>
+            </Switch>
+          </Round>
+          <Dependency path="/secondaryFilerForm4137Line6" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Line10">
+      <Name>Form 4137 line 10, primary filer</Name>
+      <Description>Form 4137 line 10 = the smaller of line 6 or line 9, where the line-6 side is
+        first reduced by the government-employee carve-out: the unreported tips that still fit
+        under this filer's social security wage base. This is the ONLY place the wage base bites —
+        line 12's Medicare tax reads line 6 and is uncapped.
+
+        THE CARVE-OUT REACHES THE COMPARISON ONLY, which is the trap this line exists to avoid.
+        The Specific Instruction lets a filer whose pay was subject only to the 1.45% Medicare tax
+        (federal, state or local government employment) subtract those tips from line 6 "only for
+        the purpose of comparing lines 6 and 9", and then says in terms "Don't reduce the actual
+        entry on line 6." So the subtraction happens INSIDE this fact's Minuend and nowhere else:
+        /primaryFilerForm4137Line6 is untouched, line 12 keeps the full Medicare base, and Form
+        1040 line 1c's tip income (line 4) never sees it either. The witness pair is
+        tests/nodes/ty2025/form4137/f4137-government-employee-tips-{carve-out,
+        exceed-line6-clamped}: line 11 moves, line 12 does not.
+
+        NO ZERO FLOOR IS NEEDED and its absence is deliberate, not an oversight. The printed line
+        carries no "if zero or less" clause, unlike lines 4, 6 and 9, and none is needed because
+        both arms of the smaller-of are non-negative by construction: line 9 floors at $0 on its
+        own printed rule, and the Minuend cannot go below $0 because
+        /primaryFilerForm4137Line10GovernmentEmployeeTips is clamped at line 6 (see that fact for
+        why an unclamped attestation would manufacture a negative social security tax).
+
+        THIS LINE CROSSES INTO FORM 8919, and the carve-out's direction is only complete when both
+        legs are read. form8919:/primaryFilerForm8919Line8 adds this figure to that filer's boxes
+        3 and 7, so a smaller line 10 leaves a LARGER Form 8919 line 9 and taxes more Form 8919
+        wages. The carve-out therefore does not simply remove tax: it moves wage base from the tip
+        leg to the misclassified-wage leg, which is exactly what the two forms' printed chain
+        says should happen. Witnessed by
+        tests/nodes/ty2025/form8919/f8919-form4137-government-tips-free-wage-base, where 999
+        dollars of base migrate. On a filer with no Form 8919 the second leg is absent and the
+        carve-out is a pure reduction; before it was modelled, line 11 was at or above correct on
+        that filer, which was TAXPAYER-ADVERSE and never a false allowance.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/primaryFilerForm4137Line6" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/primaryFilerForm4137Line10GovernmentEmployeeTips" />
+            </Subtrahends>
+          </Subtract>
+          <Dependency path="/primaryFilerForm4137Line9" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line10">
+      <Name>Form 4137 line 10, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line10, reducing the comparison by
+        that spouse's own government-employee carve-out and leaving that spouse's line 6
+        untouched.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/secondaryFilerForm4137Line6" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/secondaryFilerForm4137Line10GovernmentEmployeeTips" />
+            </Subtrahends>
+          </Subtract>
+          <Dependency path="/secondaryFilerForm4137Line9" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm4137Line11">
+      <Name>Form 4137 line 11, primary filer (social security tax on unreported tips)</Name>
+      <Description>Form 4137 line 11 = line 10 x 0.062, the employee share of social security tax
+        on the unreported tips that fit under the wage base. Rounded once here, at the printed
+        entry line.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>62/1000</Rational>
+            <Dependency path="/primaryFilerForm4137Line10" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line11">
+      <Name>Form 4137 line 11, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line11.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>62/1000</Rational>
+            <Dependency path="/secondaryFilerForm4137Line10" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Line12">
+      <Name>Form 4137 line 12, primary filer (Medicare tax on unreported tips)</Name>
+      <Description>Form 4137 line 12 = line 6 x 0.0145. NOTE THE MULTIPLICAND: line 6, not line
+        10. Medicare tax has no wage base, so the full amount of unreported tips subject to
+        Medicare tax is taxed even when the social security half was capped at line 10. The
+        boundary pair tests/nodes/ty2025/form4137/f4137-unreported-tips-wage-base-{headroom,
+        cap-binds} exists to witness exactly this: line 11 moves between them, line 12 does
+        not.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>145/10000</Rational>
+            <Dependency path="/primaryFilerForm4137Line6" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line12">
+      <Name>Form 4137 line 12, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line12, likewise reading line 6
+        rather than line 10.</Description>
+      
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>145/10000</Rational>
+            <Dependency path="/secondaryFilerForm4137Line6" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/primaryFilerForm4137Line13">
+      <Name>Form 4137 line 13, primary filer</Name>
+      <Description>Form 4137 line 13 = lines 11 and 12: this filer's total social security and
+        Medicare tax on unreported tip income, the amount the form routes to Schedule 2 line
+        5.</Description>
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryFilerForm4137Line11" />
+            <Dependency path="/primaryFilerForm4137Line12" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Line13">
+      <Name>Form 4137 line 13, secondary filer</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Line13.</Description>
+      
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/secondaryFilerForm4137Line11" />
+            <Dependency path="/secondaryFilerForm4137Line12" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4137SocialSecurityAndMedicareTaxOnUnreportedTips">
+      <Name>Schedule 2 line 5, social security and Medicare tax on unreported tip income</Name>
+      <Description>Schedule 2 line 5: both filers' Form 4137 line 13, summed. Form 4137 is filed
+        per spouse and Schedule 2 is one per return, so the two forms' line 13 figures add on the
+        single printed line.
+
+        Reaches Form 1040 line 23 as a direct addend of taxCalculations:/line21OfSchedule2. The
+        printed line 21 adds "lines 4, 7 through 16, 18, and 19" and line 7 is "Total additional
+        social security and Medicare tax. Add lines 5 and 6", so the printed route runs 5 → 7 → 21;
+        no separate line-7 fact is declared because adding lines 5 and 6 straight into line 21 is
+        the same arithmetic, and it is the idiom every shipping Part II term already uses (Form
+        8889's line 17c reaches line 18 the same way). The one thing that would be WRONG is adding
+        a line-7 fact AND its two components — line 21 must see each dollar once.
+
+        ADDITIVE ON THE COMMITTED CORPUS: no scenario answers any Form 4137 intake, and every line
+        above is complete-safe, so this resolves Complete $0 everywhere and total tax is
+        byte-identical.
+
+        DIRECTION OF THE GAP THIS CLOSES: Schedule 2 line 5 did not exist, so a filer with
+        unreported tips was charged no social security or Medicare tax on them — taxpayer-
+        FAVOURABLE, an under-collection. It was bounded to zero in practice only because the
+        income leg was a hardcoded $0 with no writable, which this module also
+        removes.</Description>
+      
+      <Export mef="true" downstreamFacts="true" />
+      <ExportZero />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/primaryFilerForm4137Line13" />
+            <Dependency path="/secondaryFilerForm4137Line13" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/knockoutForm4137TotalsBelowEmployerTable">
+      <Name>A filer's entered Form 4137 line 2 or line 3 is less than that filer's own line 1 rows</Name>
+      <Description>Blocks submission when either filer ENTERS a line 2 total (column (c)) or a line
+        3 total (column (d)) that is below the sum of that same column over his or her own line 1
+        employer rows. Line 2 is printed "Add the amounts from line 1, column (c)" and line 3 "Add
+        the amounts from line 1, column (d)", so an entered total smaller than the rows printed above
+        it does not foot.
+
+        ONE-SIDED, for the reason the form itself gives. A filer with more than five employers
+        attaches a statement or more line 1 rows and enters "the combined totals of all your Forms
+        4137 and attached statements" on lines 2 and 3, which permits an entered total LARGER than the
+        rows this return itemises and nothing smaller. Equal is admitted.
+
+        IT MOVES NO DOLLAR. An entered total still wins on lines 2 and 3 when it is answered. The
+        return has stated one quantity twice and the two cannot both be right: a low line 2 would
+        under-charge the income and the social security and Medicare tax, a low line 3 would
+        over-charge them, and this dictionary cannot know which figure is true.
+
+        COMPLETE-SAFE. Each arm tests the entered writable with IsComplete FIRST and the employer
+        collection with IsComplete second, so the All short-circuits to false on the many returns
+        that answer neither, and the comparison runs only against resolved sums. Per filer, through
+        the filtered views /primaryFilerForm4137Employers and /secondaryFilerForm4137Employers, so one
+        spouse's rows never cover the other spouse's total.
+
+        SCREEN: "The total tips you entered on Form 4137 line 2 (or line 3) is less than the tips you
+        listed for your employers on line 1. Line 2 and line 3 must be at least the total of the
+        rows. Correct the total or the rows."</Description>
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/writablePrimaryFilerTotalTipsReceived" /></IsComplete>
+            <IsComplete><Dependency path="/form4137Employers" /></IsComplete>
+            <LessThan>
+              <Left><Dependency path="/writablePrimaryFilerTotalTipsReceived" /></Left>
+              <Right>
+                <CollectionSum>
+                  <Dependency path="/primaryFilerForm4137Employers/*/totalTipsReceivedOrZero" />
+                </CollectionSum>
+              </Right>
+            </LessThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writablePrimaryFilerTipsReportedToEmployer" /></IsComplete>
+            <IsComplete><Dependency path="/form4137Employers" /></IsComplete>
+            <LessThan>
+              <Left><Dependency path="/writablePrimaryFilerTipsReportedToEmployer" /></Left>
+              <Right>
+                <CollectionSum>
+                  <Dependency path="/primaryFilerForm4137Employers/*/tipsReportedToEmployerOrZero" />
+                </CollectionSum>
+              </Right>
+            </LessThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableSecondaryFilerTotalTipsReceived" /></IsComplete>
+            <IsComplete><Dependency path="/form4137Employers" /></IsComplete>
+            <LessThan>
+              <Left><Dependency path="/writableSecondaryFilerTotalTipsReceived" /></Left>
+              <Right>
+                <CollectionSum>
+                  <Dependency path="/secondaryFilerForm4137Employers/*/totalTipsReceivedOrZero" />
+                </CollectionSum>
+              </Right>
+            </LessThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableSecondaryFilerTipsReportedToEmployer" /></IsComplete>
+            <IsComplete><Dependency path="/form4137Employers" /></IsComplete>
+            <LessThan>
+              <Left><Dependency path="/writableSecondaryFilerTipsReportedToEmployer" /></Left>
+              <Right>
+                <CollectionSum>
+                  <Dependency path="/secondaryFilerForm4137Employers/*/tipsReportedToEmployerOrZero" />
+                </CollectionSum>
+              </Right>
+            </LessThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm4137SecondaryFilerWithoutJointReturn">
+      <Name>Unreported tips for a second person on a return that is not a joint return</Name>
+      <Description>Blocks submission when the return is answered as NOT married filing jointly and
+        the second person on it still carries Form 4137 unreported tips (/secondaryFilerForm4137Line4
+        above zero). Form 4137 is filed per spouse ("If married, complete a separate Form 4137 for
+        each spouse with unreported tips"), and a spouse's tips reach this return only through a
+        joint return; on any other return that person's tip income and the social security and
+        Medicare tax on it are not this taxpayer's. The line 4 figure is left as it is, because a
+        community-property return may owe half of a spouse's tip income and this dictionary has no
+        Form 8958 split for tips, so refusing is the honest response rather than zeroing it.
+
+        IsComplete FIRST on the filing status, so a return whose filing status is unanswered resolves
+        false rather than Incomplete: the same shape as formW2s:/formW2s/*/secondaryFilerUsedWithoutMFJ.
+
+        SCREEN: "Your return includes unreported tips for your spouse, but you are not filing a joint
+        return. Remove your spouse's Form 4137 tips, or file jointly."</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </IsComplete>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <GreaterThan>
+            <Left><Dependency path="/secondaryFilerForm4137Line4" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137Employers">
+      <Name>The employer rows printed on the primary filer's Form 4137 (line 1, rows A through E)</Name>
+      <Description>The primary filer's view of /form4137Employers: the rows that belong on the primary filer's own Form 4137, in the collection's order. Form 4137 is filed per spouse, "If married, complete a separate Form 4137 for each spouse with unreported tips", while /form4137Employers is one return level intake collection carrying every employer row for both spouses and attributing each row through /form4137Employers/*/belongsToPrimaryFiler. The printed register copy for rows A through E must therefore index THIS filtered view: an index into the unfiltered collection would print the spouse's employers into the primary filer's rows A through E. An unanswered ../writableEmployerFiler counts as the primary filer, which is the attribution the filtered leaf already carries. It landed as a print shaped view that moved no dollar; it is ALSO the collection /primaryFilerForm4137Line2 and /primaryFilerForm4137Line3 combine when the primary filer's attested totals are unanswered (CollectionSum over /primaryFilerForm4137Employers/*/totalTipsReceivedOrZero and /*/tipsReportedToEmployerOrZero), which is the per filer partition the printed per spouse rule requires. It is the shape form8919:/primaryFilerForm8919Firms already ships for the same problem, and its secondary twin is /secondaryFilerForm4137Employers.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/form4137Employers">
+          <Dependency path="belongsToPrimaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137Employers">
+      <Name>The employer rows printed on the secondary filer's Form 4137 (line 1, rows A through E)</Name>
+      <Description>Secondary-filer twin of /primaryFilerForm4137Employers: the rows attributed to
+        the secondary filer, in the collection's order, through
+        /form4137Employers/*/belongsToSecondaryFiler. Form 4137 is filed per spouse — "If married,
+        complete a separate Form 4137 for each spouse with unreported tips" — so the spouse's own
+        Form 4137 prints and totals only her own rows. The two views PARTITION /form4137Employers:
+        ../belongsToPrimaryFiler takes an unanswered attribution and ../belongsToSecondaryFiler
+        requires an answered one, so no row is on both forms and none is on neither.
+
+        IT IS WHAT /secondaryFilerForm4137Line2 AND /secondaryFilerForm4137Line3 SUM when the
+        secondary filer's attested totals are unanswered, exactly as the primary view is what the
+        primary filer's lines 2 and 3 sum. Without it the secondary half of the footing could only
+        have been taken over the unfiltered collection, which would put one spouse's employers into
+        the other spouse's totals.
+
+        EMPTY, NOT INCOMPLETE, ON A SINGLE-FILER RETURN, because ../belongsToSecondaryFiler guards
+        filers:/secondaryFiler's own completeness and resolves Complete false there. That is what
+        keeps the secondary lines 2 and 3 Complete at $0 on a return with one filer, even when a
+        row carries an answered attribution.
+
+        THE REGISTER DOES NOT PRINT A SECOND FORM 4137 COPY YET. dictionary/pdf/2025/IRS4137 maps
+        rows A through E from /primaryFilerForm4137Employers only, so on an MFJ return where both
+        spouses have employer rows the spouse's page is not rendered. That is a REGISTER gap, named
+        here as the follow-on obligation this fact leaves open; the computation is complete on both
+        filers.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/form4137Employers">
+          <Dependency path="belongsToSecondaryFiler" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4137RequiredForPrimaryFiler">
+      <Name>Form 4137 is required for the primary filer</Name>
+      <Description>THE RENDER GATE for Form 4137, and it is the PRIMARY FILER'S form, not the
+        return's. The printed header says "Name of person who received tips. If married, complete
+        a separate Form 4137 for each spouse with unreported tips", so Form 4137 is a per-spouse
+        form; the TY2025 register dictionary/pdf/2025/IRS4137 maps only /primaryFilerForm4137Line*
+        fields, so only the primary filer's copy has a printed surface today. The secondary
+        filer's copy is a named successor, exactly as form8919:/form8919RequiredForPrimaryFiler
+        carries the same caveat.
+
+        TRUE when Form 4137 line 6 is positive for the primary filer — the unreported tips that
+        remain after line 5 removes the months under the $20 threshold, i.e. the tips that are
+        actually subject to social security and Medicare tax. Medicare has no wage base, so a
+        positive line 6 always produces a positive line 13 and a Schedule 2 line 5 amount; a
+        filer whose whole line 4 falls under the $20 monthly threshold has line 6 = $0 and owes
+        no Form 4137, which is the correct refusal to print.
+
+        COMPLETE-SAFE: /primaryFilerForm4137Line6 is a GreaterOf-floored amount over complete-safe
+        line 4 and line 5 terms.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/primaryFilerForm4137Line6" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+  
+    <Fact path="/primaryFilerForm4137PrintedRow1Item">
+      <Name>Printed line 1 row A of the primary filer's Form 4137: item 0 of that filer's own employer rows</Name>
+      <Description>Item 0 (counting from 0) of /primaryFilerForm4137Employers, the primary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 1 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>0</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137PrintedRow2Item">
+      <Name>Printed line 1 row B of the primary filer's Form 4137: item 1 of that filer's own employer rows</Name>
+      <Description>Item 1 (counting from 0) of /primaryFilerForm4137Employers, the primary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 2 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>1</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137PrintedRow3Item">
+      <Name>Printed line 1 row C of the primary filer's Form 4137: item 2 of that filer's own employer rows</Name>
+      <Description>Item 2 (counting from 0) of /primaryFilerForm4137Employers, the primary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 3 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>2</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137PrintedRow4Item">
+      <Name>Printed line 1 row D of the primary filer's Form 4137: item 3 of that filer's own employer rows</Name>
+      <Description>Item 3 (counting from 0) of /primaryFilerForm4137Employers, the primary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 4 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>3</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerForm4137PrintedRow5Item">
+      <Name>Printed line 1 row E of the primary filer's Form 4137: item 4 of that filer's own employer rows</Name>
+      <Description>Item 4 (counting from 0) of /primaryFilerForm4137Employers, the primary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 5 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/primaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>4</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137PrintedRow1Item">
+      <Name>Printed line 1 row A of the secondary filer's Form 4137: item 0 of that filer's own employer rows</Name>
+      <Description>Item 0 (counting from 0) of /secondaryFilerForm4137Employers, the secondary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 1 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>0</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137PrintedRow2Item">
+      <Name>Printed line 1 row B of the secondary filer's Form 4137: item 1 of that filer's own employer rows</Name>
+      <Description>Item 1 (counting from 0) of /secondaryFilerForm4137Employers, the secondary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 2 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>1</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137PrintedRow3Item">
+      <Name>Printed line 1 row C of the secondary filer's Form 4137: item 2 of that filer's own employer rows</Name>
+      <Description>Item 2 (counting from 0) of /secondaryFilerForm4137Employers, the secondary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 3 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>2</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137PrintedRow4Item">
+      <Name>Printed line 1 row D of the secondary filer's Form 4137: item 3 of that filer's own employer rows</Name>
+      <Description>Item 3 (counting from 0) of /secondaryFilerForm4137Employers, the secondary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 4 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>3</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerForm4137PrintedRow5Item">
+      <Name>Printed line 1 row E of the secondary filer's Form 4137: item 4 of that filer's own employer rows</Name>
+      <Description>Item 4 (counting from 0) of /secondaryFilerForm4137Employers, the secondary filer's own view of the return-level /form4137Employers intake. The printed line 1 table has five rows, A through E, and the form is filed per spouse with unreported tips, so the row a printed cell reads must be indexed into THAT filer's filtered view: an index into the unfiltered collection would print one spouse's employers into the other's rows A through E. A filer with fewer than 5 rows leaves this alias INCOMPLETE, which is the correct printed state for an empty row and is never a fabricated row of zeros.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IndexOf>
+          <Collection>
+            <Dependency path="/secondaryFilerForm4137Employers" />
+          </Collection>
+          <Index>
+            <Int>4</Int>
+          </Index>
+        </IndexOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow1Name">
+      <Name>Form 4137 line 1 row A, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row A, column (a), the name of the employer to whom the tips were not all reported, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow1Item/writableEmployerName on the secondary filer's copy and /primaryFilerForm4137PrintedRow1Item/writableEmployerName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 1 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow1Item/writableEmployerName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow1Item/writableEmployerName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow1IdentificationNumber">
+      <Name>Form 4137 line 1 row A, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row A, column (b), the employer identification number, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow1Item/writableEmployerIdentificationNumber on the secondary filer's copy and /primaryFilerForm4137PrintedRow1Item/writableEmployerIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 1 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow1Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow1Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow1TotalTips">
+      <Name>Form 4137 line 1 row A, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row A, column (c), the total cash and charge tips received including unreported tips, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow1Item/writableTotalTipsReceived on the secondary filer's copy and /primaryFilerForm4137PrintedRow1Item/writableTotalTipsReceived on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 1 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow1Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow1Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow1ReportedTips">
+      <Name>Form 4137 line 1 row A, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row A, column (d), the total cash and charge tips reported to that employer, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow1Item/writableTipsReportedToEmployer on the secondary filer's copy and /primaryFilerForm4137PrintedRow1Item/writableTipsReportedToEmployer on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 1 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow1Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow1Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow2Name">
+      <Name>Form 4137 line 1 row B, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row B, column (a), the name of the employer to whom the tips were not all reported, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow2Item/writableEmployerName on the secondary filer's copy and /primaryFilerForm4137PrintedRow2Item/writableEmployerName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 2 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow2Item/writableEmployerName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow2Item/writableEmployerName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow2IdentificationNumber">
+      <Name>Form 4137 line 1 row B, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row B, column (b), the employer identification number, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow2Item/writableEmployerIdentificationNumber on the secondary filer's copy and /primaryFilerForm4137PrintedRow2Item/writableEmployerIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 2 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow2Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow2Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow2TotalTips">
+      <Name>Form 4137 line 1 row B, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row B, column (c), the total cash and charge tips received including unreported tips, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow2Item/writableTotalTipsReceived on the secondary filer's copy and /primaryFilerForm4137PrintedRow2Item/writableTotalTipsReceived on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 2 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow2Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow2Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow2ReportedTips">
+      <Name>Form 4137 line 1 row B, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row B, column (d), the total cash and charge tips reported to that employer, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow2Item/writableTipsReportedToEmployer on the secondary filer's copy and /primaryFilerForm4137PrintedRow2Item/writableTipsReportedToEmployer on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 2 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow2Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow2Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow3Name">
+      <Name>Form 4137 line 1 row C, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row C, column (a), the name of the employer to whom the tips were not all reported, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow3Item/writableEmployerName on the secondary filer's copy and /primaryFilerForm4137PrintedRow3Item/writableEmployerName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 3 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow3Item/writableEmployerName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow3Item/writableEmployerName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow3IdentificationNumber">
+      <Name>Form 4137 line 1 row C, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row C, column (b), the employer identification number, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow3Item/writableEmployerIdentificationNumber on the secondary filer's copy and /primaryFilerForm4137PrintedRow3Item/writableEmployerIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 3 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow3Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow3Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow3TotalTips">
+      <Name>Form 4137 line 1 row C, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row C, column (c), the total cash and charge tips received including unreported tips, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow3Item/writableTotalTipsReceived on the secondary filer's copy and /primaryFilerForm4137PrintedRow3Item/writableTotalTipsReceived on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 3 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow3Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow3Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow3ReportedTips">
+      <Name>Form 4137 line 1 row C, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row C, column (d), the total cash and charge tips reported to that employer, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow3Item/writableTipsReportedToEmployer on the secondary filer's copy and /primaryFilerForm4137PrintedRow3Item/writableTipsReportedToEmployer on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 3 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow3Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow3Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow4Name">
+      <Name>Form 4137 line 1 row D, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row D, column (a), the name of the employer to whom the tips were not all reported, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow4Item/writableEmployerName on the secondary filer's copy and /primaryFilerForm4137PrintedRow4Item/writableEmployerName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 4 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow4Item/writableEmployerName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow4Item/writableEmployerName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow4IdentificationNumber">
+      <Name>Form 4137 line 1 row D, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row D, column (b), the employer identification number, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow4Item/writableEmployerIdentificationNumber on the secondary filer's copy and /primaryFilerForm4137PrintedRow4Item/writableEmployerIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 4 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow4Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow4Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow4TotalTips">
+      <Name>Form 4137 line 1 row D, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row D, column (c), the total cash and charge tips received including unreported tips, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow4Item/writableTotalTipsReceived on the secondary filer's copy and /primaryFilerForm4137PrintedRow4Item/writableTotalTipsReceived on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 4 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow4Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow4Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow4ReportedTips">
+      <Name>Form 4137 line 1 row D, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row D, column (d), the total cash and charge tips reported to that employer, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow4Item/writableTipsReportedToEmployer on the secondary filer's copy and /primaryFilerForm4137PrintedRow4Item/writableTipsReportedToEmployer on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 4 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow4Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow4Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow5Name">
+      <Name>Form 4137 line 1 row E, column (a), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row E, column (a), the name of the employer to whom the tips were not all reported, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow5Item/writableEmployerName on the secondary filer's copy and /primaryFilerForm4137PrintedRow5Item/writableEmployerName on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 5 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow5Item/writableEmployerName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow5Item/writableEmployerName" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow5IdentificationNumber">
+      <Name>Form 4137 line 1 row E, column (b), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row E, column (b), the employer identification number, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow5Item/writableEmployerIdentificationNumber on the secondary filer's copy and /primaryFilerForm4137PrintedRow5Item/writableEmployerIdentificationNumber on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 5 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow5Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow5Item/writableEmployerIdentificationNumber" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow5TotalTips">
+      <Name>Form 4137 line 1 row E, column (c), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row E, column (c), the total cash and charge tips received including unreported tips, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow5Item/writableTotalTipsReceived on the secondary filer's copy and /primaryFilerForm4137PrintedRow5Item/writableTotalTipsReceived on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 5 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow5Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow5Item/writableTotalTipsReceived" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRow5ReportedTips">
+      <Name>Form 4137 line 1 row E, column (d), on this filer's own printed copy</Name>
+      <Description>Printed line 1 row E, column (d), the total cash and charge tips reported to that employer, for the filer whose copy this is: /secondaryFilerForm4137PrintedRow5Item/writableTipsReportedToEmployer on the secondary filer's copy and /primaryFilerForm4137PrintedRow5Item/writableTipsReportedToEmployer on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed. A filer with fewer than 5 employer rows leaves this cell Incomplete and the printed row blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137PrintedRow5Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137PrintedRow5Item/writableTipsReportedToEmployer" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine2">
+      <Name>Form 4137 line 2 on this filer's own printed copy</Name>
+      <Description>Printed line 2, total cash and charge tips received in 2025, the line 1 column (c) rows added, for the filer whose copy this is: /secondaryFilerForm4137Line2 on the secondary filer's copy and /primaryFilerForm4137Line2 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line2" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line2" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine3">
+      <Name>Form 4137 line 3 on this filer's own printed copy</Name>
+      <Description>Printed line 3, total cash and charge tips reported to the employers in 2025, the line 1 column (d) rows added, for the filer whose copy this is: /secondaryFilerForm4137Line3 on the secondary filer's copy and /primaryFilerForm4137Line3 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line3" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line3" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine4">
+      <Name>Form 4137 line 4 on this filer's own printed copy</Name>
+      <Description>Printed line 4, line 3 subtracted from line 2, the amount Form 1040 line 1c includes as income, for the filer whose copy this is: /secondaryFilerForm4137Line4 on the secondary filer's copy and /primaryFilerForm4137Line4 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line4" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line4" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine5">
+      <Name>Form 4137 line 5 on this filer's own printed copy</Name>
+      <Description>Printed line 5, tips not reported to an employer because the month total was under $20, for the filer whose copy this is: /secondaryFilerForm4137Line5 on the secondary filer's copy and /primaryFilerForm4137Line5 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line5" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line5" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine6">
+      <Name>Form 4137 line 6 on this filer's own printed copy</Name>
+      <Description>Printed line 6, unreported tips subject to Medicare tax, line 5 subtracted from line 4, for the filer whose copy this is: /secondaryFilerForm4137Line6 on the secondary filer's copy and /primaryFilerForm4137Line6 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line6" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line6" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine7">
+      <Name>Form 4137 line 7 on this filer's own printed copy</Name>
+      <Description>Printed line 7, the maximum amount of wages including tips subject to social security tax. RETURN-LEVEL and the same on both copies: the contribution and benefit base is a statutory amount, not a per-filer one, so this projection names the single fact rather than a pair. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/form4137Line7MaxWagesSubjectToOasdi" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine8">
+      <Name>Form 4137 line 8 on this filer's own printed copy</Name>
+      <Description>Printed line 8, total social security wages and social security tips and RRTA compensation, for the filer whose copy this is: /secondaryFilerForm4137Line8 on the secondary filer's copy and /primaryFilerForm4137Line8 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line8" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line8" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine9">
+      <Name>Form 4137 line 9 on this filer's own printed copy</Name>
+      <Description>Printed line 9, line 8 subtracted from line 7, floored at zero, for the filer whose copy this is: /secondaryFilerForm4137Line9 on the secondary filer's copy and /primaryFilerForm4137Line9 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line9" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line9" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine10">
+      <Name>Form 4137 line 10 on this filer's own printed copy</Name>
+      <Description>Printed line 10, unreported tips subject to social security tax, the smaller of line 6 and line 9, for the filer whose copy this is: /secondaryFilerForm4137Line10 on the secondary filer's copy and /primaryFilerForm4137Line10 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line10" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line10" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine11">
+      <Name>Form 4137 line 11 on this filer's own printed copy</Name>
+      <Description>Printed line 11, line 10 multiplied by the 0.062 social security tax rate, for the filer whose copy this is: /secondaryFilerForm4137Line11 on the secondary filer's copy and /primaryFilerForm4137Line11 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line11" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line11" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine12">
+      <Name>Form 4137 line 12 on this filer's own printed copy</Name>
+      <Description>Printed line 12, line 6 multiplied by the 0.0145 Medicare tax rate, for the filer whose copy this is: /secondaryFilerForm4137Line12 on the secondary filer's copy and /primaryFilerForm4137Line12 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line12" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line12" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedLine13">
+      <Name>Form 4137 line 13 on this filer's own printed copy</Name>
+      <Description>Printed line 13, lines 11 and 12 added, the amount Schedule 2 line 5 carries, for the filer whose copy this is: /secondaryFilerForm4137Line13 on the secondary filer's copy and /primaryFilerForm4137Line13 on the primary filer's. A PRINT PROJECTION AND NOTHING ELSE - it picks between two facts that already ship and computes no new amount, so no return's tax moves. The register renders one copy per item of /filersRequiredToFileForm4137 and each copy reads its own filer's values through these facts; before them the register mapped the primary filer's paths on the single copy it rendered, so a secondary filer's Form 4137 was computed and never printed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/secondaryFilerForm4137Line13" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFilerForm4137Line13" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/form4137PrintedRequired">
+      <Name>This filer files a Form 4137 with this return</Name>
+      <Description>True when THIS filer's own Form 4137 line 6 is positive - the unreported tips left after line 5 removes the months under the $20 threshold, i.e. the tips actually subject to social security and Medicare tax. The per-filer twin of the return-level /form4137RequiredForPrimaryFiler, which stays as the primary filer's own gate and is unchanged.
+
+        THE SECONDARY LEG IS GATED ON MFJ, and that is not decoration: a return that was once joint and is no longer can carry a stale secondary tip intake, and without the gate that stale answer would print a whole second Form 4137 for a filer who is not on the return. /secondaryFilerForm4137Line6 is complete-safe $0 on a single-filer return, so the gate is belt and braces and the single-filer case is pinned.
+
+        THE TEST IS LINE 6 AND ONLY LINE 6. A wider test - allocated tips in Form W-2 box 8 with a positive line 4 and no line 6 - was proposed with this projection and is NOT built: it changes WHO files the form, which is a substantive ruling and not a print projection, and it is recorded as an open row rather than decided here.
+
+        COMPLETE-SAFE FALSE on every return that answers no Form 4137 intake, because both per-filer line 6 facts are themselves complete-safe $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <All>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/secondaryFilerForm4137Line6" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/primaryFilerForm4137Line6" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filersRequiredToFileForm4137">
+      <Name>The filers whose own Form 4137 this return files</Name>
+      <Description>The collection of filers that file a Form 4137 with this return, one printed copy each. The printed header is the authority - a married couple completes a separate Form 4137 for each spouse with unreported tips - and the register renders one copy per item of this collection, each copy reading that filer's own values through the /filers/*/form4137Printed facts.
+
+        WHAT IT REPLACES. The register gated on /form4137RequiredForPrimaryFiler, the PRIMARY filer's line 6 alone, so an MFJ return whose secondary spouse alone had unreported tips rendered no Form 4137 at all even though Schedule 2 line 5 charged her tax. That is the named successor the old gate carried, and this collection closes it.
+
+        EMPTY, NOT INCOMPLETE, on a return that answers no Form 4137 intake, because the membership fact is complete-safe false for both filers.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Filter path="/filers">
+          <Dependency path="form4137PrintedRequired" />
+        </Filter>
+      </Derived>
+    </Fact>
+</Facts>
+</FactDictionaryModule>

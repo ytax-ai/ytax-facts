@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/int1099.schema.json",
+  "title": "Form 1099-INT",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person"
+  ],
+  "properties": {
+    "person": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "interest_cents": {
+      "description": "1099-INT box 1, taxable interest (excluding box 3 \u2014 the form's own instruction). Optional: a savings-bond-only form leaves it blank; absent is computed as zero and stated in the response. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "government_interest_cents": {
+      "description": "1099-INT box 3, interest on U.S. Savings Bonds and Treasury obligations \u2014 taxable federally and excluded from box 1. Optional; absent is computed as zero and stated. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "tax_exempt_interest_cents": {
+      "description": "1099-INT box 8, tax-exempt interest. Optional; absent is computed as zero and stated. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "federal_withholding_cents": {
+      "description": "1099-INT box 4, federal income tax withheld. Optional \u2014 blank is an ordinary state of the box; absent is computed as zero and stated. Reaches Form 1040 line 25b, inside 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "early_withdrawal_penalty_cents": {
+      "description": "1099-INT box 2, early withdrawal penalty. Optional; absent is none. Reaches Schedule 1 line 18, an adjustment to income, and so AGI. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "private_activity_bond_interest_cents": {
+      "description": "1099-INT box 9, specified private activity bond interest \u2014 the part of box 8 that is a Form 6251 preference (the alternative minimum tax). Optional; absent is none. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "market_discount_cents": {
+      "description": "1099-INT box 10, market discount. Optional; absent is none. Added to taxable interest. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "bond_premium_cents": {
+      "description": "1099-INT box 11, bond premium (on a taxable bond other than a Treasury obligation). Optional; absent is none. Reduces the box 1 interest it is allocable to. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "treasury_bond_premium_cents": {
+      "description": "1099-INT box 12, bond premium on Treasury obligations. Optional; absent is none. Reduces the box 3 interest. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "tax_exempt_bond_premium_cents": {
+      "description": "1099-INT box 13, bond premium on a tax-exempt bond. Optional; absent is none. Reduces the box 8 tax-exempt interest (Form 1040 line 2a), which the Social Security benefits worksheet reads. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

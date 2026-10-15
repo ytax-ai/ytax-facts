@@ -1,0 +1,700 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form3800aReturnFilesThisForm">
+      <Name>Return files Schedule A (Form 3800)</Name>
+      <Description>True when the Form 3800 transferee collection holds at least one transfer
+        election statement that has actually been ANSWERED.
+
+        It is not CollectionSize &gt; 0, under which a seeded but wholly unanswered statement would make this Boolean Complete true with all eleven of the
+        statement's writables blank — a Schedule A (Form 3800) that prints a header and nothing
+        else. IsComplete-first now, in the RENDER-GATES guarded-presence shape: the collection
+        itself must resolve, and ../form3800aStatementAnswered must be true for at least one item.
+        Pinned by tests/nodes/ty2025/form3800a/form3800a-statement-wholly-unanswered (false) against
+        form3800a-transfer-statement (true) and form3800a-empty-statements (false).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <All>
+          <IsComplete><Dependency module="form3800" path="/form3800TransferElectionStatements" /></IsComplete>
+          <GreaterThan>
+            <Left><Count><Dependency path="/form3800TransferElectionStatements/*/form3800aStatementAnswered" /></Count></Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aStatementAnswered">
+      <Name>This transfer election statement has been answered</Name>
+      <Description>The presence test /form3800aReturnFilesThisForm reads, stated once. True when the statement's line-3 credit transferred and line-5 credit
+        earned by the transferor both resolve — the two amounts without which Schedule A (Form
+        3800) prints nothing — and complete-safe FALSE otherwise, so a seeded-but-blank statement
+        resolves false rather than Placeholder. Every other line of the statement is a certification
+        or an identifier; these two are the money, and the form is the transferee's record of it.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../form3800aline3CreditTransferred" /></IsComplete>
+                <IsComplete><Dependency path="../form3800aline5TotalCreditEarned" /></IsComplete>
+              </All>
+            </When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableTransferorName">
+      <Name>Schedule A header: name of the transferor taxpayer</Name>
+      <Description>Question: "What is the name of the seller (the transferor taxpayer) on this
+        statement?" (Schedule A (Form 3800) header, the printed "Name of transferor taxpayer" box). Asked on every statement.
+        Unanswered: printed blank; no amount depends on it. Validation: text. Feeds the printed
+        statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableTransferorEin">
+      <Name>Schedule A header: transferor EIN (an entity transferor)</Name>
+      <Description>Question: "What is the seller's employer identification number?" (Schedule A
+        (Form 3800) header, the printed transferor TIN box, where the transferor is an entity).
+        The Form 3800 instructions name this number explicitly for Part III column (c): "If you are
+        reporting a transferred credit received from a transferor under section 6418, enter that
+        transferor's EIN under column (c) for that credit." Asked on every statement whose
+        transferor is an entity; ../form3800awritableTransferorTin carries an individual
+        transferor's number instead. Unanswered: printed blank; no amount depends on it.
+        Validation: an EIN. Feeds the printed statement only.
+
+        The single printed box takes ONE of the two: the one-field projection that chooses between
+        them, and the Form 3800 Part III column (c) fact that consumes it, both live in
+        form3800.xml and are owed there.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableTransferorTin">
+      <Name>Schedule A header: transferor TIN (an individual transferor)</Name>
+      <Description>Question: "What is the seller's taxpayer identification number?" (Schedule A
+        (Form 3800) header, the printed transferor TIN box, where the transferor is an individual).
+        Asked on every statement whose transferor is an individual;
+        ../form3800awritableTransferorEin carries an entity transferor's number instead.
+        Unanswered: printed blank; no amount depends on it. Validation: a TIN. Feeds the printed
+        statement only. Same one-box caveat as ../form3800awritableTransferorEin.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aTransferorIdentifyingNumber">
+      <Name>Schedule A header: the transferor identifying number that prints</Name>
+      <Description>The printed "Transferor's TIN" box is ONE box
+        (https://www.irs.gov/pub/irs-pdf/f3800a.pdf, page 1), but a section 6418 transferor may be an
+        entity, which has an EIN, or an individual, which has a TIN, so the intake carries two
+        writables. This is the one-box projection the printed field binds to, in the repo's existing
+        two-identifiers-one-column shape (cdcc:/cdccCareProviders/*/pdfTinEinColumn for Form 2441
+        line 1 column (c), "Identifying number (SSN or EIN)").
+
+        Precedence when BOTH are answered: the EIN prints. The Form 3800 instructions name the
+        transferor's EIN as the number the transferee reports for a transferred credit ("If you are
+        reporting a transferred credit received from a transferor under section 6418, enter that
+        transferor's EIN under column (c) for that credit."), so an answered EIN is the number the
+        transferee's own return is already built around. Neither answered: blank, which is what the
+        box prints today. Nothing about the two writables makes exactly one of them answered
+        - this fact is the rule, and it is total.
+
+        Print-only: no amount reads it. This fact is the chooser for the printed field f1_2, which
+        would otherwise have two candidate facts and no rule. What pins it is the type and
+        existence proof - form3800a-statement-payment-row-h-only answers BOTH identifiers and the
+        module still resolves.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../form3800awritableTransferorEin" /></IsComplete></When>
+            <Then><AsString><Dependency path="../form3800awritableTransferorEin" /></AsString></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="../form3800awritableTransferorTin" /></IsComplete></When>
+            <Then><AsString><Dependency path="../form3800awritableTransferorTin" /></AsString></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><String /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableTransferorAddress">
+      <Name>Schedule A header: transferor address</Name>
+      <Description>Question: "What is the seller's address?" (Schedule A (Form 3800) header, the
+        printed "Transferor" address box). Asked on every statement. Unanswered: printed blank; no
+        amount depends on it. Validation: an address. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Address />
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form3468PartIii">
+      <Name>Schedule A line 1 checkbox: Form 3468 Part III</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 3468 Part III; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form3468PartIii</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form3468PartV">
+      <Name>Schedule A line 1 checkbox: Form 3468 Part V</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 3468 Part V; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form3468PartV</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form3468PartVi">
+      <Name>Schedule A line 1 checkbox: Form 3468 Part VI</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 3468 Part VI; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form3468PartVi</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form7207">
+      <Name>Schedule A line 1 checkbox: Form 7207</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 7207; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form7207</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form8933">
+      <Name>Schedule A line 1 checkbox: Form 8933</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 8933; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form8933</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form7210">
+      <Name>Schedule A line 1 checkbox: Form 7210</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 7210; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form7210</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form7211">
+      <Name>Schedule A line 1 checkbox: Form 7211</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 7211; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form7211</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form7213">
+      <Name>Schedule A line 1 checkbox: Form 7213</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 7213; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form7213</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form7218">
+      <Name>Schedule A line 1 checkbox: Form 7218</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 7218; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form7218</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form8835">
+      <Name>Schedule A line 1 checkbox: Form 8835</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 8835; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form8835</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form8911ScheduleAPartIi">
+      <Name>Schedule A line 1 checkbox: Schedule A (Form 8911), Part II</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Schedule A (Form 8911), Part II; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form8911ScheduleAPartIi</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline1Form8864">
+      <Name>Schedule A line 1 checkbox: Form 8864</Name>
+      <Description>True when the existing Form 3800 credit-form enum selects Form 8864; aliases the one selected credit form box.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Equal><Left><Dependency module="form3800" path="../writableCreditFormBox" /></Left><Right><Enum optionsPath="/form3800ScheduleACreditFormOptions">form8864</Enum></Right></Equal></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline2RegistrationNumber">
+      <Name>Schedule A line 2 IRS-issued registration number</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableRegistrationNumber; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableRegistrationNumber" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline3CreditTransferred">
+      <Name>Schedule A line 3 credit transferred this year</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableCreditSold; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dependency module="form3800" path="../writableCreditSold" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline4iTotalCashPaid">
+      <Name>Schedule A line 4i total cash paid</Name>
+      <Description>Schedule A (Form 3800) line 4i is printed "i Total of column (ii)"
+        (https://www.irs.gov/pub/irs-pdf/f3800a.pdf, page 1), so when any of the eight payment rows 4a
+        through 4h carries an amount this fact IS that total: each answered row's amount, each
+        unanswered row $0. It is not a bare projection of the Form 3800 aggregate input
+        writablePaymentsTotal, which would print a total the form says is the sum of rows the
+        statement never carried.
+
+        When NO row amount is answered the aggregate is still the answer, so the existing
+        single-question intake keeps working unchanged - form3800a-transfer-statement pins that
+        fallback ($18,000.00 from writablePaymentsTotal with no row answered) and
+        form3800a-statement-payment-rows pins the computed total ($10,000 + $5,000 + $3,000 with
+        writablePaymentsTotal cleared). Print-only either way: no tax amount reads line 4i.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <IsComplete><Dependency path="../form3800awritableLine4aPaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4bPaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4cPaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4dPaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4ePaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4fPaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4gPaymentAmount" /></IsComplete>
+                <IsComplete><Dependency path="../form3800awritableLine4hPaymentAmount" /></IsComplete>
+              </Any>
+            </When>
+            <Then>
+              <Add>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4aPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4aPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4bPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4bPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4cPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4cPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4dPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4dPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4ePaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4ePaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4fPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4fPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4gPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4gPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When><IsComplete><Dependency path="../form3800awritableLine4hPaymentAmount" /></IsComplete></When>
+                    <Then><GreaterOf><Dependency path="../form3800awritableLine4hPaymentAmount" /><Dollar>0</Dollar></GreaterOf></Then>
+                  </Case>
+                  <Case>
+                    <When><True /></When>
+                    <Then><Dollar>0</Dollar></Then>
+                  </Case>
+                </Switch>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><GreaterOf><Dependency module="form3800" path="../writablePaymentsTotal" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4aPaymentDate">
+      <Name>Schedule A line 4a payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4a, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4aPaymentAmount">
+      <Name>Schedule A line 4a payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4a, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4bPaymentDate">
+      <Name>Schedule A line 4b payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4b, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4bPaymentAmount">
+      <Name>Schedule A line 4b payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4b, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4cPaymentDate">
+      <Name>Schedule A line 4c payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4c, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4cPaymentAmount">
+      <Name>Schedule A line 4c payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4c, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4dPaymentDate">
+      <Name>Schedule A line 4d payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4d, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4dPaymentAmount">
+      <Name>Schedule A line 4d payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4d, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4ePaymentDate">
+      <Name>Schedule A line 4e payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4e, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4ePaymentAmount">
+      <Name>Schedule A line 4e payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4e, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4fPaymentDate">
+      <Name>Schedule A line 4f payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4f, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4fPaymentAmount">
+      <Name>Schedule A line 4f payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4f, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4gPaymentDate">
+      <Name>Schedule A line 4g payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4g, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4gPaymentAmount">
+      <Name>Schedule A line 4g payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4g, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4hPaymentDate">
+      <Name>Schedule A line 4h payment date</Name>
+      <Description>Question: "On what date did you make this payment to the seller?" (Schedule A
+        (Form 3800) line 4h, column (i) Date (MM/DD/YYYY)). Asked on every statement: line 4a carries
+        the first payment and lines 4b through 4h any further payments for the same transfer
+        (https://www.irs.gov/pub/irs-pdf/i3800.pdf, page 8). Unanswered: printed blank; no amount
+        depends on it. Validation: a date. Feeds the printed statement only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine4hPaymentAmount">
+      <Name>Schedule A line 4h payment amount</Name>
+      <Description>Question: "How much cash did you pay the seller in this payment?" (Schedule A
+        (Form 3800) line 4h, column (ii) Amount). Asked on every statement: line 4a carries the first
+        payment and lines 4b through 4h any further payments for the same transfer. Unanswered: the
+        row prints blank and contributes $0 to line 4i. Validation: dollars, not less than $0.
+        Feeds ../form3800aline4iTotalCashPaid and the printed statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline5TotalCreditEarned">
+      <Name>Schedule A line 5 total credit earned by transferor</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableCreditEarnedByTransferor; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><GreaterOf><Dependency module="form3800" path="../writableCreditEarnedByTransferor" /><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline7TransferorNotRelated">
+      <Name>Schedule A line 7 transferor not-related certification</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableTransferorNotRelated; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableTransferorNotRelated" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline8TransferorSection6418Compliance">
+      <Name>Schedule A line 8 transferor section 6418 compliance certification</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableTransferorCompliesWithSection6418; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableTransferorCompliesWithSection6418" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline9TransferorProvidedDocumentation">
+      <Name>Schedule A line 9 transferor documentation certification</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableTransferorProvidedMinimumDocumentation; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableTransferorProvidedMinimumDocumentation" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline10TransfereeNotRelated">
+      <Name>Schedule A line 10 transferee not-related certification</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableTransfereeNotRelated; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableTransfereeNotRelated" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline12RecaptureNotificationAcknowledged">
+      <Name>Schedule A line 12 recapture-notification certification</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableRecaptureNotificationAcknowledged; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableRecaptureNotificationAcknowledged" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline13aTransferorAndTransfereeSignaturesRecorded">
+      <Name>Schedule A line 13a transferor signature attestation</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableSignedByTransferorAndTransferee; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableSignedByTransferorAndTransferee" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline13bTransfereeSignatureRecorded">
+      <Name>Schedule A line 13b transferee signature attestation</Name>
+      <Description>Projection of the existing Form 3800 transferee-statement input writableSignedByTransferorAndTransferee; the upstream form3800 fact remains authoritative.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Dependency module="form3800" path="../writableSignedByTransferorAndTransferee" /></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine6TransferorTaxYearEndDate">
+      <Name>Schedule A line 6 transferor tax year-end date</Name>
+      <Description>Tax year-end date printed on this transfer election statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800awritableLine11FirstTransfereeTaxYearDate">
+      <Name>Schedule A line 11 first transferee tax year-end date</Name>
+      <Description>Tax year-end date printed on this transfer election statement.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline7TransferorRelatedNo">
+      <Name>Schedule A line 7 No checkbox</Name>
+      <Description>True when the existing Form 3800 statement input for line 7 is answered No.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Not><Dependency module="form3800" path="../writableTransferorNotRelated" /></Not></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline8Section6418ComplianceNo">
+      <Name>Schedule A line 8 No checkbox</Name>
+      <Description>True when the existing Form 3800 statement input for line 8 is answered No.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Not><Dependency module="form3800" path="../writableTransferorCompliesWithSection6418" /></Not></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline9DocumentationProvidedNo">
+      <Name>Schedule A line 9 No checkbox</Name>
+      <Description>True when the existing Form 3800 statement input for line 9 is answered No.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Not><Dependency module="form3800" path="../writableTransferorProvidedMinimumDocumentation" /></Not></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline10TransfereeRelatedNo">
+      <Name>Schedule A line 10 No checkbox</Name>
+      <Description>True when the existing Form 3800 statement input for line 10 is answered No.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Not><Dependency module="form3800" path="../writableTransfereeNotRelated" /></Not></Derived>
+    </Fact>
+    <Fact path="/form3800TransferElectionStatements/*/form3800aline12RecaptureAcknowledgedNo">
+      <Name>Schedule A line 12 No checkbox</Name>
+      <Description>True when the existing Form 3800 statement input for line 12 is answered No.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><Not><Dependency module="form3800" path="../writableRecaptureNotificationAcknowledged" /></Not></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

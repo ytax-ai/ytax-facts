@@ -1,0 +1,702 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/studentLoanAdjustment.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/hadStudentLoanInterestPayments">
+      <Name>Had student loan interest payments</Name>
+      <Description>Whether the TP or spouse had student loan interest payments</Description>
+
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/studentLoansQualify">
+      <Name>Student loans qualify</Name>
+      <Description>Whether the TP affirms that their loans qualify for the deduction</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/flowShowStudentLoansAmount">
+      <Name>Flow show student loans qualify</Name>
+      <Description>Whether to show the "student loans qualify" screen in the flow. California TY2025 reads this fact through its stateSystems export (Schedule CA (540) line 8c column C: asks the California section 127 question when the federal one was not asked).</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+
+        <All>
+          <Dependency path="/hadStudentLoanInterestPayments" />
+          <Dependency path="/studentLoansQualify" />
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/studentLoanInterestAmount">
+      <Name>Student loan interest amount</Name>
+      <Description>The amount of interest that the TP affirms that they or their spouse paid on qualifying student loans, not including any amount that is also deductible under another provision of the tax law (for example, home mortgage interest) — IRC 221(e)(1)’s first clause. Interest paid includes voluntary payments made before the loan is otherwise due, until the loan is paid off. The TP must be legally obligated to make the payments: interest on a loan the TP is NOT legally obligated to repay is never deductible, no matter who paid it; conversely, if someone else pays interest on the TP's behalf on a loan the TP IS legally obligated to repay, the TP is treated as receiving and then paying that amount. The figure need not equal Form 1098-E: an institution need only issue that form for $600 or more of interest it received in the year, a loan taken out before September 1, 2004 may have origination fees and capitalized interest omitted from the form's stated-interest figure entirely, and any qualifying interest the TP paid that never appears on the form is still deductible if paid. Where a single payment covers both interest and principal and the tax-purpose allocation differs from the servicer's own statement, a payment applies first to unpaid stated interest, second to allocable loan origination fees, third to unpaid capitalized interest, and only the remainder to principal. Do not include: loan origination fees that pay for property or services the lender provides, such as commitment fees or processing costs; or interest to the extent it was paid through the TP's participation in the National Health Service Corps Loan Repayment Program, a state education loan repayment program eligible for Public Health Service Act funds, or another loan repayment assistance program whose repayments are tax free to the TP. Those program payments are the exception to the paid-by-others rule above: the TP is not treated as having paid that interest. Form 1098-E box 1 (Student loan interest received by lender). California TY2025 reads this fact through its stateSystems export (Schedule CA (540) line 21 column C).</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableStudentLoanInterestEmployerPaidSection127">
+      <Name>Student loan interest paid by employer under section 127</Name>
+      <Description>Screen: shown immediately after the student loan interest amount question, only when /flowShowStudentLoansAmount is true. Question: "How much of the interest you just entered did your employer pay on your behalf, tax-free, under an educational assistance program?" Help text: for payments made after March 27, 2020, don't count interest your employer paid for you under a section 127 educational assistance program toward your deduction — enter $0 if none applied. Unanswered posture: this is a condition of allowance under IRC 221(e)(1) on a return that CLAIMS the deduction (/flowShowStudentLoansAmount true) — leaving it unanswered on a claiming return makes /studentLoanInterestAmountNetOfDoubleBenefit, and the deduction it feeds, Incomplete, not a silent $0-reduction default. Validation: a whole-dollar amount, $0 or more. Feeds /studentLoanInterestAmountNetOfDoubleBenefit. California TY2025 reads this fact through its stateSystems export (Schedule CA (540) line 8c column C section 127 add-back and line 21 column C).</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableStudentLoanInterestFromTaxFreeQtpEarnings">
+      <Name>Student loan interest paid from tax-free QTP earnings</Name>
+      <Description>Screen: shown immediately after /writableStudentLoanInterestEmployerPaidSection127, only when /flowShowStudentLoansAmount is true. Question: "How much of the interest you just entered was paid using tax-free earnings from a 529 (Qualified Tuition Program) distribution made after 2018?" Help text: earnings from a post-2018 QTP distribution that were tax-free because they were used to pay student loan interest can't also count toward this deduction — enter $0 if none applied. Unanswered posture: this is a condition of allowance under IRC 221(e)(1) on a return that CLAIMS the deduction (/flowShowStudentLoansAmount true) — leaving it unanswered on a claiming return makes /studentLoanInterestAmountNetOfDoubleBenefit, and the deduction it feeds, Incomplete, not a silent $0-reduction default. Validation: a whole-dollar amount, $0 or more. Feeds /studentLoanInterestAmountNetOfDoubleBenefit. California TY2025 reads this fact through its stateSystems export (Schedule CA (540) line 21 column C (529(c)(9) QTP leg)).</Description>
+      <Export stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/studentLoanInterestAmountNetOfDoubleBenefit">
+      <Name>Student loan interest amount, net of the section 221(e)(1) double-benefit reduction</Name>
+      <Description>/studentLoanInterestAmount reduced, but not below zero, by any employer-paid amount excluded under section 127 (/writableStudentLoanInterestEmployerPaidSection127) and by any tax-free post-2018 QTP-earnings amount under section 529(c)(9) (/writableStudentLoanInterestFromTaxFreeQtpEarnings). Section 221(e)(1) applies both reductions to the subsection (a) amount PRIOR to subsection (b), so this fact stands in place of the raw /studentLoanInterestAmount wherever the 221(b)(1) $2,500 cap or the 221(b)(2) MAGI phaseout is computed.
+
+        UNANSWERED POSTURE: the two 221(e)(1) reduction legs are conditions of allowance on a return that has CLAIMED the deduction (/flowShowStudentLoansAmount true — the screen gate both follow-ups are shown behind). On a NON-claiming return the follow-ups are moot and this fact reads /studentLoanInterestAmount unmoved. On a CLAIMING return, both follow-ups must be genuinely answered before a deterministic value resolves; leaving either one unanswered resolves this fact — and /studentLoanInterestAdjustmentAmount downstream — Incomplete, disclosing the return as unfinished rather than silently granting the full, unreduced deduction.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <Dependency path="/flowShowStudentLoansAmount" />
+              </Not>
+            </When>
+            <Then>
+              <Dependency path="/studentLoanInterestAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableStudentLoanInterestEmployerPaidSection127" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableStudentLoanInterestFromTaxFreeQtpEarnings" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="/studentLoanInterestAmount" />
+                  </Minuend>
+                  <Subtrahends>
+                    <GreaterOf>
+                      <Dependency path="/writableStudentLoanInterestEmployerPaidSection127" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                    <GreaterOf>
+                      <Dependency path="/writableStudentLoanInterestFromTaxFreeQtpEarnings" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cannotDeductStudentLoanInterest">
+      <Name>Cannot deduct student loan interest</Name>
+      <Description>The TP is ineligible to deduct student loan interest</Description>
+
+      <Derived>
+        <Any>
+          <Dependency path="/cannotDeductStudentLoanInterestBecauseDependents" />
+          <Dependency path="/cannotDeductStudentLoanInterestBecauseLoansDontQualify" />
+          <Dependency path="/cannotDeductStudentLoanInterestBecauseIncomeOrFilingStatus" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cannotDeductStudentLoanInterestBecauseDependents">
+      <Name>Cannot deduct student loan interest because of dependence status</Name>
+      <Description>The TP is ineligible to deduct student loan interest because they or or their spouse if applicable
+        are being claimed as as a dependent</Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/cannotDeductStudentLoanInterestBecauseIncomeOrFilingStatus" />
+          </Not>
+          <Dependency module="filers" path="/eitherFilerIsClaimedAsDependent" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/flowShowStudentLoanInterestSection">
+      <Name>The TP could be eligible for the student loan interest deduction</Name>
+      <Description>On the basis of income, filing status, and dependency status, the taxpayer could be eligible.</Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/cannotDeductStudentLoanInterestBecauseIncomeOrFilingStatus" />
+          </Not>
+          <Not>
+            <Dependency module="filers" path="/eitherFilerIsClaimedAsDependent" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cannotDeductStudentLoanInterestBecauseLoansDontQualify">
+      <Name>Cannot deduct student loan interest because loans don't qualify</Name>
+      <Description>The TP is ineligible to deduct student loan interest because none of their loans qualify</Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/cannotDeductStudentLoanInterestBecauseIncomeOrFilingStatus" />
+          </Not>
+          <Dependency path="/hadStudentLoanInterestPayments" />
+          <Not>
+            <Dependency module="filers" path="/eitherFilerIsClaimedAsDependent" />
+          </Not>
+          <Not>
+            <Dependency path="/studentLoansQualify" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/cannotDeductStudentLoanInterestBecauseIncomeOrFilingStatus">
+      <Name>Cannot deduct student loan interest because of income or filing status</Name>
+      <Description>The TP is ineligible to deduct student loan interest because of income or filing status</Description>
+
+      <Derived>
+        <Any>
+          <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          <Dependency path="/incomeTooHighForStudentLoanInterestDeductionNotMFJ" />
+          <Dependency path="/incomeTooHighForStudentLoanInterestDeductionMFJ" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxIncomeForNonMFJStudentLoanInterestDeduction">
+      <Name>Max income for a non-MFJ filer student loan interest deduction</Name>
+      <Description>The maximum magi that a non-MFJ filer can have and still receive the Student Loan Interest Deduction</Description>
+      
+
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxIncomeForMFJStudentLoanInterestDeduction">
+      <Name>Max income for an MFJ filer student loan interest deduction</Name>
+      <Description>The maximum magi that an MFJ filer can have and still receive the Student Loan Interest Deduction</Description>
+      
+
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/incomeTooHighForStudentLoanInterestDeductionNotMFJ">
+      <Name>Income too high for student loan interest deduction</Name>
+      <Description>Whether income is too high for a non-mfj filer to claim the deduction</Description>
+
+      <Derived>
+        <All>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <GreaterThan>
+            <Left>
+              <Dependency module="taxCalculations" path="/magiForStudentLoanInterestDeduction" />
+            </Left>
+            <Right>
+              <Dependency path="/maxIncomeForNonMFJStudentLoanInterestDeduction" />
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/incomeTooHighForStudentLoanInterestDeductionMFJ">
+      <Name>Income too high for student loan interest deduction</Name>
+      <Description>Whether income is too high for an mfj filer to claim the deduction</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <GreaterThan>
+            <Left>
+              <Dependency module="taxCalculations" path="/magiForStudentLoanInterestDeduction" />
+            </Left>
+            <Right>
+              <Dependency path="/maxIncomeForMFJStudentLoanInterestDeduction" />
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maxStudentLoadDeduction">
+      <Name>Maximum student loan deduction</Name>
+      <Description>The maximum amount one is allowed to deduct because of student loan interest payments</Description>
+      
+
+      <Derived>
+        <Dollar>2500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanInterestAdjustmentAmount">
+      <Name>Student Loan Interest Amount</Name>
+      <Description>The amount of the student loan interest deduction. Line 21 of Form 1040 Schedule 1, Line 33
+        Calculated per requirements on Student Loan Interest Deduction Worksheet. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Any>
+                  <Dependency path="/cannotDeductStudentLoanInterest" />
+                  <Not>
+                    <Dependency path="/hadStudentLoanInterestPayments" />
+                  </Not>
+                </Any>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Subtract>
+                  <Minuend>
+                    <LesserOf>
+                      <Dependency path="/studentLoanInterestAmountNetOfDoubleBenefit" />
+                      <Dependency path="/maxStudentLoadDeduction" />
+                    </LesserOf>
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/studentLoanAmountPhaseOutAmount" />
+                  </Subtrahends>
+                </Subtract>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanPhaseOutStart">
+      <Name>Student Loan Phase Out Start</Name>
+      <Description>The income at which the student loan interest deduction begins to phase out for non-MFJ filers
+        Rev
+        Proc 30 Interest on Education Loans §221(b)(2)(B)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>85000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanPhaseOutStartMfj">
+      <Name>Student Loan Phase Out Start for MFJ filers</Name>
+      <Description>The income at which the student loan interest deduction begins to phase out for MFJ filers
+        Rev Proc
+        .30 Interest on Education Loans §221(b)(2)(B)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>170000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanPhaseOutComplete">
+      <Name>Student Loan Phase Out Complete</Name>
+      <Description>Whether the student loan interest deduction is completely phased out for non-MFJ filers
+        Rev Proc .30
+        Interest on Education Loans §221(b)(2)(B)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>100000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanPhaseOutCompleteMfj">
+      <Name>Student Loan Phase Out Complete for MFJ filers</Name>
+      <Description>Whether the student loan interest deduction is completely phased out for MFJ filers
+        Rev Proc .30
+        Interest on Education Loans §221(b)(2)(B)
+      </Description>
+      
+
+      <Derived>
+        <Dollar>200000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanPhaseOutRange">
+      <Name>Student Loan Phase Out Range</Name>
+      <Description>The denominator of the phaseout calculation for the student loan deduction for non-MFJ filers
+      </Description>
+
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/studentLoanPhaseOutComplete" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/studentLoanPhaseOutStart" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanPhaseOutRangeMfj">
+      <Name>Student Loan Phase Out Range for MFJ filers</Name>
+      <Description>The denominator of the phaseout calculation for the student loan deduction for MFJ filers
+      </Description>
+
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/studentLoanPhaseOutCompleteMfj" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/studentLoanPhaseOutStartMfj" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/studentLoanAmountPhaseOutAmount">
+      <Name>Student Loan Amount Phase Out Multiplier</Name>
+      <Description>Phaseout amount for the student loan deduction. Described in instructions for 1040, schedule 1, line
+        21. Corresponds with Line 8 of the Student Loan Interest Deduction Worksheet. Returns 0 if there is no phaseout</Description>
+      
+
+      <Derived>
+        <Divide>
+          <Dividend>
+            <Multiply>
+              <Divide>
+                <Dividend>
+                  <Multiply>
+                    <GreaterOf>
+                      <Switch>
+                        <Case>
+                          <When>
+                            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                          </When>
+                          <Then>
+                            <Subtract>
+                              <Minuend>
+                                <Dependency module="taxCalculations"
+                                  path="/magiForStudentLoanInterestDeduction" />
+                              </Minuend>
+                              <Subtrahends>
+                                <Dependency path="/studentLoanPhaseOutStartMfj" />
+                              </Subtrahends>
+                            </Subtract>
+                          </Then>
+                        </Case>
+                        <Case>
+                          <When>
+                            <True />
+                          </When>
+                          <Then>
+                            <Subtract>
+                              <Minuend>
+                                <Dependency module="taxCalculations"
+                                  path="/magiForStudentLoanInterestDeduction" />
+                              </Minuend>
+                              <Subtrahends>
+                                <Dependency path="/studentLoanPhaseOutStart" />
+                              </Subtrahends>
+                            </Subtract>
+                          </Then>
+                        </Case>
+                      </Switch>
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                    
+                    <Dollar>10</Dollar>
+                  </Multiply>
+                </Dividend>
+                <Divisors>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                      </When>
+                      <Then>
+                        <Dependency path="/studentLoanPhaseOutRangeMfj" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dependency path="/studentLoanPhaseOutRange" />
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Divisors>
+              </Divide>
+              <LesserOf>
+                <Dependency path="/studentLoanInterestAmountNetOfDoubleBenefit" />
+                <Dependency path="/maxStudentLoadDeduction" />
+              </LesserOf>
+            </Multiply>
+          </Dividend>
+          <Divisors>
+            
+            <Dollar>10</Dollar>
+          </Divisors>
+        </Divide>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form1098Es">
+      <Name>Forms 1098-E</Name>
+      <Description>Source documents received on Form 1098-E, Student Loan Interest Statement, one item per document (one lender's statement of the interest it received on one borrower's loans). This information-return collection records the document; it is not a second statement of the deduction, which stays /studentLoanInterestAmount. Nothing federal reads it yet; its items are exported for the state returns and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/filer">
+      <Name>1098-E document owner</Name>
+      <Description>The filer to whom this document belongs: the person on this return named as BORROWER on the Form 1098-E. An unanswered owner is Incomplete; no primary-filer default is assumed, because a spouse's statement would otherwise carry the wrong person.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><CollectionItem collection="/filers" /></Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/belongsToPrimaryFiler">
+      <Name>Form 1098-E belongs to primary filer</Name>
+      <Description>Whether this Form 1098-E belongs to the primary filer. Completeness-first, the shape the sibling document-intake modules carry: an unanswered ../filer resolves complete-safe FALSE rather than inheriting a primary-filer default. Read only by ../borrowerTin.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="/primaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Equal>
+              <Left><Dependency path="../filer" /></Left>
+              <Right><Dependency module="filers" path="/primaryFiler" /></Right>
+            </Equal></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1098Es/*/belongsToSecondaryFiler">
+      <Name>Form 1098-E belongs to secondary filer</Name>
+      <Description>The secondary twin of ../belongsToPrimaryFiler, MFJ716-shaped at birth: IsComplete(filers:/secondaryFiler) is a conjunct, so on a single-filer return an answered ../filer resolves Complete FALSE instead of Incomplete forever. Read only by ../borrowerTin.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="/secondaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Equal>
+              <Left><Dependency path="../filer" /></Left>
+              <Right><Dependency module="filers" path="/secondaryFiler" /></Right>
+            </Equal></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1098Es/*/borrowerTin">
+      <Name>Form 1098-E BORROWER'S TIN</Name>
+      <Description>The BORROWER'S TIN box, derived from this document's own borrower (../filer): the primary filer's TIN on the primary filer's Form 1098-E, the secondary filer's on the spouse's, never the return's primary filer by default. The lender may print only the last four digits on Copy B (Instructions for Borrower, https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, page 4, LEFT column); this fact is the full number the return already holds. Nothing to ask. Feeds nothing federal; exported for state systems and bound in the Form 1098-E register.</Description>
+      <Export stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../belongsToPrimaryFiler" /></When>
+            <Then><Dependency module="filers" path="/primaryFiler/tin" /></Then>
+          </Case>
+          <Case>
+            <When><Dependency path="../belongsToSecondaryFiler" /></When>
+            <Then><Dependency module="filers" path="/secondaryFiler/tin" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableVoid">
+      <Name>Form 1098-E VOID box</Name>
+      <Description>The VOID checkbox in the header of Copy A (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, page 2); the borrower's Copy B does not carry it. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableCorrected">
+      <Name>Form 1098-E CORRECTED box</Name>
+      <Description>The CORRECTED checkbox: "CORRECTED" on Copy A, "CORRECTED (if checked)" on the borrower's Copy B (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). Checked means the amounts on this statement replace an earlier one's. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableRecipientLenderNameAddress">
+      <Name>Form 1098-E RECIPIENT'S/LENDER'S name, address and telephone</Name>
+      <Description>The RECIPIENT'S/LENDER'S block: name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone number, printed as ONE cell and taken as one writable (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). The lender is the recipient of the interest, which is why the form prints both role words. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableRecipientTin">
+      <Name>Form 1098-E RECIPIENT'S TIN</Name>
+      <Description>The RECIPIENT'S TIN box: the lender's identifying number (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). The generator had defaulted this cell to STRUCTURAL; it is a box the lender fills (INPUT-FORMS section e). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableBorrowerName">
+      <Name>Form 1098-E BORROWER'S name</Name>
+      <Description>The BORROWER'S name box, as printed (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). Which person on this return the borrower is stays ../filer, not this box. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableBorrowerStreetAddress">
+      <Name>Form 1098-E borrower's street address</Name>
+      <Description>The borrower's "Street address (including apt. no.)" box, as printed (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableBorrowerCityStateZip">
+      <Name>Form 1098-E borrower's city, state and ZIP</Name>
+      <Description>The borrower's "City or town, state or province, country, and ZIP or foreign postal code" box, one cell (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableAccountNumber">
+      <Name>Form 1098-E account number</Name>
+      <Description>The "Account number (see instructions)" box (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3): an account or other unique number the lender assigned to distinguish the borrower's account (Instructions for Borrower, same file lines 70-71, RIGHT column); it tells two statements from one lender apart. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableStudentLoanInterestReceivedByLender">
+      <Name>Form 1098-E box 1 student loan interest received by lender</Name>
+      <Description>Form 1098-E box 1, "Student loan interest received by lender" on this account (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3; Instructions for Borrower, same file lines 72-78, RIGHT column: for loans made on or after September 1, 2004 it includes loan origination fees and capitalized interest). RECONCILIATION, NOT A REWIRING: the federal deduction reads /studentLoanInterestAmount, the interest the filer affirms PAYING on every qualified loan, which may differ from what lenders report (Pub. 970, https://www.irs.gov/pub/irs-pdf/p970.pdf, page 34, LEFT column); that fact is not a sum over this collection, and reconciling the two is a named successor. Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form1098Es/*/writableBox1DoesNotIncludeLoanOriginationFeesOrCapitalizedInterest">
+      <Name>Form 1098-E box 2 box 1 does not include loan origination fees or capitalized interest</Name>
+      <Description>Form 1098-E box 2: "Check if box 1 does not include loan origination fees and/or capitalized interest, and the loan was made before September 1, 2004" on Copy A; Copy B prints "If checked, box 1 does not include loan origination fees and/or capitalized interest for loans made before September 1, 2004" (https://www.irs.gov/pub/irs-prior/f1098e--2025.pdf, pages 2-3). Checked means the borrower may have deductible origination fees or capitalized interest not shown in box 1 (Instructions for Borrower, same file lines 79-82, RIGHT column; see Pub. 970). Unanswered it is complete-safe: nothing in this module reads it. Feeds nothing federal; stored for the state returns (several states allow their own student loan interest subtraction from the federal figure) and bound in the Form 1098-E register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

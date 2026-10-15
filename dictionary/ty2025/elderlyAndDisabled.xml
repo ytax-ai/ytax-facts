@@ -1,0 +1,2427 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/elderlyAndDisabled.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/elderlyAndDisabledPrimaryFiler">
+      <Description>The primary filer used by elderly-or-disabled credit age guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isPrimaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/elderlyAndDisabledSecondaryFiler">
+      <Description>The secondary filer used by elderly-or-disabled credit age guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedForCreditForElderlyAndDisabled">
+      <Description>Whether the TP(s) are qualified for the credit for the elderly or the disabled (Schedule R)</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/hasTaxLiabilityForEdc" />
+          <Dependency path="/maybeEligibleForCreditForElderlyAndDisabled" />
+          <Dependency path="/isQualifiedForEdcBasedOnAgeOrDisability" />
+          <Dependency path="/isQualifiedForEdcBasedOnAgiLimit" />
+          <Dependency path="/isQualifiedForEdcBasedOnNonTaxablePayments" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForCreditForElderlyAndDisabled">
+      <Description>Whether the TP(s) are potentially eligible for the credit for the elderly or the disabled (Schedule
+        R)</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency module="schedule3" path="/hasTaxLiabilityAfterCdcc" />
+          <Dependency path="/maybeEligibleForCreditForElderlyAndDisabledWoTaxLiability" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForCreditForElderlyAndDisabledWoTaxLiability">
+      <Description>Whether the TP(s) might be eligible for the credit for the elderly or the disabled (Schedule
+        R),
+        without considering whether they have tax liability against which the credit could be applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/isEligibleForEdcBasedOnAgeOrDisability" />
+          <Dependency path="/maybeEligibleForEdcBasedOnRelaxedAgiLimit" />
+          <Dependency path="/isMaybeEligibleForEdcBasedOnNonTaxablePayments" />
+          <Any>
+            <Not>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </Not>
+            <All>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              <Dependency module="filers" path="/livedApartAllYear" />
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEdcSectionComplete">
+      <Description>Whether the EDC section is considered complete</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+        <Any>
+          <Not>
+            <Dependency path="/maybeEligibleForCreditForElderlyAndDisabled" />
+          </Not>
+          <IsComplete>
+            <Dependency path="/edcSelfReportedNonTaxablePaymentAmount" />
+          </IsComplete>
+        </Any>
+        <Any>
+          <Not>
+            <Dependency path="/maybeEligibleForCreditForElderlyAndDisabled" />
+          </Not>
+          <Not>
+            <Dependency path="/qualifiedForCreditForElderlyAndDisabled" />
+          </Not>
+
+          <Any>
+            <All>
+              <Not>
+                <Dependency path="/atLeastOneFilerQualifiedForEdcThroughDisability" />
+              </Not>
+              <Dependency path="/qualifiedForCreditForElderlyAndDisabled" />
+            </All>
+
+            <All>
+              <Dependency path="/qualifiedForCreditForElderlyAndDisabled" />
+              <Dependency path="/atLeastOneFilerQualifiedForEdcThroughDisability" />
+              <Dependency path="/filersCompletedEdcPhysicianStatementQuestions" />
+              <Dependency path="/isInitialDisabilitySectionComplete" />
+            </All>
+          </Any>
+        </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxSingleHohQssAgiLimit">
+      <Description>Max AGI Limit to be qualified for EDC (elderly or disabled credit) as single, HoH, QSS filing
+        statuses</Description>
+      <Derived>
+        <Dollar>17500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxMfsAgiLimit">
+      <Description>Max AGI Limit to be qualified for EDC as MFS filing status</Description>
+      <Derived>
+        <Dollar>12500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxMfjBothAgiLimit">
+      <Description>Max AGI Limit to be qualified for EDC as MFJ filing status when both filers qualify</Description>
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxMfjOnlyOneAgiLimit">
+      <Description>Max AGI Limit to be qualified for EDC as MFJ filing status when only one filer qualifies</Description>
+      <Derived>
+        <Dollar>20000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/arePaymentsTaxDisabilityIncome">
+      <Description>Were any payments on W2 disability income from accident or health plan or pension
+        plan paid by an
+        employer</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/isRetOnPermOrTotalDisability">
+      <Description>Is TP retired or permanent and total disability by the end of TY</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/employerHasMandatoryRetirementAge">
+      <Description>Whether the employer has a mandatory retirement age</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/hasMetEmployerMandatoryRetirementAge">
+      <Description>Whether the tp reached employer's mandatory retirement age by January 1</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/writableDisabilityIncomeAfterMandatoryRetirementAge">
+      <Description>(Writable) Did you reach your employer's mandatory retirement age during 2025
+        (after January 1)? If so, enter the part of your taxable disability income for 2025 (the
+        employer-paid disability wages on your Form W-2 and any code 3 Form 1099-R disability
+        pension) that you received on or after the day you reached that age. Mandatory retirement
+        age is the age set by your employer at which you would have had to retire, had you not
+        become disabled. Enter 0 if you did not reach it during 2025. Asked of a filer whose
+        employer has a mandatory retirement age and who had not reached it on January 1, 2025.
+        Left unanswered, nothing is removed from Schedule R line 11.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/mayReachMandatoryRetirementAgeDuringYear">
+      <Description>Whether this filer's employer has a mandatory retirement age that the filer had
+        not reached on January 1, 2025, so the filer may reach it during the year.</Description>
+      <Derived>
+        <All>
+          <Dependency path="../employerHasMandatoryRetirementAge" />
+          <Not>
+            <Dependency path="../hasMetEmployerMandatoryRetirementAge" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/disabilityIncomeAfterMandatoryRetirementAge">
+      <Description>The part of this filer's taxable disability income received after reaching the
+        employer's mandatory retirement age during 2025, removed from Schedule R line 11. The
+        answered ../writableDisabilityIncomeAfterMandatoryRetirementAge floored at $0 when the
+        employer has a mandatory retirement age that the filer had not reached on January 1
+        (../mayReachMandatoryRetirementAgeDuringYear Complete true). $0 when that question
+        resolves Complete false (no employer mandatory retirement age, or already met on January
+        1) or is itself unanswered — the same posture the W-2 disability amount takes when its own
+        gate is unknown. Left INCOMPLETE, never a silent $0, when
+        ../mayReachMandatoryRetirementAgeDuringYear is Complete true and this amount is left
+        blank: the instruction's reduction is not optional for that filer, and nothing in the
+        source settles what an unknown amount defaults to, so Schedule R line 11 cannot be
+        completed until it is answered (FACT-STANDARD.md 4.1; operator ruling NE-8 2026-09-27,
+        source-of-record FED-SCHR-MANDATORY-RETIREMENT-AGE-020).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../mayReachMandatoryRetirementAgeDuringYear" />
+                </IsComplete>
+                <Dependency path="../mayReachMandatoryRetirementAgeDuringYear" />
+                <IsComplete>
+                  <Dependency path="../writableDisabilityIncomeAfterMandatoryRetirementAge" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableDisabilityIncomeAfterMandatoryRetirementAge" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../mayReachMandatoryRetirementAgeDuringYear" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="../mayReachMandatoryRetirementAgeDuringYear" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="../mayReachMandatoryRetirementAgeDuringYear" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/writableTotalTaxableDisabilityAmount">
+      <Description>(Writable) How much of your Form W-2 wages was taxable disability income? Enter
+        only the amount your employer's accident, health, or pension plan paid you as wages (or in
+        place of wages) while you were absent from work on account of your permanent and total
+        disability, and that is reported on a Form W-2 — not any amount from a Form 1099-R. Asked
+        of a filer who is retired on disability and answered yes to having received such W-2
+        disability payments. If you also have a taxable disability pension on a Form 1099-R (code
+        3, before your plan's minimum retirement age), do not include it here — it is added to
+        Schedule R line 11 automatically. Left unanswered, this amount is treated as $0. Feeds
+        Schedule R Part III line 11 together with any banked Form 1099-R disability pension.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/writableAccruedAnnualLeavePayoutIncludedInDisabilityAmount">
+      <Name>The accrued annual leave payout inside the W-2 disability amount</Name>
+      <Description>SCREEN. Question: "Did the amount you just entered include a lump sum payment
+        for accrued annual leave, and if so how much?" Help text: if you retire on disability, a
+        lump sum payment for accrued annual leave is a SALARY payment, not disability income. It
+        pays you for leave you earned while you were working, not for the time you are absent from
+        work because of your disability, so it does not count for the credit for the elderly or
+        the disabled even though your employer reports it on the same Form W-2. Enter the leave
+        payout part of the amount on the previous screen; leave this blank, or enter $0, if none
+        of it was accrued leave. Asked when: the filer is retired on permanent and total
+        disability and has answered
+        ../writableTotalTaxableDisabilityAmount. Unanswered posture: DEFAULTED to $0, and the
+        reason is the previous screen. ../writableTotalTaxableDisabilityAmount already asks for the
+        amount paid "as wages (or in place of wages) while you were absent from work on account of
+        your permanent and total disability", so a filer who followed that instruction has already
+        left the leave payout out; this box DECOMPOSES an attestation that is already scoped rather
+        than collecting a new unscoped quantity, and $0 here means "nothing bundled". An Incomplete
+        default is not available: the whole of Schedule R Part III hangs off
+        ../totalTaxableDisabilityAmount, so a blank on this box would put line 11, line 12 and the
+        credit Incomplete on every return in the population, including the five committed upstream
+        scenarios that answer the amount and never see this question. THE RESIDUAL RISK IS A SCREEN
+        ORDER RISK, not a graph risk: the carve out bites only where the screen is not shown, so
+        this question has to be asked of every filer who answers the amount. Validation: Dollar,
+        Min $0, ONE amount per filer. NO UPPER BOUND AGAINST THE DISABILITY AMOUNT, the
+        disclosed-not-repaired posture the sibling intakes take: an entry above it is ACCEPTED and
+        the exclusion it produces is capped at the amount rather than refused, so line 11 floors at
+        $0 and never turns negative. What the answer feeds:
+        ../accruedAnnualLeavePayoutExcludedFromDisabilityIncome, subtracted from the W-2 leg of
+        ../totalTaxableDisabilityAmount before it reaches Schedule R line 11.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/accruedAnnualLeavePayoutExcludedFromDisabilityIncome">
+      <Name>The accrued annual leave actually taken out of this filer's disability income</Name>
+      <Description>The answer above, complete safe at $0 and CAPPED at
+        ../writableTotalTaxableDisabilityAmount. The cap is what makes an out of range entry safe:
+        the intake carries no upper bound against the disability amount, so an entry above it would
+        otherwise drive Schedule R line 11 negative. Capped, the W-2 leg floors at $0 instead, the
+        filer lands in ../isDisqualifiedFromEdcBasedOnTaxableDisabilityIncome (the correct outcome
+        under section 22(c)(2)(B)(i) for a filer under 65 with no disability income at all), and
+        the over entry is disclosed rather than refused.
+
+        $0, NOT INCOMPLETE, while the question is unanswered, for the reason stated on the
+        writable: the amount screen above it is already scoped to the period of absence, and every
+        consumer of ../totalTaxableDisabilityAmount is a shipping Schedule R line.
+
+        NOT REDUCED FROM THE PENSION LEG. ../disabilityPensionBeforeMinRetirementAge is a code 3
+        Form 1099-R disability pension, and the carve out is written about a lump sum for leave
+        that an employer reports on Form W-2 as a salary payment; a pension payment is not a leave
+        payout, so the subtraction belongs to the W-2 leg alone.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableAccruedAnnualLeavePayoutIncludedInDisabilityAmount" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../writableTotalTaxableDisabilityAmount" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="../writableAccruedAnnualLeavePayoutIncludedInDisabilityAmount" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <GreaterOf>
+                  <Dependency path="../writableTotalTaxableDisabilityAmount" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/totalTaxableDisabilityAmount">
+      <Description>The total amount of taxable disability income for Schedule R Part III line 11:
+        the self-reported employer-paid accident, health or pension plan amount (Form W-2) plus
+        any disability pension banked from a code-3 Form 1099-R received before minimum
+        retirement age. Section 22(c)(2)(B)(iii) admits disability income "under section 72 or
+        105(a)" without regard to which form reports it, so an employer W-2 disability payment
+        and a Form 1099-R disability pension add together when a filer has both. While the
+        disability-eligibility questions behind ../hasDisabilityIncome are unanswered, the pension leg
+        contributes $0 — the same complete-safe posture the W-2 leg takes while its own amount is
+        unanswered — so this line always resolves; the credit's own eligibility gates decide whether
+        anything is paid.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="../hasTaxableDisabilityPaymentsAndRetOnDisability" />
+                  <IsComplete>
+                    <Dependency path="../writableTotalTaxableDisabilityAmount" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="../writableTotalTaxableDisabilityAmount" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="../accruedAnnualLeavePayoutExcludedFromDisabilityIncome" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="../hasDisabilityIncome" />
+                  </IsComplete>
+                  <Dependency path="../hasDisabilityIncome" />
+                </All>
+              </When>
+              <Then>
+                <Dependency path="../disabilityPensionBeforeMinRetirementAge" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../disabilityIncomeAfterMandatoryRetirementAge" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/disabilityPensionBeforeMinRetirementAge">
+      <Description>This filer's own disability pension income banked from a code-3 Form 1099-R
+        received before minimum retirement age (form1099Rs:/primaryFilerDisabilityPensionsBeforeMinRetirementAge
+        and its secondary twin — the same figure already routed to Form 1040 line 1h). Complete-safe
+        $0 when the filer has no such form.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isPrimaryFiler" />
+            </When>
+            <Then>
+              <Dependency module="form1099Rs" path="/primaryFilerDisabilityPensionsBeforeMinRetirementAge" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency module="form1099Rs" path="/secondaryFilerDisabilityPensionsBeforeMinRetirementAge" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/employerHasMandatoryRetirementAgeAndRetired">
+      <Description>Whether the employer has a mandatory retirement age</Description>
+      <Derived>
+        <All>
+          <Dependency path="../isRetOnPermOrTotalDisability" />
+          <Dependency path="../employerHasMandatoryRetirementAge" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/hasPhysicianStatementBothDisabledAndWillNotImprove">
+      <Description>In a previous year, has the TP, received a physician's statement certifying both permanent/total
+        disability AND no reasonable probability to ever improve</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/hasPhysicianStatementBefore1983">
+      <Description>Did the TP file a physicians statement for 1983 or earlier regarding permanent/total disability</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/askAboutPhysicianStatementSelfCertify">
+      <Description>Whether the TP should be asked about the self certification of their physician's statement</Description>
+      <Derived>
+        <Any>
+          <Dependency path="../hasPhysicianStatementBothDisabledAndWillNotImprove" />
+          <All>
+            <Not>
+              <Dependency path="../hasPhysicianStatementBothDisabledAndWillNotImprove" />
+            </Not>
+            <Dependency path="../hasPhysicianStatementBefore1983" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/physicianStatementNeeded">
+      <Description>Whether the TP needs a physician's statement</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Dependency path="../askAboutPhysicianStatementSelfCertify" />
+            <Not>
+              <Dependency path="../hasSelfCertPhysStatmntOrVetDisbltyVerified" />
+            </Not>
+          </All>
+          <All>
+            <Not>
+              <Dependency path="../hasPhysicianStatementBothDisabledAndWillNotImprove" />
+            </Not>
+            <Not>
+              <Dependency path="../hasPhysicianStatementBefore1983" />
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/hasSelfCertPhysStatmntOrVetDisbltyVerified">
+      <Description>Did the TP self-certify that due to their disability, they are not able to engage in gainful activity</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/filers/*/physicianStatementNotNeeded">
+      <Description>Whether the TP does not need another physician's statement</Description>
+      <Derived>
+        <All>
+          <Dependency path="../askAboutPhysicianStatementSelfCertify" />
+          <Dependency path="../hasSelfCertPhysStatmntOrVetDisbltyVerified" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/determinedIfEdcPhysicianStatementIsNeededOrNot">
+      <Description>Have we collected enough information to determine if a physician's statement is needed or not</Description>
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path="/qualifiedForCreditForElderlyAndDisabled" />
+          </Not>
+          <All>
+            <Dependency path="../isMaybeQualifiedforEdcThroughDisability" />
+            <Any>
+              <Dependency path="../physicianStatementNeeded" />
+              <Dependency path="../physicianStatementNotNeeded" />
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allDisabledEdcQualifiedDontNeedPhysicianStatement">
+      <Description>Whether all of the disabled qualified TPs don't need a physician's statement</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency path="/filersCompletedEdcPhysicianStatementQuestions" />
+          <Equal>
+            <Left>
+              <CollectionSize>
+                <Dependency path="/filersQualifiedForEdcThroughDisability" />
+              </CollectionSize>
+            </Left>
+            <Right>
+              <CollectionSize>
+                <Filter path="/filersQualifiedForEdcThroughDisability">
+                  <Dependency path="physicianStatementNotNeeded" />
+                </Filter>
+              </CollectionSize>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filersCompletedEdcPhysicianStatementQuestions">
+      <Description>Whether filer(s) have completed the physician's statement section if needed</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <All>
+                <Dependency path="/primaryFiler/hasCompletedPhysicianStatementQuestions" />
+                <Dependency path="/secondaryFiler/hasCompletedPhysicianStatementQuestions" />
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/primaryFiler/hasCompletedPhysicianStatementQuestions" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/hasCompletedPhysicianStatementQuestions">
+      <Description>Whether the TP has completed the physician's statement questions</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="../determinedIfEdcPhysicianStatementIsNeededOrNot" />
+          </IsComplete>
+          <Dependency path="../determinedIfEdcPhysicianStatementIsNeededOrNot" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/hasDisabilityIncome">
+      <Description> Whether the TP has disability income to report</Description>
+      <Derived>
+        <All>
+          <Dependency path="../maybeEligibleForDisabilityCredit" />
+          <Dependency path="../isRetOnPermOrTotalDisability" />
+          <Any>
+            <Not>
+              <Dependency path="../employerHasMandatoryRetirementAge" />
+            </Not>
+            <All>
+              <Dependency path="../employerHasMandatoryRetirementAge" />
+              <Not>
+                <Dependency path="../hasMetEmployerMandatoryRetirementAge" />
+              </Not>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/hasTaxableDisabilityPaymentsAndRetOnDisability">
+      <Description>Whether the filer is retired on disability and has taxable disability income
+        to report, from either source section 22(c)(2)(B)(iii) admits: employer-paid W-2 disability
+        payments (self-reported), or a code-3 Form 1099-R disability pension received before
+        minimum retirement age (banked from form1099Rs).</Description>
+      <Derived>
+        <All>
+          <Dependency path="../hasDisabilityIncome" />
+          <Switch>
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="../disabilityPensionBeforeMinRetirementAge" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <True />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dependency path="../arePaymentsTaxDisabilityIncome" />
+              </Then>
+            </Case>
+          </Switch>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/isMaybeQualifiedforEdcThroughDisability">
+      <Description>Whether the TP is qualified based on disability. A MAYBE flag: once the filer
+        is on the disability route (retired on disability with taxable disability payments), an
+        exact ../totalTaxableDisabilityAmount that is not yet pinned down (for example a
+        mandatory-retirement-age reduction the filer has not yet answered, IRC 22(c)(2)(B)(iii))
+        does not turn this flag Incomplete — the inclusive answer is that the filer MAY still
+        qualify, so later screens (such as line 13b) are still asked. Only a definitely-answered
+        zero disability amount disqualifies.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="../isPrimaryFilerOrMfjAndEither" />
+                <IsComplete>
+                  <Dependency path="../hasTaxableDisabilityPaymentsAndRetOnDisability" />
+                </IsComplete>
+                <Dependency path="../hasTaxableDisabilityPaymentsAndRetOnDisability" />
+                <IsComplete>
+                  <Dependency path="../totalTaxableDisabilityAmount" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <NotEqual>
+                <Left>
+                  <Dependency path="../totalTaxableDisabilityAmount" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </NotEqual>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="../isPrimaryFilerOrMfjAndEither" />
+                <IsComplete>
+                  <Dependency path="../hasTaxableDisabilityPaymentsAndRetOnDisability" />
+                </IsComplete>
+                <Dependency path="../hasTaxableDisabilityPaymentsAndRetOnDisability" />
+              </All>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mfjAndOnlyOneQualfiedForEdc">
+      <Description>If the TP is MFJ and only one qualifies for EDC</Description>
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/isInitialDisabilitySectionComplete" />
+          <Equal>
+            <Left>
+              <CollectionSize>
+                <Filter path="/filers">
+                  <Any>
+                    <Dependency path="isMaybeQualifiedforEdcThroughDisability" />
+                    <Dependency module="filers" path="age65OrOlder" />
+                  </Any>
+                </Filter>
+              </CollectionSize>
+            </Left>
+            <Right>
+              <Int>1</Int>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcAgiLimitBasedOnQualified">
+      <Description>AGI limit to be eligible for EDC based on the number of TPs qualified, only applicable for MFJ</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/mfjAndOnlyOneQualfiedForEdc" />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfjOnlyOneAgiLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/isInitialDisabilitySectionComplete" />
+            </When>
+            <Then>
+              <Dependency path="/edcRelaxedAgiLimit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isQualifiedForEdcBasedOnAgiLimit">
+      <Description>Whether the TP(s) are qualified based on AGI limit</Description>
+      <Derived>
+        <LessThan>
+          <Left>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Left>
+          <Right>
+            <Dependency path="/edcAgiLimitBasedOnQualified" />
+          </Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcRelaxedAgiLimit">
+      <Description>The less restrictive AGI limit based on filing status, while we don't know if both spouses qualify</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfjBothAgiLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfsAgiLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxSingleHohQssAgiLimit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/edcMaxSingleHohQssNontaxableLimit">
+      <Description>Max nontaxable social security or other nontaxable pensions, annuities, or disability
+        income to be
+        qualified for EDC as single, HoH, QSS filing statuses</Description>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxMfsNontaxableLimit">
+      <Description>Max nontaxable social security or other nontaxable pensions, annuities, or disability
+        income to be
+        qualified for EDC as MFS filing status</Description>
+      <Derived>
+        <Dollar>3750</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxMfjBothNontaxableLimit">
+      <Description>Max nontaxable social security or other nontaxable pensions, annuities, or disability
+        income to be
+        qualified for EDC as MFJ filing status when both filers qualify</Description>
+      <Derived>
+        <Dollar>7500</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMaxMfjOnlyOneNontaxableLimit">
+      <Description>Max nontaxable social security or other nontaxable pensions, annuities, or disability
+        income to be
+        qualified for EDC as MFJ filing status when only one filer qualifies</Description>
+      <Derived>
+        <Dollar>5000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcRelaxedNontaxableLimit">
+      <Description>The less restrictive nontaxable limit based on filing status, while we don't know if both spouses
+        qualify</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfjBothNontaxableLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfsNontaxableLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxSingleHohQssNontaxableLimit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcNonTaxableLimitBasedOnQualified">
+      <Description>The nontaxable limit based on the number of TPs qualified</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/mfjAndOnlyOneQualfiedForEdc" />
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfjOnlyOneNontaxableLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/isInitialDisabilitySectionComplete" />
+            </When>
+            <Then>
+              <Dependency path="/edcRelaxedNontaxableLimit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForEdcBasedOnRelaxedAgiLimit">
+      <Description>Whether the taxpayer might eligible for EDC based on their filing status and the relaxed AGI limit.</Description>
+      <Derived>
+        <LessThan>
+          <Left>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Left>
+          <Right>
+            <Dependency path="/edcRelaxedAgiLimit" />
+          </Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isQualifiedForEdcBasedOnNonTaxablePayments">
+      <Description>Whether the TP passes the non taxable payments limit based on the number of people qualified</Description>
+      <Derived>
+        <All>
+          <Dependency path="/hasEdcNetCreditAmount" />
+          <LessThan>
+            <Left>
+              <Dependency path="/edcTotalNonTaxableAmount" />
+            </Left>
+            <Right>
+              <Dependency path="/edcNonTaxableLimitBasedOnQualified" />
+            </Right>
+          </LessThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isMaybeEligibleForEdcBasedOnNonTaxablePayments">
+      <Description>Whether the taxpayer is initially eligible for EDC based on whether they exceed the EDC limit for
+        nontaxable payments.</Description>
+      <Derived>
+        <LessThan>
+          <Left>
+            <Dependency path="/edcInitialNonTaxableAmountForPotentialEligibility" />
+          </Left>
+          <Right>
+            <Dependency path="/edcRelaxedNontaxableLimit" />
+          </Right>
+        </LessThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/atLeastOneFilerQualifiedForEdcThroughDisability">
+      <Description>If at least one filer is qualified for EDC based on disability rather than age</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <CollectionSize>
+              <Dependency path="/filersQualifiedForEdcThroughDisability" />
+            </CollectionSize>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isQualifiedForEdcBasedOnAgeOrDisability">
+      <Description>Whether the taxpayer or their spouse is qualified for EDC based off their age or possible taxable
+        disability income.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/isEligibleForEdcBasedOnAge" />
+          <Dependency path="/atLeastOneFilerQualifiedForEdcThroughDisability" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tpCanBeAskedAboutNonTaxablePayments">
+      <Description>Whether the TP is eligible to be asked about their nontaxable payments</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/isEligibleForEdcBasedOnAge" />
+          <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+          <Dependency path="/secondaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+        </Any>
+      </Derived>
+
+    </Fact>
+
+    <Fact path="/isEligibleForEdcBasedOnAge">
+      <Derived>
+        <Dependency module="filers" path="/atLeastOneTpIs65OrOlder" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/maybeEligibleForEdcBasedOnDisability">
+      <Description>Whether anyone on the tax return is eligible for the EDC credit based on their disability
+        information.</Description>
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/atLeastOneTpIsUnder65" />
+          <Dependency path="/isMaybeEligibleForEdcBasedOnTaxableDisabilityIncome" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isEligibleForEdcBasedOnAgeOrDisability">
+      <Description>Whether the taxpayer is eligible based off their age or possible taxable disability income.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/isEligibleForEdcBasedOnAge" />
+          <Dependency path="/maybeEligibleForEdcBasedOnDisability" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isMaybeEligibleForEdcBasedOnTaxableDisabilityIncome">
+      <Description>Whether the taxpayer might initially be eligible for receiving EDC based on
+        whether anyone on the return has income that could be taxable disability income: W-2 wages,
+        or a code-3 Form 1099-R disability pension received before minimum retirement age.</Description>
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left>
+              <Dependency module="formW2s" path="/wages" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency module="form1099Rs" path="/primaryFilerDisabilityPensionsBeforeMinRetirementAge" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency module="form1099Rs" path="/secondaryFilerDisabilityPensionsBeforeMinRetirementAge" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine1">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 1</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Any>
+            <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+            <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+          </Any>
+          <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine2">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 2</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Any>
+            <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+            <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+            <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+          </Any>
+          <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine3">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 3</Description>
+      <Export mef="true" />
+      <Derived>
+        <Any>
+          <All>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+            <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine4">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 4</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+          </Not>
+          <Not>
+            <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+          </Not>
+          <Equal>
+            <Left>
+              <CollectionSize>
+                <Dependency path="/filersQualifiedForEdcThroughDisability" />
+              </CollectionSize>
+            </Left>
+            <Right>
+              <Int>1</Int>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine5">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 5</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Not>
+            <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+          </Not>
+          <Not>
+            <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+          </Not>
+          <Equal>
+            <Left>
+              <CollectionSize>
+                <Dependency path="/filersQualifiedForEdcThroughDisability" />
+              </CollectionSize>
+            </Left>
+            <Right>
+              <Int>2</Int>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine6">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 6</Description>
+      <Export mef="true" />
+      <Derived>
+        <Any>
+          <All>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+            <Not>
+              <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+            </Not>
+            <Dependency path="/secondaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+          </All>
+          <All>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+            <Not>
+              <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+            </Not>
+            <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine7">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 7</Description>
+      <Export mef="true" />
+      <Derived>
+        <Any>
+          <All>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+            <Not>
+              <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+            </Not>
+            <Not>
+              <Dependency path="/secondaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+            </Not>
+          </All>
+          <All>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            <Dependency path="/elderlyAndDisabledSecondaryFiler/age65OrOlder" />
+            <Not>
+              <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+            </Not>
+            <Not>
+              <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine8">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 8</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcLine9">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 9</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+          <Not>
+            <Dependency path="/elderlyAndDisabledPrimaryFiler/age65OrOlder" />
+          </Not>
+          <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcFilingStatusAmt">
+      <Description>Elderly or Disabled Credit (Schedule R) Line 10, which is the filing status amount</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine1" />
+                <Dependency path="/edcLine2" />
+                <Dependency path="/edcLine4" />
+                <Dependency path="/edcLine7" />
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfjOnlyOneNontaxableLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine3" />
+                <Dependency path="/edcLine5" />
+                <Dependency path="/edcLine6" />
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfjBothNontaxableLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine8" />
+                <Dependency path="/edcLine9" />
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/edcMaxMfsNontaxableLimit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/statusBasedDisabilityIncome">
+      <Description>The modified taxable disability income for Schedule R, Line 11</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/edcLine6" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+                  </When>
+                  <Then>
+                    <Add>
+                      <Dependency path="/primaryFiler/totalTaxableDisabilityAmount" />
+                      <Dollar>5000</Dollar>
+                    </Add>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Dependency path="/secondaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+                  </When>
+                  <Then>
+                    <Add>
+                      <Dependency path="/secondaryFiler/totalTaxableDisabilityAmount" />
+                      <Dollar>5000</Dollar>
+                    </Add>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine2" />
+                <Dependency path="/edcLine9" />
+              </Any>
+            </When>
+            <Then>
+              <Dependency path="/primaryFiler/totalTaxableDisabilityAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/edcLine4" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="/primaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+                  </When>
+                  <Then>
+                    <Dependency path="/primaryFiler/totalTaxableDisabilityAmount" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <Dependency path="/secondaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+                  </When>
+                  <Then>
+                    <Dependency path="/secondaryFiler/totalTaxableDisabilityAmount" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/edcLine5" />
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/primaryFiler/totalTaxableDisabilityAmount" />
+                <Dependency path="/secondaryFiler/totalTaxableDisabilityAmount" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/lesserOfFilingStatusAmountAndTaxableDisabilityIncome">
+      <Description>The lesser of Line 10 and Line 11 on Schedule R, used for Line 12 of Sch. R</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/atLeastOneFilerQualifiedForEdcThroughDisability" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/edcFilingStatusAmt" />
+                <Dependency path="/statusBasedDisabilityIncome" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/edcFilingStatusAmt" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcNonTaxableSocialSecurityAndRailroadBenefits">
+      <Name>Schedule R line 13a, nontaxable social security and railroad benefits</Name>
+      <Description>1040 Schedule R line 13a: Nontaxable social security and railroad benefits.
+        Two legs add: socialSecurity:/nonTaxableSocialSecurityBenefits (Form 1040 line 6a minus
+        6b, the ordinary nontaxable portion) PLUS the collection of terrorist-attack disability
+        exclusions (IRC 104(a)(5)) already subtracted before line 6a is formed
+        (socialSecurity:/socialSecurityBenefits). §22(c)(3)(A)(i)(I) reaches "amounts received ...
+        which is excluded from gross income and payable under ... title II of the Social Security
+        Act", with the only carve-out (the flush sentence, "no reduction shall be made under
+        clause (i)(III) for any amount described in section 104(a)(4)") reaching clause (i)(III)
+        (VA-administered law) and section 104(a)(4) (combat-related injury), not clause (i)(I) or
+        section 104(a)(5) (terrorist-attack injury). A title II SSDI amount excluded under
+        104(a)(5) is therefore within clause (i)(I) and belongs on line 13a; without the second
+        leg it never reached this line, because 6a minus 6b removes only the TAXABLE/NONTAXABLE
+        split of what was reported, not an amount already excluded before 6a was formed.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Add>
+          <Dependency module="socialSecurity" path="/nonTaxableSocialSecurityBenefits" />
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency module="socialSecurity" path="/socialSecurityReports" />
+                </IsComplete>
+              </When>
+              <Then>
+                <CollectionSum>
+                  <Dependency module="socialSecurity" path="/socialSecurityReports/*/terroristAttackDisabilityExclusionAmount" />
+                </CollectionSum>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableEdcSelfReportedNonTaxablePaymentAmount">
+      <Name>(Writable) Nontaxable payment amount</Name>
+      <Description>(Writable) Enter the total of the following types of income you (and your
+        spouse, if filing jointly) received for 2025: veterans' pensions (but NOT military
+        disability pensions); and any other pension, annuity, or disability benefit that is
+        excluded from income under any provision of federal law other than the Internal Revenue
+        Code, not counting any amount that is a return of your cost of a pension or annuity. Do
+        NOT include on this line any pension, annuity, or similar allowance for personal injuries
+        or sickness resulting from active service in the armed forces of any country, or in the
+        National Oceanic and Atmospheric Administration or the Public Health Service, and do NOT
+        include a disability annuity payable under section 808 of the Foreign Service Act of 1980
+        — none of those amounts reduce this credit. Asked of a filer who answered yes to having
+        nontaxable pension, annuity, or disability payments to report. Left unanswered after a
+        yes, line 13b stays unresolved. Feeds Schedule R Part III line 13b (with line 13a, the nontaxable
+        social security and railroad retirement benefits) toward line 13c and the nontaxable-payments
+        limit on the credit.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/edcInitialNonTaxableAmountForPotentialEligibility">
+      <Description>The nontaxable contribution, that is an initial value for Schedule R Line 13c</Description>
+      <Derived>
+        <Dependency module="socialSecurity" path="/nonTaxableSocialSecurityBenefits" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableHasSelfReportedNonTaxablePayments">
+      <Description>(Writable) Did you (or your spouse, if filing jointly) receive any nontaxable
+        veterans' pensions, or any other pension, annuity, or disability benefit excluded from
+        income under a federal law other than the Internal Revenue Code, in 2025? This does not
+        include military disability pensions, VA disability compensation, NOAA or Public Health
+        Service disability annuities, or a Foreign Service Act section 808 disability annuity —
+        none of those reduce this credit and none should be answered yes for here. Asked of a
+        filer who could reach the credit at all. Left unanswered, the amount on line 13b is not
+        assumed to be $0 — the line stays unresolved rather than silently taking a favorable
+        default.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/hasSelfReportedNonTaxablePayments">
+      <Description>Did primary or secondary have any nontaxable payments that need to be reported (may be incomplete) </Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/tpCanBeAskedAboutNonTaxablePayments" />
+            </When>
+            <Then>
+              <Dependency path="/writableHasSelfReportedNonTaxablePayments" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/edcSelfReportedNonTaxablePaymentAmount">
+      <Name>Nontaxable payment amount</Name>
+      <Description>Additional self reported nontaxable payment not collected elsewhere, used as part of Schedule R Line
+        13b</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/hasSelfReportedNonTaxablePayments" />
+                  </IsComplete>
+                  <Dependency path="/hasSelfReportedNonTaxablePayments" />
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableEdcSelfReportedNonTaxablePaymentAmount" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/hasSelfReportedNonTaxablePayments" />
+                  </IsComplete>
+                  <Not>
+                    <Dependency path="/hasSelfReportedNonTaxablePayments" />
+                  </Not>
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <Any>
+                  <Not>
+                    <Dependency path="/tpCanBeAskedAboutNonTaxablePayments" />
+                  </Not>
+                  <Not>
+                    <Dependency path="/maybeEligibleForCreditForElderlyAndDisabled" />
+                  </Not>
+                </Any>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcNonTaxableIncomeNotIncludingSocialSecurityAndRrb">
+      <Description>Nontaxable veterans pensions and any other pension, annuity, or disability benefit that is excluded
+        from income under any other provision of law, used for Schedule R Line 13b.
+
+        CORRECTED. THE SECOND ADDEND IS GONE. Until this
+        change the body was Add(/edcSelfReportedNonTaxablePaymentAmount,
+        income:/nonTaxablePensionsAndAnnuities), and that second term is Form 1040 line 5a less
+        line 5b, i.e. the IRC 72(b) exclusion ratio, which its own authority comment in income.xml
+        names as such ("Gross income does not include that part of any amount received as an
+        annuity ... which bears the same ratio to such amount as the investment in the contract
+        bears to the expected return"). THE PRINTED LINE EXCLUDES EXACTLY THAT QUANTITY, TWICE
+        OVER. 2025 Instructions for Schedule R, Line 13b (https://www.irs.gov/pub/irs-pdf/i1040sr.pdf, page 4, RIGHT column of a two column extraction): the line takes "Veterans'
+        pensions (but not military disability pensions)" and "Any other pension, annuity, or
+        disability benefit that is excluded from income under any provision of federal law other
+        than the Internal Revenue Code", and then says in the same breath "Don't include amounts
+        that are treated as a return of your cost of a pension or annuity." Basis recovery under
+        section 72(b) IS a return of cost, and section 72 IS the Internal Revenue Code, so the
+        old addend failed both halves of the printed test. The statute says the same:
+        IRC 22(c)(3)(A)(ii) reduces only by amounts "excluded from gross income under any
+        provision of law NOT CONTAINED IN THIS TITLE" (26 U.S.C. 22, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section22&amp;num=0&amp;edition=2024), and
+        title 26 is the Internal Revenue Code.
+
+        THE IRS'S OWN WORKED EXAMPLE CORROBORATES IT. Instructions for Schedule R, Examples,
+        Example 1 (https://www.irs.gov/pub/irs-pdf/i1040sr.pdf, page 5): Jesse has a $15,900 taxable disability pension and
+        $700 of nontaxable social security, and line 13c is $700 - the pension contributes
+        nothing to the reduction. Example 2 (lines 341-351, tabulated at 300-316) is the same
+        shape. NEITHER PRINTED EXAMPLE CARRIES A NONZERO 13b, so no IRS worked example pins the
+        13b limb itself; the two examples pin the ABSENCE this correction restores.
+
+        WHAT REMAINS ON THIS LINE is /edcSelfReportedNonTaxablePaymentAmount alone - the taxpayer
+        attested veterans' and other non-title-26 exclusions, which is precisely the class
+        22(c)(3)(A)(i)(III) and (ii) describe and the only class this dictionary can source. No
+        1099-R quantity belongs here: every nontaxable component the 1099-R model can produce
+        (72(b) basis recovery, a 402(c) rollover, the 402(l) public safety officer exclusion) is
+        an exclusion granted BY title 26.
+
+        THE BUG THIS CLOSES, and why a floor would have hidden it. This fact was measured
+        NEGATIVE - minus 18,000 on one committed return and minus 30,000 on another - because a fully taxable
+        pension leaves line 5a blank by the Form 1040 instruction while line 5b carries the whole
+        figure, so 5a less 5b is minus 5b. The proposed fix was max(5a - 5b, 0). THAT FIX IS
+        REFUTED BY THE SOURCES ABOVE: it would have left the POSITIVE half of the same class on
+        the line, which is 6,000 on node-test
+        elderlyAndDisabled/schedule-r-line13b-excludes-return-of-cost and up to 41,864 on
+        scenarios/spine/1040-withholdings-without-attachments.tsv - a partly taxable pension's
+        return of cost, named in the printed instruction as the thing not to include. The
+        negative was a symptom of a wrong DECOMPOSITION, not of a missing floor.
+
+        VALUES THAT MOVE, all on the committed corpus and all corrections: 24 spine rows carry a
+        nonzero value for this fact today and every one of them becomes $0. Nineteen are positive
+        (200.00 on eight ats/ticket 1099-R rows; 2,200.00 on three savers rows; 6,200.00 on three;
+        8,000.00 on three; 10,000.00 on ats-3-1099r; 41,864.00 on
+        1040-withholdings-without-attachments) and carry line 13c
+        (/edcTotalNonTaxableAmount) with them to $0; five are negative (minus 10,000.00 on one, minus 18,000.00 on two and minus
+        30,000.00 on two) and leave 13c at $0 where the existing floor already put it. NO TAX MOVES ANYWHERE:
+        /netEdcAmount is 0.00 on all 24. The one committed scenario with a live credit,
+        scenarios/spine/edc-ats-1.tsv (13b 425.00, 13c 425.00, /netEdcAmount 686.00), is NOT a
+        mover - its 425 is entirely /writableEdcSelfReportedNonTaxablePaymentAmount, it carries
+        no 1099-R at all, and it is byte identical after this change.
+
+        FIXTURES: elderlyAndDisabled/schedule-r-line13b-fully-taxable-pension-excluded (the
+        issue's own shape, an 18,000 fully taxable pension, this line $0 where it was minus
+        18,000); .../schedule-r-line13b-excludes-return-of-cost (18,000 gross against a 12,000
+        taxable amount, 6,000 of return of cost, this line $0); .../schedule-r-line13b-
+        veterans-pension-self-reported (the same pension plus a 425 attested veterans' pension,
+        this line 425 - the boundary pair, and the proof the surviving limb still reaches the
+        line); .../schedule-r-line13b-unanswered-complete-safe (nothing answered, $0 and
+        Complete).
+
+        RESIDUAL FOR THE INCOME MODULE, not fixed here because it is another module's fact:
+        income:/nonTaxablePensionsAndAnnuities keeps its negative-for-a-fully-taxable-pension
+        behaviour and its Export downstreamFacts, and now has no consumer inside this
+        dictionary.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Dependency path="/edcSelfReportedNonTaxablePaymentAmount" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcTotalNonTaxableAmountCal">
+      <Description>Helper fact for edcTotalNonTaxableAmount to avoid repeating the calc twice</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/edcNonTaxableSocialSecurityAndRailroadBenefits" />
+          <Dependency path="/edcNonTaxableIncomeNotIncludingSocialSecurityAndRrb" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcTotalNonTaxableAmount">
+      <Description>The total nontaxable contributions, used for Schedule R Line 13c</Description>
+      <Export mef="true" />
+      <ExportZero />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/edcTotalNonTaxableAmountCal" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Dependency path="/edcTotalNonTaxableAmountCal" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcExemptionAmount">
+      <Description>1040 Schedule R Line 15: The EDC exemption amount used to calculate the AGI modified for the EDC</Description>
+      <Export mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine8" />
+                <Dependency path="/edcLine9" />
+              </Any>
+            </When>
+            <Then>
+              <Dollar>5000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine1" />
+                <Dependency path="/edcLine2" />
+              </Any>
+            </When>
+            <Then>
+              <Dollar>7500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Dependency path="/edcLine3" />
+                <Dependency path="/edcLine4" />
+                <Dependency path="/edcLine5" />
+                <Dependency path="/edcLine6" />
+                <Dependency path="/edcLine7" />
+              </Any>
+            </When>
+            <Then>
+              <Dollar>10000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMagiCalc">
+      <Description>Helper fact for the edc modified AGI fact to avoid repeating the calc twice.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/edcExemptionAmount" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcMagi">
+      <Description>1040 Schedule R line 16: the AGI the section 22 credit's income limit is measured on.
+        **PLAIN AGI, with NO section 931/933 add-back — and that is SOURCED, not
+        incidental.**
+
+        ⚠⚠ A TAXPAYER-FAVOURABLE RESIDUAL WAS ONCE DECLARED HERE AND IS WITHDRAWN.
+        The reasoning was: Publication 1321 cautions that
+        "Excluded Puerto Rico source income must be included in gross income when calculating income
+        limits for certain credits", and section 22 is a credit with an income limit, so the caution
+        reads onto it. **IRC 22 was vendored to settle that, and it does not.**
+
+        TWO INDEPENDENT REASONS FROM THE PRINTED STATUTE, either one sufficient:
+        1. SECTION 22 NAMES PLAIN AGI AND NO EXCLUSION SECTION AT ALL. Section 22(d): "If the
+           adjusted gross income of the taxpayer exceeds- (1) $7,500 ... the section 22 amount shall
+           be reduced by one-half of the excess". Sections 911, 931 and 933 appear NOWHERE in
+           section 22. That is the same test that correctly leaves scheduleE /section8582Magi
+           (section 469(i)(3)(E) names no exclusion section), taxCalculations /magiForIraDeduction
+           (section 219(g)(3) names 135/137/221/911, not 931/933) and form8960 /niitMagi (section
+           1411(d) names 911 alone) on plain AGI. The earlier MAGI walk classified all four
+           together and was right about all four.
+        2. SECTION 22'S OTHER REDUCTION LIMB EXCLUDES THIS INCOME BY ITS OWN TERMS. Section
+           22(c)(3)(A)(ii) reduces the section 22 amount by a pension, annuity or disability benefit
+           "which is excluded from gross income under any provision of law NOT CONTAINED IN THIS
+           TITLE". Section 933 IS contained in this title, so it is outside that clause. Both of
+           section 22's reduction mechanisms leave a section 933 exclusion alone.
+
+        AND PUBLICATION 1321 DOES NOT REACH IT EITHER — the word doing the work is "certain". Its
+        CREDITS section enumerates exactly four credits: the American Opportunity Tax Credit, the
+        Foreign Tax Credit, the Child Tax Credit and the Earned Income Tax Credit
+        (https://www.irs.gov/pub/irs-pdf/p1321.pdf, page 7). The credit for the elderly and the
+        permanently and totally disabled is NOT among them. A general caution plus an enumeration
+        that omits this credit is not authority for wiring it.
+
+        SO 28,174 IS THE CORRECT VALUE and the node test pins it as correct rather than as a
+        disclosed defect. The knockout's condition (A) is NOT re-opened on this surface.
+
+        WHAT THE EPISODE IS WORTH KEEPING FOR: that earlier walk recorded this surface as "plain AGI, needs no
+        wiring" — the right answer for a reason stated about PLUMBING rather than statute, which is
+        why it looked fragile the moment the plumbing moved and why a later change believed it had
+        broken something. An exemption justified by what a fact happens to read is only as durable as
+        what it reads; an exemption justified by what the statute says survives. Three of that walk's
+        four exemptions were statutory and never wobbled.</Description>
+      
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/edcMagiCalc" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Dependency path="/edcMagiCalc" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcHalfMagi">
+      <Description>1040 Schedule R line 17: Half of the EDC modified AGI</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/edcMagi" />
+            <Rational>1/2</Rational>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/edcAdjustedCreditAmount">
+      <Description>1040 Schedule R line 18: The adjusted credit amount</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Add>
+          <Dependency path="/edcTotalNonTaxableAmount" />
+          <Dependency path="/edcHalfMagi" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcNetCreditAmountCalc">
+      <Description>Helper fact used to calculate the net EDC amount</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/lesserOfFilingStatusAmountAndTaxableDisabilityIncome" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/edcAdjustedCreditAmount" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcNetCreditAmount">
+      <Description>1040 Schedule R line 19: The net credit amount. The taxpayer is disqualified from taking EDC if the
+        amount is 0 or less.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasEdcNetCreditAmount" />
+            </When>
+            <Then>
+              <Dependency path="/edcNetCreditAmountCalc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasEdcNetCreditAmount">
+      <Description>Whether the taxpayer has a valid (positive non-zero) EDC net credit amount.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/edcNetCreditAmountCalc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/netEdcAmount">
+      <Description>1040 Schedule R line 20: calculated amount of the net EDC amount.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dependency path="/edcNetCreditAmount" />
+            <Rational>15/100</Rational>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcTaxLiabilityLimitCalc">
+      <Description>Helper fact used calculate whether the TP has any taxes after previously calculated or claimed
+        deductions are accounted for.</Description>
+      <Derived>
+        <Round>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="schedule3" path="/sched3Line1" />
+              <Dependency module="cdcc" path="/cdccTotalCredit" />
+              <Dependency module="schedule3" path="/sched3Line6l" />
+            </Subtrahends>
+          </Subtract>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasTaxLiabilityForEdc">
+      <Description>Whether the taxpayer has any taxes that are owed. Note: EDC is a non-refundable credit so the TP must
+        have a tax liability to claim it.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/edcTaxLiabilityLimitCalc" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/edcTaxLiabilityLimit">
+      <Description>1040 Schedule R line 21: The limit for the EDC defined by the Credit Limit Worksheet. The total tax
+        minus existing nonrefundable credits.</Description>
+      <Export mef="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/hasTaxLiabilityForEdc" />
+            </When>
+            <Then>
+              <Dependency path="/edcTaxLiabilityLimitCalc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalEdc">
+      <Description>1040 Schedule R line 22: The total amount for the credit for the elderly or the disabled.</Description>
+      <Export mef="true" downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/qualifiedForCreditForElderlyAndDisabled" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/netEdcAmount" />
+                <Dependency path="/edcTaxLiabilityLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isReceivingEdc">
+      <Description>Whether the TP is receiving a non-zero value for the Elderly or disabled credit</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency path="/qualifiedForCreditForElderlyAndDisabled" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/totalEdc" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isInitialDisabilitySectionComplete">
+      <Description>Whether the intitial disability section has been completed for all eligible filers.</Description>
+      <Derived>
+        <Equal>
+          <Left>
+            <CollectionSize>
+              <Dependency path="/filersMaybeEligibleForDisability" />
+            </CollectionSize>
+          </Left>
+          <Right>
+            <Add>
+              <CollectionSize>
+                <Filter path="/filersMaybeEligibleForDisability">
+                  <Dependency path="initialDisabilityIsComplete" />
+                </Filter>
+              </CollectionSize>
+            </Add>
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/initialDisabilityIsComplete">
+      <Description>Whether the initial disability section can be considered complete for the filer</Description>
+      <Derived>
+        <IsComplete>
+          <Dependency path="../hasTaxableDisabilityPaymentsAndRetOnDisability" />
+        </IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filersQualifiedForEdcThroughDisability">
+      <Description>The collection of filers who are qualified for the EDC via the disabled path. Note: they may still be
+        disqualified from downstream questions / calculations</Description>
+      <Derived>
+        <Filter path="/filersMaybeEligibleForDisability">
+          <Dependency path="isMaybeQualifiedforEdcThroughDisability" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/isDisqualifiedFromEdcThroughDisability">
+      <Description>Whether the taxpayer has been disqualified from the disability path for EDC.</Description>
+      <Derived>
+        <Not>
+          <Dependency path="../isMaybeQualifiedforEdcThroughDisability" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isDisqualifiedFromEdcBasedOnAgiLimit">
+      <Description>Whether the TP was disqualified from EDC based on their AGI and filing status.</Description>
+      <Derived>
+        <Any>
+          <Not>
+            <Dependency path="/maybeEligibleForEdcBasedOnRelaxedAgiLimit" />
+          </Not>
+          <Not>
+            <Dependency path="/isQualifiedForEdcBasedOnAgiLimit" />
+          </Not>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isDisqualifiedFromEdcBasedOnTaxLiability">
+      <Description>Whether the TP cannot claim EDC because after already known deductions their tax liability would be
+        0.</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnAgiLimit" />
+          </Not>
+          <IsComplete>
+            <Dependency path="/hasTaxLiabilityForEdc" />
+          </IsComplete>
+          <Not>
+            <Dependency path="/hasTaxLiabilityForEdc" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/isDisqualifiedFromEdcBasedOnNonTaxablePayments">
+      <Description>Whether the TP was disqualified from EDC based on their nontaxable payments and filing status and not
+        other disquals.</Description>
+      <Derived>
+        <All>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnAgiLimit" />
+          </Not>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnTaxLiability" />
+          </Not>
+          <Any>
+            <Not>
+              <Dependency path="/isMaybeEligibleForEdcBasedOnNonTaxablePayments" />
+            </Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/isQualifiedForEdcBasedOnNonTaxablePayments" />
+              </IsComplete>
+              <Not>
+                <Dependency path="/isQualifiedForEdcBasedOnNonTaxablePayments" />
+              </Not>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/isDisqualifedFromEdcBasedOnAgeOrDisability">
+      <Description>Whether the filer has been disqualified from EDC based on the age requirement and their answer to
+        retired on total disability and not due to previous disquals.</Description>
+      <Derived>
+        <All>
+          <Dependency module="filers" path="../isPrimaryFilerOrMfjAndEither" />
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnAgiLimit" />
+          </Not>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnTaxLiability" />
+          </Not>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnNonTaxablePayments" />
+          </Not>
+          <Not>
+            <Dependency module="filers" path="../age65OrOlder" />
+          </Not>
+          <All>
+            <IsComplete>
+              <Dependency path="../isRetOnPermOrTotalDisability" />
+            </IsComplete>
+            <Not>
+              <Dependency path="../isRetOnPermOrTotalDisability" />
+            </Not>
+          </All>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/isDisqualifiedByMandatoryRetirementAge">
+      <Description>Whether the filer was disqualified from the disabled path through meeting the mandatory retirement
+        age.</Description>
+      <Derived>
+        <All>
+          <Dependency module="filers" path="../isPrimaryFilerOrMfjAndEither" />
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnAgiLimit" />
+          </Not>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnTaxLiability" />
+          </Not>
+          <Not>
+            <Dependency path="/isDisqualifiedFromEdcBasedOnNonTaxablePayments" />
+          </Not>
+          <Not>
+            <Dependency path="../isDisqualifedFromEdcBasedOnAgeOrDisability" />
+          </Not>
+          <Not>
+            <Dependency module="filers" path="../age65OrOlder" />
+          </Not>
+          <Not>
+            <Dependency path="../hasDisabilityIncome" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/isDisqualifiedFromEdcBasedOnTaxableDisabilityIncome">
+      <Description>Whether the filer has been disqualified from EDC based on their taxable disability income and not
+        other disquals.</Description>
+      <Derived>
+        <All>
+          <Dependency path="../maybeEligibleForDisabilityCredit" />
+          <Dependency path="../isRetOnPermOrTotalDisability" />
+          <Not>
+            <Dependency path="../isMaybeQualifiedforEdcThroughDisability" />
+          </Not>
+          <IsComplete>
+            <Dependency path="../hasDisabilityIncome" />
+          </IsComplete>
+          <Any>
+            <Not>
+              <Dependency path="../hasDisabilityIncome" />
+            </Not>
+            <All>
+              <IsComplete>
+                <Dependency path="../arePaymentsTaxDisabilityIncome" />
+              </IsComplete>
+              <Not>
+                <Dependency path="../arePaymentsTaxDisabilityIncome" />
+              </Not>
+            </All>
+            <Equal>
+              <Left>
+                <Dependency path="../totalTaxableDisabilityAmount" />
+              </Left>
+              <Right>
+                <Dollar>0</Dollar>
+              </Right>
+            </Equal>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filersMaybeEligibleForDisability">
+      <Description>The collection of filers who might be eligible for the Elderly or Disabled Credit via the disabled
+        path.</Description>
+      <Derived>
+        <Filter path="/filers">
+          <Dependency path="maybeEligibleForDisabilityCredit" />
+        </Filter>
+      </Derived>
+    </Fact>
+
+    <Fact path="/filers/*/maybeEligibleForDisabilityCredit">
+      <Description>Whether the filer might be eligible for disability through the EDC and we need to ask them additional
+        questions.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/maybeEligibleForCreditForElderlyAndDisabled" />
+          <Not>
+            <Dependency module="filers" path="../age65OrOlder" />
+          </Not>
+          <Dependency module="filers" path="../isPrimaryFilerOrMfjAndEither" />
+          <Any>
+            <All>
+              <Dependency module="filers" path="../isPrimaryFiler" />
+              <Any>
+                <Dependency module="formW2s" path="/primaryFilerHasW2WagesGreaterThan0" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="../disabilityPensionBeforeMinRetirementAge" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </Any>
+            </All>
+            <All>
+              <Dependency module="filers" path="../isSecondaryFiler" />
+              <Any>
+                <Dependency module="formW2s" path="/secondaryFilerHasW2WagesGreaterThan0" />
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="../disabilityPensionBeforeMinRetirementAge" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </Any>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerIsEligibleForEdcThroughDisability">
+      <Description>Is the secondary filer eligible for EDC through disability, used for MeF to ensure filer is also MFJ</Description>
+      <Export mef="true" />
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency path="/secondaryFiler/isMaybeQualifiedforEdcThroughDisability" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/edcShouldShowCreditOutcomes">
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/tpCanBeAskedAboutNonTaxablePayments" />
+            </When>
+            <Then>
+              <IsComplete>
+                <Dependency path="/hasSelfReportedNonTaxablePayments" />
+              </IsComplete>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

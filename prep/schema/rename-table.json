@@ -1,0 +1,1705 @@
+{
+  "$comment": "SEED rename table: maps this repo's DERIVATIVE-ONLY service fact fields to the dictionary's WRITABLE fact paths, one-to-one where possible. This file is DATA — reviewed, not code logic (the adapter reads it; it contains no branching). `[]` marks a collection in the service field; `/*/` marks the corresponding dictionary collection member. The FULL field list is generated from the dictionary's writables in a later unit; this seed covers the core income streams. Every dict_path here is validated to exist as a writable at the engine pin (tests/test_schema.py + the build repo's factpaths validator).",
+  "version": "seed-v1",
+  "pinned_dictionary": "dictionary/ty2025 @ build main 6645ce30",
+  "map": [
+    {
+      "service_field": "filing_status",
+      "dict_path": "/filingStatus"
+    },
+    {
+      "service_field": "persons[].tin_type (role=dependent)",
+      "dict_path": "/familyAndHousehold/*/tinType",
+      "note": "Clean 1:1 — the dictionary exposes tinType as a writable derivative for dependents."
+    },
+    {
+      "service_field": "w2s[].wages_cents",
+      "dict_path": "/formW2s/*/writableWages"
+    },
+    {
+      "service_field": "w2s[].withholding_cents",
+      "dict_path": "/formW2s/*/writableFederalWithholding"
+    },
+    {
+      "service_field": "w2s[].social_security_wages_cents",
+      "dict_path": "/formW2s/*/writableOasdiWages",
+      "note": "Clean 1:1 (W-2 box 3). Emitted since the W-2 stream landed, but unnamed here until so `consumed_by` answered [] — the artifact prices its reach at eight lines."
+    },
+    {
+      "service_field": "w2s[].medicare_wages_cents",
+      "dict_path": "/formW2s/*/writableMedicareWages",
+      "note": "Clean 1:1 (W-2 box 5). Reaches nine lines including 25d; the ONE measured move at the pin is Form 8959 on line 24 (+180.00 at box 5 = 250,000 against box 1 = 230,000), which is why line 24 names it in `derived_from` and the rest stay CAN-not-WILL."
+    },
+    {
+      "service_field": "w2s[].statutory_employee",
+      "dict_path": "/formW2s/*/statutoryEmployee",
+      "note": "Clean 1:1 (W-2 box 13). Read by /flowKnockoutStatutoryEmployee and the Schedule C routing flag; a checked box is the dictionary's own knockout (measured: /knockoutFormW2s fires too). Formerly attested false on every W-2."
+    },
+    {
+      "service_field": "w2s[].retirement_plan",
+      "dict_path": "/formW2s/*/retirementPlan",
+      "note": "Clean 1:1 (W-2 box 13). Read by the covered-by-employer-plan facts (the IRA-deduction limit chain); no served figure moves at the pin because IRA contributions are not asked. Formerly attested false."
+    },
+    {
+      "service_field": "w2s[].third_party_sick_pay",
+      "dict_path": "/formW2s/*/thirdPartySickPay",
+      "note": "Clean 1:1 (W-2 box 13). No reader in the pinned dictionary; asked because the box is printed and was formerly attested false."
+    },
+    {
+      "service_field": "w2s[].has_rrta_codes",
+      "dict_path": "/formW2s/*/hasRRTACodes",
+      "note": "Clean 1:1 (W-2 box 14, the RRTA question). Read by /formW2s/*/hasRRTACodesReported, the first disjunct of ../reportsRRTAWithoutCompensation — the whole body of /flowKnockoutHasRRTACodesInBox14NotInNY, a /flowIsKnockedOut member that fires in every state at the pin (measured IL and NY) because the service never sends the box-14 RRTA compensation. Formerly attested false on every W-2."
+    },
+    {
+      "service_field": "w2s[].dependent_care_benefits_cents",
+      "dict_path": "/formW2s/*/writableDependentCareBenefits",
+      "note": "Clean 1:1 (W-2 box 10). Read by /formW2s/*/dependentCareBenefits and summed per filer into /hasReported{Primary,Secondary}FilerDependentCareBenefits, which opens Form 2441 Part III. Sent when present (0 included)."
+    },
+    {
+      "service_field": "w2s[].box12_a_cents",
+      "dict_path": "/formW2s/*/uncollectedOasdiTaxOnTips",
+      "note": "Clean 1:1 (W-2 box 12 code A). One of the four addends of /formW2s/*/uncollectedBox12TaxAddend → /schedule2Line13UncollectedBox12Tax → line 24 (measured). Sent when present."
+    },
+    {
+      "service_field": "w2s[].box12_b_cents",
+      "dict_path": "/formW2s/*/uncollectedMedicareTaxOnTips",
+      "note": "Clean 1:1 (W-2 box 12 code B). One of the four addends of /formW2s/*/uncollectedBox12TaxAddend → /schedule2Line13UncollectedBox12Tax → line 24 (measured). Sent when present."
+    },
+    {
+      "service_field": "w2s[].box12_c_cents",
+      "dict_path": "/formW2s/*/taxableLifeInsuranceOver50k",
+      "note": "Clean 1:1 (W-2 box 12 code C). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_d_cents",
+      "dict_path": "/formW2s/*/401kDeferrals",
+      "note": "Clean 1:1 (W-2 box 12 code D). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_e_cents",
+      "dict_path": "/formW2s/*/403bDeferrals",
+      "note": "Clean 1:1 (W-2 box 12 code E). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_f_cents",
+      "dict_path": "/formW2s/*/sarsepDeferrals",
+      "note": "1:1 (W-2 box 12 code F), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_g_cents",
+      "dict_path": "/formW2s/*/457bDeferrals",
+      "note": "Clean 1:1 (W-2 box 12 code G). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages — with 457bIsGovernmentalPlan true."
+    },
+    {
+      "service_field": "w2s[].box12_h_cents",
+      "dict_path": "/formW2s/*/501c18Deferrals",
+      "note": "Clean 1:1 (W-2 box 12 code H). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_j_cents",
+      "dict_path": "/formW2s/*/nontaxableSickPay",
+      "note": "1:1 (W-2 box 12 code J), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_k_cents",
+      "dict_path": "/formW2s/*/goldenParachuteExciseTax",
+      "note": "1:1 (W-2 box 12 code K), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_l_cents",
+      "dict_path": "/formW2s/*/expenseReimbursements",
+      "note": "1:1 (W-2 box 12 code L), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_m_cents",
+      "dict_path": "/formW2s/*/uncollectedOasdiTaxOnLifeInsuranceOver50k",
+      "note": "Clean 1:1 (W-2 box 12 code M). One of the four addends of /formW2s/*/uncollectedBox12TaxAddend → /schedule2Line13UncollectedBox12Tax → line 24 (measured). Sent when present."
+    },
+    {
+      "service_field": "w2s[].box12_n_cents",
+      "dict_path": "/formW2s/*/uncollectedMedicareTaxOnLifeInsuranceOver50k",
+      "note": "Clean 1:1 (W-2 box 12 code N). One of the four addends of /formW2s/*/uncollectedBox12TaxAddend → /schedule2Line13UncollectedBox12Tax → line 24 (measured). Sent when present."
+    },
+    {
+      "service_field": "w2s[].box12_p_cents",
+      "dict_path": "/formW2s/*/armedForcesMovingExpenses",
+      "note": "1:1 (W-2 box 12 code P), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_q_cents",
+      "dict_path": "/formW2s/*/writableCombatPay",
+      "note": "1:1 (W-2 box 12 code Q); carried — Schedule 8812 line 18b unconditionally (measured: 8,000 of code Q on a 4,000-wage return with one child moves the additional child tax credit 375 → 1,575), Form 1040 line 1i and Form 2441 through the three elections below."
+    },
+    {
+      "service_field": "w2s[].box12_r_cents",
+      "dict_path": "/formW2s/*/archerMsaContributions",
+      "note": "1:1 (W-2 box 12 code R), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_s_cents",
+      "dict_path": "/formW2s/*/simpleContributions",
+      "note": "Clean 1:1 (W-2 box 12 code S). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_t_cents",
+      "dict_path": "/formW2s/*/adoptionBenefits",
+      "note": "1:1 (W-2 box 12 code T), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_v_cents",
+      "dict_path": "/formW2s/*/nsoIncome",
+      "note": "Clean 1:1 (W-2 box 12 code V). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_w_cents",
+      "dict_path": "/formW2s/*/employerHsaContributions",
+      "note": "Clean 1:1 (W-2 box 12 code W), Form 8889 line 9; sent when present. The filer's Part I questions are asked beside it: measured 5,000 self-only → 700 of Schedule 1 line 8z income and 42 of Form 5329 excise."
+    },
+    {
+      "service_field": "w2s[].box12_y_cents",
+      "dict_path": "/formW2s/*/409aDeferrals",
+      "note": "Clean 1:1 (W-2 box 12 code Y). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_z_cents",
+      "dict_path": "/formW2s/*/nqdcDeferrals",
+      "note": "1:1 (W-2 box 12 code Z), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "w2s[].box12_aa_cents",
+      "dict_path": "/formW2s/*/roth401kContributions",
+      "note": "Clean 1:1 (W-2 box 12 code AA). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_bb_cents",
+      "dict_path": "/formW2s/*/roth403bContributions",
+      "note": "Clean 1:1 (W-2 box 12 code BB). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_dd_cents",
+      "dict_path": "/formW2s/*/healthCoverageCost",
+      "note": "Clean 1:1 (W-2 box 12 code DD). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_ee_cents",
+      "dict_path": "/formW2s/*/roth457bContributions",
+      "note": "Clean 1:1 (W-2 box 12 code EE). Form 8880 line 2 through /primaryFilersDeferralsAndContributions (the Secondary twin for the spouse); sent when present; measured 20% of 2,000 at 25,000 of wages."
+    },
+    {
+      "service_field": "w2s[].box12_ff_cents",
+      "dict_path": "/formW2s/*/qsehraBenefits",
+      "note": "Clean 1:1 (W-2 box 12 code FF). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_gg_cents",
+      "dict_path": "/formW2s/*/83iIncome",
+      "note": "Clean 1:1 (W-2 box 12 code GG). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_hh_cents",
+      "dict_path": "/formW2s/*/83iDeferrals",
+      "note": "Clean 1:1 (W-2 box 12 code HH). Sent when present; reaches no served line at the pin (the DAG agrees)."
+    },
+    {
+      "service_field": "w2s[].box12_ii_cents",
+      "dict_path": "/formW2s/*/nonTaxableMedicaidWaiverPayments",
+      "note": "1:1 (W-2 box 12 code II), a /knockoutForBox12Value code; refused by name before the engine when above 0, never sent."
+    },
+    {
+      "service_field": "persons[].self_employed_dependent_care_benefits_cents (role=primary|spouse)",
+      "dict_path": "/writablePrimaryFilerSelfEmployedDependentCareBenefits",
+      "note": "Form 2441 line 12's sole-proprietorship benefit, the second arm of /hasReported*FilerDependentCareBenefits. Optional: absent is the dictionary's own 0. Sent when reached (box 10, a Schedule C, or a partnership K-1 on the filer's row). The spouse's lands on /writableSecondaryFilerSelfEmployedDependentCareBenefits."
+    },
+    {
+      "service_field": "persons[].dependent_care_plan_maximum_cents (role=primary|spouse)",
+      "dict_path": "/writablePrimaryFilerDependentCarePlanMaximum",
+      "note": "Direct File's plan-maximum question, wanted per filer who reports a benefit (measured: spouse-only box 10 wants the spouse's alone; Part III stalls without it). Required when reached; 0 refused. The spouse's lands on /writableSecondaryFilerDependentCarePlanMaximum."
+    },
+    {
+      "service_field": "dependent_care_carryover_cents",
+      "dict_path": "/writableCdccCarryoverAmountFromPriorTaxYear",
+      "note": "Form 2441 line 13. The yes/no is derived (above 0 → yes); the amount carries a one-cent floor in the dictionary and is sent only above 0. Formerly the yes/no was attested no on every return. /hasCdccCarryoverAmountFromPriorTaxYear is derived from it (above 0 → yes)."
+    },
+    {
+      "service_field": "dependent_care_forfeited_cents",
+      "dict_path": "/writableCdccForfeitedCredits",
+      "note": "Form 2441 line 14. The yes/no is derived (above 0 → yes) and sent once a filer reports a benefit (measured: the section stalls without it); the amount is sent only above 0. /writableHasCdccForfeitedCredits is derived from it (above 0 → yes)."
+    },
+    {
+      "service_field": "w2s[].social_security_withheld_cents",
+      "dict_path": "/formW2s/*/writableOasdiWithholding",
+      "note": "Clean 1:1 (W-2 box 4). Reaches 24/33/34 through the excess-OASDI credit; no fixture in the corpus puts one filer over the wage base with two employers, so no `derived_from` row was wired."
+    },
+    {
+      "service_field": "w2s[].medicare_withheld_cents",
+      "dict_path": "/formW2s/*/writableMedicareWithholding",
+      "note": "Clean 1:1 (W-2 box 6). Feeds Form 8959 Part IV (Additional Medicare Tax withholding, line 24), one of the four addends of /totalWithholding — reaches 25d and 33. Measured against profile-additional-medicare, the corpus profile that surfaced the gap: the field closes the mismatch on those two lines against the oracle."
+    },
+    {
+      "service_field": "int1099s[].interest_cents",
+      "dict_path": "/interestReports/*/writable1099Amount"
+    },
+    {
+      "service_field": "int1099s[].government_interest_cents",
+      "dict_path": "/interestReports/*/writableInterestOnGovernmentBonds",
+      "note": "Box 3 — taxable federally and EXCLUDED from box 1 by the form's own instruction ('Enter taxable interest not included in box 3'), so a schema without this field under-reports every savings-bond 1099-INT. Added with the interest coverage."
+    },
+    {
+      "service_field": "int1099s[].tax_exempt_interest_cents",
+      "dict_path": "/interestReports/*/writableTaxExemptInterest"
+    },
+    {
+      "service_field": "int1099s[].federal_withholding_cents",
+      "dict_path": "/interestReports/*/writableTaxWithheld"
+    },
+    {
+      "service_field": "oid1099s[].original_issue_discount_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableOriginalIssueDiscount",
+      "note": "Form 1099-OID box 1. Clean 1:1. Always sent, 0 when absent: the engine drops an item whose boxes are unsent (measured on the pinned engine)."
+    },
+    {
+      "service_field": "oid1099s[].other_periodic_interest_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableBox2StatedInterest",
+      "note": "Form 1099-OID box 2. Always sent, 0 when absent — an item whose box 2 is unsent is dropped whole and silently (measured on the pinned engine)."
+    },
+    {
+      "service_field": "oid1099s[].early_withdrawal_penalty_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableEarlyWithdrawalPenalty",
+      "note": "Form 1099-OID box 3. Reaches Schedule 1 line 18."
+    },
+    {
+      "service_field": "oid1099s[].federal_withholding_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableTaxWithheld",
+      "note": "Form 1099-OID box 4. Reaches Form 1040 line 25b."
+    },
+    {
+      "service_field": "oid1099s[].market_discount_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableMarketDiscount",
+      "note": "Form 1099-OID box 5."
+    },
+    {
+      "service_field": "oid1099s[].acquisition_premium_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableAcquisitionPremium",
+      "note": "Form 1099-OID box 6."
+    },
+    {
+      "service_field": "oid1099s[].treasury_oid_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableOriginalIssueDiscountOnTreasuryObligations",
+      "note": "Form 1099-OID box 8."
+    },
+    {
+      "service_field": "oid1099s[].bond_premium_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableBondPremium",
+      "note": "Form 1099-OID box 10."
+    },
+    {
+      "service_field": "oid1099s[].tax_exempt_oid_cents",
+      "dict_path": "/originalIssueDiscountReports/*/writableBox11TaxExemptOid",
+      "note": "Form 1099-OID box 11. Always sent, 0 when absent, for the same measured reason as box 2."
+    },
+    {
+      "service_field": "oid1099s[].box2_is_tax_exempt",
+      "dict_path": "/originalIssueDiscountReports/*/writableBox2IsTaxExempt",
+      "note": "Not a printed box: whether the box 2 interest is tax-exempt. Sent only when box 11 is 0 (with box 11 above 0 the engine settles it); required from the person when box 2 is above 0 and box 11 is 0, derived no when both are 0."
+    },
+    {
+      "service_field": "div1099s[].ordinary_dividends_cents",
+      "dict_path": "/dividendReports/*/writableOrdinaryDividends"
+    },
+    {
+      "service_field": "div1099s[].qualified_dividends_cents",
+      "dict_path": "/dividendReports/*/writableQualifiedDividends"
+    },
+    {
+      "service_field": "div1099s[].unrecaptured_1250_gain_cents",
+      "dict_path": "/dividendReports/*/writableUnrecapturedSection1250Gain",
+      "note": "Added with the dividend coverage — a box the form carries whose absence mis-states the return."
+    },
+    {
+      "service_field": "div1099s[].section_199a_dividends_cents",
+      "dict_path": "/dividendReports/*/writableSection199ADividends",
+      "note": "Added with the dividend coverage — a box the form carries whose absence mis-states the return."
+    },
+    {
+      "service_field": "div1099s[].exempt_interest_dividends_cents",
+      "dict_path": "/dividendReports/*/writableExemptInterestDividends",
+      "note": "Added with the dividend coverage — a box the form carries whose absence mis-states the return."
+    },
+    {
+      "service_field": "div1099s[].capital_gain_distributions_cents",
+      "dict_path": "/dividendReports/*/writableCapitalGainDistributions"
+    },
+    {
+      "service_field": "div1099s[].federal_withholding_cents",
+      "dict_path": "/dividendReports/*/writableFederalWithholding"
+    },
+    {
+      "service_field": "r1099s[].gross_distribution_cents",
+      "dict_path": "/form1099Rs/*/writableGrossDistribution"
+    },
+    {
+      "service_field": "r1099s[].taxable_amount_cents",
+      "dict_path": "/form1099Rs/*/writableTaxableAmount"
+    },
+    {
+      "service_field": "r1099s[].taxable_amount_not_determined",
+      "dict_path": "/form1099Rs/*/writableTaxableAmountNotDetermined"
+    },
+    {
+      "service_field": "r1099s[].distribution_code",
+      "dict_path": "/form1099Rs/*/writableDistributionCode",
+      "note": "Verbatim to the dictionary; on an IRA/SEP/SIMPLE 1099-R a code containing G or H also DERIVES /form1099Rs/*/writableLine4cElection = rollover (the payer's own statement that the distribution was rolled over directly). Measured: 10,000 with code G and box 2a 0 was /knockoutIraSepSimple and now files at 928.00 on wages-single-low; a partial one (box 2a 4,000) taxes the 4,000 (1,355.00). A code 7 rollover (indirect) stays the dictionary's knockout."
+    },
+    {
+      "service_field": "r1099s[].ira_sep_simple",
+      "dict_path": "/form1099Rs/*/iraSepSimple"
+    },
+    {
+      "service_field": "r1099s[].federal_withholding_cents",
+      "dict_path": "/form1099Rs/*/writableFederalWithholding"
+    },
+    {
+      "service_field": "r1099s[].qualified_hsa_funding_distribution_cents",
+      "dict_path": "/form1099Rs/*/writableHfdAmount",
+      "note": "The amount, with the line 4c election sent as `hfd` (/form1099Rs/*/writableLine4cElection, derived) and the QCD-only box 3 question sent false (/form1099Rs/*/writableIsBox3SplitInterestEntityQcd, derived: an HSA funding distribution is not a charitable one). Measured: 3,000 with self-only coverage leaves line 4b and lands on Form 8889 line 10 (1,235.00 → 928.00); beside own contributions the room left is deducted (828.00); above the 4,300 limit the dictionary knocks out (row 70's month needs the coverage vector, not sent)."
+    },
+    {
+      "service_field": "r1099s[].other_cents",
+      "dict_path": "/form1099Rs/*/writableOtherDollar",
+      "note": "Box 8 (Other), the amount, sent verbatim when present; absent sends nothing. Measured at the pin: 500 on a code-7 pension or an IRA form is /knockoutForForm1099RBox8Value (beside code W too — no Simplified Method runs here); 0 computes unchanged. Form 4972 line 11 would consume it; that chain is day-armed and stays unarmed."
+    },
+    {
+      "service_field": "r1099s[].other_percentage",
+      "dict_path": "/form1099Rs/*/writableOtherPercentage",
+      "note": "Box 8's percentage, the dictionary's own Match shape (up to three decimals) enforced by the schema before resolve. Measured: 50.00 is /knockoutForForm1099RBox8Percentage on either form kind; 0 computes unchanged."
+    },
+    {
+      "service_field": "r1099s[].percentage_of_total_distribution",
+      "dict_path": "/form1099Rs/*/writablePercentageTotalDistribution",
+      "note": "Box 9a, the same Match shape. Measured: 50.00 is /knockoutForForm1099RBox9aPercentage — Complete on an IRA form, a Placeholder root on a code-7 pension (the frontier's box9aEntryConsistent does not complete without Form 4972 Part III), so the service serves it from the item's causesRetirementBox9aPercentageKO. Row 54's thousandths twin is read only under Part III and is not sent."
+    },
+    {
+      "service_field": "r1099s[].qualified_charitable_distribution_cents",
+      "dict_path": "/form1099Rs/*/writableQcdAmount",
+      "note": "The part of the distribution the IRA trustee paid directly to a charity; a positive amount ALSO derives /form1099Rs/*/writableLine4cElection = qcd. Asked on a fully taxable IRA 1099-R of a filer born through 1953. Measured: 10,000 of 10,000, 1,128.00 → 126.00 on wages-single-low (filer born 1950)."
+    },
+    {
+      "service_field": "r1099s[].qcd_to_split_interest_entity",
+      "dict_path": "/form1099Rs/*/writableIsQcdToSplitInterestEntity",
+      "note": "The one-time split-interest-entity election, asked behind a positive amount; false computes, true is the engine's knockout."
+    },
+    {
+      "service_field": "r1099s[].rolled_over_cents",
+      "dict_path": "/form1099Rs/*/writableIndirectRolloverAmount",
+      "note": "The part rolled over within 60 days by the recipient; a positive amount ALSO sends /form1099Rs/*/writableIsIndirectRollover = true and writableIndirectRolloverWithin60Days = true (the question's words carry the 60 days). Asked on a fully taxable 1099-R with no other exclusion. Measured: a pension form's 10,000, 2,075.00 → 928.00; 4,000 → 1,595.00; an IRA form's 10,000 → 928.00. A partial IRA rollover is refused."
+    },
+    {
+      "service_field": "r1099s[].ira_one_rollover_per_year",
+      "dict_path": "/form1099Rs/*/writableIraOneRolloverPerYearSatisfied",
+      "note": "The one-rollover-per-year answer on an IRA form behind a positive rolled-over amount; true computes, false is the engine's knockout (/flowKnockoutForRollover)."
+    },
+    {
+      "service_field": "r1099s[].reached_minimum_retirement_age",
+      "dict_path": "/form1099Rs/*/writableReachedMinimumRetirementAge",
+      "note": "Clean 1:1. Asked on each Form 1099-R whose box 7 carries only the disability code (3, 3D or D3; /form1099Rs/*/hasDisabilityCodeOnly) without the IRA/SEP/SIMPLE box. false reaches /form1099Rs/*/isDisabilityWagesBeforeMinRetirementAge (line 1h wages); true computes on the pension path (/taxablePensionsAndAnnuities, measured; the description disagrees); unanswered is /knockoutForForm1099RDistributionCode."
+    },
+    {
+      "service_field": "r1099s[].public_safety_officer",
+      "dict_path": "/form1099Rs/*/writeablePublicSafetyOfficer",
+      "note": "Clean 1:1 (the dictionary's own spelling). Asked on each Form 1099-R with a box 7 code of 2 or 7 and no B (/form1099Rs/*/flowAskAboutPublicSafetyOfficer) without the IRA/SEP/SIMPLE box — the exclusion is refused on an IRA (measured: yes/yes/2,500 on an IRA code 7 is /flowKnockoutRetirementPublicSafetyOfficer). A no ends the chain and computes unchanged."
+    },
+    {
+      "service_field": "r1099s[].pso_premiums_paid_by_plan",
+      "dict_path": "/form1099Rs/*/writeablePublicSafetyOfficerPremiums",
+      "note": "Clean 1:1, behind the officer's yes; a no computes unchanged."
+    },
+    {
+      "service_field": "r1099s[].pso_premiums_cents",
+      "dict_path": "/form1099Rs/*/writablePsoPremiumsPaid",
+      "note": "Clean 1:1, required behind the second yes (unanswered there is the engine's own knockout, register row 3's correct refusal). IRC 402(l), up to 3,000 per officer off line 5b — per officer ACROSS forms (/primaryFilerPsoExclusion caps the filer's total: two pensions with 2,000 each exclude 3,000, measured 6,470.00 → 5,810.00): on a code-7 pension of 10,000, 2,500 → 4,565.00 (4,865.00 before), 4,000 → 4,505.00 (the cap), 0 → unchanged; on a pension with box 2a 4,000 the exclusion comes off the 4,000 (2,500 → 3,845.00); box 2a 0 computes unchanged."
+    },
+    {
+      "service_field": "r1099s[].date_of_payment",
+      "dict_path": "/form1099Rs/*/writableDateOfPayment",
+      "note": "Clean 1:1 (a Day). The dictionary reads only that it is answered (`causesDeathBenefitPaymentKO` = box 13 complete and the form not priced); its Max limit (the first day of the following year) is mirrored in the mapper. Required on a code C/CD/DC form, invited on a code 4/4D/D4 form (blank stated: taxed as box 2a reports). Measured: a code C form without it computes on box 2a (4,865.00); with it and the chain, 4,145.00 / 3,665.00."
+    },
+    {
+      "service_field": "r1099s[].box1_is_death_benefit_under_contract",
+      "dict_path": "/form1099Rs/*/writableBox1IsTheDeathBenefitUnderThatContract",
+      "note": "Clean 1:1, register row 56 — the code 4 form's per-form attestation; false is the engine's own knockout (measured), served with words."
+    },
+    {
+      "service_field": "r1099s[].acquired_in_reportable_policy_sale",
+      "dict_path": "/form1099Rs/*/writableAcquiredInReportablePolicySale",
+      "note": "Clean 1:1, register row 15 — IRC 101(a)(3)(B); true makes the basis cap unconditional (box 1 less the basis, measured 6,000 on 10,000 → 4,145.00); false opens the IRC 101(a)(2) questions."
+    },
+    {
+      "service_field": "r1099s[].acquired_for_valuable_consideration",
+      "dict_path": "/form1099Rs/*/writableDeathBenefitAcquiredForValuableConsideration",
+      "note": "Clean 1:1, register row 43; false is fully excluded (measured 3,665.00)."
+    },
+    {
+      "service_field": "r1099s[].transfer_has_carryover_basis",
+      "dict_path": "/form1099Rs/*/writableDeathBenefitTransferHasCarryoverBasis",
+      "note": "Clean 1:1, register row 44; true frees the whole benefit (measured 3,665.00)."
+    },
+    {
+      "service_field": "r1099s[].transfer_to_insured_or_related_party",
+      "dict_path": "/form1099Rs/*/writableDeathBenefitTransferToInsuredOrRelatedParty",
+      "note": "Clean 1:1, register row 45; true frees the whole benefit (measured 3,665.00)."
+    },
+    {
+      "service_field": "r1099s[].death_benefit_basis_cents",
+      "dict_path": "/form1099Rs/*/writableReportableDeathBenefitBasis",
+      "note": "Clean 1:1, register row 16 — the IRC 101(a)(2) first-sentence sum; box 1 less it, floored at 0 (12,000 on 10,000 → 0, measured 3,665.00). Required where reached: unanswered is the engine's own knockout."
+    },
+    {
+      "service_field": "persons[].qcd_prior_deducted_ira_contributions_cents",
+      "dict_path": "/primaryFilerQcdOffsetCarryover",
+      "note": "The filer's post-70½ deducted-contribution history (Pub 590-B Appendix D line 1); the spouse's goes to /secondaryFilerQcdOffsetCarryover. Asked once a form of the filer carries a QCD. Measured: 1,000 taxes 1,000 on line 4b (226.00)."
+    },
+    {
+      "service_field": "persons[].hsa_funding_distribution_transfer_month",
+      "dict_path": "/filers/*/writableHsaFundingDistributionTransferMonth",
+      "note": "The transfer month, asked above the line 8 base limitation. The twelve-month coverage vector (/filers/*/writableHsaCoverageTypeMonthNN) is PREFILLED from the all-year Part I answers and asked month by month behind part-year coverage or the both type; the Medicare vector (/filers/*/writableHsaEnrolledInMedicareMonthNN) is asked as its onset month and sent from it. Measured: 5,000 self-only transferred, 700 on line 4b (1,040.00); family 9,000, 450 (1,000.00); a 60-year-old's 5,000, 0 (the 5,300 cap)."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_jan",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth01",
+      "note": "The coverage on the first day of January (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_feb",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth02",
+      "note": "The coverage on the first day of February (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_mar",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth03",
+      "note": "The coverage on the first day of March (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_apr",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth04",
+      "note": "The coverage on the first day of April (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_may",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth05",
+      "note": "The coverage on the first day of May (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_jun",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth06",
+      "note": "The coverage on the first day of June (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_jul",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth07",
+      "note": "The coverage on the first day of July (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_aug",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth08",
+      "note": "The coverage on the first day of August (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_sep",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth09",
+      "note": "The coverage on the first day of September (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_oct",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth10",
+      "note": "The coverage on the first day of October (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_nov",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth11",
+      "note": "The coverage on the first day of November (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_coverage_dec",
+      "dict_path": "/filers/*/writableHsaCoverageTypeMonth12",
+      "note": "The coverage on the first day of December (an editable row of the twelve-month vector), asked behind part-year coverage or the both type; prefilled from the all-year answer otherwise. Measured: self-only January through June, line 3 2,150 (1,064.00 on 3,000 code W); July through December, 4,300 by the last-month rule."
+    },
+    {
+      "service_field": "persons[].hsa_medicare_first_month",
+      "dict_path": "/filers/*/writableHsaEnrolledInMedicareMonth01",
+      "note": "The Medicare vector, asked as its onset month (the limitation latches: IRC 223(b)(7)); the twelve Medicare paths are sent no before that month and yes from it — Month01 named here, Month02..12 derived from the same answer. Measured: 3,000 code W with Medicare from July → line 3 2,150, 1,064.00; with a 5,000 June transfer and the testing period kept, 1,388.00. on a separate return too, the spouse's twelve rows beside it (3,819.00 with the spouse's HSA, 3,665.00 without)."
+    },
+    {
+      "service_field": "persons[].hsa_testing_period_first_ineligible_month",
+      "dict_path": "/filers/*/writableHsaTestingPeriodFirstIneligibleMonth",
+      "note": "The first ineligible month of the transfer's testing period (none, jan2025 … dec2026), asked of a part-year filer with a funding distribution. Measured: none → 1,388.00 on 5,000 transferred with self-only coverage January through June; jul2025 → 2,488.00 (line 19 and the 10%); mar2026 → 1,388.00."
+    },
+    {
+      "service_field": "persons[].hsa_prior_funding_distribution_election",
+      "dict_path": "/primaryFilerHasPriorLifetimeHfdElection",
+      "note": "The once-per-lifetime election, per filer (the Secondary twin /secondaryFilerHasPriorLifetimeHfdElection on a spouse row). Required once a 1099-R carries a funding distribution; true, or unanswered, is /knockoutIraSepSimple (measured)."
+    },
+    {
+      "service_field": "schedule_c[].gross_receipts_cents",
+      "dict_path": "/scheduleCs/*/writableGrossReceipts"
+    },
+    {
+      "service_field": "schedule_c[].returns_and_allowances_cents",
+      "dict_path": "/scheduleCs/*/writableReturnsAndAllowances"
+    },
+    {
+      "service_field": "schedule_c[].cost_of_goods_sold_cents",
+      "dict_path": "/scheduleCs/*/writableCostOfGoodsSold"
+    },
+    {
+      "service_field": "schedule_c[].other_business_income_cents",
+      "dict_path": "/scheduleCs/*/writableOtherBusinessIncome"
+    },
+    {
+      "service_field": "schedule_c[].total_expenses_cents",
+      "dict_path": "/scheduleCs/*/writableTotalExpenses"
+    },
+    {
+      "service_field": "schedule_c[].principal_business_code",
+      "dict_path": "/scheduleCs/*/writableLineBPrincipalBusinessCode"
+    },
+    {
+      "service_field": "schedule_c[].materially_participated",
+      "dict_path": "/scheduleCs/*/writableMateriallyParticipated"
+    },
+    {
+      "service_field": "schedule_c[].all_investment_at_risk",
+      "dict_path": "/scheduleCs/*/writableAllInvestmentAtRisk"
+    },
+    {
+      "service_field": "schedule_c[].amount_at_risk_cents",
+      "dict_path": "/scheduleCs/*/writableAmountAtRisk"
+    },
+    {
+      "service_field": "rentals[].rents_received_cents",
+      "dict_path": "/rentalProperties/*/grossIncome"
+    },
+    {
+      "service_field": "rentals[].total_expenses_cents",
+      "dict_path": "/rentalProperties/*/writableLine19OtherExpense"
+    },
+    {
+      "service_field": "rentals[].property_type",
+      "dict_path": "/rentalProperties/*/writableLine1bPropertyTypeCode",
+      "note": "NOT one-to-one: this one service field emits TWO writables. The path above is the printed box, and the dictionary calls it RECORD ONLY in as many words — 'code 7 does not set ../selfRental'. This service closes that gap by DERIVING /rentalProperties/*/selfRental from the same answer, so the code and the treatment cannot disagree; the reachability generator therefore joins this field to selfRental, which is the writable that moves a served line (the printed box moves none)."
+    },
+    {
+      "service_field": "rentals[].materially_participates_in_lessee",
+      "dict_path": "/rentalProperties/*/materiallyParticipatesInLessee",
+      "note": "Clean 1:1. The dictionary's own note: a NEW input distinct from the K-1 material-participation flag — it keys off material participation in the LESSEE business, not in this rental activity."
+    },
+    {
+      "service_field": "rentals[].active_participation",
+      "dict_path": "/rentalProperties/*/activeParticipation"
+    },
+    {
+      "service_field": "rentals[].fully_at_risk",
+      "dict_path": "/rentalProperties/*/fullyAtRisk"
+    },
+    {
+      "service_field": "rentals[].amount_at_risk_cents",
+      "dict_path": "/rentalProperties/*/amountAtRisk"
+    },
+    {
+      "service_field": "rentals[].prior_year_unallowed_loss_cents",
+      "dict_path": "/rentalProperties/*/priorYearUnallowedLoss"
+    },
+    {
+      "service_field": "rentals[].active_participation_when_loss_arose",
+      "dict_path": "/rentalProperties/*/writableActivelyParticipatedWhenPriorYearLossArose",
+      "note": "Clean 1:1. Asked once a prior years' unallowed loss above zero is entered and active participation is yes; unanswered there, the rental's Form 8582 Part IV and Part V figures stay incomplete, and a no moves the prior-year loss to Part V."
+    },
+    {
+      "service_field": "rentals[].insurance_cents",
+      "dict_path": "/rentalProperties/*/insurance"
+    },
+    {
+      "service_field": "rentals[].management_fees_cents",
+      "dict_path": "/rentalProperties/*/managementFees"
+    },
+    {
+      "service_field": "rentals[].repairs_cents",
+      "dict_path": "/rentalProperties/*/repairs"
+    },
+    {
+      "service_field": "rentals[].taxes_cents",
+      "dict_path": "/rentalProperties/*/taxes"
+    },
+    {
+      "service_field": "rentals[].building_basis_cents",
+      "dict_path": "/rentalProperties/*/buildingBasis"
+    },
+    {
+      "service_field": "rentals[].is_nonresidential_real_property",
+      "dict_path": "/rentalProperties/*/writableIsNonresidentialRealProperty"
+    },
+    {
+      "service_field": "rentals[].building_uses_standard_gds",
+      "dict_path": "/rentalProperties/*/writableBuildingBasisUsesStandardGDS",
+      "note": "Clean 1:1. Asked once a positive building basis is entered; unanswered, Schedule E line 18 does not compute, and an answered false is the dictionary's own knockout."
+    },
+    {
+      "service_field": "rentals[].placed_in_service_in_current_year",
+      "dict_path": "/rentalProperties/*/placedInServiceInCurrentYear"
+    },
+    {
+      "service_field": "rentals[].placed_in_service_month",
+      "dict_path": "/rentalProperties/*/placedInServiceMonth"
+    },
+    {
+      "service_field": "rentals[].has_five_year_property",
+      "dict_path": "/rentalProperties/*/hasFiveYearProperty"
+    },
+    {
+      "service_field": "rentals[].five_year_property_basis_cents",
+      "dict_path": "/rentalProperties/*/fiveYearPropertyBasis"
+    },
+    {
+      "service_field": "k1s[].ordinary_business_income_cents",
+      "dict_path": "/formK1s/*/ordinaryIncome"
+    },
+    {
+      "service_field": "k1s[].interest_income_cents",
+      "dict_path": "/formK1s/*/writablePortfolioInterestIncome"
+    },
+    {
+      "service_field": "k1s[].dividend_income_cents",
+      "dict_path": "/formK1s/*/writablePortfolioOrdinaryDividends"
+    },
+    {
+      "service_field": "k1s[].qualified_dividends_cents",
+      "dict_path": "/formK1s/*/writablePortfolioQualifiedDividends"
+    },
+    {
+      "service_field": "k1s[].royalties_cents",
+      "dict_path": "/formK1s/*/writableK1065Box7Royalties"
+    },
+    {
+      "service_field": "k1s[].se_earnings_cents",
+      "dict_path": "/formK1s/*/writableSeEarnings"
+    },
+    {
+      "service_field": "k1s[].publicly_traded_partnership",
+      "dict_path": "/formK1s/*/writableIsPubliclyTradedPartnership"
+    },
+    {
+      "service_field": "k1s[].materially_participated",
+      "dict_path": "/formK1s/*/materiallyParticipated"
+    },
+    {
+      "service_field": "k1s[].basis_cents",
+      "dict_path": "/formK1s/*/basis"
+    },
+    {
+      "service_field": "k1s[].fully_at_risk",
+      "dict_path": "/formK1s/*/fullyAtRisk"
+    },
+    {
+      "service_field": "k1s[].amount_at_risk_cents",
+      "dict_path": "/formK1s/*/amountAtRisk"
+    },
+    {
+      "service_field": "k1s[].guaranteed_payments_services_cents",
+      "dict_path": "/formK1s/*/writableGuaranteedPaymentsServices"
+    },
+    {
+      "service_field": "k1s[].guaranteed_payments_capital_cents",
+      "dict_path": "/formK1s/*/writableGuaranteedPaymentsCapital"
+    },
+    {
+      "service_field": "k1s[].general_partner",
+      "dict_path": "/formK1s/*/writablePartnerIsGeneralPartner"
+    },
+    {
+      "service_field": "k1s[].qualified_ptp_income_cents",
+      "dict_path": "/formK1s/*/writableQualifiedPtpIncomeOrLoss"
+    },
+    {
+      "service_field": "k1s[].qualified_ptp_is_sstb",
+      "dict_path": "/formK1s/*/writableQualifiedPtpIsSstb"
+    },
+    {
+      "service_field": "k1s[].ptp_prior_year_unallowed_loss_cents",
+      "dict_path": "/formK1s/*/writablePtpPriorYearUnallowedLoss"
+    },
+    {
+      "service_field": "k1s[].section_199a_qbi_cents",
+      "dict_path": "/qualifiedBusinesses/*/writableQualifiedBusinessIncome"
+    },
+    {
+      "service_field": "k1s[].deductible_se_loss_cents",
+      "dict_path": "/formK1s/*/writableDeductibleSeEarningsLoss"
+    },
+    {
+      "service_field": "k1s[].source",
+      "dict_path": "/formK1s/*/entityType"
+    },
+    {
+      "service_field": "spouse_files_return",
+      "dict_path": "/MFSLivingSpouseFilingReturn"
+    },
+    {
+      "service_field": "spouse_had_gross_income",
+      "dict_path": "/MFSSpouseHasGrossIncome"
+    },
+    {
+      "service_field": "spouse_can_be_claimed",
+      "dict_path": "/filers/*/canBeClaimed"
+    },
+    {
+      "service_field": "spouse_65_or_older",
+      "dict_path": "/MFSSpouse65OrOlder"
+    },
+    {
+      "service_field": "spouse_is_blind",
+      "dict_path": "/filers/*/isBlind"
+    },
+    {
+      "service_field": "lived_with_spouse_all_year",
+      "dict_path": "/livedTogetherAllYearWithSpouse",
+      "note": "Clean 1:1. The lived-together chain's root, asked on every married return (it was a published attestation on a separate return until this unit). `consumed_by` from the DAG; `lines.LINE_MAP` names it nowhere — measured on the joint fixture, no served figure moves in any cell; the chain completes the spouse and household sections and decides whether a claimed person's keeping-up-home question is asked."
+    },
+    {
+      "service_field": "months_lived_with_spouse",
+      "dict_path": "/spouseLivedTogetherMonths",
+      "note": "Clean 1:1, enum through /spouseLivedTogetherMonthsOptions. The second link; no served figure moves, as above."
+    },
+    {
+      "service_field": "separation_agreement_on_last_day",
+      "dict_path": "/writableSeparationAgreement",
+      "note": "Clean 1:1. The more-than-six-months leaf; completes the spouse flow, no served figure moves."
+    },
+    {
+      "service_field": "lived_apart_last_six_months",
+      "dict_path": "/writableLivedApartLastSixMonths",
+      "note": "Clean 1:1. The six-months-or-less leaf; a true resolves /livedApartLastSixMonths true, no served figure moves."
+    },
+    {
+      "service_field": "residence_state",
+      "dict_path": "/filerResidenceAndIncomeState",
+      "note": "Clean 1:1; the enum is the dictionary's own /scopedStateOptions in its order. Asked on every return. Measured at the pin: no served figure moves on any answer (the static DAG CAN reach lines 24/33/34); noneOfThese fires /flowKnockoutUnsupportedState, a community-property state on a separate return fires /knockoutSubjectToCommunityPropertyLaws, ak reaches the Alaska PFD pair."
+    },
+    {
+      "service_field": "received_alaska_pfd",
+      "dict_path": "/receivedAlaskaPfd",
+      "note": "Clean 1:1. Asked on every return (the dictionary's /aboutYouIsComplete wants it answered everywhere); a yes is refused by name (Form 1099-MISC Alaska PFD income is not a covered stream, and the dictionary computes a yes with no 1099-MISC entries silently). Formerly attested false on every return."
+    },
+    {
+      "service_field": "spouse_received_alaska_pfd",
+      "dict_path": "/spouseReceivedAlaskaPfd",
+      "note": "Clean 1:1. Asked on every joint return (spouseSection.xml wants it answered there, unconditionally); a yes refused by name."
+    },
+    {
+      "service_field": "received_digital_assets",
+      "dict_path": "/receivedDigitalAssets",
+      "note": "Clean 1:1. Part (a) of the page-1 digital-assets question, asked on every return. Readers at the pin: /notDigitalAssets (NOT Any of the pair) only, which completes /incomeSourcesIsComplete and is a <Not>-wrapped member of /flowIsKnockedOut - a yes is a served knockout. No served line; consumed_by is honestly empty."
+    },
+    {
+      "service_field": "disposed_digital_assets",
+      "dict_path": "/disposedDigitalAssets",
+      "note": "Clean 1:1. Part (b) of the same question; the same one reader, the same knockout on a yes. No served line."
+    },
+    {
+      "service_field": "foreign_financial_account",
+      "dict_path": "/hasForeignAccounts",
+      "note": "Clean 1:1. Schedule B line 7a, asked on every return. Readers at the pin: /doesNotHaveForeignAccounts and /hasForeignAccountsOrTrusts, an unconditional member of /flowIsKnockedOut (a yes is a served knockout; /requiresScheduleB flips with it). The artifact's static reach runs through /requiresScheduleB -> /interestIncome to lines 9, 11, 12, 15, 16, 24, 33, 34; no fixture moves on any answer."
+    },
+    {
+      "service_field": "foreign_trust_grantor",
+      "dict_path": "/isForeignTrustsGrantor",
+      "note": "Clean 1:1. Schedule B line 8, the grantor part (the dictionary splits the line in two); the same one knockout on a yes through /isForeignTrustsGrantorOrHasForeignTrustsTransactions; the same static reach through /requiresScheduleB."
+    },
+    {
+      "service_field": "foreign_trust_transactions",
+      "dict_path": "/hasForeignTrustsTransactions",
+      "note": "Clean 1:1. Schedule B line 8, the transactions part; the same one knockout on a yes, the same static reach through /requiresScheduleB."
+    },
+    {
+      "service_field": "eitc_reduced_or_disallowed",
+      "dict_path": "/eitcHadImproperClaims",
+      "note": "Clean 1:1. Form 8862 Part II, asked on every return. Read by /eitcNoticeTest -> /eitcQualified and the Form 8862 flow facts; a yes with an EITC in play leaves /eitcQualified unresolved and the credit a Placeholder 0 (measured), so it is refused by name after resolve on /creditsSectionComplete false. Formerly attested false."
+    },
+    {
+      "service_field": "ctc_odc_reduced_or_disallowed",
+      "dict_path": "/receivedImproperClaims",
+      "note": "Clean 1:1. Form 8862 Part III, asked on every return. Read by /ctcOdcDisqualifiedForImproperClaims and /ctc8862Required; a yes with a child credit in play leaves /ctcQualified unresolved and /totalPotentialCtc a Placeholder (measured); refused by name after resolve the same way. Formerly attested false."
+    },
+    {
+      "service_field": "qualifying_child_of_another",
+      "dict_path": "/eitcQcOfAnother",
+      "note": "Clean 1:1. Form 8862 line 4, asked on every return. Read by /eitcQcTest (which wants the dictionary's follow-ups on a yes) -> /eitcQualified; a yes with an EITC in play leaves both unresolved (measured); refused by name after resolve. Formerly attested false."
+    },
+    {
+      "service_field": "paid_estimated_taxes",
+      "dict_path": "/paidEstimatedTaxesOrFromLastYear",
+      "note": "Clean 1:1. The Form 1040 line 26 question, asked on every return; a yes reaches the amount and two follow-ups. Read by /estimatedAndFromLastYear (line 26 -> /totalPayments, line 33) and /estimatedTaxesIsComplete. Formerly attested false."
+    },
+    {
+      "service_field": "section_1341_credit_cents",
+      "dict_path": "/writableClaimOfRightRepaymentCreditSection1341",
+      "note": "RETIRED: the dictionary reads this writable nowhere; the field is no longer sent or invited and is refused by name above 0 until the two earlier-year figures are built. History: Clean 1:1 (dollars). The filer's own IRC 1341(a)(5) figure, read complete-safe into schedule3:/sched3Line13b and added into line 14 — the dictionary's own note says the intake 'only serves a filer who already figured the credit and is not refused'. Optional: absent, no credit is claimed and gaps states it. Measured at the pin on wages-single-mid: 500.00 moves line 13b and line 14 to 500.00 and total payments 5,400.00 -> 5,900.00, with no knockout. The COMPUTED (a)(5) credit is not built in the dictionary."
+    },
+    {
+      "service_field": "estimated_tax_payments_cents",
+      "dict_path": "/estimatedTaxPaymentWritable",
+      "note": "Clean 1:1 (dollars). Reached on a yes; the line 26 figure. Measured: $1,000 moves line 33 5,400 -> 6,400 and line 34 1,285 -> 2,285 on wages-single-mid. Form 2210's dated-payment detail is not carried, so /form2210DatedPaymentsReconcileEstimatedTax is false once this is set — the penalty line (38) is not served."
+    },
+    {
+      "service_field": "alimony_received_cents",
+      "dict_path": "/writableAlimonyReceivedAmount",
+      "note": "Clean 1:1 (dollars). The raw interview answer, invited on every return; optional, absent no alimony was received. Reaches Schedule 1 line 2a (alimony:/taxableAlimonyReceived) only once alimony_received_pre2019_agreement is answered — entered with the gate unanswered resolves the return Incomplete, never a silent $0. Measured against profile-alimony: $13,200 with the gate true moves Form 1040 line 8 to 13,200.00 and line 9 to 76,680.00."
+    },
+    {
+      "service_field": "alimony_received_pre2019_agreement",
+      "dict_path": "/alimonyReceivedPre2019Agreement",
+      "note": "Clean 1:1 (boolean). The pre-2019-agreement gate alimony:/taxableAlimonyReceived spends: true includes alimony_received_cents on Schedule 1 line 2a, false excludes it (TCJA sec. 11051). Reached only once alimony_received_cents is answered; refused otherwise (mapper.refuse_misplaced_alimony_answers)."
+    },
+    {
+      "service_field": "alimony_paid_cents",
+      "dict_path": "/writableAlimonyPaidAmount",
+      "note": "Clean 1:1 (dollars). The raw interview answer, invited on every return; optional, absent no alimony was paid. Reaches Schedule 1 line 19a (alimony:/deductibleAlimonyPaid) only once alimony_paid_pre2019_agreement is answered. Measured against profile-alimony: $5,400 with the gate true moves Form 1040 line 11 (AGI) from 76,680.00 to 71,280.00 — the recipient's SSN (line 19b) is documentary and does not gate this deduction, so it is not carried here."
+    },
+    {
+      "service_field": "alimony_paid_pre2019_agreement",
+      "dict_path": "/alimonyPaidPre2019Agreement",
+      "note": "Clean 1:1 (boolean). The pre-2019-agreement gate alimony:/deductibleAlimonyPaid reads through /alimonyPaidPre2019AgreementApplies: true deducts alimony_paid_cents on Schedule 1 line 19a, false denies it (TCJA sec. 11051). Reached only once alimony_paid_cents is answered; refused otherwise. This service never emits a Schedule 1 line 19c agreement date, so /alimonyPaidPre2019AgreementApplies falls through to this writable term for term."
+    },
+    {
+      "service_field": "alimony_paid_section_682_trust",
+      "dict_path": "/writableAlimonyPaidIsSection682TrustIncome",
+      "note": "Clean 1:1 (boolean). IRC 215(d): alimony the former spouse received as the income of a section 682 trust is not deductible by the payer. Reached once alimony_paid_cents is answered and alimony_paid_pre2019_agreement is yes; the engine holds alimony:/deductibleAlimonyPaid Incomplete on a claiming return until it is answered, and reads it as moot otherwise."
+    },
+    {
+      "service_field": "main_home_in_us_over_half_year",
+      "dict_path": "/writableMainHomeInUsOverHalfYear",
+      "note": "Clean 1:1 (boolean). Form 1040 page-1 checkbox, printed on every return; Publication 596 Rule 14, an eligibility condition for the EIC without a qualifying child. Invited on every return, optional — emitted only when the caller sends it; absent, /mainHomeInUsOverHalfYear's own IsComplete/Switch idiom reads TRUE (the engine's complete-safe default), which gaps._ABSENT_MEANS states rather than assuming silently. Measured on a synthetic single filer age 30, SSN valid for employment, wages $14,000: an explicit false zeroes total payments (0.00) where absent/true leaves them at 389.00."
+    },
+    {
+      "service_field": "estimated_payments_under_different_name",
+      "dict_path": "/paidEstimatedTaxesOrFromLastYearUnderDifferentName",
+      "note": "Clean 1:1. Reached on a yes; the section's completeness wants it. A yes would then want /primaryFilerEstimatedTaxPaymentsFormerName (an identifier), so it is refused by name; a no is emitted."
+    },
+    {
+      "service_field": "estimated_payments_with_former_spouse",
+      "dict_path": "/paidEstimatedTaxesWithFormerSpouse",
+      "note": "Boolean -> enum: a no is emitted as `neither` (of /paidEstimatedTaxesWithFormerSpouseOptions: neither, tpDid, and on a joint return spouseDid, bothDid); a yes would then want the former spouse's TIN (an identifier), so it is refused by name before any of the other three values is chosen."
+    },
+    {
+      "service_field": "elects_lump_sum_benefits",
+      "dict_path": "/writableSocialSecurityLumpSumElection",
+      "note": "Clean 1:1. The Form 1040 line 6c election, asked once a benefit statement exists; a yes is the dictionary's /socialSecurityLumpSumIntakeIncomplete knockout at this pin, a no the regular method. Was briefly answered no and published."
+    },
+    {
+      "service_field": "only_business_is_trading_securities",
+      "dict_path": "/writableSection475eTraderInFinancialInstrumentsOrCommoditiesElection",
+      "note": "Clean 1:1 (boolean). Form 8960's sole-trader attestation, one per return, asked once a Schedule C exists. Only a no is sent: a yes (the trader route, with row 245's section 475(a) dealer question per business) is refused by name as outside the covered set. Unanswered with a Schedule C profit or loss the engine discloses net investment income Incomplete."
+    },
+    {
+      "service_field": "paid_student_loan_interest",
+      "dict_path": "/hadStudentLoanInterestPayments",
+      "note": "Clean 1:1. The Schedule 1 line 21 question, asked on every return; a yes reaches the two follow-ups. Read by /studentLoanInterestAdjustmentAmount (line 21 -> line 10 -> line 11) and the flow facts. Formerly attested false."
+    },
+    {
+      "service_field": "student_loans_qualify",
+      "dict_path": "/studentLoansQualify",
+      "note": "Clean 1:1. Reached on a yes; a no makes /cannotDeductStudentLoanInterestBecauseLoansDontQualify true and the deduction 0 (measured)."
+    },
+    {
+      "service_field": "student_loan_interest_cents",
+      "dict_path": "/studentLoanInterestAmount",
+      "note": "Clean 1:1 (dollars). Reached on a yes; Form 1098-E box 1. Measured: $1,500 moves line 11 52,000 -> 50,500 and line 24 4,115 -> 3,935 on wages-single-mid; the engine's phase-out zeroes it at 120,000."
+    },
+    {
+      "service_field": "student_loan_interest_employer_paid_cents",
+      "dict_path": "/writableStudentLoanInterestEmployerPaidSection127",
+      "note": "Clean 1:1 (dollars). IRC 221(e)(1): the interest an employer paid tax-free under a section 127 program, subtracted before the $2,500 cap. Reached once student_loans_qualify is yes; unanswered on a claiming return the engine leaves /studentLoanInterestAmountNetOfDoubleBenefit Incomplete."
+    },
+    {
+      "service_field": "student_loan_interest_from_qtp_cents",
+      "dict_path": "/writableStudentLoanInterestFromTaxFreeQtpEarnings",
+      "note": "Clean 1:1 (dollars). IRC 221(e)(1), 529(c)(9): the interest paid from tax-free qualified tuition program earnings, subtracted before the $2,500 cap. Reached once student_loans_qualify is yes; unanswered on a claiming return the engine leaves /studentLoanInterestAmountNetOfDoubleBenefit Incomplete."
+    },
+    {
+      "service_field": "couple_required_to_file",
+      "dict_path": "/MFJRequiredToFile",
+      "note": "Clean 1:1. Asked on a joint return once a spouse can be claimed as someone's dependent; a yes means nobody is claimed. Wired on lines 12 and 33 (a claimed spouse: 31,500 -> 16,450 and the EITC gone at 8,000 each — measured)."
+    },
+    {
+      "service_field": "couple_files_only_for_refund",
+      "dict_path": "/MFJDependentsFilingForCredits",
+      "note": "INVERTED: the person's question is the refund-only one, the dictionary's writable is 'filing for credits' — the mapper sends NOT the answer. Asked once the couple is not required to file. Wired on lines 12 and 33."
+    },
+    {
+      "service_field": "spouse_itemizes",
+      "dict_path": "/spouseItemizes"
+    },
+    {
+      "service_field": "persons[].relationship",
+      "dict_path": "/familyAndHousehold/*/relationshipCategory"
+    },
+    {
+      "service_field": "persons[].months_in_home",
+      "dict_path": "/familyAndHousehold/*/residencyDuration"
+    },
+    {
+      "service_field": "persons[].is_married",
+      "dict_path": "/familyAndHousehold/*/married"
+    },
+    {
+      "service_field": "persons[].files_joint_return_with_spouse",
+      "dict_path": "/familyAndHousehold/*/writableJointReturn",
+      "note": "Clean 1:1. The joint-return test's first link, asked on a married dependent row only."
+    },
+    {
+      "service_field": "persons[].required_to_file_with_spouse",
+      "dict_path": "/familyAndHousehold/*/writableRequiredToFile",
+      "note": "Clean 1:1. Was emitted as a published attestation (false on every dependent) until this unit; it is the chain's second link now."
+    },
+    {
+      "service_field": "persons[].joint_return_only_for_refund",
+      "dict_path": "/familyAndHousehold/*/writableFilingOnlyForRefund",
+      "note": "Clean 1:1. Was emitted as a published attestation (false on every dependent) until this unit; it is the chain's last link now."
+    },
+    {
+      "service_field": "persons[].parents_situation",
+      "dict_path": "/familyAndHousehold/*/parentalSituation",
+      "note": "Clean 1:1, enum through /parentalSituationOptions. The benefit-split gate's cheapest link, asked on the filer's own biological or adopted child answered as having another legal parent. `consumed_by` reads the pinned DAG and is lines 24, 33 and 34 — the gate decides whether the child is CLAIMED. `lines.LINE_MAP` names it nowhere all the same, and that is measured rather than unfilled: on a probe at the pin every answer that closes the gate reproduces the ordinary-rules baseline on every served line to the cent, so no served figure moves with it. (The one answer that does move a figure, `they_did`, is refused by name — the engine withdraws that figure one unanswered question later.)"
+    },
+    {
+      "service_field": "persons[].child_in_parents_custody",
+      "dict_path": "/familyAndHousehold/*/inParentsCustody",
+      "note": "Clean 1:1. The gate's second link. `consumed_by` lines 24, 33 and 34 from the DAG, no served figure moved, as above."
+    },
+    {
+      "service_field": "persons[].child_lived_with_parents_over_half_year",
+      "dict_path": "/familyAndHousehold/*/livedWithTpOrOtherBiologicalOrAdoptiveParentMoreThanSixMonths",
+      "note": "Clean 1:1. The gate's third link. `consumed_by` lines 24, 33 and 34 from the DAG, no served figure moved, as above."
+    },
+    {
+      "service_field": "persons[].parents_provided_over_half_support",
+      "dict_path": "/familyAndHousehold/*/parentalSupport",
+      "note": "Clean 1:1. The gate's fourth link. `consumed_by` lines 24, 33 and 34 from the DAG, no served figure moved, as above."
+    },
+    {
+      "service_field": "persons[].written_declaration",
+      "dict_path": "/familyAndHousehold/*/whichParentNotClaiming",
+      "note": "revised by Clean 1:1, enum through /writtenDeclarationOptions. The gate's fifth link; all three answers are sent now — i_did and they_did open the custodial-parent questions (the two rows below). It MOVES a served figure: on the split-parents household the custodial parent who signed the declaration away keeps the EITC and loses the CTC (line 24 1,465 -> 3,665; 34 follows), so it is wired on line 24 in lines.LINE_MAP. `consumed_by` lines 24, 33 and 34 from the DAG."
+    },
+    {
+      "service_field": "persons[].nights_with_filer_vs_other_parent",
+      "dict_path": "/familyAndHousehold/*/nightsWithTpVsOtherParent",
+      "note": "Clean 1:1, enum through /moreLessEqualOptions (constants.xml). Asked once a parent signed the declaration; `more` makes the filer the custodial parent, `equal` defers to the AGI question, `less` does not. Wired on line 24 (measured: the custodial cell moves 24 and 34, not 33); the other cells knock out."
+    },
+    {
+      "service_field": "persons[].filer_agi_higher_than_other_parent",
+      "dict_path": "/familyAndHousehold/*/tpAgiHigherThanOtherParent",
+      "note": "Clean 1:1. Asked only on equal nights; decides the custodial parent then. Wired on line 24 with the nights answer."
+    },
+    {
+      "service_field": "persons[].child_parents_living",
+      "dict_path": "/familyAndHousehold/*/biologicalOrAdoptiveParentsLiving",
+      "note": "revised by Clean 1:1. Asked on a non-parent qualifying-child row the engine can split (twelve relationship codes, under 18 on July 2 or disabled). A NO computes at the baseline; a YES opens the non-parental split's five links (below). `consumed_by` lines 24, 33 and 34 from the DAG; `lines.LINE_MAP` names it nowhere — the answer itself moves nothing, its chain's deep cells do."
+    },
+    {
+      "service_field": "persons[].parents_meet_divorced_or_separated_rule",
+      "dict_path": "/familyAndHousehold/*/parentsMeetReqsRuleForChildrenOfDivorcedParents",
+      "note": "Clean 1:1. The non-parental split's first link. Wired on lines 24 and 33: the split's deep cells take the child out of the dependency claim (24) and the disqualified ones the EITC too (33) — measured."
+    },
+    {
+      "service_field": "persons[].a_parent_signed_declaration_not_to_claim",
+      "dict_path": "/familyAndHousehold/*/nonParentalSomeParentNotClaiming",
+      "note": "Clean 1:1. The second link; wired on 24 and 33, as above."
+    },
+    {
+      "service_field": "persons[].custodial_parent_claims_child_as_qualifying_person",
+      "dict_path": "/familyAndHousehold/*/specialRuleChildUsedByCustodialParentAsQP",
+      "note": "Clean 1:1. The fourth link (the third is child_in_parents_custody on this row); wired on 24 and 33."
+    },
+    {
+      "service_field": "persons[].filer_agi_higher_than_custodial_parent",
+      "dict_path": "/familyAndHousehold/*/specialRuleAgiTest",
+      "note": "Clean 1:1. The last link; a yes keeps the EITC (33 unchanged), a no takes it; wired on 24 and 33."
+    },
+    {
+      "service_field": "persons[].provided_own_support",
+      "dict_path": "/familyAndHousehold/*/ownSupport"
+    },
+    {
+      "service_field": "persons[].gross_income_under_limit",
+      "dict_path": "/familyAndHousehold/*/grossIncomeTest"
+    },
+    {
+      "service_field": "persons[].filer_provided_over_half_support",
+      "dict_path": "/familyAndHousehold/*/writableQrSupportTest"
+    },
+    {
+      "service_field": "persons[].could_be_qualifying_child_of_another",
+      "dict_path": "/familyAndHousehold/*/writableCouldBeQualifyingChildOfAnother"
+    },
+    {
+      "service_field": "persons[].child_residence_state",
+      "dict_path": "/familyAndHousehold/*/writableChildResidenceJurisdiction",
+      "note": "Clean 1:1, enum through /childResidenceJurisdictionOptions (the dictionary's own literals). The custody chain's first link on a qualifying-child row 18 or older at year end and not answered disabled; it sets ageOfMajorityForCustodyTest, which childMayQualifyForBenefitSplit reads."
+    },
+    {
+      "service_field": "persons[].child_emancipated",
+      "dict_path": "/familyAndHousehold/*/writableChildEmancipatedUnderStateLaw",
+      "note": "Clean 1:1. Asked once the child is at or over the state's age of majority; a no keeps childMayQualifyForBenefitSplit open."
+    },
+    {
+      "service_field": "persons[].child_emancipated_after_july_2",
+      "dict_path": "/familyAndHousehold/*/writableChildEmancipationDate",
+      "note": "One Boolean to a Day: the engine reads only childEmancipationDateAfterCustodyMidyear (the date against July 2), so a yes is sent as December 31 and a no as July 2 of the tax year — a synthesized day on the answered side, the birth-day convention."
+    },
+    {
+      "service_field": "persons[].was_spouse_during_year",
+      "dict_path": "/familyAndHousehold/*/writableWasSpouseAtAnyTimeInTaxYear",
+      "note": "Clean 1:1. Asked on the member-of-household route only (a relationship outside qrRelationshipTest, residencyDuration allYear); memberOfHouseholdTest reads it bare."
+    },
+    {
+      "service_field": "persons[].relationship_violates_local_law",
+      "dict_path": "/familyAndHousehold/*/writableCdccRelationshipViolatesLocalLaw",
+      "note": "Clean 1:1. One question, two readers: memberOfHouseholdTest (bare, on the member-of-household route) and cdccQualifyingPerson (IsComplete-first, on a Form 2441 qualifying person's row when the return claims care expenses)."
+    },
+    {
+      "service_field": "persons[].has_other_biological_or_adoptive_parent",
+      "dict_path": "/familyAndHousehold/*/hasOtherBiologicalOrAdoptiveParent",
+      "note": "Clean 1:1 — the tie-breaker qualifier; reaches 24/33/34."
+    },
+    {
+      "service_field": "persons[].filer_paid_most_of_home_upkeep",
+      "dict_path": "/familyAndHousehold/*/tpPaidMostOfHomeUpkeep",
+      "note": "Clean 1:1. Reaches NOTHING at this pin — head-of-household eligibility is read post-resolve, not through a served line — and an empty reach is an answer, which is why the row belongs here rather than being left unnamed."
+    },
+    {
+      "service_field": "persons[].is_blind",
+      "dict_path": "/filers/*/isBlind"
+    },
+    {
+      "service_field": "persons[].k12_educator",
+      "dict_path": "/wasK12Educators",
+      "note": "Two filer rows to one enum (neither / tpDid / spouseDid / bothDid), derived in the mapper from the primary's and the spouse's answers. Reaches line 11 through /educatorExpensesAdjustment (measured: $250 moves 52,000 -> 51,750)."
+    },
+    {
+      "service_field": "persons[].educator_expenses_cents",
+      "dict_path": "/primaryEducatorExpensesWritable",
+      "note": "The primary row's amount lands here, the spouse row's on /secondaryEducatorExpensesWritable — both reach the same lines through /educatorExpensesAdjustment, so the one row names the one reach."
+    },
+    {
+      "service_field": "persons[].made_ira_contributions",
+      "dict_path": "/madeIraContributions",
+      "note": "Every filer row to the one boolean: true when any row says yes. Reaches line 11 through /schedule1Line20IraDeduction (measured: $3,000 moves 52,000 -> 49,000). the served words cover an IRA or an ABLE account (Form 8880 line 1's ABLE term sits behind this yes); the mapping is unchanged."
+    },
+    {
+      "service_field": "persons[].made_hsa_contributions (role=primary|spouse)",
+      "dict_path": "/filers/*/writablePrimaryFilerHasMadeContributionsToHsa",
+      "note": "The filer's own answer (the spouse's lands on the Secondary twin); with it the activity twins /writable{Primary,Secondary}FilerHadNonW2HsaActivity and /someFilerHadNonW2HsaActivity are the rows' answers too (earlier they were sent from the 1099-SA items alone). A yes opens Form 8889 Part I's coverage questions as code W does."
+    },
+    {
+      "service_field": "persons[].hsa_own_contributions_cents (role=primary|spouse)",
+      "dict_path": "/filers/*/writableHsaNonemployerContributionsTaxYear",
+      "note": "Clean 1:1 (Form 8889 line 2), sent on a yes. Measured: 2,000 is the line 13 deduction (928.00 → 728.00); over the limit the excess is Form 5329 excise, not income."
+    },
+    {
+      "service_field": "persons[].hsa_own_contributions_after_year_end_cents (role=primary|spouse)",
+      "dict_path": "/filers/*/writableHsaNonemployerContributionsTaxYearPlusOne",
+      "note": "Clean 1:1, sent on a yes as 0 when absent (an unsent one fires the dictionary's dependent knockout, measured). Adds to line 2: 500 → 678.00."
+    },
+    {
+      "service_field": "persons[].hsa_prior_year_excess_cents (role=primary|spouse)",
+      "dict_path": "/filers/*/writableHsaPriorYearExcessContributionsForm5329Line48",
+      "note": "Sent when positive on a filer row; the root /writableHasHsaExcessContributionsPreviousYear is derived from it (a positive amount is the yes; 0 or absent the no — the dictionary refuses a yes with no positive amount, measured). Absent is stated on every filer row with HSA activity (formerly the mapper's own assumption). Measured: 2,000 on a 3,000 code W self-only filer → 700 past the 1,300 of room, 42 (928.00 → 970.00); 500 beside a 700 current excess → 1,200, 72 (1,040.00 → 1,070.00); 500 within the room → unchanged; on a filer row with no 2025 HSA activity (no code W, own contributions, funding transfer or coverage answers) the service refuses before resolve: Part I is not asked there, so line 43's room cannot be established (the dictionary narrowed row 15's second slice to an unanswered contributions question and would take the whole carry-in to line 48)."
+    },
+    {
+      "service_field": "persons[].hsa_december_31_value_cents (role=primary|spouse)",
+      "dict_path": "/filers/*/writableHsaDecember31AccountValue",
+      "note": "Clean 1:1, sent verbatim when present on a filer row with HSA activity; absent sends nothing and is stated; with an excess on Form 5329 line 48 the dictionary refuses the return without it (/flowKnockoutHsaForm5329Line49AccountValueUnsupplied — it once taxed the whole excess, register row 18). Form 5329 line 49 takes the smaller of the excess and this value. Measured: 700 of excess, 200 in the account → 12 (1,040.00 → 1,010.00); 3,000 of excess on Medicare all year, 1,000 → 60 (1,415.00 → 1,295.00); 0 → 0; 5,000 → unchanged."
+    },
+    {
+      "service_field": "persons[].traditional_ira_contributions_cents",
+      "dict_path": "/primaryFilerTraditionalIraContributions",
+      "note": "The primary row's amount lands here, the spouse row's on /secondaryFilerTraditionalIraContributions — both reach the same lines through /schedule1Line20IraDeduction."
+    },
+    {
+      "service_field": "persons[].roth_ira_contributions_cents",
+      "dict_path": "/writablePrimaryFilerRothIraContributions",
+      "note": "The Roth half of the combined amount above, on the dictionary's own writable for this filer (the spouse row's lands on /writableSecondaryFilerRothIraContributions). IRC 219(c)(1)(B)(ii)(III)'s reduction term in the OTHER spouse's spousal (Kay Bailey Hutchison) limit, and the dictionary reads it nowhere else — which is why the question is asked on a joint return only. The ABLE remainder stays on the Form 8880 line 1 writable and reaches no deduction."
+    },
+    {
+      "service_field": "persons[].roth_ira_and_able_contributions_cents (role=primary|spouse)",
+      "dict_path": "/writablePrimaryFilerIraAndAbleContributions",
+      "note": "The dictionary's Form 8880 line 1 amount for this filer is the covered traditional amount PLUS this answer (the spouse's lands on the Secondary twin); sent with /hasSelfReportedContributions true when above 0. Measured: the self-reported pair alone gives the credit; /primaryFilerTraditionalIraContributions feeds the deduction only."
+    },
+    {
+      "service_field": "persons[].received_retirement_distributions_2023_2024",
+      "dict_path": "/hasDistributionsInLastThreeYears",
+      "note": "The dictionary asks once per return; the service asks per filer row and sends true when any reached filer says yes. A yes reaches the two amounts."
+    },
+    {
+      "service_field": "persons[].retirement_distributions_2023_cents (role=primary|spouse)",
+      "dict_path": "/writablePrimaryFiler2023Distributions",
+      "note": "Clean 1:1 (Form 8880 line 4; the spouse's lands on the Secondary twin). Measured: 1,000 halves a 2,000 base."
+    },
+    {
+      "service_field": "persons[].retirement_distributions_2024_cents (role=primary|spouse)",
+      "dict_path": "/writablePrimaryFiler2024Distributions",
+      "note": "Clean 1:1 (Form 8880 line 4; the spouse's lands on the Secondary twin)."
+    },
+    {
+      "service_field": "persons[].received_retirement_distributions_after_year_end",
+      "dict_path": "/hasCurrentYearDistributions",
+      "note": "The dictionary asks once per return; the service asks per filer row and sends true when any reached filer says yes. A yes reaches the amount."
+    },
+    {
+      "service_field": "persons[].retirement_distributions_after_year_end_cents (role=primary|spouse)",
+      "dict_path": "/writablePrimaryFilerPostYearEndDistributions",
+      "note": "Clean 1:1 (Form 8880 line 4, the sub-period after year end; the spouse's lands on the Secondary twin). Measured: 500 takes 100 off a 20% credit."
+    },
+    {
+      "service_field": "filed_jointly_2023",
+      "dict_path": "/writableFiledJointReturnFor2023",
+      "note": "Clean 1:1. Asked on a joint return once a filer reports a 2023 distribution; unanswered, the credit is zeroed (measured). A spouse's distribution counts against the primary only on a yes (200 vs 400)."
+    },
+    {
+      "service_field": "filed_jointly_2024",
+      "dict_path": "/writableFiledJointReturnFor2024",
+      "note": "Clean 1:1. Asked on a joint return once a filer reports a 2024 distribution; the same measured shape as 2023."
+    },
+    {
+      "service_field": "w2s[].box12_g_governmental_plan",
+      "dict_path": "/formW2s/*/457bIsGovernmentalPlan",
+      "note": "Clean 1:1. Asked on every W-2 with a code G amount; false makes the code G deferral count nothing toward Form 8880 line 2 (measured)."
+    },
+    {
+      "service_field": "persons[].hsa_medicare (role=primary|spouse)",
+      "dict_path": "/filers/*/enrolledInMedicare",
+      "note": "Clean 1:1 as the dictionary's option (all_year → allYear, part_of_year → partOfYear, none → noneOfYear). Asked first on a filer with code W; alone, all_year and part_of_year are its own knockouts (measured firing alone) — with the coverage vector, part_of_year and its onset month or all_year (twelve months of yes) compute."
+    },
+    {
+      "service_field": "persons[].hsa_hdhp_coverage (role=primary|spouse)",
+      "dict_path": "/filers/*/hsaHdhpCoverageStatus",
+      "note": "Clean 1:1 as the dictionary's option (Form 8889 line 1). Asked behind a Medicare none; part_of_year and none are its own knockouts."
+    },
+    {
+      "service_field": "persons[].hsa_hdhp_type (role=primary|spouse)",
+      "dict_path": "/filers/*/typeOfHdhp",
+      "note": "Clean 1:1 as the dictionary's option (self_only → selfOnly). Asked behind coverage all year; both is its own knockout. Measured: 4,300 / 8,550 limits, +1,000 at 55."
+    },
+    {
+      "service_field": "persons[].hsa_other_coverage (role=primary|spouse)",
+      "dict_path": "/filers/*/hadOtherCoverageIneligibleForHSA",
+      "note": "Clean 1:1 as the dictionary's option (whole_year → wholeYear). Asked behind self-only or family; whole_year and part_of_year are its own knockouts."
+    },
+    {
+      "service_field": "persons[].hsa_funding_distribution (role=primary|spouse)",
+      "dict_path": "/filers/*/hasMadeQualifiedHsaFundingDistribution",
+      "note": "Clean 1:1 on a filer with code W (asked behind no other coverage; true is the dictionary's own knockout). On a 1099-SA-only filer the previously published no stands."
+    },
+    {
+      "service_field": "persons[].hsa_spouse_contributed (role=primary|spouse)",
+      "dict_path": "/filers/*/writableMfsLine6Check",
+      "note": "Clean 1:1 on a separate return with family coverage (Form 8889 line 6); true is the dictionary's own knockout (measured)."
+    },
+    {
+      "service_field": "persons[].hsa_marital_status_changed (role=primary|spouse)",
+      "dict_path": "/filers/*/writableChangeInMaritalStatusDuringTaxYear",
+      "note": "true → wasMarriedOrDivorcedThisYear, false → wasNotMarriedNorDivorcedThisYear. Asked of a not-single filer (the dictionary's /isSingle: married or widowed) behind no other coverage; unanswered the section stays incomplete (measured)."
+    },
+    {
+      "service_field": "persons[].hsa_marital_change_affects_limit (role=primary|spouse)",
+      "dict_path": "/filers/*/writableMaritalChangeAffectContributionLimitBool",
+      "note": "Clean 1:1 behind a change of marital status; true is the dictionary's own knockout (measured)."
+    },
+    {
+      "service_field": "hsa_excess_in_w2_wages",
+      "dict_path": "/writableHsaEmployerExcessAlreadyInW2Income",
+      "note": "Clean 1:1, optional on a return with a code W amount; absent, the dictionary's own adverse default reports the excess as Schedule 1 line 8z income (measured 700 / 0 with true; the 42 excise stays either way)."
+    },
+    {
+      "service_field": "combat_pay_election",
+      "dict_path": "/combatPayElection",
+      "note": "A choice over the service's four values (own / spouse / both / none) mapped to the dictionary's /combatPayOptions literal by which filers carry code Q (own → usePrimaryCombatPay or usePrimaryNotSpouseCombatPay, spouse → useSpouseCombatPay or useSpouseNotPrimaryCombatPay, both → useBothCombatPay, none → noCombatPay); a choice naming a filer with no code Q is refused (the dictionary's /claimedSpouseCombatPayWithoutMFJ is a submission block, never sent). Required on a code Q return: /combatPayAmount (line 1i) reads this fact directly with no fallback — only /earnedIncomeCredit falls back to the dictionary's own comparison — so an unanswered election leaves the printed line a Placeholder (measured)."
+    },
+    {
+      "service_field": "cdcc_combat_pay_election",
+      "dict_path": "/cdccCombatPayElection",
+      "note": "The same choice for Form 2441 Part II, asked when care expenses are on the return too; required (measured: unanswered, /cdccTotalCredit is a Placeholder 0 and line 24 is served 1,100 higher on mfj-disabled-spouse-cdcc with code Q 8,000)."
+    },
+    {
+      "service_field": "dependent_care_benefits_combat_pay_election",
+      "dict_path": "/cdccCombatPayElectionForBenefits",
+      "note": "The same choice for Form 2441 Part III, asked when dependent care benefits are reported too (the dictionary's gate adds a base-wages test; asking past it is inert, measured); required (measured: unanswered with the gate open, every served line is a Placeholder)."
+    },
+    {
+      "service_field": "persons[].contributed_to_inherited_ira",
+      "dict_path": "/writablePrimaryFilerContributedToInheritedIra",
+      "note": "The primary row's answer lands here, the spouse row's on /writableSecondaryFilerContributedToInheritedIra; a yes reaches the amount paid in to the inherited account."
+    },
+    {
+      "service_field": "persons[].inherited_ira_contribution_cents",
+      "dict_path": "/writablePrimaryFilerAmountPaidToInheritedIra",
+      "note": "The primary row's amount lands here, the spouse row's on /writableSecondaryFilerAmountPaidToInheritedIra. Asked once the inherited answer is yes; unanswered there the deduction and Form 5329 lines 15-17 stay incomplete, and an amount above 0 is the dictionary's excess-contribution knockout."
+    },
+    {
+      "service_field": "spouse_covered_by_employer_plan",
+      "dict_path": "/writableMfsSpouseCoveredByEmployerPlan",
+      "note": "The separate return's coverage question; decides the phase-out (measured: covered -> a deduction of 0)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_jan",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth01",
+      "note": "The separate-return spouse's coverage on the first day of January (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_feb",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth02",
+      "note": "The separate-return spouse's coverage on the first day of February (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_mar",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth03",
+      "note": "The separate-return spouse's coverage on the first day of March (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_apr",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth04",
+      "note": "The separate-return spouse's coverage on the first day of April (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_may",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth05",
+      "note": "The separate-return spouse's coverage on the first day of May (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_jun",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth06",
+      "note": "The separate-return spouse's coverage on the first day of June (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_jul",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth07",
+      "note": "The separate-return spouse's coverage on the first day of July (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_aug",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth08",
+      "note": "The separate-return spouse's coverage on the first day of August (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_sep",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth09",
+      "note": "The separate-return spouse's coverage on the first day of September (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_oct",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth10",
+      "note": "The separate-return spouse's coverage on the first day of October (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_nov",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth11",
+      "note": "The separate-return spouse's coverage on the first day of November (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "spouse_hsa_coverage_dec",
+      "dict_path": "/writableHsaMfsSpouseCoverageTypeMonth12",
+      "note": "The separate-return spouse's coverage on the first day of December (a return-level row of the spouse's twelve-month vector), asked behind the line 6 check or beside the filer's Medicare enrollment for part of the year; with all twelve answered /hsaLine3VectorGoverns holds on the separate return and /flowKnockoutMFSLine6Check is gated off. Measured: the spouse's family coverage all year beside the filer's, cap 4,275 (3,665.00 on 3,000 code W; 3,793.00 on 5,000 with 725 on Schedule 1 line 8z)."
+    },
+    {
+      "service_field": "persons[].someone_can_claim_you",
+      "dict_path": "/filers/*/canBeClaimed",
+      "note": "Clean 1:1. The page-1 checkbox, asked on every filer row (it was formerly attested false and published). Wired on lines 12 and 33: a claimed dependent filer gets earned income + $450 as the standard deduction and no EITC — measured 15,750 -> 10,450 and 649 -> 0 at wages 10,000."
+    },
+    {
+      "service_field": "persons[].expect_to_be_claimed",
+      "dict_path": "/filers/*/willBeClaimed",
+      "note": "Clean 1:1. Wired on 12 and 33, as above."
+    },
+    {
+      "service_field": "persons[].potential_claimer_must_file",
+      "dict_path": "/filers/*/potentialClaimerMustFile",
+      "note": "Clean 1:1. Wired on 12 and 33."
+    },
+    {
+      "service_field": "persons[].potential_claimer_filed",
+      "dict_path": "/filers/*/potentialClaimerDidFile",
+      "note": "Clean 1:1. Wired on 12 and 33."
+    },
+    {
+      "service_field": "persons[].potential_claimer_filed_only_for_refund",
+      "dict_path": "/primaryFilerPotentialClaimerFiledOnlyForRefund",
+      "note": "The chain's last link; the dictionary keeps it at the ROOT for the primary filer rather than on the filer item. Wired on 12 and 33."
+    },
+    {
+      "service_field": "persons[].hsa_exception_amount_cents",
+      "dict_path": "/filers/*/writableHsaCollectionExceptionAmount",
+      "note": "The filer row's own answer, per filer (Form 8889 line 17b's input); reached once that filer's taxable HSA distributions are above zero, code 1 throughout, under 66 at the close. Reaches line 24 through the additional 20% tax."
+    },
+    {
+      "service_field": "persons[].hsa_exception_reason",
+      "dict_path": "/filers/*/writableHsaCollectionExceptionReason",
+      "note": "The pair's second half (by design); changes no dollar — the audit trail behind Form 8889 line 17a. Gap-backed, not in any derived_from."
+    },
+    {
+      "service_field": "persons[].care_expenses_cents",
+      "dict_path": "/familyAndHousehold/*/writableCdccQualifyingExpenseAmount",
+      "note": "Form 2441 line 2 column (d), per qualifying person. A dependent row's amount lands here; a disabled filer's (a qualifying person on a joint return that lived together more than half the year) on /filers/*/writableCdccQualifyingExpenseAmount — both reach line 24 through /cdccTotalCredit (Schedule 3 line 2). The amount is gated by two booleans the mapper sends beside it (cdccHasDependentCareExpenses true, cdccHadExpensesPaidToQualifyingProvider true — the latter an assumption the ask carries: not your spouse, the child's parent, your dependent, or your child under 19). Every qualifying row WITHOUT an answer gets cdccHasDependentCareExpenses false (measured: a silent row stalls the section)."
+    },
+    {
+      "service_field": "persons[].unable_to_care_for_self (role=dependent)",
+      "dict_path": "/familyAndHousehold/*/unableToCareForSelf",
+      "note": "Clean 1:1 on a dependent's row (a filer row is refused). Read only by the CDCC section: ../cdccQualifyingPerson's second arm (residency test + claimed + unable), any age. Formerly attested false on every dependent row; absent is still sent as false, stated where it decides (13 or older)."
+    },
+    {
+      "service_field": "care_providers[].provider_type",
+      "dict_path": "/cdccCareProviders/*/writableIsOrganization",
+      "note": "NOT one-to-one: one service enum (organization / tax_exempt_organization / individual — Form 2441 line 1 column (c)'s own vocabulary) emits writableIsOrganization and, for an organization, writableIsTaxExempt; it also decides which synthetic identity the engine is given (an EIN, none, or a TIN). Reaches nothing (the credit reads line 2's per-person amounts) — an empty reach is an answer, the filer_paid_most_of_home_upkeep precedent."
+    },
+    {
+      "service_field": "care_providers[].is_household_employee",
+      "dict_path": "/cdccCareProviders/*/writableIsHouseholdEmployee",
+      "note": "Clean 1:1 — Form 2441 line 1 column (d). Reaches no served line: a yes is /flowKnockoutHouseholdEmployee (and the Schedule H half), the dictionary's own knockout, served with words."
+    },
+    {
+      "service_field": "care_providers[].amount_paid_cents",
+      "dict_path": "/cdccCareProviders/*/writableAmountPaidForCare",
+      "note": "Clean 1:1 — Form 2441 line 1 column (e). Carried onto line 1; changes no dollar at the pin (measured: 1,000 here beside 3,000 on line 2 computes the same credit), so consumed_by answers []."
+    },
+    {
+      "service_field": "f1095as[].jan_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumJan",
+      "note": "Form 1095-A line 21 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jan_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumJan",
+      "note": "Form 1095-A line 21 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jan_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumJan",
+      "note": "Form 1095-A line 21 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].feb_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumFeb",
+      "note": "Form 1095-A line 22 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].feb_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumFeb",
+      "note": "Form 1095-A line 22 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].feb_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumFeb",
+      "note": "Form 1095-A line 22 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].mar_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumMar",
+      "note": "Form 1095-A line 23 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].mar_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumMar",
+      "note": "Form 1095-A line 23 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].mar_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumMar",
+      "note": "Form 1095-A line 23 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].apr_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumApr",
+      "note": "Form 1095-A line 24 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].apr_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumApr",
+      "note": "Form 1095-A line 24 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].apr_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumApr",
+      "note": "Form 1095-A line 24 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].may_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumMay",
+      "note": "Form 1095-A line 25 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].may_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumMay",
+      "note": "Form 1095-A line 25 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].may_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumMay",
+      "note": "Form 1095-A line 25 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jun_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumJun",
+      "note": "Form 1095-A line 26 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jun_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumJun",
+      "note": "Form 1095-A line 26 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jun_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumJun",
+      "note": "Form 1095-A line 26 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jul_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumJul",
+      "note": "Form 1095-A line 27 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jul_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumJul",
+      "note": "Form 1095-A line 27 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].jul_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumJul",
+      "note": "Form 1095-A line 27 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].aug_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumAug",
+      "note": "Form 1095-A line 28 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].aug_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumAug",
+      "note": "Form 1095-A line 28 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].aug_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumAug",
+      "note": "Form 1095-A line 28 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].sep_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumSep",
+      "note": "Form 1095-A line 29 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].sep_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumSep",
+      "note": "Form 1095-A line 29 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].sep_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumSep",
+      "note": "Form 1095-A line 29 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].oct_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumOct",
+      "note": "Form 1095-A line 30 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].oct_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumOct",
+      "note": "Form 1095-A line 30 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].oct_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumOct",
+      "note": "Form 1095-A line 30 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].nov_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumNov",
+      "note": "Form 1095-A line 31 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].nov_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumNov",
+      "note": "Form 1095-A line 31 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].nov_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumNov",
+      "note": "Form 1095-A line 31 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].dec_premium_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyPremiumDec",
+      "note": "Form 1095-A line 32 column A. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].dec_slcsp_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlySlcspPremiumDec",
+      "note": "Form 1095-A line 32 column B. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "f1095as[].dec_aptc_cents",
+      "dict_path": "/1095As/*/writablePtcMonthlyAptcPremiumDec",
+      "note": "Form 1095-A line 32 column C. Sent on the monthly route (a partial-year or non-level policy); a 12-month level policy sends line 33's totals instead (writablePtcAnnualPremium / writableSlcspAnnualPremium / writableAptcAnnualAmount, derived as the sums). Column A above zero makes the month a coverage month and fixes the policy dates."
+    },
+    {
+      "service_field": "allocating_policy_or_alternative_calculation",
+      "dict_path": "/writableIsAdditionalPersonInEnrollmentFamily",
+      "note": "NOT one-to-one: Form 8962 line 9's gate emits this writable AND /writableWantsToUseAltCalculations, both false — a yes is refused by name (Parts IV and V not carried; measured: the engine computes the full credit with no allocation and no words). Reaches no line."
+    },
+    {
+      "service_field": "marketplace_estimated_income_at_least_100_fpl",
+      "dict_path": "/writableMarketplaceEstimatedIncomeAtLeast100Fpl",
+      "note": "Clean 1:1. Read by the engine only below 100% of the federal poverty line (inert above it, measured), so it is asked on every return with advance payments rather than mirrored from a poverty-line table."
+    },
+    {
+      "service_field": "below_poverty_line_not_eligible_for_medicaid_due_to_immigration",
+      "dict_path": "/writableBelow100ThresholdAndNotEligibleForMedicaidBecauseOfImmigrationStatus",
+      "note": "Clean 1:1. The no-advance-payments twin of the estimate question, same reach posture."
+    },
+    {
+      "service_field": "enrollee_not_eligible_for_marketplace_due_to_immigration",
+      "dict_path": "/writableHasImmigrationStatusNotEligibleForMarketplace",
+      "note": "Clean 1:1. Asked with claimed dependents (the dictionary's enrollment-family question); a yes is /hasImmigrationStatusNotEligibleForMarketplace, the dictionary's own knockout, served with words. Reaches a knockout, not a line."
+    },
+    {
+      "service_field": "paid_prior_year_care_expenses_this_year",
+      "dict_path": "/cdccHasCreditForPriorYearExpenses",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. The root, invited on a return that files Form 2441; absent is sent as false and stated (the engine's own $0 fallback). Measured: the chain answered gives a 220.00 prior-year credit, line 24 865.00 -> 645.00 on wages-and-child-single-cdcc and 636.00 -> 416.00 on mfj-disabled-spouse-cdcc-combat-pay."
+    },
+    {
+      "service_field": "prior_year_credit_claimed",
+      "dict_path": "/cdccClaimedCreditForPriorYearExpenses",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Whether the 2024 credit was claimed; behind it only, the claimed-maximum answer."
+    },
+    {
+      "service_field": "prior_year_credit_claimed_maximum",
+      "dict_path": "/cdccClaimedMaxCreditForPriorTaxYear",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Claiming the maximum for 2024 ends the chain: Worksheet A computes 0 (measured). Never sent behind a claimed no (measured: unsent, every served line resolves)."
+    },
+    {
+      "service_field": "prior_year_form_2441_line_3_cents",
+      "dict_path": "/writableCdccPriorYearForm2441Line3",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 1."
+    },
+    {
+      "service_field": "prior_year_expenses_paid_this_year_cents",
+      "dict_path": "/writableCdccPriorYearExpensesPaidInCurrentYear",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 2."
+    },
+    {
+      "service_field": "prior_year_had_two_or_more_qualifying_persons",
+      "dict_path": "/writableCdccPriorYearHadTwoOrMoreQualifyingPersons",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 4's selector."
+    },
+    {
+      "service_field": "prior_year_excluded_or_deducted_benefits_cents",
+      "dict_path": "/writableCdccPriorYearExcludedOrDeductedBenefits",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 5."
+    },
+    {
+      "service_field": "prior_year_lower_earned_income_cents",
+      "dict_path": "/writableCdccPriorYearLowerEarnedIncome",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 7."
+    },
+    {
+      "service_field": "prior_year_form_2441_line_6_cents",
+      "dict_path": "/writableCdccPriorYearAmountCreditWasFiguredOn",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 9."
+    },
+    {
+      "service_field": "prior_year_agi_cents",
+      "dict_path": "/writableCdccPriorYearAgi",
+      "note": "Clean 1:1 — Form 2441 Worksheet A. Worksheet A line 11."
+    },
+    {
+      "service_field": "dependents_modified_agi_cents",
+      "dict_path": "/writablePtcDependentsModifiedAgi",
+      "note": "Clean 1:1 — Form 8962 line 2b. Optional; absent the engine reads 0 (ptcDependentsModifiedAgiOrZero). the yes/no the engine's member reads (/writableDependentsRequiredToFile) is derived from this amount — positive is yes, the engine's own refusal (/dependentsRequiredToFile), measured; 0 or absent is no."
+    },
+    {
+      "service_field": "mfs_ptc_exception",
+      "dict_path": "/writableHasMfsException",
+      "note": "Clean 1:1 — Form 8962 line A's exception on a separate return; a no repays every advance payment (measured)."
+    },
+    {
+      "service_field": "mfs_ptc_exception_fourth_year",
+      "dict_path": "/writableClaimingMfsExceptionForFourthStraightYear",
+      "note": "Clean 1:1; reached on a yes to the exception."
+    },
+    {
+      "service_field": "b1099s[].date_acquired",
+      "dict_path": "/form8949Transactions/*/writableDateAcquired"
+    },
+    {
+      "service_field": "b1099s[].date_sold",
+      "dict_path": "/form8949Transactions/*/writableDateSold"
+    },
+    {
+      "service_field": "b1099s[].proceeds_cents",
+      "dict_path": "/form8949Transactions/*/writableProceeds"
+    },
+    {
+      "service_field": "b1099s[].cost_basis_cents",
+      "dict_path": "/form8949Transactions/*/writableCostBasis"
+    },
+    {
+      "service_field": "b1099s[].wash_sale_loss_disallowed_cents",
+      "dict_path": "/form8949Transactions/*/writableAdjustmentAmount"
+    },
+    {
+      "service_field": "b1099s[].term",
+      "dict_path": "/form8949Transactions/*/writableIsLongTerm"
+    },
+    {
+      "service_field": "b1099s[].basis_reported_to_irs",
+      "dict_path": "/form8949Transactions/*/writableBasisReportedToIrs"
+    },
+    {
+      "service_field": "int1099s[].early_withdrawal_penalty_cents",
+      "dict_path": "/interestReports/*/writableEarlyWithdrawlPenaltyAmount"
+    },
+    {
+      "service_field": "int1099s[].private_activity_bond_interest_cents",
+      "dict_path": "/interestReports/*/writableSpecifiedPrivateActivityBondInterest"
+    },
+    {
+      "service_field": "int1099s[].market_discount_cents",
+      "dict_path": "/interestReports/*/writableMarketDiscount"
+    },
+    {
+      "service_field": "int1099s[].bond_premium_cents",
+      "dict_path": "/interestReports/*/writableBondPremium"
+    },
+    {
+      "service_field": "int1099s[].treasury_bond_premium_cents",
+      "dict_path": "/interestReports/*/writableBondPremiumOnTreasuryObligations"
+    },
+    {
+      "service_field": "int1099s[].tax_exempt_bond_premium_cents",
+      "dict_path": "/interestReports/*/writableBondPremiumOnTaxExemptBond"
+    }
+  ],
+  "synthesis": [
+    {
+      "service_field": "persons[].birth_year + persons[].birth_month",
+      "dict_path": "/filers/*/dateOfBirth  (and /familyAndHousehold/*/dateOfBirth)",
+      "transform": "The dictionary's dateOfBirth is a full Day (year-month-DAY). The service accepts year + month only (a day is a forbidden identifier). The adapter synthesizes a placeholder day (fixed, e.g. the 1st) to form the engine Date. The placeholder day never affects any computed line (age is year/month-based); it lives only inside the adapter's engine call and is never stored or returned.",
+      "note": "This is the one non-1:1 transform in the seed; it is DATA-described here, and the adapter applies it mechanically."
+    }
+  ],
+  "open": [
+    {
+      "service_field": "persons[].tin_type (role=primary|spouse)",
+      "issue": "Filers expose /filers/*/tin (the DIGITS) but no /filers/*/tinType writable (unlike dependents). Feeding the engine a filer's TIN TYPE without its digits needs an adapter-side decision — resolved in the engine adapter: it constructs a structurally-valid SYNTHETIC placeholder TIN of the requested type (e.g. an SSN-shaped vs ITIN-shaped 9xx placeholder) entirely inside the engine call; the real identifier never enters this repo, the schema, or a stored artifact.",
+      "status": "an engine-adapter design question (not an interpretive/World-#1 fork; a mechanical engine-interface detail)"
+    }
+  ]
+}

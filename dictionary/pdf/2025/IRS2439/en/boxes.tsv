@@ -1,0 +1,53 @@
+# IRS2439 — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS2439/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 3f232d544d3ef09ccb5feee217fdae7775a7cbd9a86157309910ed9d08a13407
+# boxes: 17   acroform fields: 64   boxes with a fact: 17
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (2): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box — row caption:5e002fb49984 `, 20. 2-digit year`: shared spelling `, 20. 2-digit year` names 2 readings
+# unspelled: box — row caption:5e002fb49984:2 `, 20. 2-digit year`: shared spelling `, 20. 2-digit year` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:47a4acd0e442	For calendar year 20. 2-digit year	for calendar year 20. 2-digit year	topmostSubform[0].CopyA[0].f1_1[0]|topmostSubform[0].CopyB[0].f1_1[0]|topmostSubform[0].CopyC[0].f1_1[0]|topmostSubform[0].CopyD[0].f1_1[0]	/form2439Forms/*/writableCalendarYear	String		
+—	caption:2cef16ef2480	, or other tax year of the regulated investment company (R I C) or the real estate investment trust (R E I T) beginning. Month and day	, or other tax year of the regulated investment company (r i c) or the real estate investment trust (r e i t) beginning. month and day	topmostSubform[0].CopyA[0].f1_2[0]	/form2439Forms/*/writableOtherTaxYearBeginningMonthDay	String		
+—	caption:5e002fb49984	, 20. 2-digit year		topmostSubform[0].CopyA[0].f1_3[0]|topmostSubform[0].CopyB[0].f1_3[0]|topmostSubform[0].CopyC[0].f1_3[0]|topmostSubform[0].CopyD[0].f1_3[0]	/form2439Forms/*/writableOtherTaxYearBeginningYear	String		
+—	caption:4419119992c8	and ending. Month and day	and ending. month and day	topmostSubform[0].CopyA[0].f1_4[0]|topmostSubform[0].CopyB[0].f1_4[0]|topmostSubform[0].CopyC[0].f1_4[0]|topmostSubform[0].CopyD[0].f1_4[0]	/form2439Forms/*/writableOtherTaxYearEndingMonthDay	String		
+—	caption:5e002fb49984:2	, 20. 2-digit year		topmostSubform[0].CopyA[0].f1_5[0]|topmostSubform[0].CopyB[0].f1_5[0]|topmostSubform[0].CopyC[0].f1_5[0]|topmostSubform[0].CopyD[0].f1_5[0]	/form2439Forms/*/writableOtherTaxYearEndingYear	String		
+—	caption:90251d5ff401	VOID	void	topmostSubform[0].CopyA[0].c1_1[0]|topmostSubform[0].CopyB[0].c1_1[0]|topmostSubform[0].CopyC[0].c1_1[0]|topmostSubform[0].CopyD[0].c1_1[0]	/form2439Forms/*/writableIsVoid	Bool		
+—	caption:9ba6c34da4e6	CORRECTED	corrected	topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].CopyB[0].c1_1[1]|topmostSubform[0].CopyC[0].c1_1[1]|topmostSubform[0].CopyD[0].c1_1[1]	/form2439Forms/*/writableIsCorrected	Bool		
+—	caption:d63ba259bde2	Name, address, and Z I P code of R I C or R E I T	name, address, and z i p code of r i c or r e i t	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyD[0].LeftCol[0].f1_6[0]	/form2439Forms/*/writableRicOrReitNameAddress	String		
+—	caption:cca4e31cd006	Identification number of R I C or R E I T	identification number of r i c or r e i t	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyD[0].LeftCol[0].f1_7[0]	/form2439Forms/*/writableRicOrReitEin	EIN		
+—	caption:2cad881743f5	Shareholder's identifying number	shareholder's identifying number	topmostSubform[0].CopyA[0].LeftCol[0].f1_8[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_8[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_8[0]|topmostSubform[0].CopyD[0].LeftCol[0].f1_8[0]	/form2439Forms/*/writableShareholderTin	TIN		
+—	caption:af3c4e4cbd46	Shareholder's name, address, and Z I P code	shareholder's name, address, and z i p code	topmostSubform[0].CopyA[0].LeftCol[0].f1_9[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_9[0]|topmostSubform[0].CopyC[0].LeftCol[0].f1_9[0]|topmostSubform[0].CopyD[0].LeftCol[0].f1_9[0]	/form2439Forms/*/writableShareholderNameAddress	String		
+1a		Total undistributed long-term capital gains	total undistributed long-term capital gains	topmostSubform[0].CopyA[0].f1_10[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_10[0]|topmostSubform[0].CopyC[0].RightCol[0].f1_10[0]|topmostSubform[0].CopyD[0].RightCol[0].f1_10[0]	/form2439Forms/*/writableBox1a	Dollar		
+1b		Unrecaptured section 1250 gain	unrecaptured section 1250 gain	topmostSubform[0].CopyA[0].f1_11[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_11[0]|topmostSubform[0].CopyC[0].RightCol[0].f1_11[0]|topmostSubform[0].CopyD[0].RightCol[0].f1_11[0]	/form2439Forms/*/writableBox1b	Dollar		
+1c		Section 1202 gain	section 1202 gain	topmostSubform[0].CopyA[0].f1_12[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_12[0]|topmostSubform[0].CopyC[0].RightCol[0].f1_12[0]|topmostSubform[0].CopyD[0].RightCol[0].f1_12[0]	/form2439Forms/*/writableBox1c	Dollar		
+1d		Collectibles (28%) gain	collectibles (28%) gain	topmostSubform[0].CopyA[0].f1_13[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_13[0]|topmostSubform[0].CopyC[0].RightCol[0].f1_13[0]|topmostSubform[0].CopyD[0].RightCol[0].f1_13[0]	/form2439Forms/*/writableBox1d	Dollar		
+2		Tax paid by the R I C or R E I T on the box 1a gains	tax paid by the r i c or r e i t on the box 1a gains	topmostSubform[0].CopyA[0].f1_14[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_14[0]|topmostSubform[0].CopyC[0].RightCol[0].f1_14[0]|topmostSubform[0].CopyD[0].RightCol[0].f1_14[0]	/form2439Forms/*/writableBox2	Dollar		
+—	caption:0683effad472	or other tax year of the regulated investment company (R I C) or the real estate investment trust (R E I T) beginning. Month and day	or other tax year of the regulated investment company (r i c) or the real estate investment trust (r e i t) beginning. month and day	topmostSubform[0].CopyB[0].f1_2[0]|topmostSubform[0].CopyC[0].f1_2[0]|topmostSubform[0].CopyD[0].f1_2[0]	/form2439Forms/*/writableOtherTaxYearBeginningMonthDay	String		

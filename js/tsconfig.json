@@ -1,0 +1,52 @@
+{
+  // Type-check-only config for the JS/TS Fact Graph test harness. Nothing is emitted —
+  // vitest/esbuild does the actual transform at test time; this exists so `tsc --noEmit`
+  // catches type errors (e.g. a phantom/uninstalled import) at build time instead of as a
+  // confusing test-time crash. Run via `npm run typecheck`; wired into scripts/gate.sh's
+  // `[gate: js]` step (after the dictionary is generated, which these files depend on).
+  //
+  // NOTE: this config MUST NOT set `verbatimModuleSyntax` / `importsNotUsedAsValues:preserve`.
+  // tsx and vitest auto-discover this tsconfig.json and feed those options to esbuild; enabling
+  // them stops esbuild from eliding the vendored generator's type-only `import { X }` lines,
+  // which then try to resolve `@irs/js-factgraph-scala` at RUNTIME and break generation. Keep
+  // the effective transform identical to the pre-tsconfig behavior; type-only enforcement here
+  // is `tsc`'s job, not the runtime transform's.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    // "bundler" resolution matches how esbuild/vitest actually resolve: `.js` import
+    // specifiers that point at sibling `.ts` sources resolve without complaint, exactly as
+    // this harness is written.
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "types/**/*.d.ts"],
+  // Excluded from the type-check (each with a specific, documented reason — NOT a catch-all):
+  //   engine, fact-dictionary/generated, fact-dictionary/generate-src — the frozen Scala.js
+  //     artifact (no `.d.ts`), the giant `as any` build output, and the vendored upstream
+  //     generator whose real types come from the uninstalled `@irs/js-factgraph-scala` package;
+  //     none is authored here (generated/*.ts are still checked transitively where OUR code
+  //     imports them — their `as any` casts make that clean).
+  //   src/snapshot.ts + test/snapshot.test.ts — the CLI snapshot tool imports a runtime VALUE
+  //     from the typeless, write-frozen engine artifact (`../engine/factgraph.js`), which tsc
+  //     cannot resolve and we cannot add a `.d.ts` for (engine/** is freeze-guarded).
+  //   test/factDictionaryTests/noCircularDeps.test.ts — imports the vendored generator
+  //     (generate-src/dependencyGraph.ts), pulling that untyped subtree into the program.
+  // All are still executed by vitest; only tsc skips them.
+  "exclude": [
+    "node_modules",
+    "engine",
+    "fact-dictionary/generated",
+    "fact-dictionary/generate-src",
+    "src/snapshot.ts",
+    "test/snapshot.test.ts",
+    "test/factDictionaryTests/noCircularDeps.test.ts"
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/operations/calculate_return.response.schema.json",
+  "title": "calculate_return response",
+  "allOf": [
+    {
+      "$ref": "../common/response-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "forms",
+        "assumptions"
+      ],
+      "properties": {
+        "forms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "form_id",
+              "lines"
+            ],
+            "properties": {
+              "form_id": {
+                "type": "string"
+              },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/line"
+                }
+              }
+            }
+          }
+        },
+        "assumptions": {
+          "description": "What the service assumed about THIS taxpayer to compute the return -- claims nobody supplied and no field in the fact schema lets them contradict (no estimated payments made, no Marketplace health plan, no digital assets received). Derived per request, so it names only what was actually assumed here. The client presents these at submit time before rendering.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assumption_details": {
+          "description": "Every assumption as a structured pair: `statement` is the sentence also served in `assumptions` (the two views are one derivation); `fact` is the service field the statement is about \u2014 the cell a client may paint or ask in \u2014 or null for an assumption resting on no field a caller could set.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "fact",
+              "statement"
+            ],
+            "properties": {
+              "fact": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "statement": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line_id",
+        "label",
+        "citation"
+      ],
+      "properties": {
+        "line_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value_cents": {
+          "type": "integer"
+        },
+        "enum_value": {
+          "type": "string"
+        },
+        "citation": {
+          "$ref": "../common/citation.schema.json"
+        },
+        "derived_from": {
+          "description": "Fact paths this line was derived from.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

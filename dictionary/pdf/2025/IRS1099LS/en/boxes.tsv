@@ -1,0 +1,48 @@
+# IRS1099LS — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099LS/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 035effee8b75eea9b73efcaed2cfc71187215780a2c1df44570747e334813bf6
+# boxes: 14   acroform fields: 40   boxes with a fact: 14
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:514193fd9e6a	For calendar year	for calendar year	Form1099-C[0].CopyA[0].FormHeader[0].CalendarYear[0].f1_1[0]|Form1099-C[0].CopyB[0].FormHeader[0].f2_1[0]|Form1099-C[0].CopyC[0].FormHeader[0].CalendarYear[0].f2_1[0]	/form1099Lss/*/writableCalendarYear	String		
+—	caption:90251d5ff401	VOID	void	Form1099-C[0].CopyA[0].FormHeader[0].c1_1[0]	/form1099Lss/*/writableVoid	Bool		
+—	caption:9ba6c34da4e6	CORRECTED	corrected	Form1099-C[0].CopyA[0].FormHeader[0].c1_1[1]|Form1099-C[0].CopyB[0].FormHeader[0].c2_1[0]|Form1099-C[0].CopyC[0].FormHeader[0].c2_1[0]	/form1099Lss/*/writableCorrected	Bool		
+—	caption:2c2288a0c20b	ACQUIRER'S name, street address, city or town, state or province, country, Z I P or foreign postal code, and telephone no	acquirer's name, street address, city or town, state or province, country, z i p or foreign postal code, and telephone no	Form1099-C[0].CopyA[0].LeftCol[0].f1_2[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_2[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_2[0]	/form1099Lss/*/writableAcquirerNameAddressAndTelephoneNumber	String		
+acquirer-tin		ACQUIRER’S TIN	acquirer’s tin	Form1099-C[0].CopyA[0].LeftCol[0].f1_3[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_3[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_3[0]	/form1099Lss/*/writableAcquirerTin	TIN		
+—	caption:81e4556344c6	PAYMENT RECIPIENT'S T I N	payment recipient's t i n	Form1099-C[0].CopyA[0].LeftCol[0].f1_4[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_4[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_4[0]	/form1099Lss/*/writablePaymentRecipientTin	TIN		
+—	caption:6a5b4c324272	PAYMENT RECIPIENT'S name	payment recipient's name	Form1099-C[0].CopyA[0].LeftCol[0].f1_5[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_5[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_5[0]	/form1099Lss/*/writablePaymentRecipientName	String		
+—	caption:f2e269305549	Street address (including apt. no.)	street address	Form1099-C[0].CopyA[0].LeftCol[0].f1_6[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_6[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_6[0]	/form1099Lss/*/writableStreetAddress	String		
+—	caption:e5278dd672c6	City or town, state or province, country, and Z I P or foreign postal code	city or town, state or province, country, and z i p or foreign postal code	Form1099-C[0].CopyA[0].LeftCol[0].f1_7[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_7[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_7[0]	/form1099Lss/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode	String		
+—	caption:10ca5fde6a02	Policy number	policy number	Form1099-C[0].CopyA[0].LeftCol[0].f1_8[0]|Form1099-C[0].CopyB[0].LeftCol[0].f2_8[0]|Form1099-C[0].CopyC[0].FormHeader[0].LeftCol[0].f2_8[0]	/form1099Lss/*/writablePolicyNumber	String		
+1		Amount paid to payment recipient	amount paid to payment recipient	Form1099-C[0].CopyA[0].RightCol[0].f1_9[0]|Form1099-C[0].CopyB[0].RightCol[0].f2_9[0]|Form1099-C[0].CopyC[0].FormHeader[0].RightCol[0].f2_9[0]	/form1099Lss/*/writableAmountPaidToPaymentRecipient	Dollar		
+2		Date of sale	date of sale	Form1099-C[0].CopyA[0].RightCol[0].f1_10[0]|Form1099-C[0].CopyB[0].RightCol[0].f2_10[0]|Form1099-C[0].CopyC[0].FormHeader[0].RightCol[0].f2_10[0]	/form1099Lss/*/writableDateOfSale	Day		
+—	caption:04399b0b96cc	Issuer's name	issuer's name	Form1099-C[0].CopyA[0].RightCol[0].f1_11[0]|Form1099-C[0].CopyB[0].RightCol[0].f2_11[0]|Form1099-C[0].CopyC[0].FormHeader[0].RightCol[0].f2_11[0]	/form1099Lss/*/writableIssuerName	String		
+—	caption:c24dc26bd73a	Acquirer's information contact name, street address, city or town, state or province, country, Z I P or foreign postal code, and telephone no. (if different from ACQUIRER)	acquirer's information contact name, street address, city or town, state or province, country, z i p or foreign postal code, and telephone no	Form1099-C[0].CopyA[0].RightCol[0].f1_12[0]|Form1099-C[0].CopyB[0].RightCol[0].f2_12[0]|Form1099-C[0].CopyC[0].FormHeader[0].RightCol[0].f2_12[0]	/form1099Lss/*/writableAcquirerInformationContactNameAddressAndTelephoneNumber	String		

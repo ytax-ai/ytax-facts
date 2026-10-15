@@ -1,0 +1,2127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<?xml-model href="./FactDictionaryModule.rng"?>
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableInvestmentInterestExpense">
+      <Name>Investment interest expense paid or accrued in 2025 (Form 4952 line 1)</Name>
+      <Description>Form 4952 line 1: investment interest expense paid or accrued during the year
+        — interest on money borrowed that is allocable to property held for investment (e.g.
+        margin interest). Entered as the gross amount; the line-6 net-investment-income limit is
+        applied by /investmentInterestExpenseDeduction. Optional — a return with no investment
+        interest never answers this, and the deduction then resolves complete-safe 0.
+        SCOPE CARVE: this is the investment interest the FILER paid or
+        accrued. It EXCLUDES a partnership's, S corporation's or foreign partnership's pass-through share reported in
+        Schedule K-1 (Form 1065) box 13 code H, Schedule K-1 (Form 1120-S) box 12 code H or Schedule K-1 (Form 8865)
+        box 13 code H, which /k1InvestmentInterestExpense
+        now totals from the recorded documents and adds to line 3 as its own term. Entering that amount here as
+        well would state the same money twice. A partner who records the K-1 does not need to type it; a partner
+        who does not record the K-1 still may, and the graph cannot tell those apart — which is why the carve is
+        stated on the intake rather than enforced in arithmetic.
+        WHAT LINE 1 INCLUDES AND LEAVES OUT. Line 1 includes any amount allowable as a deduction in
+        connection with personal property used in a short sale, which IRC 163(d)(3)(C) treats as
+        interest. It leaves out interest and carrying charges allocable to personal property that is
+        part of a straddle, which are added to the basis of the straddle property instead, and
+        interest on debt used to buy or carry a market discount bond or a short-term obligation to the
+        extent the Pub. 550 limits defer it to a later year. When one loan's proceeds serve more than
+        one purpose, only the part of the interest allocable to property held for investment goes
+        here, under the allocation rules the Form 4952 instructions name (Temporary Regulations
+        section 1.163-8T).</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableInvestmentExpenses">
+      <Name>Investment expenses (Form 4952 line 5)</Name>
+      <Description>Form 4952 line 5: the taxpayer's ALLOWED deductions, other than interest expense,
+        directly connected with the production of investment income — e.g. depreciation or depletion
+        allowed on assets that produce investment income, and separately-stated investment expenses
+        reported on a Schedule K-1 that are allowed as a deduction on the return (f4952 line 5
+        instructions). It EXCLUDES, BY DEFINITION IN THIS MODEL, three things: (a) miscellaneous
+        itemized deductions (the 2%-floor investment expenses suspended for 2018-2025 under IRC §67(g) —
+        the f4952 line-5 CAUTION); (b) any deduction used in determining income/loss from a passive
+        activity; and (c) — the double-count guard, stated as a DEFINITION not a warning — royalty
+        depletion/depreciation, because this module's line-4a term is /royaltyNetIncome (already NET of
+        Schedule E depletion), so that depletion is already in line 4h and must not be subtracted twice.
+        The paper Form 4952 line 4a is GROSS and carries royalty depletion on line 5; this model's 4a is
+        NET, so line 5 HERE is strictly the REMAINING allowed investment expenses (chiefly allowed K-1
+        separately-stated investment expenses, and depreciation/depletion on non-royalty investment
+        assets reported gross). Entered as a faithful direct input. Optional — a return with no
+        such expense never answers this and
+        line 5 resolves complete-safe 0, so every prior scenario is byte-identical (additive).
+        SCOPE CARVE: the phrase "separately-stated investment expenses
+        reported on a Schedule K-1" above no longer includes the CODED BOX amounts. Schedule K-1 (Form 1065)
+        box 20 code B and Schedule K-1 (Form 1120-S) box 17 code B are now totalled from the recorded documents
+        by /k1InvestmentExpenses and added to line 5 beside this attestation, so entering them here as well
+        would subtract the same money twice and understate the section 163(d) ceiling. WHAT STAYS HERE: a
+        line-5 expense with no coded K-1 box behind it — depreciation or depletion the filer takes directly on
+        a non-royalty investment asset, and a K-1 investment expense the entity reported on an attached
+        statement rather than in the coded box.
+        Line 6 = line 4h − line 5, so the line-5 expense (/investmentExpenses) is subtracted; leaving it out over-deducts for a taxpayer who has an allowed line-5 expense.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/investmentExpenses">
+      <Name>Investment expenses, complete-safe (Form 4952 line 5)</Name>
+      <Description>Form 4952 line 5 as this module builds it: /writableInvestmentExpenses when answered, else 0
+        (the IsComplete-Switch pattern, as /investmentInterestCarryforwardIn) — every scenario with no line-5 input
+        resolves 0 and stays value-identical — PLUS
+        /k1InvestmentExpenses, the Schedule K-1 (Form 1065) box 20 code B and Schedule K-1 (Form 1120-S) box 17 code B
+        amounts the printed instruction sends to this line ("Investment expenses. Report this amount on Form 4952,
+        Part II, line 5"). TWO TERMS AND NOT A FALLBACK PAIR: the attestation's Description is carved to exclude the
+        coded box amounts this second term totals, so the filer's own line-5 expense and the entity's pass-through are
+        different money and neither is dropped. Still complete safe: the second term is Complete $0 on every return
+        that records no K-1 code B row, so line 6 and everything under it are byte-identical on the whole corpus.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Add>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableInvestmentExpenses" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableInvestmentExpenses" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+        <Dependency path="/k1InvestmentExpenses" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+
+    <Fact path="/formK1s/*/investmentInterestExpenseFromThisK1">
+      <Name>This K-1's Form 4952 line 1 investment interest expense (other deductions code H)</Name>
+      <Description>THIS Schedule K-1's share of the Form 4952 line 1 investment interest expense: the total of the other deductions rows whose printed letter code is H, the code both Schedule K-1 instructions route to Form 4952 line 1 in one hop ("Investment interest expense. Include this amount on Form 4952, line 1"). The Schedule K-1 (Form 1065) box 13, the Schedule K-1 (Form 1120-S) box 12 and the Schedule K-1 (Form 8865) box 13 are ONE printed box between them, recorded as the one row list ../otherDeductionEntries (amendment 4), so every row of that list is read here, however many rows the K-1 lists, and a K-1 of any entity type is covered exactly once. A row contributes only when its CODE and its AMOUNT are both answered and the code is the letter this fact routes, so the fact is COMPLETE SAFE: a K-1 that answered no box 13 row contributes a Complete $0 and the CollectionSum over the collection stays Complete. A row feeds exactly ONE Form 4952 line, because the letter codes are mutually exclusive within a row. No floor and no Round: the pass-through amount is a positive deduction on the printed form, the intake carries no Min, and the sum is rounded once at /k1InvestmentInterestExpense. Summed over the collection by /k1InvestmentInterestExpense.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleE" path="../otherDeductionEntries" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="../otherDeductionEntries/*/investmentInterestExpenseFromThisRow" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/otherDeductionEntries/*/investmentInterestExpenseFromThisRow">
+      <Name>This K-1's Form 4952 line 1 investment interest expense (other deductions code H): this row's part</Name>
+      <Description>One row of /formK1s/*/otherDeductionEntries as /formK1s/*/investmentInterestExpenseFromThisK1 reads it: this row's amount when the row's code is H, both the code and the amount are answered; otherwise $0. Complete on every row, because the code and amount tests open on IsComplete, so the reader over the row table is Complete once the table is answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableCode" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableAmount" />
+                </IsComplete>
+                <Equal>
+                  <Left>
+                    <Dependency module="scheduleE" path="../codeCompleteSafe" />
+                  </Left>
+                  <Right>
+                    <String>H</String>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="scheduleE" path="../writableAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1InvestmentInterestExpense">
+      <Name>Schedule K-1 investment interest expense (Form 4952 line 1, pass-through half)</Name>
+      <Description>The rounded total of the Schedule K-1 box 13 / box 12 code H investment interest expense over every partnership, S corporation and foreign partnership K-1 the filer recorded in scheduleE:/formK1s: the pass-through half of Form 4952 line 1. Before this term existed the code H rows reached nothing and a partner's share of the entity's margin interest was deductible only if the filer re-typed it into /writableInvestmentInterestExpense.
+
+        A SECOND TERM OF LINE 1, NOT A REPLACEMENT OF THE ATTESTATION. This is DIFFERENT MONEY from the filer's own investment interest: the printed instruction is "Include this amount on Form 4952, line 1", include being the operative word, and Form 4952 line 1 is a single line that carries both. The attestation's Description is carved to say so, so the two are not the same dollars stated twice.
+
+        COMPLETE SAFE IN BOTH HALVES. The whole CollectionSum sits inside an IsComplete Switch on the scheduleE:/formK1s collection itself, defaulting to $0, so a return that never opened the K-1 section resolves Complete $0 rather than Placeholder and line 3, line 8 and Schedule A line 9 keep the completeness they have today; each item contributes through a complete safe per row Switch. Rounded ONCE, here. Additive: no committed scenario answers a box 13 code H row, so every scenario is byte identical.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleE" path="/formK1s" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/formK1s/*/investmentInterestExpenseFromThisK1" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/investmentExpensesFromThisK1">
+      <Name>This K-1's Form 4952 line 5 investment expenses (other information code B)</Name>
+      <Description>THIS Schedule K-1's share of the Form 4952 line 5 investment expenses: the total of the other information rows whose printed letter code is B, the code both Schedule K-1 instructions route to Form 4952 line 5 in one hop ("Investment expenses. Report this amount on Form 4952, Part II, line 5"). The Schedule K-1 (Form 1065) box 20, the Schedule K-1 (Form 1120-S) box 17 and the Schedule K-1 (Form 8865) box 20 are ONE printed box between them, recorded as the one row list ../otherInformationEntries (amendment 4), so every row of that list is read here, however many rows the K-1 lists, and a K-1 of any entity type is covered exactly once. A row contributes only when its CODE and its AMOUNT are both answered and the code is the letter this fact routes, so the fact is COMPLETE SAFE: a K-1 that answered no box 20 row contributes a Complete $0 and the CollectionSum over the collection stays Complete. CODE A IS ROUTED BY THE TWIN FACT ../investmentIncomeCodeAFromThisK1, which reads these same rows for the letter A, and it is added to line 4a only as the residual ../k1CodeASection163dResidualFromThisK1: box 20 code A is the partnership's investment income, most of which this module's line 4a already carries through interest:/interestIncome, income:/ordinaryDividends and the royalty term, all of which read the same K-1's printed boxes, so only what is left after those boxes are subtracted is added. The reconciliation is argued at /section163dInvestmentIncome. Summed over the collection by /k1InvestmentExpenses.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleE" path="../otherInformationEntries" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="../otherInformationEntries/*/investmentExpensesFromThisRow" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/otherInformationEntries/*/investmentExpensesFromThisRow">
+      <Name>This K-1's Form 4952 line 5 investment expenses (other information code B): this row's part</Name>
+      <Description>One row of /formK1s/*/otherInformationEntries as /formK1s/*/investmentExpensesFromThisK1 reads it: this row's amount when the row's code is B, both the code and the amount are answered; otherwise $0. Complete on every row, because the code and amount tests open on IsComplete, so the reader over the row table is Complete once the table is answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableCode" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableAmount" />
+                </IsComplete>
+                <Equal>
+                  <Left>
+                    <Dependency path="../codeCompleteSafe" module="scheduleE" />
+                  </Left>
+                  <Right>
+                    <String>B</String>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="scheduleE" path="../writableAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1InvestmentExpenses">
+      <Name>Schedule K-1 investment expenses (Form 4952 line 5, pass-through half)</Name>
+      <Description>The rounded total of the Schedule K-1 box 20 / box 17 code B investment expenses over every partnership and S corporation K-1 the filer recorded in scheduleE:/formK1s: the pass-through half of Form 4952 line 5. Before this term existed the code B rows reached nothing.
+
+        A SECOND TERM OF LINE 5, NOT A REPLACEMENT OF THE ATTESTATION, and the double count this raises is closed on the attestation side. /writableInvestmentExpenses described its own content as "chiefly allowed K-1 separately stated investment expenses"; that sentence is now carved to EXCLUDE the box 20 code B and box 17 code B amounts this fact totals from the documents, so a filer who records the K-1 and answers the line does not state the same money twice. What stays in the attestation is the line 5 expense with no K-1 row behind it: depreciation or depletion on a non-royalty investment asset the filer holds directly, and a K-1 investment expense reported on a statement rather than in the coded box.
+
+        DIRECTION: line 5 is a SUBTRAHEND of line 6, so adding this term LOWERS the section 163(d) ceiling and can only reduce the investment interest deduction. That is the conservative direction and it is the printed rule.
+
+        COMPLETE SAFE IN BOTH HALVES, the same shape as /k1InvestmentInterestExpense. Rounded ONCE, here. Additive: no committed scenario answers a box 20 code B row.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleE" path="/formK1s" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/formK1s/*/investmentExpensesFromThisK1" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/investmentIncomeCodeAFromThisK1">
+      <Name>This K-1's box 20 / box 17 code A investment income as DECLARED (other information code A)</Name>
+      <Description>THIS Schedule K-1's DECLARED code A investment income: the total of the other information rows whose printed letter code is A, the code all three Schedule K-1 instruction sets route to Form 4952, Part II, line 4a in one hop ("Investment income. Report this amount on Form 4952, Part II, line 4a"). The rows read here are the SAME ../investmentExpensesFromThisK1 reads for code B, and for the same reason: the Schedule K-1 (Form 1065) box 20, the Schedule K-1 (Form 1120-S) box 17 and the Schedule K-1 (Form 8865) box 20 are ONE printed box between them, so a K-1 of any of the three types is covered exactly once. A row contributes only when its CODE and its AMOUNT are both answered and the code is the letter this fact routes, so the fact is COMPLETE SAFE: a K-1 that answered no row contributes a Complete $0 and the CollectionSum over the collection stays Complete.
+
+        THIS FACT IS NOT AN ADDEND OF LINE 4a AND MUST NOT BECOME ONE. It is the DECLARED figure only. What reaches line 4a is ../k1CodeASection163dResidualFromThisK1, the part of this amount left after the portfolio boxes of the SAME K-1 that already reach line 4a are taken back out; the reconciliation, its direction and its disclosed residues are argued there and at /section163dInvestmentIncome. A bare code A addend would count the box 5 interest and the box 6a dividends a second time, and line 4h is the CEILING on the deduction, so that double count runs tax-REDUCING.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleE" path="../otherInformationEntries" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="../otherInformationEntries/*/investmentIncomeCodeAFromThisRow" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/otherInformationEntries/*/investmentIncomeCodeAFromThisRow">
+      <Name>This K-1's box 20 / box 17 code A investment income as DECLARED (other information code A): this row's part</Name>
+      <Description>One row of /formK1s/*/otherInformationEntries as /formK1s/*/investmentIncomeCodeAFromThisK1 reads it: this row's amount when the row's code is A, both the code and the amount are answered; otherwise $0. Complete on every row, because the code and amount tests open on IsComplete, so the reader over the row table is Complete once the table is answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableCode" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableAmount" />
+                </IsComplete>
+                <Equal>
+                  <Left>
+                    <Dependency path="../codeCompleteSafe" module="scheduleE" />
+                  </Left>
+                  <Right>
+                    <String>A</String>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="scheduleE" path="../writableAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/k1CodeASection163dResidualFromThisK1">
+      <Name>This K-1's code A investment income NOT already on Form 4952 line 4a</Name>
+      <Description>THIS Schedule K-1's box 20 / box 17 code A amount, less every quantity of the SAME K-1 that already reaches Form 4952 line 4a by its own route: max($0, code A − box 5 − box 6a − box 7 − this K-1's section 469(k) PTP gain). The subtraction IS the design and the reason the declared figure is not added bare — box 5 reaches line 4a through interest:/interestIncome, box 6a through income:/ordinaryDividends, box 7 through scheduleE:/royaltyNetIncome and the PTP gain through scheduleE:/k1PtpNonpassiveGainInInvestmentIncome, and line 4h is the CEILING on the deduction, so a bare code A addend would double count in the tax-REDUCING direction.
+
+        PER DOCUMENT, never across the collection, because the overlapping boxes are on the same collection item: one K-1's routed boxes may not absorb another K-1's code A. FLOORED AT $0 for the same reason — a K-1 whose routed boxes equal or exceed its declared code A contributes nothing, and never a negative that would claw back a sibling's residue.
+
+        THE DIVIDEND SUBTRAHEND IS THE GROSS BOX 6a, deliberately not box 6a less box 6b. Line 4a's dividend term here is /investmentNonQualifiedDividends (Form 1040 line 3b minus line 3a), so the qualified part is OUTSIDE the measure unless the line 4g election is made; subtracting only (6a − 6b) would carry box 6b back in through this residual and undo line 4b. It is also the conservative subtrahend, and it is the opposite choice from the estate and trust residue, which subtracts (box 2a − box 2b) because box 2b is routed into income:/qualifiedDividends and a gross box 2a would remove it twice. Neither choice rests on a claim about what the declared caption contains — that is unsourced on both sides, and the divergence is stated at both facts rather than smoothed over.
+
+        THE BOX 7 SUBTRAHEND IS GROSS AND CAN OVER-SUBTRACT, disclosed rather than corrected: scheduleE:/royaltyNetIncome carries the filer's royalty deductions and the Schedule E depletion, so on a return that claims them this takes back more than box 7 contributed. That UNDER-states the ceiling and under-deducts, the taxpayer-ADVERSE direction. WHAT CODE A CONTAINS is printed nowhere — the caption and the destination are on the form, the contents are this build's assumption — and the floor plus the four subtrahends are what bound it. COMPLETE SAFE: every term is Complete-$0 when unanswered, so a K-1 that answered no code A row contributes a Complete $0. Summed by /k1CodeASection163dInvestmentIncome.
+
+        AN UNANSWERED CODE A IS NOT AN UNDECIDED ONE, and the first Switch case is what says so. A printed document box is OPTIONAL intake: a Schedule K-1 that reports no box 20 / box 17 code A row reports NO code A investment income, so when ../investmentIncomeCodeAFromThisK1 is at or below $0 this fact is a Complete $0 and the four subtrahends are never consulted. Without that case the residual inherited the completeness of subtrahends it did not need, and one of them is routinely undecidable: scheduleE:/formK1s/*/ptpNonpassiveGainInInvestmentIncome rests on the item D publicly-traded-partnership question, which has no default, so ANY recorded K-1 that leaves item D blank made this residual a Placeholder $0 and dragged that Placeholder through /k1CodeASection163dInvestmentIncome into line 4h, line 6, the Form 6251 line 6 twin and Schedule A line 9 - on returns where the routed code A amount is $0 and not one printed figure moves. A ceiling a consumer cannot rely on is the harm, not the arithmetic.
+
+        THE ANSWERED ARM IS UNTOUCHED, deliberately: a K-1 that DID report a code A amount still subtracts all four routed quantities and still inherits their completeness, because there the undecidable subtrahend is undecidability about a real reconciliation. That arm is pinned beside this one.
+
+        IT ALSO CLOSES A HOLE IN THE TAX-REDUCING DIRECTION. The box 5 and box 6a subtrahends read their writables straight and a Limit Min on a Writable is not enforced on resolution, so a NEGATIVE box 5 answer used to turn max($0, $0 - box 5 - ...) into a POSITIVE residual and RAISE the section 163(d) ceiling on a K-1 that declared no code A at all. It is $0 now.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../investmentIncomeCodeAFromThisK1" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="../investmentIncomeCodeAFromThisK1" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency module="scheduleE" path="../portfolioInterestIncome" />
+                    <Dependency module="scheduleE" path="../portfolioOrdinaryDividends" />
+                    <Dependency module="scheduleE" path="../royaltyIncomeForScheduleE" />
+                    <Dependency module="scheduleE" path="../ptpNonpassiveGainInInvestmentIncome" />
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1CodeASection163dInvestmentIncome">
+      <Name>Schedule K-1 code A investment income reaching Form 4952 line 4a (the un-routed residue)</Name>
+      <Description>The rounded total of /formK1s/*/k1CodeASection163dResidualFromThisK1 over every partnership, S corporation and Form 8865 K-1 the filer recorded in scheduleE:/formK1s: the part of the printed box 20 / box 17 code A investment income that no other route already puts on Form 4952 line 4a. Before this term existed the code A rows reached nothing at all, and the module disclosed the gap — an amount genuinely not in boxes 5, 6a or 7 (portfolio income the entity reported only in box 11, for instance) UNDER-stated the line 4h ceiling and under-deducted.
+
+        DIRECTION: line 4h is the CEILING on the deduction, so this term RAISES it and can only increase the investment interest deduction. That is the tax-REDUCING direction, which is why nothing is added bare: each summand is already net of the same K-1's routed boxes and floored at $0, and the residual's own disclosed error runs the other way (the gross box 7 subtrahend over-subtracts whenever the return claims royalty deductions).
+
+        COMPLETE SAFE IN BOTH HALVES, the same shape as /k1InvestmentExpenses: a CollectionSum behind an IsComplete guard on the /formK1s collection root, because a CollectionSum over a collection the return never opened does not resolve, and a return with no K-1 reads a Complete $0. That is the one real hazard in wiring a collection aggregate into this chain, since an Incomplete here would drag through line 4h, line 6, line 8 and Schedule A line 9. Rounded ONCE, here.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleE" path="/formK1s" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/formK1s/*/k1CodeASection163dResidualFromThisK1" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/reportsInvestmentInterestExpense">
+      <Name>This K-1 reports a Form 4952 line 1 investment interest expense (other deductions code H)</Name>
+      <Description>True exactly when at least one other deductions row on THIS Schedule K-1 has BOTH its code and its amount answered and the code is H. An EXISTENCE test, never a magnitude test, because a $0 code H row is still an answered line 1 and a filer who states one has opened Form 4952. It reads the RAW intake leaves' IsComplete, never /formK1s/*/investmentInterestExpenseFromThisK1, which is complete safe by construction and whose IsComplete is therefore always true (the trap form6251:/formK1s/*/reportsAmtDepletionAdjustment names). Aggregated by /k1InvestmentInterestExpenseRowsAnswered.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleE" path="../otherDeductionEntries" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><CollectionSize><Filter path="../otherDeductionEntries"><Dependency path="isInvestmentInterestExpenseRow" /></Filter></CollectionSize></Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/otherDeductionEntries/*/isInvestmentInterestExpenseRow">
+      <Name>This K-1 reports a Form 4952 line 1 investment interest expense (other deductions code H): this row</Name>
+      <Description>One row of /formK1s/*/otherDeductionEntries as /formK1s/*/reportsInvestmentInterestExpense reads it: True when this row passes the test /formK1s/*/reportsInvestmentInterestExpense applies to every row (code H); otherwise False. Complete on every row, because the code and amount tests open on IsComplete, so the reader over the row table is Complete once the table is answered.</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="scheduleE" path="../writableCode" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency module="scheduleE" path="../writableAmount" />
+          </IsComplete>
+          <Equal>
+            <Left>
+              <Dependency module="scheduleE" path="../writableCode" />
+            </Left>
+            <Right>
+              <String>H</String>
+            </Right>
+          </Equal>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/k1InvestmentInterestExpenseRowsAnswered">
+      <Name>Was a Schedule K-1 other deductions code H slot actually answered</Name>
+      <Description>True when at least one item of scheduleE:/formK1s answered an other deductions row carrying code H (Schedule K-1 (Form 1065) box 13, Schedule K-1 (Form 1120-S) box 12, Schedule K-1 (Form 8865) box 13). The whole test sits inside an IsComplete Switch on the collection itself defaulting to FALSE, so a return that never opened the K-1 section resolves Complete false rather than Placeholder.
+
+        THIS IS WHAT MAKES THE CODE H LEG REACHABLE. A partner whose ONLY investment interest is the entity's pass-through records the K-1, foots Form 4952 line 1 from it, and must therefore be able to open every gate that asks "was line 1 answered". This fact is the second half of that question; /form4952Line1Answered is the question itself, and every line-1 gate in the module reads it. /totalInvestmentInterestExpense reads the attestation through a complete safe wrapper on exactly this predicate, so line 3 keeps its Incomplete on every return with no code H row and gains a value on the returns that have one.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleE" path="/formK1s" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/formK1s">
+                      <Dependency path="reportsInvestmentInterestExpense" />
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4952Line1Answered">
+      <Name>Was Form 4952 line 1 answered</Name>
+      <Description>The module's single definition of "this return has a Form 4952 line 1", and the one predicate every
+        line-1 gate in Form 4952 reads. True when the filer answered the line-1 attestation
+        (/writableInvestmentInterestExpense) OR recorded a Schedule K-1 other deductions code H row
+        (/k1InvestmentInterestExpenseRowsAnswered), because either alone foots a line 1 and either alone makes the
+        filer someone who "must file Form 4952 to claim a deduction for your investment interest expense".
+
+        ONE PREDICATE, NOT FOUR COPIES. The line-1 question is asked at four places in this module — line 8
+        (/investmentInterestExpenseDeduction), line 7 (/investmentInterestCarryforwardToNextYear), the fail-closed
+        consistency refusal (/knockoutInvestmentInterest4gElection) and the line-4g election
+        (/electedInvestmentIncome4gAmount) — and at one place outside it (form6251:/amtForm4952Line8Deduction). Stating
+        it once is what keeps the four in step: an earlier widening that reached only some of the copies left the
+        refusal narrower than the arithmetic it guards, so Part II computed for the K-1-only filer with its fail-closed
+        guard switched off. Complete-safe: both disjuncts resolve Complete on every return, so this is Complete false on
+        a return that never opened Form 4952 and adds no Incomplete surface.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writableInvestmentInterestExpense" />
+          </IsComplete>
+          <Dependency path="/k1InvestmentInterestExpenseRowsAnswered" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/investmentInterestExpenseEntered">
+      <Name>Form 4952 line 1 as the filer entered it, complete safe only behind a K-1 code H row</Name>
+      <Description>/writableInvestmentInterestExpense, read straight through EXCEPT on a return that answered a Schedule K-1
+        other deductions code H slot, where an unanswered attestation reads $0 instead — the pass-through half of line 1,
+        added WITHOUT making line 1 complete safe for everyone.
+
+        WHY THE GUARD IS THE K-1 PREDICATE AND NOT A BARE IsComplete. /totalInvestmentInterestExpense is Incomplete until the
+        attestation is answered, and that Incompleteness IS the module's gate: node-test
+        form4952/form4952-unanswered-complete-safe and form6251/amt-line2c-no-form4952-default-safe both pin line 3 Incomplete
+        on a return that never opened Form 4952.
+        A bare IsComplete Switch here would resolve line 3 Complete $0 on every return in the corpus and break both. Gating the
+        $0 arm on /k1InvestmentInterestExpenseRowsAnswered instead means the substitution happens ONLY where a document
+        supplies the line, which is exactly the population this unit added.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableInvestmentInterestExpense" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableInvestmentInterestExpense" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/k1InvestmentInterestExpenseRowsAnswered" />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableInvestmentInterestExpense" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableInvestmentInterestCarryforwardFromPriorTaxYear">
+      <Name>Disallowed investment interest carryforward from the prior year (Form 4952 line 2)</Name>
+      <Description>Form 4952 line 2: the disallowed investment interest expense carried forward
+        INTO 2025 from the prior year (the 2024 Form 4952 line 7 amount the taxpayer attests).
+        A carry-IN writable — a prior-year amount ATTESTED, never re-derived. Optional — absent gives complete-safe 0 via
+        /investmentInterestCarryforwardIn.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/investmentInterestCarryforwardIn">
+      <Name>Investment interest carryforward-IN, complete-safe (Form 4952 line 2)</Name>
+      <Description>= /writableInvestmentInterestCarryforwardFromPriorTaxYear when answered, else $0. Complete-safe
+        wrapper (the IsComplete-Switch pattern, as /form8396CarryforwardIn) so a return with only
+        current-year investment interest (no prior carryforward) still resolves line 3.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableInvestmentInterestCarryforwardFromPriorTaxYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableInvestmentInterestCarryforwardFromPriorTaxYear" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableAmtInvestmentInterestCarryforwardFromPriorTaxYear">
+      <Name>AMT disallowed investment interest carryforward from the prior year (AMT Form 4952 line 2)</Name>
+      <Description>Line 2 of the SECOND, AMT Form 4952 the Form 6251 line-2c procedure calls for:
+        "Enter your AMT disallowed investment interest expense from 2024 on line 2" (Instructions
+        for Form 6251, Line 2c, Step 2). The AMT twin of /writableInvestmentInterestCarryforwardFromPriorTaxYear,
+        on the same convention — a prior-year amount ATTESTED, never re-derived. It is a SEPARATE intake from the regular-tax line 2
+        because the two amounts diverge for a filer whose 2024 return carried an AMT adjustment:
+        interest on specified private activity bonds counts as investment income when section
+        163(d) is applied on AMT terms (IRC 56(b)(1)(B)(ii)), so such a filer had a LARGER
+        allowed AMT deduction in 2024 and therefore a SMALLER AMT disallowed carryforward into
+        2025.
+
+        Optional, and the population that must answer it is small: absent any 2024 AMT adjustment
+        the 2024 AMT Form 4952 IS the 2024 regular Form 4952, so leaving this unanswered is the
+        correct posture for that filer and /amtInvestmentInterestCarryforwardIn supplies the
+        regular line-2 amount instead of $0. Min 0 — a disallowed carryforward is a floored
+        quantity on the source form itself (line 7, "If zero or less, enter -0-").</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/amtInvestmentInterestCarryforwardIn">
+      <Name>AMT investment interest carryforward-IN, complete-safe (AMT Form 4952 line 2)</Name>
+      <Description>= /writableAmtInvestmentInterestCarryforwardFromPriorTaxYear when answered, else the REGULAR-tax
+        line 2 (/investmentInterestCarryforwardIn). THE FALLBACK IS THE DELIBERATE PART, and it is
+        where this fact diverges from the IsComplete-Switch convention its regular twin uses.
+
+        Falling back to $0, the twin's default, would be a FABRICATED ADDBACK. Form 6251 line 2c is
+        regular line 8 minus AMT line 8; a $0 AMT line 2 shrinks AMT line 3, hence AMT line 8, hence
+        makes 2c positive — so every filer who attested a regular carryforward and never answered
+        this one would pick up an AMTI addback out of nothing. Falling back to the regular amount
+        instead is the "no 2024 AMT adjustment" reading, and it is the CORRECT amount for that
+        filer: the AMT and regular Forms 4952 for 2024 are the same form line for line unless a 2024
+        AMT adjustment separated them, and the only such adjustment this dictionary knows of is
+        private activity bond interest (IRC 56(b)(1)(B)(ii)), whose 2025 population is refused
+        outright by interest:/flowKnockoutHasBonds. That filer answers the writable; everyone else
+        is right by default, and line 2c resolves $0 for them, which is what the graph already says.
+
+        The regular amount is also the CEILING on the honest AMT value: the AMT deduction allowed in
+        2024 is at least the regular one (AMT investment income is the regular investment income
+        plus private-activity-bond interest, never less), so the AMT amount disallowed is at most the
+        regular amount disallowed. The fallback therefore cannot understate the AMT carry-in, and no
+        Limit is needed to say so.
+
+        Complete on every return: the regular wrapper is itself complete-safe $0.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableAmtInvestmentInterestCarryforwardFromPriorTaxYear" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableAmtInvestmentInterestCarryforwardFromPriorTaxYear" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/investmentInterestCarryforwardIn" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalInvestmentInterestExpense">
+      <Name>Total investment interest expense (Form 4952 line 3)</Name>
+      <Description>Form 4952 line 3 = line 1 + line 2 (/investmentInterestCarryforwardIn,
+        complete-safe). Incomplete until line 1 is answered —
+        which is exactly the gate: the deduction and the carry-OUT that consume this are themselves
+        gated on line 1 being answered.
+        LINE 1 IS TWO TERMS: the filer's own attestation, read
+        through /investmentInterestExpenseEntered, PLUS /k1InvestmentInterestExpense, the Schedule K-1
+        (Form 1065) box 13 code H, Schedule K-1 (Form 1120-S) box 12 code H and Schedule K-1 (Form 8865)
+        box 13 code H amounts the printed
+        instruction sends to this line ("Include this amount on Form 4952, line 1"). They are DIFFERENT
+        MONEY, not one quantity stated twice — the partner's share of the entity's investment interest and
+        the interest the filer paid themselves — and the attestation's Description is carved to say so. The
+        Incomplete-until-answered gate above is unchanged for every return with no code H row: the $0
+        substitution inside /investmentInterestExpenseEntered happens only where such a row exists.</Description>
+
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/investmentInterestExpenseEntered" />
+            <Dependency path="/investmentInterestCarryforwardIn" />
+            <Dependency path="/k1InvestmentInterestExpense" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/investmentNonQualifiedDividends">
+      <Name>Non-qualified ordinary dividends (Form 4952 line 4c dividend component = 4a minus 4b)</Name>
+      <Description>Ordinary dividends (/ordinaryDividends, 1040 line 3b) minus qualified dividends
+        (/qualifiedDividends, 1040 line 3a), floored at 0 — the portion of dividend income that is
+        NOT eligible for the QDCGT preferential rate and therefore stays in section 163(d)
+        investment income (Form 4952 line 4a gross income, less line 4b qualified dividends).
+        Both terms are complete-safe (0 when no 1099-DIV), so this resolves 0 for every dividend-free
+        return.</Description>
+      
+
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency module="income" path="/ordinaryDividends" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency module="income" path="/qualifiedDividends" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableNetGainFromInvestmentPropertyDispositions">
+      <Name>Form 4952 line 4d net gain from dispositions of property held for investment</Name>
+      <Description>The preparer's nonnegative line-4d amount: total gains over total losses from
+        dispositions of investment property, including capital-gain distributions and capital-loss
+        carryovers. This is direct Form 4952 intake because the transaction graph does not classify
+        every Schedule D item as held-for-investment property. A publicly traded partnership's net
+        passive income that is a disposition gain, such as the part of its overall gain that comes
+        from its Schedule K-1 box 10 net section 1231 gain, belongs on this line rather than line 4a
+        ("Also include on line 4a (or 4d, if applicable)"); the partnership's line 4a amount,
+        scheduleE:/formK1s/*/ptpNonpassiveGainInInvestmentIncome, leaves that part out, so it is
+        counted here only.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/netGainFromInvestmentPropertyDispositions">
+      <Name>Form 4952 line 4d, complete-safe</Name>
+      <Description>The answered line-4d amount, or zero when the disposition leg is absent. A
+        positive line 4d without its investment-property net-capital-gain input is refused by the
+        line-4g consistency guard rather than silently characterized as non-capital gain.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableNetGainFromInvestmentPropertyDispositions" /></IsComplete></When>
+            <Then><Dependency path="/writableNetGainFromInvestmentPropertyDispositions" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableNetCapitalGainFromInvestmentPropertyDispositions">
+      <Name>Net capital gain from dispositions of property held for investment before the line-4d cap</Name>
+      <Description>The investment-property-specific excess of net long-term capital gain over net
+        short-term capital loss. It is separate from Schedule D's return-wide net capital gain,
+        because the latter can include property not held for investment.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/netCapitalGainFromInvestmentPropertyDispositions">
+      <Name>Form 4952 line 4e</Name>
+      <Description>The smaller of line 4d and the investment-property-specific net capital gain.
+        Both inputs are nonnegative preparation results; invalid or one-sided answers are refused
+        by /knockoutInvestmentInterest4gElection.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/netGainFromInvestmentPropertyDispositions" />
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="/writableNetCapitalGainFromInvestmentPropertyDispositions" /></IsComplete></When>
+              <Then><Dependency path="/writableNetCapitalGainFromInvestmentPropertyDispositions" /></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/investmentPropertyDispositionGainRetainedInInvestmentIncome">
+      <Name>Form 4952 line 4f</Name>
+      <Description>Line 4d less line 4e, floored at zero. This is the disposition gain that stays
+        in investment income without a line-4g election.</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/netGainFromInvestmentPropertyDispositions" /></Minuend>
+            <Subtrahends><Dependency path="/netCapitalGainFromInvestmentPropertyDispositions" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableElectedInvestmentIncome4gAmount">
+      <Name>Form 4952 line 4g elected amount</Name>
+      <Description>The dollar amount from lines 4b and 4e that the taxpayer elects into investment
+        income. This amount, not the legacy Boolean election flag, drives both Form 4952 line 4h
+        and the Schedule D Tax Worksheet.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/electedInvestmentIncome4gAmount">
+      <Name>Form 4952 line 4g elected amount, complete-safe</Name>
+      <Description>The answered line-4g amount, or zero when no dollar election is entered. A
+        legacy true Boolean with no dollar amount remains a refusal so an old client cannot claim
+        an unquantified election.
+
+        THE ELECTION IS GATED ON LINE 1, because line 4g is a line of Form 4952 and there is no
+        Form 4952 without a line 1: "Who Must File" ties filing to claiming the investment interest
+        deduction, and the Schedule D Tax Worksheet's own entry test is conditioned on "if you file
+        Form 4952 and you have an amount on line 4g". Without the gate the election's COST is
+        unconditional while its BENEFIT is not — Schedule D reads this dollar twice with no gate of
+        its own, once to select the Schedule D Tax Worksheet and once as its line 3, so a filer who
+        answered the 4g amount with no line 1 and no Schedule K-1 code H row had qualified dividends
+        and net capital gain stripped out of the preferential-rate base and received a $0 deduction
+        in exchange. On that return the election is inoperative rather than refused: the answer is
+        simply not a line of a form this filer files, and reading it as $0 leaves the Schedule D Tax
+        Worksheet selector, its line 3 and its line 5 exactly where a return with no election
+        already puts them.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form4952Line1Answered" />
+                <IsComplete><Dependency path="/writableElectedInvestmentIncome4gAmount" /></IsComplete>
+              </All>
+            </When>
+            <Then><Dependency path="/writableElectedInvestmentIncome4gAmount" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableElectedNetCapitalGain4gAttribution">
+      <Name>Optional Form 4952 line-4e dotted-line attribution to line 4g</Name>
+      <Description>Optional smaller amount treated as the net-capital-gain portion of line 4g.
+        Unanswered uses the printed general rule, which attributes line 4g first to line 4e.</Description>
+      <Writable><Dollar /></Writable>
+    </Fact>
+
+    <Fact path="/electedNetCapitalGain4gAttribution">
+      <Name>Net-capital-gain portion of Form 4952 line 4g used by the Schedule D Tax Worksheet</Name>
+      <Description>The optional dotted-line amount when answered; otherwise Form 4952 line 4e.
+        Schedule D Tax Worksheet line 8 later takes the smaller of lines 3 and 4, implementing the
+        general capital-gain-first attribution when line 4e exceeds line 4g.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableElectedNetCapitalGain4gAttribution" /></IsComplete></When>
+            <Then><Dependency path="/writableElectedNetCapitalGain4gAttribution" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dependency path="/netCapitalGainFromInvestmentPropertyDispositions" /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form1041K1s/*/estateTrustK1Box14CodeENetInvestmentIncome">
+      <Name>This estate or trust K-1's box 14 code E net investment income</Name>
+      <Description>THIS Schedule K-1 (Form 1041)'s box 14 code E amount, totalled over the other-information
+        rows: the figure the K-1's own routing table sends to Form 4952 line 4a ("E Net investment income —
+        Form 4952, line 4a"). A row contributes only when its CODE and its AMOUNT are both answered and the code
+        is the letter E, so a K-1 that answered no box 14 row contributes a Complete $0 and the CollectionSum
+        over the collection stays Complete. Reconciled against the boxes this module already reads by
+        /form1041K1s/*/estateTrustK1Section163dResidualFromThisK1; nothing consumes this raw total on its own.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleE" path="../otherInformationEntries" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="../otherInformationEntries/*/netInvestmentIncomeCodeEFromThisRow" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1041K1s/*/otherInformationEntries/*/netInvestmentIncomeCodeEFromThisRow">
+      <Name>This estate or trust K-1's box 14 code E net investment income: this row's part</Name>
+      <Description>One row of /form1041K1s/*/otherInformationEntries as /form1041K1s/*/estateTrustK1Box14CodeENetInvestmentIncome reads it: this row's amount when the row's code is E, both the code and the amount are answered; otherwise $0. Complete on every row, because the code and amount tests open on IsComplete, so the reader over the row table is Complete once the table is answered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableCode" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="../writableAmount" />
+                </IsComplete>
+                <Equal>
+                  <Left>
+                    <Dependency module="scheduleE" path="../codeCompleteSafe" />
+                  </Left>
+                  <Right>
+                    <String>E</String>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="scheduleE" path="../writableAmount" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1041K1s/*/estateTrustK1Section163dResidualFromThisK1">
+      <Name>This estate or trust K-1's box 14 code E amount not already on Form 4952 line 4a</Name>
+      <Description>The box 14 code E net investment income of THIS Schedule K-1 (Form 1041), less the same K-1's
+        box 1 interest and less its box 2a ordinary dividends NET OF BOX 2b, floored at $0.
+
+        THE SUBTRACTION IS WHAT MAKES THE CODE E ROUTE SAFE. This module does not transcribe the taxpayer's line
+        4a; it BUILDS line 4a from the income sources, and two of those sources already read this very document —
+        interest:/estateTrustK1InterestIncome carries box 1 and income:/estateTrustK1OrdinaryDividends carries box
+        2a, and both reach line 4a. A bare code E addend would count those dollars a second time, and line 4h is
+        the CEILING on the deduction, so the double count would run tax-REDUCING. Subtracting what this module
+        already routes from the same K-1 leaves exactly the residue: the trust's section 163(d) investment
+        income that reached the beneficiary in a box Form 4952 does not otherwise see.
+
+        THE DIVIDEND SUBTRAHEND IS (BOX 2a MINUS BOX 2b), NOT THE GROSS BOX, and the difference is a real
+        correction rather than a refinement. Box 2a does NOT reach line 4a in full: line 4a's dividend term is
+        /investmentNonQualifiedDividends, Form 1040 line 3b less line 3a, and this K-1's box 2b is routed into
+        income:/qualifiedDividends and hence into line 3a. So only (box 2a minus box 2b) of the trust's dividends
+        is on line 4a, and subtracting the gross box would remove box 2b a SECOND time — understating this
+        residue, understating line 4h, understating the line 6 ceiling and over-charging, which is the exact
+        direction this head was built to close. The floor would have hidden it as a $0 rather than as a negative.
+
+        The floor keeps the term one-directional — a code E figure smaller than the boxes already routed (the
+        ordinary case, since the trust's own investment expenses reduce code E) contributes $0 rather than a
+        negative, so the term can only ever be understated, never overstated.
+
+        WHAT CODE E CONTAINS IS ASSUMED, NOT SOURCED, AND THE ASSUMPTION IS STATED HERE. The residue is treated as
+        portfolio income Form 4952 never sees by another route — the trust's box 5 other portfolio income, say —
+        and nothing on disk establishes that. The Schedule K-1 (Form 1041)'s own page-2 routing table gives the
+        code letter, its caption "Net investment income" and its destination "Form 4952, line 4a"; the 2025
+        beneficiary instructions omit code E from "Box 14—Other Information" entirely; and Pub. 550, already an
+        authority on this line, is SILENT on the estate/trust K-1. The document that would have settled it is the
+        fiduciary's own Instructions for Form 1041, which tell the trustee what to put in each box 14 code. It was
+        VENDORED for this build, and it does not settle it: its own "Box 14—Other Information" section names
+        codes B, C, D, G, H and I and SKIPS code E, exactly as the beneficiary instructions do. So the caption and
+        the destination printed in the FORM's page-2 routing table are the whole of what the IRS says about this
+        item, there is no further document to fetch, and the reading above is this build's, disclosed rather than
+        sourced. The specific worry chased and not sustained: if a
+        fiduciary's code E carried the beneficiary's share of net gain from disposing of investment property, this
+        residue would put it on line 4a where the printed CAUTION sends it to line 4d — tax-REDUCING. Two things
+        cut against it and neither is proof: the same page-2 table sends boxes 3 and 4a to Schedule D, so a code E
+        carrying disposition gain would have the IRS telling beneficiaries to misfile; and the routing table is an
+        instruction to the beneficiary, not a caption.
+
+THE SAME RECONCILIATION IS NOW USED FOR THE PARTNERSHIP BOX 20 CODE A, at
+        /formK1s/*/k1CodeASection163dResidualFromThisK1, and the two are deliberately the same shape rather than
+        argued from the same property to opposite conclusions. The overlapping boxes are on the SAME collection
+        item in both cases, so both residues are max($0, declared minus the boxes already routed) and both are
+        one-directional on the same floor. TWO DIFFERENCES REMAIN AND ARE STATED RATHER THAN SMOOTHED OVER.
+        First, the DIVIDEND SUBTRAHEND: this fact subtracts box 2a NET of box 2b for the reason given in the
+        Subtrahends comment below — box 2b is routed into income:/qualifiedDividends, so subtracting the gross
+        box 2a would remove it a SECOND time — while the code A residual subtracts the GROSS box 6a, because
+        box 6b must not be carried back into line 4c by a residual and the gross box is the conservative
+        subtrahend. NEITHER choice rests on a claim about what the declared caption contains: that is unsourced
+        for code A exactly as this Description says it is for code E, and the two shapes are a deliberate
+        divergence, stated rather than smoothed over. Second, the ROYALTY SUBTRAHEND: the code A residual subtracts the K-1's gross box 7 while that
+        box reaches line 4a through scheduleE:/royaltyNetIncome, which nets the filer's own royalty deductions, so
+        the code A subtraction can over-subtract; that is taxpayer-ADVERSE and is disclosed there. The estate and
+        trust boxes 1, 2a and 2b reach line 4a gross and need no such adjustment.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../estateTrustK1Box14CodeENetInvestmentIncome" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="interest" path="../estateTrustK1Box1InterestIncome" />
+              <Subtract>
+                <Minuend>
+                  <Dependency module="income" path="../estateTrustK1Box2aOrdinaryDividends" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency module="income" path="../estateTrustK1Box2bQualifiedDividends" />
+                </Subtrahends>
+              </Subtract>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/estateTrustK1Section163dInvestmentIncome">
+      <Name>Estate and trust section 163(d) investment income (Form 4952 line 4a estate/trust head)</Name>
+      <Description>The rounded total, over every Schedule K-1 (Form 1041) the filer recorded, of the box 14 code E
+        net investment income that is not already on Form 4952 line 4a through that K-1's box 1 or box 2a. This is
+        the printed line 4a sentence "Also include net investment income from an estate or a trust", built as a
+        residue rather than transcribed, for the reason argued on the per-K-1 fact. COMPLETE SAFE: the CollectionSum
+        sits inside an IsComplete Switch on the scheduleE:/form1041K1s collection itself, defaulting to $0, so a
+        return that never opened the estate/trust K-1 section resolves Complete $0 rather than Placeholder and line
+        4a keeps the completeness it has today. Rounded once, here.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="scheduleE" path="/form1041K1s" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/form1041K1s/*/estateTrustK1Section163dResidualFromThisK1" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableWorkingInterestMateriallyParticipated">
+      <Name>Materially participated in the oil or gas working-interest activity (Form 4952 line 4a Exception)</Name>
+      <Description>SCREEN. Question: "Did you materially participate in the oil or gas working interest you told us
+        about?" Help text: an oil or gas working (operating) interest you hold directly, or through an entity that
+        does not limit your liability, is property held for INVESTMENT for the investment interest deduction — but
+        only if you did NOT materially participate in the activity (2025 Form 4952, "Property held for investment",
+        Exception, https://www.irs.gov/pub/irs-pdf/f4952.pdf, page 3). Answering "no" adds the activity's net to Form
+        4952 line 4a, which RAISES the limit on the investment interest you can deduct. It changes nothing else:
+        the activity stays on Schedule C and stays subject to self-employment tax either way, because a working
+        interest is never a passive activity regardless of participation (Schedule C line G, "Exception for oil and
+        gas"). Asked when: scheduleE:/royaltyIsWorkingInterest is true — the filer has already told us the royalty
+        is a working (operating) interest. Not asked otherwise. Unanswered posture: DEFAULTED to today's behaviour
+        exactly — the activity is treated as NOT held for investment, contributes $0 to line 4a, and the ceiling is
+        that much lower. Taxpayer-adverse, so the screen belongs immediately after the working-interest attestation.
+        Validation: Boolean, no default pre-selected. What the answer feeds: Form 4952 line 4a
+        (/workingInterestSection163dInvestmentIncome into /section163dInvestmentIncome), hence line 6, the line 8
+        deduction and the line 7 carryforward.</Description>
+      
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/workingInterestHeldForInvestment">
+      <Name>The oil/gas working interest is property held for investment (Form 4952 line 4a Exception, complete-safe)</Name>
+      <Description>True only when the royalty activity IS a working interest (scheduleE:/royaltyIsWorkingInterest)
+        AND the material-participation question was answered AND the answer was no. Three conjuncts and not two:
+        the Exception is stated as a condition on the taxpayer ("but only if you didn't materially participate"),
+        so an unanswered question is not a "no". Unanswered or true resolves Complete false and the activity
+        contributes nothing to line 4a, which is exactly what every return does today.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="scheduleE" path="/royaltyIsWorkingInterest" />
+                <IsComplete>
+                  <Dependency path="/writableWorkingInterestMateriallyParticipated" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/writableWorkingInterestMateriallyParticipated" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/workingInterestSection163dInvestmentIncome">
+      <Name>Non-materially-participated oil/gas working-interest net in section 163(d) investment income (line 4a)</Name>
+      <Description>scheduleE:/workingInterestNetProfit when the Exception applies, else $0. The working-interest
+        fork routes the whole activity net to Schedule C and leaves scheduleE:/royaltyNetIncome at $0, so before
+        this term the exact population the printed Exception exists for contributed nothing to Form 4952 line 4a.
+
+        IT IS A LINE 4a TERM ONLY, and touches neither Schedule E nor Schedule C. Section 163(d)(5)(A)(ii) makes a
+        non-materially-participated working interest "property held for investment" for the investment interest
+        deduction; section 469(c)(3)(A) independently makes it a non-passive trade or business wherever the income
+        is reported. Those are two different questions with two different answers, and moving the net back onto
+        Schedule E to reach line 4a would answer the second one wrongly — and would make line 8 depend on itself,
+        since line 4a reads the Schedule E royalty net. Reading the Schedule C-bound figure as a line 4a addend
+        keeps the income exactly where the fork put it.
+
+        UNFLOORED, matching the treatment scheduleE:/royaltyNetIncome already gets as the line 4a royalty term:
+        this model's line 4a is NET where the paper form's is gross, and a working-interest loss lowers the section
+        163(d) ceiling rather than being ignored. The loss arriving here is already capped at the amount at risk,
+        because the fork sits after scheduleE:/royaltyAtRiskAllowedNet.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/workingInterestHeldForInvestment" />
+            </When>
+            <Then>
+              <Dependency module="scheduleE" path="/workingInterestNetProfit" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section163dInvestmentIncome">
+      <Name>Section 163(d) investment income (Form 4952 line 4h) — UNFLOORED and UNROUNDED</Name>
+      <Description>BOX 20 CODE A / BOX 17 CODE A IS ADDED AS A RESIDUAL, NEVER AS A BARE ADDEND, and that is
+        the first thing this Description says because the printed instruction points straight at this line.
+        Schedule K-1 (Form 1065) box 20 code A and its Schedule K-1 (Form 1120-S) box 17 twin say "Investment
+        income. Report this amount on Form 4952, Part II, line 4a". A BARE code A addend is still NOT added,
+        because this module does not transcribe the taxpayer's line 4a: it BUILDS
+        line 4a from the income sources, and three of those sources already read the same Schedule K-1.
+        interest:/interestIncome adds scheduleE:/k1PortfolioInterestIncome (K-1 box 5), income:/ordinaryDividends
+        adds scheduleE:/k1PortfolioOrdinaryDividends (K-1 box 6a), and the royalty term adds that K-1's box 7
+        through scheduleE:/royaltyNetIncome. A partnership's box 20 code A is the investment income it reported to
+        that partner in those same printed boxes, so a bare code A addend would count those dollars a SECOND time
+        — and line 4h is the ceiling on the deduction, so the double count would run in the tax-REDUCING
+        direction, which is the one this dictionary refuses to guess in.
+
+        WHAT IS ADDED is /k1CodeASection163dInvestmentIncome, the sum over the collection of
+        /formK1s/*/k1CodeASection163dResidualFromThisK1 = max($0, code A − box 5 − box 6a − box 7 − that K-1's
+        section 469(k) PTP gain), reconciled PER DOCUMENT because the overlapping boxes are on the same collection
+        item. Every subtrahend is a quantity of THIS K-1 that already reaches this line by its own route, and the
+        floor is what makes the term one-directional: a K-1 whose routed boxes already equal or exceed its
+        declared code A contributes $0, never a negative that would claw back another K-1's residual.
+
+        FOUR THINGS ABOUT THE SUBTRAHENDS, stated rather than left to be re-derived. (1) THE DIVIDEND SUBTRAHEND
+        IS THE GROSS BOX 6a, not box 6a less box 6b, and that is the opposite choice from the estate/trust residue
+        on purpose: this line's dividend term is /investmentNonQualifiedDividends (Form 1040 line 3b minus line
+        3a), so box 6b is deliberately OUTSIDE the measure, and subtracting only (6a − 6b) would carry the
+        qualified part back in through the residual and undo line 4b. It is also the conservative subtrahend.
+        (2) THE PTP GAIN IS A SUBTRAHEND because scheduleE:/k1PtpNonpassiveGainInInvestmentIncome adds that same
+        K-1's section 469(k) overall gain to this line already. (3) THE BOX 7 SUBTRAHEND IS GROSS while box 7
+        reaches this line through scheduleE:/royaltyNetIncome, which is net of the filer's own royalty
+        deductions and of the Schedule E depletion, so on a return that claims royalty deductions this
+        subtraction takes back MORE than box 7 actually contributed. That OVER-subtracts, which UNDER-states this
+        ceiling and under-deducts — the taxpayer-ADVERSE direction this dictionary accepts — and it is disclosed
+        here rather than corrected with a second royalty measure. (4) WHAT CODE A CONTAINS is stated in no
+        instruction booklet: the caption and the destination are printed, the contents are this build's
+        assumption, the same disclosed sourcing gap
+        /form1041K1s/*/estateTrustK1Section163dResidualFromThisK1 carries. The assumption is bounded in the
+        conservative direction by the floor and by subtracting every routed box.
+
+        Box 20 code B (investment expenses) has no such overlap and IS wired bare, at /investmentExpenses.
+
+        Form 4952 line 4h, "Investment income. Add lines 4c, 4f, and 4g": taxable
+        interest; non-qualified ordinary dividends; net royalty income; publicly traded
+        partnership §469(k) gain; the line-4f disposition amount that remains after line 4e; and
+        the valid elected line-4g amount. Pub 550 names the same quantity in words: "investment income includes
+        your gross income from property held for investment such as interest, dividends, annuities,
+        and royalties … It also does not include qualified dividends or net capital gain unless you
+        choose to include them."
+
+        THE PTP TERM is the fourth addend and the only one whose direction is
+        tax-REDUCING: "If you have an overall gain from a PTP, the net gain is nonpassive income. In
+        addition, the nonpassive income is included in investment income to figure your investment
+        interest expense deduction." It arrives as a SUM OF PER-PTP POSITIVE PARTS, because
+        §469(k)(1) applies the passive-activity rules separately to each PTP, and the summing fact
+        lives in scheduleE so the §469(k) quantity has one definition in the module that owns the
+        regime. Its own reconciliation to this line — the gain is ordinary income, so it survives
+        line 4b into 4c and is independent of the separately modeled 4f/4g addends — is argued in
+        that fact's Description.
+
+        THIS FACT EXISTS TO BE THE PRE-FLOOR QUANTITY, and that is the whole of its reason to be
+        separate from line 6. Line 6 (/section163dNetInvestmentIncome) is
+        Round(max($0, line 4h minus line 5)) and therefore DESTROYS the sign of (4h minus line 5):
+        every return whose /investmentExpenses exceed its investment income reports line 6 = $0, and
+        the amount by which it fell short is not recoverable from that $0. A consumer that must
+        re-run Part II on different terms — the Form 6251 line 2c AMT second pass is the one this
+        was built for — has to start here and apply its OWN floor. Adding an AMT adjustment to line
+        6 instead would return the adjustment itself where the truth is strictly less, over-stating
+        AMT line 6 and hence UNDER-stating AMTI: the exact direction World #1 forbids.
+
+        So this fact carries NO GreaterOf and NO Round of its own, deliberately. Line 6 composes
+        both back on top of it and is value-identical to its earlier body — the sum moved into
+        this fact rather than being copied, so there is one definition of line 4h in this module.
+        The PTP addend arrives already
+        whole-dollar (its summands are Rounded upstream) and does not give this line a rounding it
+        does not have.
+
+        Complete-safe, in the exact sense line 6 is and no further: every term resolves Complete-$0
+        when absent, so this adds NO Incomplete surface and is $0 on a return with no investment
+        income — but it inherits Placeholder from a Placeholder term. "Complete
+        on every return" would be the overstatement; the delta capture is where it shows. The PTP
+        term keeps that property on purpose rather than by luck: it is gated on
+        scheduleE:/claimsK1Income, so a return with no /formK1s collection at all resolves it
+        Complete-$0 instead of dragging an Incomplete through this line into line 6, line 8 and
+        Schedule A line 9. form4952/form4952-unanswered-complete-safe is the case that holds it.
+
+        FORM 8814 LINE 12 IS A TERM. Pub 550, "Investment income of child reported on parent's
+        return": "Investment income includes the part of your child's interest and dividend income
+        you choose to report on your return. If the child does not have qualified dividends, Alaska
+        Permanent Fund dividends, or capital gain distributions, this is the amount on line 6 of Form
+        8814. Include it on line 4a of Form 4952", and under "Child's qualified dividends": "Your
+        investment income also includes the amount on Form 8814, line 12". So
+        form8814:/form8814TotalLine12OtherIncome — the child's ORDINARY inclusion, which equals line 6
+        exactly when the child has no qualified dividends or capital gain distributions — is added
+        here. NO DOUBLE COUNT WITH LINE 9: the child's qualified dividends the election puts on Form
+        1040 lines 3a and 3b enter income:/ordinaryDividends AND income:/qualifiedDividends by the same
+        addend, so /investmentNonQualifiedDividends (4a minus 4b) nets them to $0 — which is Pub 550's
+        own rule ("that part ... generally does not count as investment income" unless elected on line
+        4g). NO DOUBLE COUNT WITH LINE 10: the child's capital gain distributions are net capital gain,
+        excluded from 4h unless elected. The Pub 550 "Child's Alaska Permanent Fund dividends"
+        reduction (line 6 times the APFD share of line 4, taken off line 4a) is NOT applied — no intake
+        carries the child's APFD share (the gap named on
+        form8814:/form8814Children/*/line12OtherIncomeIncluded), so an Alaska family's line 4h ceiling
+        is OVER-stated by that share (taxpayer-favourable, disclosed). THE PRINTED LINE 4a ENUMERATION IS CLOSED AND HAS FOUR HEADS — "interest, ordinary dividends
+        (except Alaska Permanent Fund dividends), annuities, and royalties" — and all four are now
+        terms. The ANNUITY head is form8960:/niitLine3Annuities, READ RATHER THAN RE-ASKED. Section
+        163(d)(5)(A)(i) reaches annuity income through section 469(e)(1)(A)(i)(I) — "gross income from
+        interest, dividends, annuities, or royalties not derived in the ordinary course of a trade or
+        business" — and section 1411(c)(1)(A)(i) reaches it in the same words. On the population this
+        dictionary models, the taxable part of a nonqualified commercial annuity, the two definitions
+        name ONE dollar, so it is asked once: the Form 8960 line 3 screen is the single home and this
+        line reads its complete-safe wrapper, which is $0 on a return that never saw the question, so
+        line 4a keeps the completeness it had. DISCLOSED RESIDUE, and it runs taxpayer-ADVERSE: section 1411(c)(5)
+        excludes distributions from qualified plans and IRAs under sections 401(a), 403(a), 403(b),
+        408, 408A and 457(b), while section 163(d) carries no such carve-out, so a qualified-plan
+        annuity that is nonetheless property held for investment reaches neither screen and is missing
+        here. It UNDER-states this ceiling and over-deducts nothing — the direction this dictionary
+        accepts — and closing it means widening WHEN the Form 8960 line 3 question is asked and what
+        it asks for, not minting a second quantity. NOT DERIVED FROM /form1099Rs, and that refusal
+        stands wherever the head is asked: the 1099-R chain carries every pension, IRA and annuity
+        payout together, and sweeping it in would raise the ceiling with qualified-plan distributions
+        that are not property held for investment, the tax-REDUCING direction.
+
+        THE ESTATE AND TRUST HEAD is /estateTrustK1Section163dInvestmentIncome, the second printed
+        sentence of the line 4a instruction ("Also include net investment income from an estate or a
+        trust") and the destination the Schedule K-1 (Form 1041)'s own routing table gives box 14 code
+        E. It arrives as a RESIDUE, per document, net of the same K-1's box 1 and box 2a — the two
+        boxes this module already routes into line 4a — for the same reason box 20 code A is refused
+        above, and the netting is available there and not here because those two boxes reach line 4a
+        gross while a partnership's box 7 royalties reach it through a scheduleE fact already net of
+        depletion.
+
+        THE OIL AND GAS WORKING-INTEREST EXCEPTION is /workingInterestSection163dInvestmentIncome. The
+        printed Exception makes a working interest held directly or through a liability-unlimiting
+        entity property held for investment "but only if you didn't materially participate in the
+        activity", and the Schedule E fork routes the whole activity net to Schedule C and leaves
+        scheduleE:/royaltyNetIncome at $0 — so before this term the exact population the Exception
+        names contributed nothing to this line. The term is a line 4a addend only; it moves no income
+        between schedules.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Add>
+          <Dependency module="interest" path="/interestIncome" />
+          <Dependency path="/investmentNonQualifiedDividends" />
+          <Dependency path="/investmentPropertyDispositionGainRetainedInInvestmentIncome" />
+          <Dependency path="/electedInvestmentIncome4gAmount" />
+          <Dependency module="scheduleE" path="/royaltyNetIncome" />
+          <Dependency module="scheduleE" path="/k1PtpNonpassiveGainInInvestmentIncome" />
+          <Dependency module="form8814" path="/form8814TotalLine12OtherIncomeExcludingAlaskaPermanentFundDividends" />
+          <Dependency module="form8960" path="/niitLine3Annuities" />
+          <Dependency path="/estateTrustK1Section163dInvestmentIncome" />
+          <Dependency path="/workingInterestSection163dInvestmentIncome" />
+          <Dependency path="/k1CodeASection163dInvestmentIncome" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section163dNetInvestmentIncome">
+      <Name>Section 163(d) net investment income (Form 4952 line 6) — DISTINCT from section 1411 NII</Name>
+      <Description>Form 4952 line 6 = line 4h (investment income) − line 5 (investment expenses),
+        floored at 0. Line 4h is /section163dInvestmentIncome — taxable interest (/interestIncome, 4a
+        interest component) + NON-qualified ordinary dividends (/investmentNonQualifiedDividends, 4a
+        minus 4b) + net royalty income (/royaltyNetIncome, 4a royalty component) + a PTP's overall
+        §469(k) gain (scheduleE:/k1PtpNonpassiveGainInInvestmentIncome), UNFLOORED and
+        UNROUNDED so a second pass can start before this line's floor; line 5 = /investmentExpenses. Reading the 4h fact rather than re-summing its terms is what keeps ONE definition of
+        line 4h in this module, and it is why the PTP addend needed no edit HERE: it entered at 4h and
+        this line inherited it. This is
+        the section 163(d)(4) limit on the investment interest deduction and is DELIBERATELY NOT the
+        section 1411 /netInvestmentIncome of Form 8960: by default it excludes qualified dividends
+        and the line-4e net-capital-gain portion, while line 4f and a valid line-4g election enter
+        through /section163dInvestmentIncome. Every term is
+        complete-safe (Complete-0 when absent), so this adds no Incomplete surface; on returns with no
+        investment activity it is a harmless added fact. It does inherit Placeholder from a Placeholder term.
+
+        This subtracts line 5 (/investmentExpenses). It was previously omitted with a
+        claim it "never over-deducts" — backwards: line 5 is a SUBTRAHEND, so omitting it INFLATES this
+        ceiling and OVER-deducts. Additive: /investmentExpenses is 0 on every current scenario.</Description>
+      
+
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend>
+                <Dependency path="/section163dInvestmentIncome" />
+              </Minuend>
+              <Subtrahends>
+                <Dependency path="/investmentExpenses" />
+              </Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableElectInvestmentIncome4g">
+      <Name>Elect to include qualified dividends / net capital gain in investment income (Form 4952 line 4g)</Name>
+      <Description>Form 4952 line 4g: the taxpayer's election to include some or all of their
+        qualified dividends (4b) and net capital gain (4e) in investment income — raising the
+        line-6 limit at the cost of removing that amount from the preferential-rate base. Kept for
+        compatibility; new clients answer the dollar input, which itself makes
+        /electsInvestmentIncome4g true. A legacy true answer without a dollar is refused.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/electsInvestmentIncome4g">
+      <Name>Elects to include income under the 4g election (complete-safe)</Name>
+      <Description>/writableElectInvestmentIncome4g when answered, else false (the IsComplete-Switch
+        pattern, as /electsToItemize).</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left><Dependency path="/electedInvestmentIncome4gAmount" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableElectInvestmentIncome4g" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableElectInvestmentIncome4g" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasIncompleteInvestmentDispositionInputs">
+      <Name>Form 4952 lines 4d and 4e inputs are one-sided</Name>
+      <Description>True when a positive line 4d lacks the investment-property net-capital-gain
+        amount needed for line 4e, or when that net-capital-gain amount is supplied without line
+        4d. A zero or absent line 4d needs no second input because line 4e is necessarily zero.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <GreaterThan>
+              <Left><Dependency path="/netGainFromInvestmentPropertyDispositions" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+            <Not><IsComplete><Dependency path="/writableNetCapitalGainFromInvestmentPropertyDispositions" /></IsComplete></Not>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableNetCapitalGainFromInvestmentPropertyDispositions" /></IsComplete>
+            <Not><IsComplete><Dependency path="/writableNetGainFromInvestmentPropertyDispositions" /></IsComplete></Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasInvalidInvestmentDispositionInputs">
+      <Name>Form 4952 line 4d or investment-property net-capital-gain input is negative</Name>
+      <Description>Both printed quantities are excess-if-any amounts and therefore cannot be
+        negative. The invalid-input fact is complete-safe and only compares answered writables.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/writableNetGainFromInvestmentPropertyDispositions" /></IsComplete>
+            <GreaterThan>
+              <Left><Dollar>0</Dollar></Left>
+              <Right><Dependency path="/writableNetGainFromInvestmentPropertyDispositions" /></Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableNetCapitalGainFromInvestmentPropertyDispositions" /></IsComplete>
+            <GreaterThan>
+              <Left><Dollar>0</Dollar></Left>
+              <Right><Dependency path="/writableNetCapitalGainFromInvestmentPropertyDispositions" /></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/minimumElectedNetCapitalGain4gAttribution">
+      <Name>Minimum line-4g amount attributable to Form 4952 line 4e</Name>
+      <Description>The excess of line 4g over line 4b, floored at zero. The optional dotted-line
+        attribution may not be less than this amount.</Description>
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/electedInvestmentIncome4gAmount" /></Minuend>
+            <Subtrahends><Dependency module="income" path="/qualifiedDividends" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/maximumElectedNetCapitalGain4gAttribution">
+      <Name>Maximum line-4g amount attributable to Form 4952 line 4e</Name>
+      <Description>The smaller of line 4g and line 4e. A dotted-line amount cannot attribute more
+        capital gain than either the total election or the available line-4e amount.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/electedInvestmentIncome4gAmount" />
+          <Dependency path="/netCapitalGainFromInvestmentPropertyDispositions" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasInvalidInvestmentIncome4gElection">
+      <Name>Form 4952 line 4g election cannot be computed as entered</Name>
+      <Description>Fail-closed validation for the legacy unquantified Boolean, negative or
+        over-limit line-4g dollars, incomplete/negative lines 4d-4e intake, and an invalid optional
+        dotted-line attribution. Valid elections compute and no longer refuse.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Dependency path="/electsInvestmentIncome4g" />
+            <Not><IsComplete><Dependency path="/writableElectedInvestmentIncome4gAmount" /></IsComplete></Not>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableElectedInvestmentIncome4gAmount" /></IsComplete>
+            <GreaterThan>
+              <Left><Dollar>0</Dollar></Left>
+              <Right><Dependency path="/writableElectedInvestmentIncome4gAmount" /></Right>
+            </GreaterThan>
+          </All>
+          <GreaterThan>
+            <Left><Dependency path="/electedInvestmentIncome4gAmount" /></Left>
+            <Right>
+              <Add>
+                <Dependency module="income" path="/qualifiedDividends" />
+                <Dependency path="/netCapitalGainFromInvestmentPropertyDispositions" />
+              </Add>
+            </Right>
+          </GreaterThan>
+          <Dependency path="/hasIncompleteInvestmentDispositionInputs" />
+          <Dependency path="/hasInvalidInvestmentDispositionInputs" />
+          <All>
+            <IsComplete><Dependency path="/writableElectedNetCapitalGain4gAttribution" /></IsComplete>
+            <Any>
+              <Not><IsComplete><Dependency path="/writableElectedInvestmentIncome4gAmount" /></IsComplete></Not>
+              <GreaterThan>
+                <Left><Dependency path="/minimumElectedNetCapitalGain4gAttribution" /></Left>
+                <Right><Dependency path="/writableElectedNetCapitalGain4gAttribution" /></Right>
+              </GreaterThan>
+              <GreaterThan>
+                <Left><Dependency path="/writableElectedNetCapitalGain4gAttribution" /></Left>
+                <Right><Dependency path="/maximumElectedNetCapitalGain4gAttribution" /></Right>
+              </GreaterThan>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutInvestmentInterest4gElection">
+      <Name>Knockout: invalid or incomplete Form 4952 lines 4d-4g</Name>
+      <Description>Compatibility path re-scoped from refusing every line-4g election to refusing
+        only an election/disposition input set that cannot satisfy the printed Form 4952 bounds.
+        Valid elections now compute through line 4h and both Schedule D Tax Worksheet runs. A
+        legacy true Boolean without the new dollar remains fail-closed.
+
+        THE REFUSAL IS CONDITIONED ON /form4952Line1Answered, and the scope that condition sets is
+        part of the spec rather than an implementation detail: this refuses only a return that HAS a
+        Form 4952 line 1 — the filer who entered investment interest expense directly, OR the filer
+        whose only line 1 is a Schedule K-1 (Form 1065) box 13 / (Form 1120-S) box 12 / (Form 8865) box 13 code H row.
+        The second population is the one this guard used to miss while its Part II was already
+        computing. A return with no line 1 at all is never refused here: its lines 4d-4g are
+        inoperative rather than inconsistent, and /electedInvestmentIncome4gAmount resolves $0 under
+        the same predicate.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+
+      <Derived>
+        <All>
+          <Dependency path="/form4952Line1Answered" />
+          <Dependency path="/hasInvalidInvestmentIncome4gElection" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/k1CodeAResidualUndecidable">
+      <Name>This K-1 reported code A investment income but its reconciliation cannot be decided</Name>
+      <Description>True when THIS Schedule K-1 reports a box 20 / box 17 code A amount above $0 AND
+        ../k1CodeASection163dResidualFromThisK1 does not resolve Complete. The residual subtracts the
+        same K-1's section 469(k) publicly traded partnership gain, and that subtrahend rests on the
+        item D checkbox (scheduleE ../isPubliclyTradedPartnership), which has no default on a
+        partnership K-1; with item D blank the residual is only a provisional figure. Complete-safe:
+        a K-1 that reports no code A amount is FALSE, and so is a K-1 whose residual resolves.
+        Read by /knockoutK1CodeASection163dResidualUndecidable.</Description>
+      
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency path="../investmentIncomeCodeAFromThisK1" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Not>
+            <IsComplete>
+              <Dependency path="../k1CodeASection163dResidualFromThisK1" />
+            </IsComplete>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutK1CodeASection163dResidualUndecidable">
+      <Name>Knockout: a Schedule K-1 code A amount whose Form 4952 line 4a share cannot be decided</Name>
+      <Description>SCREEN TEXT: "You entered investment income (code A) from a partnership Schedule
+        K-1 but did not answer whether that partnership is a publicly traded partnership (item D on
+        the Schedule K-1). We need that answer to figure your investment interest deduction on Form
+        4952. Go back to that Schedule K-1 and answer item D."
+
+        Blocks submission when the return has a Form 4952 line 1 (/form4952Line1Answered) and at
+        least one Schedule K-1 in scheduleE:/formK1s reports a code A amount whose un-routed residual
+        (/formK1s/*/k1CodeASection163dResidualFromThisK1) does not resolve. Without this refusal the
+        provisional residual flows through line 4h, line 6 and line 8 into Schedule A line 9 as if it
+        were settled. It clears the moment item D is answered: the answer is a printed checkbox that
+        already has a writable, so this is a data-completeness refusal, not a missing computation.
+        A return with no Form 4952 line 1 is never refused here, because its line 4h limits nothing.
+        Complete-safe: a return that never opened the Schedule K-1 section resolves FALSE.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="/formK1s" />
+                </IsComplete>
+                <Dependency path="/form4952Line1Answered" />
+              </All>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <CollectionSize>
+                    <Filter path="/formK1s">
+                      <Dependency path="k1CodeAResidualUndecidable" />
+                    </Filter>
+                  </CollectionSize>
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/formK1s/*/k1CodeAWithBox7Royalties">
+      <Name>This K-1 reports both a code A investment income amount and box 7 royalties</Name>
+      <Description>True when THIS Schedule K-1 reports a box 20 / box 17 code A amount above $0 and
+        a box 7 royalty above $0. On such a K-1, ../k1CodeASection163dResidualFromThisK1 subtracts
+        the GROSS box 7 amount, while the royalty reaches Form 4952 line 4a through
+        scheduleE:/royaltyNetIncome, which is net of royalty expenses and depletion and cannot go
+        below the at-risk floor. Complete-safe: both terms are Complete $0 when unanswered. Read by
+        /knockoutK1CodeARoyaltyNetBelowGross.</Description>
+      
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency path="../investmentIncomeCodeAFromThisK1" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency module="scheduleE" path="../royaltyIncomeForScheduleE" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutK1CodeARoyaltyNetBelowGross">
+      <Name>Knockout: a Schedule K-1 code A residual that subtracts more royalty than reached Form 4952 line 4a</Name>
+      <Description>SCREEN TEXT: "You have investment interest expense, and a partnership or S
+        corporation Schedule K-1 that reports both investment income (code A) and royalties (box
+        7), and your royalty expenses, depletion or a royalty loss reduce the royalties that count
+        as investment income. We can't yet figure the part of that K-1's investment income that
+        Form 4952 line 4a still needs, so we can't file this return."
+
+        Blocks submission when the return has a Form 4952 line 1 (/form4952Line1Answered), at least
+        one Schedule K-1 has /formK1s/*/k1CodeAWithBox7Royalties, and the net royalty that reaches
+        line 4a (scheduleE:/royaltyNetIncome) is LESS than the Schedule K-1 box 7 royalties the
+        return reports (scheduleE:/k1RoyaltyIncomeTotal). In that population the code A residual
+        takes back the whole gross box 7 while only a smaller net reached line 4a, so line 4h and
+        the deduction it caps come out too low. Outside it the residual is exact: with no royalty
+        deduction, depletion or loss the net royalty is at least the box 7 total and the gross
+        subtraction takes back no more than line 4a received. Complete-safe: a return that never
+        opened the Schedule K-1 section resolves FALSE.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="scheduleE" path="/formK1s" />
+                </IsComplete>
+                <Dependency path="/form4952Line1Answered" />
+                <IsComplete>
+                  <Dependency module="scheduleE" path="/royaltyNetIncome" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <All>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Filter path="/formK1s">
+                        <Dependency path="k1CodeAWithBox7Royalties" />
+                      </Filter>
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+                <LessThan>
+                  <Left>
+                    <Dependency module="scheduleE" path="/royaltyNetIncome" />
+                  </Left>
+                  <Right>
+                    <Dependency module="scheduleE" path="/k1RoyaltyIncomeTotal" />
+                  </Right>
+                </LessThan>
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableInvestmentInterestAttributableToRoyaltiesOrNonpassiveBusiness">
+      <Name>Part of the investment interest expense is attributable to royalties or to a nonpassive trade or business</Name>
+      <Description>SCREEN. Question: "Is any part of the interest expense you entered for Form 4952
+        attributable to royalties, or to a trade or business that isn't a passive activity?" Help
+        text: the Form 4952 line 8 instructions send the part of the interest attributable to
+        royalties to Schedule E, and the part attributable to a nonpassive trade or business to the
+        schedule where that business reports its other expenses; only the rest goes to Schedule A
+        line 9. Asked when: the return has a Form 4952 line 1 (/form4952Line1Answered). Unanswered
+        posture: on a return that also reports royalty income, an unanswered question refuses the
+        return (/knockoutInvestmentInterestPlacementNotSplit), because the split cannot be assumed
+        away; on a return with no royalty income it is read as No. Validation: Boolean. What the
+        answer feeds: /knockoutInvestmentInterestPlacementNotSplit only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableInvestmentInterestAttributableToActivityNotFullyAtRisk">
+      <Name>Part of the deductible investment interest is attributable to an activity in which the filer is not fully at risk</Name>
+      <Description>SCREEN. Question: "Is any part of your deductible investment interest expense attributable to an activity for which you aren't fully at risk (an activity you report on Form 6198)?" Help text: the Form 4952 line 8 instructions send that part to Form 6198 line 4, where the at-risk limit applies to it, and only the rest goes to Schedule A line 9. Asked when: the return has a Form 4952 line 1 (/form4952Line1Answered). Unanswered posture: on a return that also files Form 6198 (form6198:/form6198ReturnFilesThisForm), an unanswered question refuses the return (/knockoutInvestmentInterestPlacementNotSplit), because the Form 6198 part cannot be assumed away; on any other return it is read as No. Validation: Boolean. What the answer feeds: /knockoutInvestmentInterestPlacementNotSplit only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutInvestmentInterestPlacementNotSplit">
+      <Name>Knockout: part of the Form 4952 line 8 deduction belongs on Schedule E, a business schedule or Form 6198</Name>
+      <Description>SCREEN TEXT: "Part of your investment interest expense belongs on Schedule E
+        (royalties), on a business schedule, or on Form 6198 (an activity for which you aren't fully
+        at risk), not on Schedule A. We can't yet split the Form 4952 deduction that way, so we can't
+        file this return. If none of your investment interest is attributable to royalties, to a
+        business you actively run, or to an activity you report on Form 6198, answer No to those
+        questions."
+
+        Blocks submission when the return has a Form 4952 line 1 (/form4952Line1Answered) and
+        EITHER /writableInvestmentInterestAttributableToRoyaltiesOrNonpassiveBusiness is answered
+        Yes, OR it is unanswered on a return that reports royalty income (scheduleE:/claimsRoyaltyIncome,
+        or Schedule K-1 box 7 royalties in scheduleE:/k1RoyaltyIncomeTotal). The printed line 8
+        instruction places the three parts on three schedules; this dictionary routes the whole of
+        line 8 to Schedule A line 9, which for the royalty part loses an above-the-line deduction
+        and for a standard-deduction filer loses it entirely. An answered No clears the refusal.
+        The same holds for the part attributable to an activity in which the filer is not fully at
+        risk: the line 8 instructions exclude the amount included on Form 6198 line 4 from Schedule A
+        line 9, and the at-risk limit decides how much of it is deductible. The return also refuses
+        when /writableInvestmentInterestAttributableToActivityNotFullyAtRisk is answered Yes, or is
+        unanswered on a return that files Form 6198 (form6198:/form6198ReturnFilesThisForm).
+        Complete-safe: a return with no Form 4952 line 1 resolves FALSE.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form4952Line1Answered" />
+            </When>
+            <Then>
+              <Any>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableInvestmentInterestAttributableToActivityNotFullyAtRisk" />
+                  </IsComplete>
+                  <Dependency path="/writableInvestmentInterestAttributableToActivityNotFullyAtRisk" />
+                </All>
+                <All>
+                  <Not>
+                    <IsComplete>
+                      <Dependency path="/writableInvestmentInterestAttributableToActivityNotFullyAtRisk" />
+                    </IsComplete>
+                  </Not>
+                  <IsComplete>
+                    <Dependency module="form6198" path="/form6198ReturnFilesThisForm" />
+                  </IsComplete>
+                  <Dependency module="form6198" path="/form6198ReturnFilesThisForm" />
+                </All>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableInvestmentInterestAttributableToRoyaltiesOrNonpassiveBusiness" />
+                  </IsComplete>
+                  <Dependency path="/writableInvestmentInterestAttributableToRoyaltiesOrNonpassiveBusiness" />
+                </All>
+                <All>
+                  <Not>
+                    <IsComplete>
+                      <Dependency path="/writableInvestmentInterestAttributableToRoyaltiesOrNonpassiveBusiness" />
+                    </IsComplete>
+                  </Not>
+                  <Any>
+                    <Dependency module="scheduleE" path="/claimsRoyaltyIncome" />
+                    <GreaterThan>
+                      <Left>
+                        <Dependency module="scheduleE" path="/k1RoyaltyIncomeTotal" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </GreaterThan>
+                  </Any>
+                </All>
+              </Any>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/investmentInterestExpenseDeduction">
+      <Name>Investment interest expense deduction (Form 4952 line 8 -> Schedule A line 9)</Name>
+      <Description>Form 4952 line 8 = the smaller of line 3 (/totalInvestmentInterestExpense) or
+        line 6 (/section163dNetInvestmentIncome) — the investment interest deduction, capped at net
+        investment income so it can never over-deduct. Flows to Schedule A line 9 (interest section),
+        added into /totalItemizedDeductions when itemizing. COMPLETE-SAFE via the IsComplete-Switch
+        pattern (as /gamblingLossDeduction): 0 when line 1 was never answered.
+        A valid line-4g election is already included in line 6; only invalid or incomplete lines
+        4d-4g trigger the compatibility refusal. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/form4952Line1Answered" />
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/totalInvestmentInterestExpense" />
+                  <Dependency path="/section163dNetInvestmentIncome" />
+                </LesserOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/investmentInterestCarryforwardToNextYear">
+      <Name>Disallowed investment interest carryforward to 2026 (Form 4952 line 7, REPORTED)</Name>
+      <Description>Form 4952 line 7 = line 3 (/totalInvestmentInterestExpense) minus line 6
+        (/section163dNetInvestmentIncome), floored at 0 — the investment interest disallowed this
+        year that carries forward. REPORTED as an output only; the single-year demo NEVER applies it
+        to a future year. COMPLETE-SAFE: 0 when line
+        1 was never answered.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/form4952Line1Answered" />
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency path="/totalInvestmentInterestExpense" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/section163dNetInvestmentIncome" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form4952Line4bQualifiedDividends">
+      <Name>Form 4952 line 4b, qualified dividends included on line 4a</Name>
+      <Description>Form 4952 line 4b, the qualified dividend portion of the gross investment income on line 4a. It is the return's qualified dividends (Form 1040 line 3a), which is the same reading the module's own line 4c fact already uses when it subtracts qualified dividends from ordinary dividends to leave the non-qualified remainder in section 163(d) investment income. Qualified dividend income is excluded from net investment income unless the taxpayer elects it in on line 4g, so line 4b is the amount taken out before line 4c. The dependency is complete-safe (zero when the return has no Form 1099-DIV), so this resolves on every return. DE-DUPLICATED under the project owner's rule ONE QUANTITY, ONE FACT: this fact is a direct alias of preferentialRateTax:/qdcgLine2 (Qualified Dividends and Capital Gain Tax Worksheet line 2, itself income:/qualifiedDividends), which already computes the identical quantity; the value is unchanged.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="preferentialRateTax" path="/qdcgLine2" />
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form4952Line4cInvestmentIncomeLessQualifiedDividends">
+      <Name>Form 4952 line 4c, gross investment income less qualified dividends (printed cell)</Name>
+      <Description>Form 4952 line 4c, "Subtract line 4b from line 4a", as the printed cell. Read back
+        off line 4h rather than built a second time: /section163dInvestmentIncome is the form's
+        line 4h, "Investment income. Add lines 4c, 4f, and 4g", and its Add carries exactly two
+        terms that are not line 4a heads — /investmentPropertyDispositionGainRetainedInInvestmentIncome
+        (line 4f) and /electedInvestmentIncome4gAmount (line 4g) — so this cell is 4h less those two,
+        and the three printed cells foot to 4h by construction. Every term is complete-safe, so this
+        resolves on every return; it is unrounded and unfloored exactly as line 4h is. A printed
+        cell only: no fact reads it, and the deduction ceiling stays on line 4h.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/section163dInvestmentIncome" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/investmentPropertyDispositionGainRetainedInInvestmentIncome" />
+            <Dependency path="/electedInvestmentIncome4gAmount" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4952Line4aGrossInvestmentIncome">
+      <Name>Form 4952 line 4a, gross income from property held for investment (printed cell)</Name>
+      <Description>Form 4952 line 4a, "Gross income from property held for investment (excluding any
+        net gain from the disposition of property held for investment)", as the printed cell: line
+        4c plus line 4b, since the form defines 4c as 4a less the qualified dividends included on
+        4a. The heads are the ones line 4h enumerates (interest, ordinary dividends, annuities,
+        royalties, the Form 8814 line 12 amount, the estate/trust residue, the working-interest
+        exception, the PTP gain), so the cell is whatever 4h says they sum to, before the 4b
+        subtraction. Complete-safe like its two terms. A printed cell only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Dependency path="/form4952Line4cInvestmentIncomeLessQualifiedDividends" />
+          <Dependency path="/form4952Line4bQualifiedDividends" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form4952Line1InvestmentInterestExpense">
+      <Name>Form 4952 line 1, investment interest expense paid or accrued in 2025 (printed cell)</Name>
+      <Description>Form 4952 line 1 as the printed cell: the investment interest expense the filer
+        entered (/investmentInterestExpenseEntered) plus the investment interest reported to the filer
+        on Schedule K-1 from a partnership, an S corporation or a foreign partnership
+        (/k1InvestmentInterestExpense, the box 13 or box 12 code H amounts). The line 1 instructions
+        say to include the Schedule K-1 amount on this line, and line 3 adds lines 1 and 2, so the
+        printed cell carries both terms. Both terms are complete-safe; this is unrounded like the
+        attestation. A printed cell only: /totalInvestmentInterestExpense (line 3) keeps its own three
+        terms and no fact reads this one.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Dependency path="/investmentInterestExpenseEntered" />
+          <Dependency path="/k1InvestmentInterestExpense" />
+        </Add>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

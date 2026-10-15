@@ -1,0 +1,230 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form1040NonresidentAlienSpouseElectionName">
+      <Name>Nonresident alien spouse name printed with the section 6013 election</Name>
+      <Description>The spouse's name Form 1040 prints beside the nonresident alien spouse election box, and only when that election is made. /conditionalSpouseName and /xmlSpouseName are gated on marriage, not on the election, so neither carries this box's gate.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/writableForm1040NonresidentAlienSpouseElection" />
+            </When>
+            <Then>
+              <Dependency module="filers" path="/secondaryFiler/fullName" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <String></String>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm1040ApartmentNumber">
+      <Name>Form 1040 apartment number</Name>
+      <Description>The unit designator Form 1040 prints in its own Apt. no. cell beside the home address. NOTE: the configuration still concatenates /address/streetAddressLine2 into the street line, so until the lead splits that concatenation an apartment recorded in both places prints twice.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040CombatZoneName">
+      <Name>Form 1040 combat zone name</Name>
+      <Description>The combat zone, qualified hazardous duty area or contingency operation written in beside the combat zone notation on Form 1040 page 1.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040CombatZoneNotation">
+      <Name>Form 1040 combat zone notation</Name>
+      <Description>Whether this return carries the combat zone notation Form 1040 prints in the special filing strip on page 1: the filer (or the filer's spouse) served in, or in support of, the Armed Forces in a combat zone or contingency operation, or was hospitalized for an injury received there, so section 7508 postpones the time to file and pay. Read by form2210 /form2210CombatZoneServiceShown, which drives form2210 /form2210CombatZoneIrsFiguresPenalty and /knockoutForm2210CombatZoneMustFilePostponementNotModeled.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutForm2210CombatZoneMustFilePostponementNotModeled">
+      <Name>Form 2210 — a combat zone or contingency operation filer must figure the penalty on Form 2210 or Form 2210-F and it would not reflect the postponement</Name>
+      <Description>Screen text: "You (or your spouse) served in, or in support of, the Armed Forces in a combat zone or contingency operation, or were hospitalized for an injury received there. The due dates for your 2025 estimated tax payments are postponed for that service plus 180 days. You checked a box that means you must figure the penalty yourself on Form 2210 (or Form 2210-F) — a waiver of part of the penalty, the annualized income installment method, or withholding treated as paid on the dates withheld (or, on Form 2210-F, a waiver or a joint return for only one of 2024 and 2025) — and we can't yet figure the penalty with the postponement, so you can't file this return here. If none of those boxes applies to you, clear them: the IRS will figure the penalty for you."
+
+        TRUE when form2210 /form2210CombatZoneServiceShown holds (the Form 1040 combat zone notation answered yes, OR nontaxable combat pay from Form W-2 box 12 code Q above $0) AND the return must figure the penalty on the filed form: Form 2210 Part II box B (a waiver of part of the penalty), box C (the annualized income installment method) or box D (withholding treated as paid on the dates actually withheld) is checked (form2210 /form2210PartIIBoxBCOrDChecked), or a farmer or fisher checks a Form 2210-F Part I box (form2210 /form2210FRequiredForReturn; Form 2210-F has no page-1-only filing) — AND the penalty figured on that form is positive before any box B waiver (Form 2210 line 19 above $0, or a box B waiver amount applied above $0, or Form 2210-F line 16 above $0).
+
+        WHO IS NOT REFUSED. A combat zone filer who checks no box does not file Form 2210 or Form 2210-F, and one who checks only box A (a waiver of the entire penalty), only box E (a joint return for one of 2024 and 2025 only), or both files page 1 of Form 2210 alone; either way the penalty line is left blank and the IRS figures the penalty (form2210 /form2210CombatZoneIrsFiguresPenalty). A filer whose penalty on the filed form is zero, or not figured, is not affected, because the postponement can only remove days from an underpayment period.
+
+        WHY IT REFUSES. Section 7508 disregards the period of service, any continuous qualified hospitalization and the next 180 days in determining any addition to tax, and it names payment of a tax or any installment of it among the acts postponed; section 7508(c) extends the same benefit to the spouse. A box B, C or D filer (or a Form 2210-F filer) must figure the penalty and attach the form with it; the Form 2210 and Form 2210-F chains apply the unpostponed installment due dates and count every day of each underpayment period, and no fact records the service or hospitalization dates, so the filed penalty can only be too high.
+
+        COMPLETE-SAFE: every leg is IsComplete-first or complete-safe by construction, so an unanswered notation, an unanswered or absent W-2 collection, an unanswered box or an Incomplete penalty leaves its leg FALSE.
+
+        RETIRES when the service period, the hospitalization period and the 180 day extension are collected per filer and every installment due date and day count of the Form 2210 and Form 2210-F penalty reads them.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency module="form2210" path="/form2210CombatZoneServiceShown" />
+          <Any>
+            <Dependency module="form2210" path="/form2210PartIIBoxBCOrDChecked" />
+            <All>
+              <IsComplete>
+                <Dependency module="form2210" path="/form2210FRequiredForReturn" />
+              </IsComplete>
+              <Dependency module="form2210" path="/form2210FRequiredForReturn" />
+            </All>
+          </Any>
+          <Any>
+            <All>
+              <IsComplete>
+                <Dependency module="form2210" path="/form2210Penalty" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency module="form2210" path="/form2210Penalty" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </All>
+            <All>
+              <IsComplete>
+                <Dependency module="form2210" path="/form2210Penalty" />
+              </IsComplete>
+              <IsComplete>
+                <Dependency module="form2210" path="/form2210Line19WaiverAmountApplied" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency module="form2210" path="/form2210Line19WaiverAmountApplied" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </All>
+            <All>
+              <IsComplete>
+                <Dependency module="form2210" path="/form2210FLine16Penalty" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency module="form2210" path="/form2210FLine16Penalty" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm1040NonresidentAlienSpouseElection">
+      <Name>Election to treat a nonresident alien or dual status spouse as a US resident</Name>
+      <Description>Whether this return makes the section 6013(g) or 6013(h) election to treat a nonresident alien or dual status alien spouse as a US resident for the entire year. The Form 8960 facts ask the same election inside the net investment income tax flow, so a filer who owes no NIIT never reaches them; this is the return level assertion the printed box needs.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040OtherFilingNotation">
+      <Name>Form 1040 other special filing notation</Name>
+      <Description>Whether this return carries a special filing notation other than the section 301.9100 2 relief and combat zone notations, the Other box on Form 1040 page 1.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040OtherFilingNotationFirstEntry">
+      <Name>Form 1040 other special filing notation, first entry</Name>
+      <Description>The first of the three write in slots the Form 1040 Other special filing notation row carries, labelled Other (specify). 1. in the template.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040OtherFilingNotationSecondEntry">
+      <Name>Form 1040 other special filing notation, second entry</Name>
+      <Description>The second of the three write in slots the Form 1040 Other special filing notation row carries, labelled Other (specify). 2. in the template.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040OtherFilingNotationThirdEntry">
+      <Name>Form 1040 other special filing notation, third entry</Name>
+      <Description>The third of the three write in slots the Form 1040 Other special filing notation row carries, labelled Other (specify). 3. in the template.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040PrimaryFilerDateOfDeath">
+      <Name>Primary filer date of death</Name>
+      <Description>The date the taxpayer named first on this return died. Form 1040 prints it in three boxes, so the filler splits it through the date part transforms the spouse date of death already uses.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040PrimaryFilerDeceased">
+      <Name>Primary filer died during the tax year</Name>
+      <Description>Whether the taxpayer named first on this return died, the Deceased indicator that opens the date of death strip on Form 1040 page 1. The graph's other deceased facts are spouse side or dependent side, so this is the only assertion that the primary filer died.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm1040Section9100ReliefNotation">
+      <Name>Form 1040 section 301.9100 2 relief notation</Name>
+      <Description>Whether this return is filed under the automatic extension of time to make a regulatory election, the notation Form 1040 prints across the top of page 1.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

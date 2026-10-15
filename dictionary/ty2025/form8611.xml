@@ -1,0 +1,1296 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8611Buildings">
+      <Name>Buildings subject to low-income housing credit recapture</Name>
+      <Description>Buildings subject to low-income housing credit recapture. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611BuildingsIsComplete">
+      <Name>Buildings subject to low-income housing credit recapture: all entries and applicable zero amounts have been entered</Name>
+      <Description>Buildings subject to low-income housing credit recapture: all entries and applicable zero amounts have been entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/name">
+      <Name>Name on the source statement</Name>
+      <Description>Name on the source statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/identifyingNumber">
+      <Name>Identifying number on the source statement</Name>
+      <Description>Identifying number on the source statement. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/address">
+      <Name>Building address</Name>
+      <Description>Building address. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/buildingIdentificationNumber">
+      <Name>Building identification number</Name>
+      <Description>Building identification number. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/bondIssuerName">
+      <Name>Tax-exempt bond issuer</Name>
+      <Description>Tax-exempt bond issuer. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/bondIssueName">
+      <Name>Bond issue name</Name>
+      <Description>Bond issue name. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/bondCusip">
+      <Name>Bond CUSIP</Name>
+      <Description>Bond CUSIP. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/placedInServiceDate">
+      <Name>Building placed-in-service date</Name>
+      <Description>Building placed-in-service date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/bondIssueDate">
+      <Name>Tax-exempt bond issue date</Name>
+      <Description>Tax-exempt bond issue date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/passedThrough">
+      <Name>Recapture passed through from another entity</Name>
+      <Description>Recapture passed through from another entity. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/passedThroughCompleteSafe">
+      <Name>Recapture passed through from another entity, complete-safe</Name>
+      <Description>Preserves the passed-through recapture answer when it is answered and supplies
+        false when unanswered, so the line 9 and line 10 switches cannot select their passed-through
+        value arms from an incomplete intake.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../passedThrough" /></IsComplete></When>
+            <Then><Dependency path="../passedThrough" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/section42j5InterestIncluded">
+      <Name>Passed-through amount already includes section 42(j)(5) interest</Name>
+      <Description>Passed-through amount already includes section 42(j)(5) interest. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line1">
+      <Name>Line 1: prior credits before the tax liability limit</Name>
+      <Description>Line 1: prior credits before the tax liability limit. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line2CarryIn">
+      <Name>Line 2 total from retained worksheets, if no detailed worksheets are entered</Name>
+      <Description>Line 2 total from retained worksheets, if no detailed worksheets are entered. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears">
+      <Name>Line 2 worksheets, one per prior year with additions</Name>
+      <Description>Line 2 worksheets, one per prior year with additions. See the cited form and instructions.</Description>
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/a">
+      <Name>Form 8609-A line 10</Name>
+      <Description>Form 8609-A line 10. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/c">
+      <Name>Form 8609-A line 11</Name>
+      <Description>Form 8609-A line 11. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/sourceLine15">
+      <Name>Form 8609-A line 15</Name>
+      <Description>Form 8609-A line 15. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/sourceLine16">
+      <Name>Form 8609-A line 16</Name>
+      <Description>Form 8609-A line 16. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/year">
+      <Name>Prior credit year</Name>
+      <Description>Prior credit year. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1986</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>2024</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/eNumerator">
+      <Name>Form 8609-A line 14 step 1 percentage numerator (zero if inapplicable)</Name>
+      <Description>Form 8609-A line 14 step 1 percentage numerator (zero if inapplicable). See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/eDenominator">
+      <Name>Form 8609-A line 14 step 1 percentage denominator</Name>
+      <Description>Form 8609-A line 14 step 1 percentage denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/b">
+      <Name>Line 2 Worksheet b</Name>
+      <Description>Line 2 Worksheet b. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <GreaterOf><Dependency path="../a" /><Dollar>0</Dollar></GreaterOf>
+          <Int>2</Int>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/d">
+      <Name>Line 2 Worksheet d</Name>
+      <Description>Line 2 Worksheet d. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../b" />
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf><Dependency path="../c" /><Dollar>0</Dollar></GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/e">
+      <Name>Line 2 Worksheet e</Name>
+      <Description>Line 2 Worksheet e. See the cited form and instructions.</Description>
+      <Derived>
+        <Divide>
+          <Dividend>
+            <GreaterOf><Dependency path="../eNumerator" /><Int>0</Int></GreaterOf>
+          </Dividend>
+          <Divisors>
+            <GreaterOf><Dependency path="../eDenominator" /><Int>1</Int></GreaterOf>
+          </Divisors>
+        </Divide>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/f">
+      <Name>Line 2 Worksheet f</Name>
+      <Description>Line 2 Worksheet f. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../d" />
+          <Dependency path="../e" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/g">
+      <Name>Line 2 Worksheet g</Name>
+      <Description>Line 2 Worksheet g. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../d" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../f" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/h">
+      <Name>Line 2 Worksheet h</Name>
+      <Description>Line 2 Worksheet h. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <GreaterOf><Dependency path="../sourceLine16" /><Dollar>0</Dollar></GreaterOf>
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Rational>0/1</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <GreaterOf><Dependency path="../sourceLine16" /><Dollar>0</Dollar></GreaterOf>
+                </Left>
+                <Right>
+                  <GreaterOf><Dependency path="../sourceLine15" /><Dollar>0</Dollar></GreaterOf>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Rational>1/1</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Divide>
+                <Dividend>
+                  <RoundToInt>
+                    <Divide>
+                      <Dividend>
+                        <Multiply>
+                          <GreaterOf><Dependency path="../sourceLine16" /><Dollar>0</Dollar></GreaterOf>
+                          <Int>1000000000</Int>
+                        </Multiply>
+                      </Dividend>
+                      <Divisors>
+                        <GreaterOf><Dependency path="../sourceLine15" /><Dollar>0</Dollar></GreaterOf>
+                      </Divisors>
+                    </Divide>
+                  </RoundToInt>
+                </Dividend>
+                <Divisors>
+                  <Int>1000000000</Int>
+                </Divisors>
+              </Divide>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/basisAdditionYears/*/i">
+      <Name>Line 2 Worksheet i</Name>
+      <Description>Line 2 Worksheet i. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../g" />
+          <Dependency path="../h" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line2">
+      <Name>Line 2: credits attributable to additions to qualified basis</Name>
+      <Description>Line 2: credits attributable to additions to qualified basis. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../basisAdditionYears" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="../basisAdditionYears" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="../basisAdditionYears/*/i" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../line2CarryIn" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line3">
+      <Name>Line 3: credits subject to recapture</Name>
+      <Description>Line 3: credits subject to recapture. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="../line1" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line2" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/complianceYear">
+      <Name>Year in the 15-year compliance period</Name>
+      <Description>Year in the 15-year compliance period. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>2</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>15</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line4">
+      <Name>Line 4: recapture percentage</Name>
+      <Description>Line 4: recapture percentage. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../complianceYear" />
+                </Left>
+                <Right>
+                  <Int>12</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>267/1000</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../complianceYear" />
+                </Left>
+                <Right>
+                  <Int>13</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>200/1000</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../complianceYear" />
+                </Left>
+                <Right>
+                  <Int>14</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>133/1000</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../complianceYear" />
+                </Left>
+                <Right>
+                  <Int>15</Int>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Rational>67/1000</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="../complianceYear" />
+                </Left>
+                <Right>
+                  <Int>11</Int>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Rational>333/1000</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line5">
+      <Name>Line 5: accelerated portion</Name>
+      <Description>Line 5: accelerated portion. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="../line3" />
+          <Dependency path="../line4" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/firstYearQualifiedBasis">
+      <Name>Qualified basis excluding later additions</Name>
+      <Description>Qualified basis excluding later additions. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>1</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/remainingOriginalQualifiedBasis">
+      <Name>Current qualified basis attributable to the original basis</Name>
+      <Description>Qualified basis of the building at the close of 2025, figured without regard to any additions to qualified basis after the first year of the credit period (the original basis only). Do not net the additions in yourself: enter them on /form8611Buildings/*/additionsToQualifiedBasis, and line 6 compares the decrease against them first.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/precedingYearQualifiedBasis">
+      <Name>Qualified basis at the close of the preceding year (original basis only)</Name>
+      <Description>Qualified basis of the building at the close of 2024, figured the same way as /form8611Buildings/*/remainingOriginalQualifiedBasis (without regard to additions after the first year of the credit period). Line 6 is the decrease during the current year, so a building whose basis already fell in an earlier year measures only this year's further decrease. Unanswered: /form8611Buildings/*/precedingYearQualifiedBasisOrFirstYear uses the first-year qualified basis, which is right when no earlier decrease occurred.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/precedingYearQualifiedBasisOrFirstYear">
+      <Name>Qualified basis at the close of the preceding year, defaulted</Name>
+      <Description>/form8611Buildings/*/precedingYearQualifiedBasis floored at $0 when answered; otherwise the first-year qualified basis (floored at the $1 divisor guard), the value for a building with no decrease before this year.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../precedingYearQualifiedBasis" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../precedingYearQualifiedBasis" /><Dollar>0</Dollar> </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../firstYearQualifiedBasis" /><Dollar>1</Dollar></GreaterOf> 
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/additionsToQualifiedBasis">
+      <Name>Additions to qualified basis after the first year of the credit period</Name>
+      <Description>Qualified basis added after the first year of the credit period (the section 42(f)(3) additions) for which a credit was allowable for 2024. The line 6 instructions compare any decrease in qualified basis first to these additions; recapture applies only to the part of the decrease that exceeds them. Unanswered: $0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/additionsToQualifiedBasisOrZero">
+      <Name>Additions to qualified basis after the first year, or zero</Name>
+      <Description>/form8611Buildings/*/additionsToQualifiedBasis floored at $0 when answered, $0 when not.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../additionsToQualifiedBasis" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../additionsToQualifiedBasis" /><Dollar>0</Dollar> </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/fullRecapture">
+      <Name>Disposition without relief or failure of the minimum set-aside test</Name>
+      <Description>Disposition without relief or failure of the minimum set-aside test. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line6">
+      <Name>Line 6: percentage decrease in original qualified basis</Name>
+      <Description>Line 6: percentage decrease in original qualified basis. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../fullRecapture" />
+            </When>
+            <Then>
+              <Rational>1/1</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../line6Minimum4" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/previouslyRecapturedAcceleratedCredit">
+      <Name>Accelerated credit already recaptured for this reduction</Name>
+      <Description>Accelerated credit already recaptured in an earlier year on this building (the line 7 instruction: a prior recapture is not recaptured again as the result of the current reduction). Its live case is a full recapture, line 6 = 1.000 after a disposition or a failed minimum set-aside test: line 5 then carries the accelerated portion on ALL of the original basis, including basis lost and recaptured in an earlier year, and this amount keeps that earlier recapture from being charged twice. On a partial decrease line 6 measures only this year's decrease from the close of 2024, which never includes basis already recaptured, so enter $0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line7">
+      <Name>Line 7: accelerated credit recaptured</Name>
+      <Description>Line 7: accelerated credit recaptured. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Multiply>
+                <Dependency path="../line5" />
+                <Dependency path="../line6" />
+              </Multiply>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../previouslyRecapturedAcceleratedCredit" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line8">
+      <Name>Line 8: recapture from a flow-through entity</Name>
+      <Description>Line 8: recapture from a flow-through entity. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/unusedPriorCredits">
+      <Name>All unused prior credits attributable to this building</Name>
+      <Description>All unused prior credits attributable to this building. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/unusedCreditsForAdditions">
+      <Name>Unused prior credits attributable to additions to qualified basis</Name>
+      <Description>Unused prior credits attributable to additions to qualified basis. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/passedThroughUnusedAcceleratedCredit">
+      <Name>Unused accelerated portion supplied with flow-through recapture</Name>
+      <Description>Unused accelerated portion supplied with flow-through recapture. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line9">
+      <Name>Line 9: unused accelerated amount</Name>
+      <Description>Line 9: unused accelerated amount. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../passedThroughCompleteSafe" />
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../passedThroughUnusedAcceleratedCredit" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../line9Minimum1" />
+                <Dependency path="../line4" />
+                <Dependency path="../line6" />
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line10">
+      <Name>Line 10: net recapture</Name>
+      <Description>Line 10: net recapture. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Switch>
+                <Case>
+                  <When>
+                    <Dependency path="../passedThroughCompleteSafe" />
+                  </When>
+                  <Then>
+                    <Dependency path="../line8" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dependency path="../line7" />
+                  </Then>
+                </Case>
+              </Switch>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line9" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears">
+      <Name>Prior-year portions of net recapture</Name>
+      <Description>Prior-year portions of net recapture. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/taxYear">
+      <Name>Prior credit year</Name>
+      <Description>Prior credit year. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1986</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>2024</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/netRecapture">
+      <Name>Net recapture attributable to this prior year</Name>
+      <Description>Net recapture attributable to this prior year. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/interestFactorNumerator">
+      <Name>Section 42(j) overpayment-rate interest: cumulative daily compound factor numerator</Name>
+      <Description>Interest-only factor, excluding principal, from a retained section 6621/6622 daily-compounding computation for the stated accrual interval. Enter numerator and denominator explicitly; annual simple interest rates are not a substitute. Use the applicable overpayment or underpayment rate required by this form, including look-back special rate rules.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/interestFactorDenominator">
+      <Name>Section 42(j) overpayment-rate interest: factor denominator</Name>
+      <Description>Section 42(j) overpayment-rate interest: factor denominator. See the cited form and instructions.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/interestFactorStartDate">
+      <Name>Section 42(j) overpayment-rate interest: first accrual date</Name>
+      <Description>Section 42(j) overpayment-rate interest: first accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/interestFactorEndDate">
+      <Name>Section 42(j) overpayment-rate interest: last accrual date</Name>
+      <Description>Section 42(j) overpayment-rate interest: last accrual date. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8611Buildings/*/recaptureYears/*/interest">
+      <Name>Interest for this prior credit year</Name>
+      <Description>Interest for this prior credit year. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <GreaterOf><Dependency path="../netRecapture" /><Dollar>0</Dollar></GreaterOf>
+          <Divide>
+            <Dividend>
+              <GreaterOf><Dependency path="../interestFactorNumerator" /><Int>0</Int></GreaterOf>
+            </Dividend>
+            <Divisors>
+              <GreaterOf><Dependency path="../interestFactorDenominator" /><Int>1</Int></GreaterOf>
+            </Divisors>
+          </Divide>
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line11">
+      <Name>Line 11: interest on net recapture</Name>
+      <Description>Line 11: interest on net recapture. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="../passedThrough" />
+                <Dependency path="../section42j5InterestIncluded" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <Dependency path="../line10" />
+                      </Left>
+                      <Right>
+                        <Dollar>0</Dollar>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Equal>
+                            <Left>
+                              <CollectionSum>
+                                <Dependency path="../recaptureYears/*/netRecapture" />
+                              </CollectionSum>
+                            </Left>
+                            <Right>
+                              <Dependency path="../line10" />
+                            </Right>
+                          </Equal>
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="../recaptureYears/*/interest" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line12">
+      <Name>Line 12: recapture including interest</Name>
+      <Description>Line 12: recapture including interest. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="../line10" />
+          <Dependency path="../line11" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line13">
+      <Name>Line 13: remaining unused credits</Name>
+      <Description>Line 13: remaining unused credits. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf><Dependency path="../unusedPriorCredits" /><Dollar>0</Dollar></GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../line9" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line14">
+      <Name>Line 14: recapture tax</Name>
+      <Description>Line 14: recapture tax. See the cited form and instructions.</Description>
+      <Derived>
+        <Round>
+          <Dependency path="../line14Minimum1" />
+        </Round>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line15">
+      <Name>Line 15: credit carryforward</Name>
+      <Description>Line 15: credit carryforward. See the cited form and instructions.</Description>
+      <Derived>
+        <Round>
+          <Dependency path="../line15Minimum1" />
+        </Round>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611RecaptureTax">
+      <Name>Total Form 8611 recapture tax for Schedule 2 line 16</Name>
+      <Description>Total Form 8611 recapture tax for Schedule 2 line 16. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8611Buildings" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8611Buildings" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8611BuildingsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8611Buildings/*/line14" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611CreditCarryforward">
+      <Name>Form 8611 unused credit carried to next year</Name>
+      <Description>Form 8611 unused credit carried to next year. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/form8611Buildings" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <Equal>
+                      <Left>
+                        <CollectionSize>
+                          <Dependency path="/form8611Buildings" />
+                        </CollectionSize>
+                      </Left>
+                      <Right>
+                        <Int>0</Int>
+                      </Right>
+                    </Equal>
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Switch>
+                      <Case>
+                        <When>
+                          <Dependency path="/form8611BuildingsIsComplete" />
+                        </When>
+                        <Then>
+                          <CollectionSum>
+                            <Dependency path="/form8611Buildings/*/line15" />
+                          </CollectionSum>
+                        </Then>
+                      </Case>
+                    </Switch>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line6Minimum1">
+      <Name>Line 6: percentage decrease in original qualified basis: intermediate minimum 1</Name>
+      <Description>Line 6: percentage decrease in original qualified basis: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../precedingYearQualifiedBasisOrFirstYear" />
+            </Minuend>
+            <Subtrahends>
+              <GreaterOf><Dependency path="../remainingOriginalQualifiedBasis" /><Dollar>0</Dollar> </GreaterOf>
+              <Dependency path="../additionsToQualifiedBasisOrZero" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line6Minimum2">
+      <Name>Line 6: percentage decrease in original qualified basis: intermediate minimum 2</Name>
+      <Description>Line 6: percentage decrease in original qualified basis: intermediate minimum 2. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../precedingYearQualifiedBasisOrFirstYear" />
+            </Minuend>
+            <Subtrahends>
+              <GreaterOf><Dependency path="../remainingOriginalQualifiedBasis" /><Dollar>0</Dollar> </GreaterOf>
+              <Dependency path="../additionsToQualifiedBasisOrZero" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line6Minimum3">
+      <Name>Line 6: percentage decrease in original qualified basis: intermediate minimum 3</Name>
+      <Description>Line 6: percentage decrease in original qualified basis: intermediate minimum 3. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../precedingYearQualifiedBasisOrFirstYear" />
+            </Minuend>
+            <Subtrahends>
+              <GreaterOf><Dependency path="../remainingOriginalQualifiedBasis" /><Dollar>0</Dollar> </GreaterOf>
+              <Dependency path="../additionsToQualifiedBasisOrZero" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line6Minimum4">
+      <Name>Line 6: percentage decrease in original qualified basis: intermediate minimum 4</Name>
+      <Description>Line 6: percentage decrease in original qualified basis: intermediate minimum 4. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="../line6Minimum1" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="../line6Minimum2" />
+                  </Left>
+                  <Right>
+                    <GreaterOf><Dependency path="../firstYearQualifiedBasis" /><Dollar>1</Dollar></GreaterOf> 
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <Dependency path="../line6Minimum3" />
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <GreaterOf><Dependency path="../firstYearQualifiedBasis" /><Dollar>1</Dollar></GreaterOf> 
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line9Minimum1">
+      <Name>Line 9: unused accelerated amount: intermediate minimum 1</Name>
+      <Description>Line 9: unused accelerated amount: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../unusedPriorCredits" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../unusedCreditsForAdditions" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line14Minimum1">
+      <Name>Line 14: recapture tax: intermediate minimum 1</Name>
+      <Description>Line 14: recapture tax: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../line12" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line13" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8611Buildings/*/line15Minimum1">
+      <Name>Line 15: credit carryforward: intermediate minimum 1</Name>
+      <Description>Line 15: credit carryforward: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../line13" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../line12" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

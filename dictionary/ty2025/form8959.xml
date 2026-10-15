@@ -1,0 +1,924 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/form8959Line4MedicareWagesAndTipsTotal">
+      <Name>Form 8959 line 4, total Medicare wages and tips (lines 1 + 2 + 3)</Name>
+      <Description>Form 8959 Part I line 4, "Add lines 1 through 3": box-5 Medicare wages (line 1)
+        PLUS unreported tips from Form 4137 line 6 (line 2) PLUS wages from Form 8919 line 6
+        (line 3).
+
+        It exists because line 4 has TWO consumers. /additionalMedicareTaxOnWages (line 7)
+        subtracts the threshold from line 4, and /additionalMedicareTaxOnSelfEmployment's inner
+        line-11 term is "Subtract line 4 from line 5" — line 4 in both cases, not line 1. Reading line 1 at
+        either would be an UNDER-statement of the Additional Medicare Tax base at both sites,
+        which is a false allowance in the total-tax direction. Naming line 4 once is what keeps the
+        two consumers from drifting apart.
+
+        LINE 3 is form8919:/form8919Line6Total, so all three of line 4's printed terms exist. PART V IS DELIBERATELY UNTOUCHED: line 20 is
+        "Enter the amount from line 1", so /additionalMedicareTaxWithholdingOnWages and its
+        siblings still read formW2s:/formW2totalMedicareWages directly and must continue to.
+
+        Complete-safe and additive: form4137:/form4137Line6Total and form8919:/form8919Line6Total
+        both resolve $0 on every return with no tip or Form 8919 intake, so this equals line 1 on
+        the whole committed corpus.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency module="formW2s" path="/formW2totalMedicareWages" />
+            <Dependency module="form4137" path="/form4137Line6Total" />
+            <Dependency module="form8919" path="/form8919Line6Total" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxOnWages">
+      <Name>Additional Medicare Tax on Medicare wages (Form 8959 line 7)</Name>
+      <Description>Form 8959 Part I line 7: 0.9% × the excess of the line-4 total
+        (/form8959Line4MedicareWagesAndTipsTotal — line 6 before its zero floor) over the
+        filing-status threshold (/medicareWagesAdditionalTaxThreshhold — line 5: $250,000 MFJ /
+        $125,000 MFS / $200,000 single, HoH, QSS). 0 when the line-4 total is at or below the
+        threshold.
+
+        WHAT LINE 4 IS. /formW2totalMedicareWages is box 5 and is line 1; line 4 is the printed
+        sum of lines 1, 2 and 3, which is /form8959Line4MedicareWagesAndTipsTotal, carrying
+        form4137:/form4137Line6Total (line 2) and form8919:/form8919Line6Total (line 3) as live
+        addends; the body below reads line 4, not line 1. Example: a single filer with $245,000 of
+        box-5 Medicare wages and $10,000 of Form 4137 unreported tips — line 4 $255,000, line 6
+        $55,000, this line $495, none of which is reachable if line 2 were 0.</Description>
+      
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>9/1000</Rational>
+            <GreaterOf>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/form8959Line4MedicareWagesAndTipsTotal" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency module="formW2s" path="/medicareWagesAdditionalTaxThreshhold" />
+                </Subtrahends>
+              </Subtract>
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxOnSelfEmployment">
+      <Name>Additional Medicare Tax on self-employment income (Form 8959 line 13)</Name>
+      <Description>Form 8959 Part II line 13: 0.9% × line 12, where line 12 = max(0, SE income − line
+        11) and line 11 = max(0, threshold − Medicare wages). SE income (line 8) is Schedule SE Part I
+        line 6, sourced from scheduleSE:/netEarningsFromSelfEmployment — which IS the true combined line 6. The upstream fact reads the two
+        per-filer line-6 facts, each of which applies its own $400 line-4c floor and adds that
+        filer's own line 5b. The first return whose line 13 is nonzero BECAUSE of church income is
+        pinned by tests/nodes/ty2025/form8959/f8959-line8-church-income-crosses-threshold — line 8 of
+        241,175 against a line 4a of 195,000 that sits below the 200,000 single-filer threshold, so
+        line 13 is 371.
+        This applies the SINGLE filing-status threshold across Medicare wages FIRST, then
+        SE income (the form's line 10/11 mechanism, so the 0.9% is not double-counted on the
+        threshold). 0 when SE income does not push total earnings above the threshold. interpretation:provisional (inherits scheduleSE:/netEarningsFromSelfEmployment's
+        own provisional reading, not a narrower demo-scope claim).</Description>
+      
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>9/1000</Rational>
+            <GreaterOf>
+              <Subtract>
+                <Minuend>
+                  <Dependency module="scheduleSE" path="/netEarningsFromSelfEmployment" />
+                </Minuend>
+                <Subtrahends>
+                  <GreaterOf>
+                    <Subtract>
+                      <Minuend>
+                        <Dependency module="formW2s" path="/medicareWagesAdditionalTaxThreshhold" />
+                      </Minuend>
+                      <Subtrahends>
+                        <Dependency path="/form8959Line4MedicareWagesAndTipsTotal" />
+                      </Subtrahends>
+                    </Subtract>
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Subtrahends>
+              </Subtract>
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableCt2Tier1MedicareCompensation">
+      <Name>Annual Form CT-2 line 2 Tier 1 Medicare compensation</Name>
+      <Description>The total compensation subject to Tier 1 Medicare tax from line 2 of every
+        2025 Form CT-2 filed as an employee representative. Form 8959's own line-14 instruction
+        directs an employee representative to include this annual total. Optional: unanswered
+        means no CT-2 amount is reported, preserving the existing Form-W-2-only calculation.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/ct2Tier1MedicareCompensation">
+      <Name>Annual Form CT-2 line 2 Tier 1 Medicare compensation (complete safe)</Name>
+      <Description>The answered Form CT-2 total, or $0 when it was not entered. This is an
+        additive term alongside Form W-2 box-14 compensation, so an unasked new intake leaves
+        every existing return's Form 8959 line 14 unchanged.</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/writableCt2Tier1MedicareCompensation" /></IsComplete></When><Then><GreaterOf><Dependency path="/writableCt2Tier1MedicareCompensation" /><Dollar>0</Dollar></GreaterOf></Then></Case><Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/writableCt2AdditionalMedicareTaxPaid">
+      <Name>Annual Form CT-2 line 3 Additional Medicare Tax paid</Name>
+      <Description>The total Additional Medicare Tax paid from line 3 of every 2025 Form CT-2
+        filed as an employee representative. Form 8959's line-23 instruction directs the filer
+        to include this annual total. Optional: unanswered means no CT-2 payment is reported.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/ct2AdditionalMedicareTaxPaid">
+      <Name>Annual Form CT-2 line 3 Additional Medicare Tax paid (complete safe)</Name>
+      <Description>The answered Form CT-2 tax-paid total, or $0 when it was not entered. It is an
+        additive term beside the existing W-2 box-14 withholding amount.</Description>
+      <Derived><Switch><Case><When><IsComplete><Dependency path="/writableCt2AdditionalMedicareTaxPaid" /></IsComplete></When><Then><GreaterOf><Dependency path="/writableCt2AdditionalMedicareTaxPaid" /><Dollar>0</Dollar></GreaterOf></Then></Case><Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+
+    <Fact path="/knockoutCt2EmployeeRepresentativeSchedule8812Worksheet">
+      <Name>Form CT-2 employee representative whose Schedule 8812 social security method is in play</Name>
+      <Description>Blocks submission when a Form CT-2 amount is entered (a positive
+        /ct2Tier1MedicareCompensation or /ct2AdditionalMedicareTaxPaid) on a return where Schedule
+        8812 figures the additional child tax credit or Credit Limit Worksheet B from social
+        security taxes: three or more CTC-eligible dependents (ctcOdc:/threeOrMoreCtcEligibleDependents),
+        or a bona fide resident of Puerto Rico with at least one (ctcOdc:/isBonaFidePuertoRicoResident
+        and ctcOdc:/maybeEligibleForCtc).
+
+        WHY IT REFUSES. Schedule 8812 line 21 comes from the Additional Medicare Tax and RRTA Tax
+        Worksheet in the Schedule 8812 instructions. An employee representative enters one-half of
+        the Tier 1 tax and one-half of the Tier 1 Medicare tax from Form CT-2 lines 1 and 2 on
+        worksheet lines 12 and 13, and one-half of the Form 8959 line 17 tax on the CT-2
+        compensation on worksheet line 14. This dictionary asks for the CT-2 compensation and the
+        CT-2 Additional Medicare Tax paid, but not for the CT-2 Tier 1 tax amounts, so worksheet
+        lines 12 and 13 cannot be figured. And ctcOdc:/sched8812Line21WorksheetLine11 places the
+        whole Form 8959 line 17 on worksheet line 10, the railroad employee line, where a
+        representative's share belongs on line 14 at one-half; the worksheet gives no rule for
+        splitting line 17 when a filer has both W-2 and CT-2 compensation. Filed, the credit would
+        be wrong in either direction.
+
+        Complete false on every return without a positive CT-2 amount, because both CT-2 terms are
+        complete-safe. Each dependents arm is IsComplete-first, so an unanswered household leaves
+        this fact Complete false, not Incomplete.
+
+        SCREEN: "You entered amounts from Form CT-2 as an employee representative, and you are
+        claiming the child tax credit with three or more qualifying children (or as a bona fide
+        resident of Puerto Rico). This return can't yet figure the Tier 1 taxes from Form CT-2 that
+        the additional child tax credit worksheet needs. You can't file this return here."</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Any>
+            <GreaterThan>
+              <Left><Dependency path="/ct2Tier1MedicareCompensation" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+            <GreaterThan>
+              <Left><Dependency path="/ct2AdditionalMedicareTaxPaid" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+          </Any>
+          <Any>
+            <All>
+              <IsComplete>
+                <Dependency module="ctcOdc" path="/threeOrMoreCtcEligibleDependents" />
+              </IsComplete>
+              <Dependency module="ctcOdc" path="/threeOrMoreCtcEligibleDependents" />
+            </All>
+            <All>
+              <IsComplete>
+                <Dependency module="ctcOdc" path="/isBonaFidePuertoRicoResident" />
+              </IsComplete>
+              <Dependency module="ctcOdc" path="/isBonaFidePuertoRicoResident" />
+              <IsComplete>
+                <Dependency module="ctcOdc" path="/maybeEligibleForCtc" />
+              </IsComplete>
+              <Dependency module="ctcOdc" path="/maybeEligibleForCtc" />
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rrtaCompensationAndTips">
+      <Name>Railroad retirement (RRTA) compensation and tips (Form 8959 line 14)</Name>
+      <Description>Form 8959 Part III line 14: "Railroad retirement (RRTA) compensation and tips
+        from Form(s) W-2, box 14." The sum of every W-2's box-14 RRTA compensation on the return,
+        with cents preserved in the addends and the total rounded once here — the same construction
+        /formW2totalMedicareWages uses for line 1 and for the same printed reason (plural "Form(s)",
+        and i1040gi page 23's "include cents when adding the amounts and round off only the total").
+
+        A JOINT-RETURN AGGREGATE, deliberately NOT per filer. The line-14 instruction says "also
+        include your spouse's RRTA compensation", and line 15 then applies ONE filing-status
+        threshold to the couple — the same shape Part I uses for Medicare wages, and the opposite of
+        Schedule SE's per-individual $400. So this is a plain CollectionSum over /formW2s, with no
+        /primaryFilerW2s / /secondaryFilerW2s split; adding one would compute a threshold that
+        appears on no form.
+
+        THE INTAKE: /formW2s/*/RRTA_COMPENSATION is a shipping Writable Dollar (formW2s.xml), one of
+        five per-code box-14 RRTA fields; this line reads it through a complete-safe addend wrapper
+        (/formW2s/*/rrtaCompensationUnrounded).
+
+        WHAT IS REFUSED AT SUBMISSION. formW2s:/flowKnockoutHasRRTACodesInBox14NotInNY is
+        All(IsComplete(/formW2s), CollectionSize(Filter(/formW2s,
+        reportsRRTAWithoutCompensation)) &gt; 0) — no state test at all — whose whole predicate is
+        /formW2s/*/reportsRRTAWithoutCompensation: an RRTA box-14 AMOUNT WITHOUT box-14
+        compensation. A return answering only /formW2s/*/ADDITIONAL_MEDICARE_TAX = 540 with no
+        compensation is refused (tests/nodes/ty2025/formW2s/w2-box14-rrta-amount-without-codes-knockout-fires,
+        line 14 at 0.00 against line 23 at 540.00); a railroad filer WITH compensation is NOT refused
+        and files. The New York knockout formW2s:/hasABox14NYRRTAValueWeKnockout keys on amounts by
+        construction: it reads /formW2s/*/hasBox14NYRRTAKnockoutCode = All(../hasBox14Codes,
+        IsComplete(../knockoutBox14NYRRTACode)), the NY arm of /formW2s/*/hasInputBox14Codes is an
+        Any of IsCompletes over every NY box-14 field so ../hasBox14Codes is already true whenever
+        any box-14 amount is answered, and /knockoutBox14NYRRTACode is Complete only on a POSITIVE
+        value.
+
+        No committed scenario in scenarios/ answers any box-14 RRTA field, and the question flow asks
+        the per-code amounts only of a Maryland, New Jersey or New York filer
+        (formW2s:/flowStateToolNeedsBox14).
+
+        FORM CT-2. Employee representatives also include the annual Form CT-2 line-2 Tier 1 Medicare
+        compensation total. /ct2Tier1MedicareCompensation is a complete-safe direct annual input and
+        joins this line's W-2 sum before its one Round; unanswered gives the W-2-only result.</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="formW2s" path="/formW2s" /></IsComplete></When>
+            <Then>
+              <Round>
+                <Add>
+                  <CollectionSum>
+                    <Dependency module="formW2s" path="/formW2s/*/rrtaCompensationUnrounded" />
+                  </CollectionSum>
+                  <Dependency path="/ct2Tier1MedicareCompensation" />
+                </Add>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxOnRrtaCompensation">
+      <Name>Additional Medicare Tax on RRTA compensation (Form 8959 line 17)</Name>
+      <Description>Form 8959 Part III line 17: 0.9% x line 16, where line 16 = max(0, line 14 −
+        line 15). Line 15's dollar amounts are character-for-character line 5's, so this REUSES the
+        shipping formW2s:/medicareWagesAdditionalTaxThreshhold rather than declaring a second
+        threshold fact — the same three statutory numbers in one place, not two.
+
+        ROUNDED AT THIS LINE. Line 17 is a printed entry line, so the 0.9% product rounds here,
+        exactly as /additionalMedicareTaxOnWages rounds its own line-7 product; the lesson
+        about rounding at the printed line rather than around a subtraction applies verbatim. Sign:
+        NON-NEGATIVE, because line 16 floors at zero.
+
+        PART III IS A SEPARATE COMPUTATION FROM PARTS I AND II, not a continuation of them. Line 15
+        applies the WHOLE filing-status threshold to RRTA compensation again, with no line-10/11
+        style reduction for Medicare wages already taxed — unlike Part II, which explicitly reduces
+        its threshold by Part I's wages. That is the form's own structure and this fact implements it
+        literally: a filer with both Medicare wages and RRTA compensation gets two full thresholds,
+        because RRTA compensation is not Medicare wages and never appears in box 5.
+
+        Additive on the committed corpus (no scenario answers a box-14 RRTA field). The refusal a
+        return with an RRTA amount but no compensation meets is argued on /rrtaCompensationAndTips.</Description>
+      
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>9/1000</Rational>
+            <GreaterOf>
+              <Subtract>
+                <Minuend>
+                  <Dependency path="/rrtaCompensationAndTips" />
+                </Minuend>
+                <Subtrahends>
+                  <Dependency module="formW2s" path="/medicareWagesAdditionalTaxThreshhold" />
+                </Subtrahends>
+              </Subtract>
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/rrtaAdditionalMedicareTaxWithheld">
+      <Name>Additional Medicare Tax withholding on RRTA compensation (Form 8959 line 23)</Name>
+      <Description>Form 8959 Part V line 23: "Additional Medicare Tax withholding on railroad
+        retirement (RRTA) compensation from Form W-2, box 14." A REPORTED amount, not a computed
+        one — the sum of every W-2's box-14 Additional Medicare Tax withheld, cents in the addends
+        and one Round here, as line 19 does for box 6. Sign: NON-NEGATIVE (an amount withheld).
+
+        THIS IS A PAYMENT, NOT A TAX, which is why it is a separate fact from its Part III sibling
+        rather than another line of the same computation: line 17 raises total tax through Schedule 2
+        line 11, line 23 raises WITHHOLDING through Form 1040 line 25c. They land in the same commit
+        for that reason — landing one alone would move a railroad filer's balance due by the full
+        amount of the other, in whichever direction happened to be wrong.
+
+        NO THRESHOLD GATES THIS LINE, and the placement of its term on line 24 is load-bearing.
+        /additionalMedicareTaxWithheld carries a $200,000 gate on the box-5 Medicare wage total, which exists only to guard line 22's arithmetic against inconsistent synthetic box-6
+        data. Line 23 has no threshold anywhere on Form 8959, and a railroad employee's compensation
+        is box 14, not box 5 — so their box-5 total is typically $0 and putting line 23 inside that
+        gate would drop their entire RRTA withholding credit. The line-23 term is therefore added
+        OUTSIDE the Switch. That is the under-refund class this placement avoids.
+
+        THE BOX-12 CODES B AND N ARE NOT LINE 23'S PROBLEM, and the passage is easily
+        mis-attributed. i8959's B/N text is the tail of the LINE 19 instruction, not line
+        23's: line 19 adds uncollected Medicare tax on tips (code B) and on group-term life insurance
+        over $50,000 (code N) to box 6, excluding the RRTA ones. Line 23's own instruction names only
+        box 14 and the Form CT-2 alternative.
+        THE FORM CT-2 LEG. An EMPLOYEE REPRESENTATIVE subject to RRTA taxes is told to include, on
+        LINE 23, "the total Additional Medicare Tax paid as reported on line 3 of Form CT-2"
+        (https://www.irs.gov/pub/irs-pdf/i8959.pdf, page 4). /ct2AdditionalMedicareTaxPaid adds that
+        annual CT-2 line-3 total outside the line-22 threshold gate; it is complete-safe, so an
+        unanswered intake gives the W-2-only result.
+        Line 19 (/formW2totalMedicareWithholding) is box 6 PLUS
+        formW2s:/form8959Line19Box12MedicareTerms, the box-12 leg with the RRTA amounts excluded per
+        W-2 by formW2s:/formW2s/*/box12MedicareTaxIsRrta. Recorded on
+        formW2s:/formW2s/*/rrtaAdditionalMedicareTaxWithholdingUnrounded,
+        which also carries the argument that box 14's ADDITIONAL_MEDICARE_TAX field is this line's
+        right source.
+
+        WHAT IS REFUSED: formW2s:/flowKnockoutHasRRTACodesInBox14NotInNY refuses a W-2 reporting an
+        RRTA box-14 amount WITHOUT box-14 compensation, so a return answering only
+        /formW2s/*/ADDITIONAL_MEDICARE_TAX (an RRTA credit with no RRTA tax) is refused —
+        tests/nodes/ty2025/formW2s/w2-box14-rrta-amount-without-codes-knockout-fires pins it, line 14
+        at 0.00 against this line at 540.00 — and a railroad filer WITH compensation files. Full
+        argument on /rrtaCompensationAndTips.</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="formW2s" path="/formW2s" /></IsComplete></When>
+            <Then>
+              <Round>
+                <Add>
+                  <CollectionSum>
+                    <Dependency module="formW2s" path="/formW2s/*/rrtaAdditionalMedicareTaxWithholdingUnrounded" />
+                  </CollectionSum>
+                  <Dependency path="/ct2AdditionalMedicareTaxPaid" />
+                </Add>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTax">
+      <Name>Total Additional Medicare Tax (Form 8959 line 18 → Schedule 2 line 11)</Name>
+      <Description>Form 8959 Part IV line 18: the total Additional Medicare Tax = line 7
+        (/additionalMedicareTaxOnWages) + line 13 (/additionalMedicareTaxOnSelfEmployment) + line 17
+        (/additionalMedicareTaxOnRrtaCompensation). Flows to Schedule 2 (Form 1040) line 11, included
+        in Schedule 2 line 21 (/line21OfSchedule2) → Form 1040 line 23 → total tax. 0 for every return
+        with earnings below the threshold (additive-clean regression).
+
+        LINE 17 is the Part III term (/additionalMedicareTaxOnRrtaCompensation); without it line 18 would
+        UNDER-state tax for a railroad employee with RRTA compensation over the filing-status
+        threshold, by the whole of line 17.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/additionalMedicareTaxOnWages" />
+            <Dependency path="/additionalMedicareTaxOnSelfEmployment" />
+            <Dependency path="/additionalMedicareTaxOnRrtaCompensation" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxWithholdingOnWages">
+      <Name>Additional Medicare Tax withholding on Medicare wages (Form 8959 line 22)</Name>
+      <Description>Form 8959 Part V line 22: max(0, line 19 — total box-6 Medicare tax withheld PLUS
+        the qualifying box-12 code B and N amounts, both legs inside
+        formW2s:/formW2totalMedicareWithholding — minus 1.45% × total Medicare
+        wages (line 21, the regular Medicare withholding)), gated on the flat $200,000 statutory
+        withholding point.
+
+        ITS OWN FACT because a consumer needs line 22, not line 24. ctcOdc:/sched8812Line21 implements the i1040s8
+        "Additional Medicare Tax and RRTA Tax Worksheet", whose line 5 is "Enter the Additional
+        Medicare Tax withheld (Form 8959, line 22)" — line 22, not line 24
+        (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 9). Reading line 24 there would OVER-SUBTRACT a railroad filer's RRTA withholding from their Schedule
+        8812 line 21. So line 22 gets its own fact and that consumer reads it;
+        /additionalMedicareTaxWithheld is Round(Add(this, line 23)).
+
+        THE $200,000 GATE AND THE ROUNDING belong to THIS line; /additionalMedicareTaxWithheld's
+        Description carries their full argument.
+
+        THE GATE ADJUDICATED FOR ITS TWO OPPOSITE-SIGNED CONSUMERS.
+        This one fact feeds two lines that spend it in opposite directions: line 24 ADDS it to Form
+        1040 line 25c as a payment, and the i1040s8 Additional Medicare Tax and RRTA Tax Worksheet
+        line 5 SUBTRACTS it inside ctcOdc:/sched8812Line21. A closed gate leaves an
+        Additional-Medicare-Tax component inside Schedule 8812 line 21, which reads as a defect in the
+        ACTC chain. NO FIX IS AVAILABLE THAT IMPROVES WORLD #1, and that is recorded on the fact
+        because the next reader will otherwise re-open it.
+          There is exactly ONE printed line 22 and both consumers already read one fact: this one.
+        i1040s8 wksht line 5 names "Form 8959, line 22" and Form 8959 line 24 carries the same line to
+        Form 1040 line 25c. There was never a second figure to reconcile, so "make them consistent"
+        describes a state that already holds.
+          WHAT DECIDES THE GATE IS "WHO MUST FILE", printed and exhaustive: a return files Form 8959
+        only if some single Form W-2's box 5 exceeds $200,000, or some single Form W-2's box-14 RRTA
+        compensation does, or total Medicare wages and tips plus self-employment income exceeds the
+        filing-status threshold, or total RRTA compensation does. On the disputed population — box-5
+        total at or below $200,000, so no single W-2 can exceed it either — no bullet is met (the
+        wages-plus-SE bullet was measured on 0 of the 40 conformance cases carrying the shape), so
+        the taxpayer files no Form 8959 at all. There is then no line 22 to enter anywhere, which is
+        precisely what this fact resolves. The gate REPRODUCES the printed no-Form-8959 state on that
+        band; it does not depart from it, and the sub-$200k arm is form-faithful rather than merely
+        conservative.
+          WHICH FIGURE THE FIRST BULLET READS is stated because the boundary pair makes it observable
+        and leaving it implied would look like an unacknowledged case of the under-open divergence
+        named below. The bullet is "greater than $200,000" applied to a Form W-2 box-5 entry, and this
+        dictionary reads it on the WHOLE-DOLLAR entry — /formW2totalMedicareWages, rounded HALF-UP at
+        its own printed line — which is the same figure the Switch below compares, so the filing test
+        and the gate cannot disagree by construction. A box 5 furnished as 200,000.49 is a $200,000
+        entry and does not meet the bullet; 200,000.50 is a $200,001 entry and does. Reading the
+        bullet on the unrounded cents instead would open it a cent earlier and split the two, which
+        is the shape this pair exists to rule out.
+          THE PROXY IS STILL NOT THE PRINTED CONDITION, both divergences named. "Combined box-5 total
+        exceeds $200,000" is neither the per-W-2 bullet nor the wages-plus-SE bullet. OVER-OPEN: an
+        MFJ return with two W-2s of $105,000 (combined $210,000, no bullet met) computes a Part V its
+        filer never files. UNDER-OPEN: a Single filer with $150,000 of box-5 wages and $100,000 of
+        self-employment income must file under the third bullet while this gate stays shut. BOTH ARE
+        EMPTY ON LAWFUL DATA: a box 6 above 1.45% of box 5 is mandatory withholding under IRC
+        section 3102(f)(1) only where a single employer paid over $200,000, which forces the combined
+        total over $200,000 and opens the gate — so line 22 is 0 on either side of either divergence.
+        Refining the gate to the Who-Must-File disjunction would move impossible-data rows only, and
+        was deliberately stood down with that reading recorded rather than built.
+          ONE CAVEAT, stated because it is the real hole in the paragraph above and this module's
+        history is a chain of corrections to exactly this class of sentence: printed line 19 is box 6
+        PLUS box-12 codes B and N, which can lawfully exceed 1.45% of box 5 below $200,000. Line 19
+        carries formW2s:/form8959Line19Box12MedicareTerms, and the code B and N refusals cover only the
+        W-2 whose Medicare regime nothing answers, so the population IS reachable, and the $200,000
+        gate keeps its own answer for it: a filer under the gate whose box 6 plus box-12 B and N
+        exceeds 1.45% of box 5 still resolves 0 here, which is the reading two paragraphs
+        up — such a return meets no Who Must File bullet, files no Form 8959, and claims no line-22
+        credit, while the same box-12 amount IS charged as tax on Schedule 2 line 13. The residual
+        this caveat names is therefore the OVER-OPEN proxy divergence only, still recorded on
+        ctcOdc:/socialSecurityOverEitc, and it is why the claim above is scoped to the population
+        this dictionary can represent and submit rather than stated universally.
+          REMOVING THE GATE IS THE WORSE WORLD-#1 STATE, measured twice rather than argued. A scratch
+        dictionary with the Switch below deleted was run against the committed node tests:
+        tests/nodes/ty2025/form8959/f8959-inconsistent-box6-under-200k-guard's line 24 goes 0 to 225,
+        and the boundary pair's closed arm goes 0 to 2,100 on Form 1040 line 25c while its Schedule
+        8812 line 21 falls 15,918 to 13,818 — one figure, both directions, exactly as the two
+        consumers predict. Over a corpus of test returns that change would add a phantom line-25c
+        withholding credit to 25 SUBMITTABLE returns totalling $110,309, the largest $13,985 on each
+        of seven married HSA returns, where today ZERO of the 40 move a refund. The phantom
+        would be relocated and multiplied, not removed; its actual fix is a formW2s intake validation
+        (see ctcOdc:/sched8812Line21 gap (3), which names it).
+          THE BOUNDARY IS PINNED, on the population that straddles it. tests/nodes/ty2025/form8959/
+        f8959-part5-gate-boundary-closed-at-200000 and its twin -opens-at-200001 are one cent of box 5
+        apart (200,000.49 and 200,000.50), which is a whole dollar of /formW2totalMedicareWages under
+        the HALF-UP rounding at that total, and they pin the strict GreaterThan (a $200,000 total does
+        NOT open the gate; $200,001 does) together with the 2,100 moving UP on line 25c and DOWN on
+        Schedule 8812 line 21 in the same step.</Description>
+      
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="formW2s" path="/formW2totalMedicareWages" />
+                  </Left>
+                  <Right>
+                    <Dependency module="formW2s" path="/maxIndividualMedicareWages" />
+                  </Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Subtract>
+                    <Minuend>
+                      <Dependency module="formW2s" path="/formW2totalMedicareWithholding" />
+                    </Minuend>
+                    <Subtrahends>
+                      <Round>
+                        <Multiply>
+                          <Rational>145/10000</Rational>
+                          <Dependency module="formW2s" path="/formW2totalMedicareWages" />
+                        </Multiply>
+                      </Round>
+                    </Subtrahends>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/additionalMedicareTaxWithheld">
+      <Name>Additional Medicare Tax withholding (Form 8959 line 24 → Form 1040 line 25c)</Name>
+      <Description>Form 8959 Part V line 22/24: the Additional Medicare Tax WITHHELD by the employer =
+        max(0, line 19 (/formW2totalMedicareWithholding — box 6 plus the qualifying box-12 code B
+        and N amounts) − 1.45% ×
+        total Medicare wages (line 21, the regular Medicare withholding)) PLUS line 23, the box-14
+        RRTA Additional Medicare Tax withholding (/rrtaAdditionalMedicareTaxWithheld). This is
+        credited with federal income-tax withholding on Form 1040 line 25c (a PAYMENT, added to
+        /totalWithholding).
+
+        LINE 23 SITS OUTSIDE THE $200,000 SWITCH, and the placement of its term is load-bearing, not
+        cosmetic. The Switch below gates LINE 22 on the box-5 Medicare wage total exceeding
+        /maxIndividualMedicareWages; that gate exists solely to guard line 22's arithmetic against
+        inconsistent synthetic box-6 data (see the gate note further down). Form 8959 puts no
+        threshold of any kind on line 23, and a railroad employee's compensation is reported in
+        box 14, not box 5 — so their box-5 total is typically $0 and the gate would be CLOSED on
+        exactly the population line 23 exists for, dropping their whole RRTA withholding credit, the
+        same under-refund class the gate's own threshold choice avoids on line 22. A railroad filer
+        with POSITIVE box-14 compensation and positive box-14 Additional Medicare Tax is not refused
+        (formW2s:/flowKnockoutHasRRTACodesInBox14NotInNY refuses only an RRTA amount WITHOUT
+        compensation), so this term reaches Form 1040 line 25c. 
+
+        LINE 22 IS ITS OWN FACT (/additionalMedicareTaxWithholdingOnWages), and this fact is
+        Round(Add(line 22, line 23)) — the printed line 24. The split is forced by a consumer:
+        ctcOdc:/sched8812Line21 implements the i1040s8 Additional Medicare Tax and RRTA Tax Worksheet,
+        whose line 5 asks for Form 8959 LINE 22, and reading this fact there would over-subtract a railroad filer's RRTA withholding from their
+        Schedule 8812 line 21. The $200,000 gate and the rounding argument below belong to line 22;
+        they are stated in full here.
+
+        LINE 21 IS ROUNDED AT ITS OWN LINE. Line 21 is a PRINTED ENTRY LINE
+        ("Multiply line 20 by 1.45% (0.0145). This is your regular Medicare tax withholding on
+        Medicare wages"), and line 22 subtracts that ENTRY from line 19's entry. A single &lt;Round&gt;
+        around the whole of line 22 would compute Round(line 19 − unrounded line 21) — a hybrid that NO
+        taxpayer path produces. Worked example (a committed return): box 5 =
+        245,000, box 6 = 3,957.50 → 3,958 at the W-2. Rounding all amounts (i1040gi p.23) gives line
+        21 = 1.45% × 245,000 = 3,552.50 → 3,553 and line 22 = 3,958 − 3,553 = 405; rounding nothing
+        gives 3,958 − 3,552.50 = 405.50. The composite gives Round(3,958 − 3,552.50) = Round(405.50)
+        = 406 — a dollar of withholding credit the form produces on NEITHER reading.
+
+        WHEN IT BITES, exactly: the two roundings differ if and only if 1.45% × line 20 ends in exactly
+        .50, i.e. the box-5 total ≡ 1000 (mod 2000) — one integer total in 2,000, flipping by exactly
+        $1. (Below .50 both readings give the same line 22, above .50 both give the same smaller one;
+        only the exact tie splits them, because Dollar.round is HALF_UP: the composite rounds
+        line 19 − line 21 UP off the .50, this one rounds line 21 itself up instead.) The composite value is
+        the higher one, so rounding at line 21 is in the UNDER-claiming direction ON THE TIE. It is NOT uniformly
+        conservative in general: rounding line 21 down (e.g. 1.45% × 213,051 = 3,089.2395 → 3,089)
+        leaves MORE on line 22 than exact cents would, which is simply what whole-dollar entry
+        rounding does in both directions. On the committed corpus exactly ONE scenario is a tie (the worked example
+        above, 405).
+
+        LINES 19 AND 20 ARE NOT ROUNDED HERE, and that is deliberate: /formW2totalMedicareWithholding
+        and /formW2totalMedicareWages are each Round-wrapped at their OWN printed line (formW2s.xml),
+        so both arrive whole in every graph and a &lt;Round&gt; here could never change a value. They would be
+        inert.
+
+        THE TOTALS ROUND ONCE: the two total facts sum cents-bearing addend facts
+        (/formW2s/*/medicareWagesUnrounded, /formW2s/*/medicareWithholdingUnrounded) and round the
+        total, per i1040gi's rule for an "enter the total of the amounts from box N" line (include
+        cents when ADDING and round only the TOTAL). The per-W-2 item facts keep their own Round —
+        they carry Export mef="true" and stand for one W-2's printed box. Parts I and II of this form
+        inline their own intermediate printed lines (line 4, line 6, line 8, lines 10-12) inside a
+        single outer &lt;Round&gt; in the same shape line 22 used to; those are unobservable while the
+        box-5 total is whole.
+
+        THE FILING-STATUS THRESHOLD IS THE WRONG GATE FOR THIS LINE (gating on Medicare wages
+        exceeding the FILING-STATUS liability threshold (/medicareWagesAdditionalTaxThreshhold — $250k MFJ / $125k
+        MFS / $200k other)). Form 8959 Part V has no
+        filing-status test at all: line 22 is pure arithmetic (line 19 − line 21). The filing-status
+        threshold governs Part I (the 0.9% TAX), not Part V (the WITHHOLDING credit). An employer MUST
+        withhold the extra 0.9% on wages over $200,000 on a single W-2 regardless of filing status
+        (IRC §3102(f)(1)); Part V then credits back every dollar actually withheld. That gate would
+        swallow correctly-withheld tax for an MFJ (or MFS) filer whose wages cleared $200,000 but not
+        their higher filing-status threshold — e.g. MFJ, one W-2 of $214,600: $131.40 correctly
+        withheld, $0 tax owed (under $250k), and the entire $131.40 should be refunded on line 25c. That
+        gate ($214,600 &gt; $250k MFJ = false) would drop it: an under-refund up to ~$450.
+
+        THIS FACT gates on the FLAT $200,000 statutory withholding point (/maxIndividualMedicareWages),
+        not the filing-status threshold. The gate exists ONLY to avoid miscrediting under-$200k returns
+        whose synthetic box-6 test data is inconsistent with box 5 (many demo W-2s carry a box 6 that
+        is not exactly 1.45% × box 5; a realistic W-2 under $200k has box 6 = 1.45% × box 5 so line 22
+        = 0 anyway, and no employer withholds the extra 0.9% below $200k, so a positive line 22 below
+        $200k can only be bad input, never real over-withholding). Above $200k the max(0, …) is
+        self-gating: it is exactly the amount withheld above the regular 1.45%.
+
+        WHY COMBINED-TOTAL Medicare wages, not per-W-2 or per-filer: the statutory withholding trigger
+        is per-EMPLOYER (§3102(f)(1) — a single W-2 over $200k), so a strict reading would gate on the
+        largest single W-2. This uses the COMBINED total (/formW2totalMedicareWages) instead, for
+        complete-safety: a per-filer gate (/maxMedicareWagesForAnyFilerOnReturn) depends on each W-2
+        being assigned to a filer (/formW2s/*/filer), and an unassigned W-2 would collapse per-filer
+        wages to 0 and wrongly CLOSE the gate on a real high earner — an under-refund, the exact defect
+        class the flat gate avoids. Combined-total needs no assignment and is form-faithful WHENEVER it
+        opens (Form 8959 line 20 = line 1 = total box-5 wages; line 22 = line 19 − line 21 exactly).
+        The cost is a looser guard: a two-jobs-each-under-$200k return (combined over $200k, no single
+        employer withholding extra) opens the gate. For consistent data line 22 = 0 there anyway; the
+        only residual gap is a two-jobs return with INCONSISTENT box-6 data, which is double-unrealistic
+        and, if it occurred, would credit exactly what box 6 reports (what the paper form would also do
+        for that box 6). The robustness of not depending on filer assignment is the deciding factor.
+        A per-W-2-max fact is the clean future refinement.
+
+        THE DIRECTION CLAIM NAMES ITS CONSUMER. Line 22 is a PAYMENT on line 24 and also a
+        SUBTRAHEND, inside the i1040s8 Additional Medicare Tax and RRTA Tax Worksheet line 5 that
+        ctcOdc:/sched8812Line21 computes, and a gate that withholds a payment inflates a subtrahend's
+        consumer: a closed gate is under-claiming for line 24 and not for Schedule 8812 line 21. The
+        gate rests instead on the printed "Who Must File" test, argued in full on
+        /additionalMedicareTaxWithholdingOnWages where the gate lives: a sub-threshold return files
+        no Form 8959 at all, so a closed gate is the form-faithful answer for BOTH consumers on that
+        band. Read that fact for the adjudication, the two proxy divergences and the box-12 B/N
+        caveat.
+
+        NOT REFUSED: an MFJ return where a SINGLE filer's Medicare wages exceed $200k but combined
+        stay under $250k FILES. Because /formW2totalMedicareWages is a CollectionSum dominating each
+        per-filer sum, the gate above is open whenever such a return exists, and the credit this fact
+        computes is what the taxpayer actually receives.</Description>
+      <Export downstreamFacts="true" />
+      
+
+      <Derived>
+        <Round>
+          <Add>
+          <Dependency path="/additionalMedicareTaxWithholdingOnWages" />
+          <Dependency path="/rrtaAdditionalMedicareTaxWithheld" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8959Line11BeforeTheZeroFloor">
+      <Name>Form 8959 line 11 before the zero floor, line 9 less line 10</Name>
+      <Description>The signed subtraction behind Form 8959 Part II line 11, "Subtract line 10 from line 9": the filing status threshold (line 9, the SAME formW2s /medicareWagesAdditionalTaxThreshhold that line 5 prints) less the Medicare wages and tips total (line 10, "Enter the amount from line 4"). Negative whenever Medicare wages alone exceed the threshold, in which case the printed line 11 is $0 and no threshold headroom is left for self employment income. Helper only: the printed line is /form8959Line11ThresholdOverMedicareWages.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency module="formW2s" path="/medicareWagesAdditionalTaxThreshhold" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8959Line4MedicareWagesAndTipsTotal" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line11ThresholdOverMedicareWages">
+      <Name>Form 8959 line 11, the filing status threshold left after Medicare wages</Name>
+      <Description>Form 8959 Part II line 11, "Subtract line 10 from line 9. If zero or less, enter -0-": the part of the filing status threshold that Medicare wages and tips did not already absorb, floored at $0. This is the form's own mechanism for applying ONE threshold across wages first and self employment income second, and /additionalMedicareTaxOnSelfEmployment already computes the identical GreaterOf inline as the subtrahend of its line 12 term. Naming line 11 prints the box and keeps the printed reading and the tax reading identical by construction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form8959Line11BeforeTheZeroFloor" />
+          <Dependency path="/form8959ZeroDollarFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line12BeforeTheZeroFloor">
+      <Name>Form 8959 line 12 before the zero floor, line 8 less line 11</Name>
+      <Description>The signed subtraction behind Form 8959 Part II line 12, "Subtract line 11 from line 8": self employment income from Schedule SE Part I line 6 (line 8, scheduleSE /netEarningsFromSelfEmployment) less the threshold headroom that Medicare wages left (line 11, /form8959Line11ThresholdOverMedicareWages). Negative when self employment income does not push combined earnings past the threshold. Helper only: the printed line is /form8959Line12SelfEmploymentIncomeOverThreshold.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency module="scheduleSE" path="/netEarningsFromSelfEmployment" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8959Line11ThresholdOverMedicareWages" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line12SelfEmploymentIncomeOverThreshold">
+      <Name>Form 8959 line 12, self employment income over the remaining threshold</Name>
+      <Description>Form 8959 Part II line 12, "Subtract line 11 from line 8. If zero or less, enter -0-": the self employment income that falls above the threshold headroom left by Medicare wages, floored at $0. Line 13 multiplies exactly this figure by 0.9 percent, and /additionalMedicareTaxOnSelfEmployment computes the same GreaterOf inline over the same two facts, so the printed line and the tax it feeds cannot disagree.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form8959Line12BeforeTheZeroFloor" />
+          <Dependency path="/form8959ZeroDollarFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line16BeforeTheZeroFloor">
+      <Name>Form 8959 line 16 before the zero floor, line 14 less line 15</Name>
+      <Description>The signed subtraction behind Form 8959 Part III line 16, "Subtract line 15 from line 14": total railroad retirement (RRTA) compensation and tips from Form W-2 box 14 (line 14, /rrtaCompensationAndTips) less the filing status threshold (line 15, the SAME formW2s /medicareWagesAdditionalTaxThreshhold that lines 5 and 9 print). Strongly negative on the ordinary non railroad return, whose box 14 RRTA total is $0. Helper only: the printed line is /form8959Line16RrtaCompensationOverThreshold.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/rrtaCompensationAndTips" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency module="formW2s" path="/medicareWagesAdditionalTaxThreshhold" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line16RrtaCompensationOverThreshold">
+      <Name>Form 8959 line 16, RRTA compensation over the filing status threshold</Name>
+      <Description>Form 8959 Part III line 16, "Subtract line 15 from line 14. If zero or less, enter -0-": the excess of box 14 RRTA compensation and tips over the filing status threshold, floored at $0. Line 17 multiplies this by 0.9 percent, and /additionalMedicareTaxOnRrtaCompensation already computes the same GreaterOf inline. Part III applies the threshold to RRTA compensation SEPARATELY from Part I wages, which is what the printed line 15 repeats rather than reduces, so this fact reuses the one threshold fact instead of declaring a second.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form8959Line16BeforeTheZeroFloor" />
+          <Dependency path="/form8959ZeroDollarFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line21RegularMedicareTaxWithholding">
+      <Name>Form 8959 line 21, regular Medicare tax withholding on Medicare wages (1.45% of line 20)</Name>
+      <Description>Form 8959 Part V line 21, "Multiply line 20 by 1.45% (0.0145). This is your regular Medicare tax withholding on Medicare wages". Line 20 is "Enter the amount from line 1", and Part V reads formW2s:/formW2totalMedicareWages directly rather than the line-4 total, so the base here is the box-5 Medicare wages total. The 1.45 percent rate is encoded as the exact fraction 145/10000 and the product is rounded to whole dollars at this line, which is what the printed entry is and what line 22 subtracts from line 19. The same Round(Multiply(Rational 145/10000, base)) already lives inside /additionalMedicareTaxWithholdingOnWages; naming line 21 once gives the printed box a fact of its own without changing a single computed dollar.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>145/10000</Rational>
+            <Dependency module="formW2s" path="/formW2totalMedicareWages" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line6BeforeTheZeroFloor">
+      <Name>Form 8959 line 6 before the zero floor, line 4 less line 5</Name>
+      <Description>The signed subtraction behind Form 8959 Part I line 6, "Subtract line 5 from line 4": total Medicare wages and tips (line 4, /form8959Line4MedicareWagesAndTipsTotal) less the filing status threshold (line 5, formW2s /medicareWagesAdditionalTaxThreshhold). Negative on every return whose Medicare wages sit under the threshold, which is why the printed line 6 is this fact floored at $0 rather than this fact itself. Helper only: the printed line is /form8959Line6MedicareWagesOverThreshold.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8959Line4MedicareWagesAndTipsTotal" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency module="formW2s" path="/medicareWagesAdditionalTaxThreshhold" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959Line6MedicareWagesOverThreshold">
+      <Name>Form 8959 line 6, Medicare wages and tips over the filing status threshold</Name>
+      <Description>Form 8959 Part I line 6, "Subtract line 5 from line 4. If zero or less, enter -0-": the excess of line 4 over the filing status threshold, floored at $0. This is the printed entry line 7 already multiplies by 0.9 percent inside /additionalMedicareTaxOnWages, which computes the same GreaterOf over the same two facts inline; naming line 6 gives the printed box a fact of its own and keeps the two readings from drifting. No obligation is declared because nothing is owed: the inputs already exist and the tax computation already consumes them, so this fact adds a printed line rather than a value.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form8959Line6BeforeTheZeroFloor" />
+          <Dependency path="/form8959ZeroDollarFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959ZeroDollarFloor">
+      <Name>Form 8959 zero dollar floor</Name>
+      <Description>The $0 constant that Form 8959 lines 6, 11, 12 and 16 each floor against, every one of them printed as "If zero or less, enter -0-". The supported candidate templates have no unary positive part, so a floored line is written as a GreaterOf over this constant, exactly as scheduleE /scheduleEZeroDollarFloor and form6251 /form8801PartsOneAndThreeZeroFloor already do in their own modules. Structural, not a statutory amount: it encodes the printed floor instruction, not a dollar figure Congress set.</Description>
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8959RequiredForReturn">
+      <Name>Form 8959 is required for this return</Name>
+      <Description>THE RENDER GATE for Form 8959. True exactly when at least one of the six
+        filing triggers fires. Five of them are printed lines carrying a positive amount: Part I line 6 (Medicare wages and tips
+        over the filing-status threshold), Part II line 12 (self-employment income over the
+        headroom line 11 leaves), Part III line 16 (RRTA compensation and tips over the
+        threshold), Part V line 22 (Additional Medicare Tax withholding on wages) or Part V
+        line 23 (the reported RRTA Additional Medicare Tax withholding).
+
+        WITHHOLDING IS A TRIGGER IN ITS OWN RIGHT, not merely tax owed, which is why this gate is
+        NOT /additionalMedicareTax greater than $0. The instructions' first two "Who Must File"
+        bullets are "Your Medicare wages and tips on any single Form W-2 (box 5) are greater than
+        $200,000" and its RRTA twin: an employer must withhold the 0.9% once a SINGLE employment
+        passes $200,000, so an MFJ return whose combined Medicare wages stay under the $250,000
+        threshold owes no Additional Medicare Tax and still files Form 8959 — to reconcile that
+        withholding onto Form 1040 line 25c through Part V. Lines 22 and 23 being positive is
+        exactly that return, and /additionalMedicareTaxWithholdingOnWages (line 22) is already
+        the max(0, line 19 - line 21) the form prints.
+
+        THE SIXTH LEG IS THE FIRST BULLET ITSELF. Lines 22 and 23 are a PROXY for that bullet, and the proxy leaks in one
+        direction: an employer that fails to withhold the 0.9% it owes under IRC 3102(f)(1) leaves
+        line 22 at $0, and if the return's own filing-status threshold is higher than $200,000 -
+        every MFJ return - lines 6, 12 and 16 are $0 too, so all five printed legs are $0 on a
+        return the instructions REQUIRE to file. Example: an MFJ couple with one
+        $210,000 box-5 Form W-2 and box 6 at exactly 1.45% ($3,045). The leg is
+        formW2s:/anyW2MedicareWagesOverPerEmployeeWithholdingTrigger, a per-W-2 test of box 5
+        against formW2s:/maxIndividualMedicareWages ($200,000), and it is declared in formW2s
+        because only that module can name /formW2s/*/ facts. The instructions' SECOND bullet, its
+        box-14 RRTA compensation twin, is NOT yet a leg.
+
+        NO INCOMPLETE ARM, which is the property that matters and the one this Description claims:
+        every leg is a Round or a GreaterOf-floored amount that resolves on an unanswered return,
+        and the sixth leg keeps that property by carrying an IsComplete(/formW2s) conjunct. A
+        render gate that went Incomplete would leave the filler with no answer about whether the
+        form is in the return at all.
+
+        IT IS NOT "COMPLETE-SAFE" IN THE LITERAL SENSE. MEASURED: with /formW2s UNANSWERED this fact resolves PLACEHOLDER false, not Complete false,
+        because the five printed legs sum over an unanswered collection and a Filter over one
+        yields a Placeholder empty collection. A Placeholder is a resolved default - the same
+        shape flow:/flowIsKnockedOut carries all over the corpus - so the gate still answers, and
+        the sixth leg cannot make that worse: it is a Complete false there, and a Complete false
+        neither absorbs nor degrades an Any. The mechanism above
+        is specifically the unanswered COLLECTION: with /formW2s unanswered,
+        formW2s:/anyW2MedicareWagesOverPerEmployeeWithholdingTrigger is Complete false. Without the
+        IsComplete(/formW2s) conjunct it would not be.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form8959Line6MedicareWagesOverThreshold" />
+            </Left>
+            <Right>
+              <Dependency path="/form8959ZeroDollarFloor" />
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form8959Line12SelfEmploymentIncomeOverThreshold" />
+            </Left>
+            <Right>
+              <Dependency path="/form8959ZeroDollarFloor" />
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form8959Line16RrtaCompensationOverThreshold" />
+            </Left>
+            <Right>
+              <Dependency path="/form8959ZeroDollarFloor" />
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/additionalMedicareTaxWithholdingOnWages" />
+            </Left>
+            <Right>
+              <Dependency path="/form8959ZeroDollarFloor" />
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/rrtaAdditionalMedicareTaxWithheld" />
+            </Left>
+            <Right>
+              <Dependency path="/form8959ZeroDollarFloor" />
+            </Right>
+          </GreaterThan>
+          <Dependency module="formW2s" path="/anyW2MedicareWagesOverPerEmployeeWithholdingTrigger" />
+        </Any>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

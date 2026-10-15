@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ytax-collector"
+version = "0.1.0"
+description = "Privacy-preserving tax-document ingestion to a neutral intermediate representation."
+requires-python = ">=3.10"
+# Product PDF stack: permissive-only, pinned EXACTLY (with no lockfile, exact
+# pins are the reproducibility floor). pdfplumber=extraction (MIT), pypdf=decrypt/encrypt/write
+# (BSD-3-Clause; [crypto] pulls cryptography for AES inputs), reportlab=
+# synthetic-PDF generation + redaction rebuild (BSD-3-Clause).
+dependencies = [
+    "pdfplumber==0.11.10",
+    "pypdf[crypto]==6.14.2",
+    "reportlab==5.0.0",
+]
+
+[project.optional-dependencies]
+ocr = ["easyocr>=1.7"]          # heavy (pulls torch + ~500MB models); only for scanned PDFs.
+                                # Floor-pinned deliberately: NOT installed in the venv/CI, so
+                                # there is no installed version to pin to.
+# The local AI intake's OCR reader tier: PP-OCR models run through RapidOCR
+# (Apache-2.0), on ONNX Runtime (MIT) — both permissive, checked against `pip show` metadata
+# at add time. Exact-pinned to the working venv's installed versions.
+# `pypdfium2` (BSD-3-Clause) is not listed separately: it ships as a `pdfplumber`
+# dependency already.
+intake_ocr = ["rapidocr==3.9.2", "onnxruntime==1.30.0"]
+# Dev extras exact-pinned to the working venv's installed versions.
+# openpyxl: synthetic-document workbook rendering.
+dev = ["pytest==9.1.1", "ruff==0.15.18", "mypy==2.1.0", "openpyxl==3.1.5"]
+
+[project.scripts]
+collector-ingest = "collector.ingest.pipeline:main"
+
+[tool.setuptools.packages.find]
+include = ["collector*"]
+
+[tool.ruff]
+line-length = 100
+
+# The replaced copyleft PDF libraries must never be re-imported.
+[tool.ruff.lint]
+extend-select = ["TID251"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"fitz".msg = "PyMuPDF (copyleft) removed - use ingest.pdftext / reportlab"
+"pymupdf".msg = "PyMuPDF (copyleft) removed - use ingest.pdftext / reportlab"
+"pikepdf".msg = "pikepdf (MPL) removed - use pypdf"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.10"
+
+# Untyped third-party deps: no stubs / no py.typed marker. We don't type-check
+# their internals; the boundary code annotates what it passes/receives.
+[[tool.mypy.overrides]]
+module = ["pdfplumber", "reportlab.*", "easyocr", "onnxruntime", "pypdfium2"]
+ignore_missing_imports = true

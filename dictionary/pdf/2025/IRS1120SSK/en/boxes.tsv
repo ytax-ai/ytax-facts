@@ -1,0 +1,227 @@
+# IRS1120SSK — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1120SSK/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: fb9b7f72f48076c3767923f52ed17cfbef559d01eb5055ee0266b36e88d5ddbe
+# boxes: 114   acroform fields: 114   boxes with a fact: 114
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (79): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box D row 2 `End of tax year`: shared spelling `end of tax year` names 3 readings
+# unspelled: box H row 2 `End of tax year`: shared spelling `end of tax year` names 3 readings
+# unspelled: box I row 2 `End of tax year. $`: shared spelling `end of tax year` names 3 readings
+# unspelled: box 10 row 1 `code`: shared spelling `code` names 38 readings
+# unspelled: box 10 row 2 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 10 row 3 `code`: shared spelling `code` names 38 readings
+# unspelled: box 10 row 4 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 10 row 5 `code`: shared spelling `code` names 38 readings
+# unspelled: box 10 row 6 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 10 row 7 `code`: shared spelling `code` names 38 readings
+# unspelled: box 10 row 8 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 10 row 9 `code`: shared spelling `code` names 38 readings
+# unspelled: box 10 row 10 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 1 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 2 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 3 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 4 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 5 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 6 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 7 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 8 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 9 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 10 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 11 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 12 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 13 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 14 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 12 row 15 `code`: shared spelling `code` names 38 readings
+# unspelled: box 12 row 16 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 13 row 1 `code`: shared spelling `code` names 38 readings
+# unspelled: box 13 row 2 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 13 row 3 `code`: shared spelling `code` names 38 readings
+# unspelled: box 13 row 4 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 13 row 5 `code`: shared spelling `code` names 38 readings
+# unspelled: box 13 row 6 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 13 row 7 `code`: shared spelling `code` names 38 readings
+# unspelled: box 13 row 8 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 13 row 9 `code`: shared spelling `code` names 38 readings
+# unspelled: box 13 row 10 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 15 row 1 `code`: shared spelling `code` names 38 readings
+# unspelled: box 15 row 2 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 15 row 3 `code`: shared spelling `code` names 38 readings
+# unspelled: box 15 row 4 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 15 row 5 `code`: shared spelling `code` names 38 readings
+# unspelled: box 15 row 6 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 15 row 7 `code`: shared spelling `code` names 38 readings
+# unspelled: box 15 row 8 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 15 row 9 `code`: shared spelling `code` names 38 readings
+# unspelled: box 15 row 10 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 16 row 1 `code`: shared spelling `code` names 38 readings
+# unspelled: box 16 row 2 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 16 row 3 `code`: shared spelling `code` names 38 readings
+# unspelled: box 16 row 4 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 16 row 5 `code`: shared spelling `code` names 38 readings
+# unspelled: box 16 row 6 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 16 row 7 `code`: shared spelling `code` names 38 readings
+# unspelled: box 16 row 8 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 16 row 9 `code`: shared spelling `code` names 38 readings
+# unspelled: box 16 row 10 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 1 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 2 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 3 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 4 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 5 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 6 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 7 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 8 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 9 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 10 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 11 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 12 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 13 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 14 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 15 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 16 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 17 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 18 `amount`: shared spelling `amount` names 38 readings
+# unspelled: box 17 row 19 `code`: shared spelling `code` names 38 readings
+# unspelled: box 17 row 20 `amount`: shared spelling `amount` names 38 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+tax-year	1	tax year beginning; the shared leaf, whose Description names this Form 1120-S box	tax year beginning; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].Header[0].ForCalendarYear[0].f1_01[0]	/formK1s/*/writableK1065TaxYearBeginning	Day		
+tax-year	2	tax year beginning, day cell; one printed date, one Day leaf	tax year beginning, day cell; one printed date, one day leaf	topmostSubform[0].Page1[0].Header[0].ForCalendarYear[0].f1_02[0]	/formK1s/*/writableK1065TaxYearBeginning	Day		
+tax-year	3	tax year ending, month cell; one printed date, one Day leaf	tax year ending, month cell; one printed date, one day leaf	topmostSubform[0].Page1[0].Header[0].ForCalendarYear[0].f1_03[0]	/formK1s/*/writableK1065TaxYearEnding	Day		
+tax-year	4	tax year ending, day cell; one printed date, one Day leaf	tax year ending, day cell; one printed date, one day leaf	topmostSubform[0].Page1[0].Header[0].ForCalendarYear[0].f1_04[0]	/formK1s/*/writableK1065TaxYearEnding	Day		
+tax-year	5	tax year ending, year cell; one printed date, one Day leaf	tax year ending, year cell; one printed date, one day leaf	topmostSubform[0].Page1[0].Header[0].ForCalendarYear[0].f1_05[0]	/formK1s/*/writableK1065TaxYearEnding	Day		
+final		Final K-1; the shared leaf, whose Description names this Form 1120-S box	final k-1; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].c1_01[0]	/formK1s/*/writableK1065FinalK1	Bool		
+amended		Amended K-1; the shared leaf, whose Description names this Form 1120-S box	amended k-1; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].c1_02[0]	/formK1s/*/writableK1065AmendedK1	Bool		
+A		entity's employer identification number; the same per-K-1 EIN Schedule E Part II line 28 column (d) prints	entity's employer identification number; the same per-k-1 ein schedule e part ii line 28 column (d) prints	topmostSubform[0].Page1[0].LeftCol[0].f1_06[0]	/formK1s/*/writableLine28dEmployerIdentificationNumber	EIN		
+B		Corporation's name, address, city, state, and ZIP code; the shared leaf, whose Description names this Form 1120-S box	corporation's name, address, city, state, and zip code; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].LeftCol[0].f1_07[0]	/formK1s/*/writableK1065ItemBPartnershipNameAndAddress	String		
+C		IRS Center where corporation filed return; the shared leaf, whose Description names this Form 1120-S box	irs center where corporation filed return; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].LeftCol[0].f1_08[0]	/formK1s/*/writableK1065ItemCIrsCenter	String		
+D	1	Corporation’s total number of shares. Beginning of tax year	corporation’s total number of shares. beginning of tax year	topmostSubform[0].Page1[0].LeftCol[0].f1_09[0]	/formK1s/*/writableK1120sItemDSharesBeginningOfYear	Int		
+D	2	End of tax year		topmostSubform[0].Page1[0].LeftCol[0].f1_10[0]	/formK1s/*/writableK1120sItemDSharesEndOfYear	Int		
+E		Shareholder's identifying number; the shared leaf, whose Description names this Form 1120-S box	shareholder's identifying number; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].LeftCol[0].f1_11[0]	/formK1s/*/writableK1065ItemEPartnerTin	TIN		
+F1		Shareholder's name, address, city, state, and ZIP code; the shared leaf, whose Description names this Form 1120-S box	shareholder's name, address, city, state, and zip code; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].LeftCol[0].f1_12[0]	/formK1s/*/writableK1065ItemFPartnerNameAndAddress	String		
+F2	1	If the shareholder is a disregarded entity, a trust, an estate, or a nominee or similar pe	if the shareholder is a disregarded entity, a trust, an estate, or a nominee or similar pe	topmostSubform[0].Page1[0].LeftCol[0].f1_13[0]	/formK1s/*/writableK1120sItemF2ResponsiblePartyTin	TIN		
+F2	2	Name	name	topmostSubform[0].Page1[0].LeftCol[0].f1_14[0]	/formK1s/*/writableK1120sItemF2ResponsiblePartyName	String		
+F3		What type of entity is this shareholder?; the shared leaf, whose Description names this Form 1120-S box	what type of entity is this shareholder?; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].LeftCol[0].f1_15[0]	/formK1s/*/writableK1065ItemI1PartnerEntityType	String		
+G		Current year allocation percentage. %	current year allocation percentage. %	topmostSubform[0].Page1[0].LeftCol[0].f1_16[0]	/formK1s/*/writableK1120sItemGAllocationPercentage	String		
+H	1	Shareholder’s number of shares. Beginning of tax year	shareholder’s number of shares. beginning of tax year	topmostSubform[0].Page1[0].LeftCol[0].f1_17[0]	/formK1s/*/writableK1120sItemHSharesBeginningOfYear	Int		
+H	2	End of tax year		topmostSubform[0].Page1[0].LeftCol[0].f1_18[0]	/formK1s/*/writableK1120sItemHSharesEndOfYear	Int		
+I	1	Loans from shareholder. Beginning of tax year. $	loans from shareholder. beginning of tax year	topmostSubform[0].Page1[0].LeftCol[0].f1_19[0]	/formK1s/*/writableK1120sItemILoansFromShareholderBeginningOfYear	Dollar		
+I	2	End of tax year. $		topmostSubform[0].Page1[0].LeftCol[0].f1_20[0]	/formK1s/*/writableK1120sItemILoansFromShareholderEndOfYear	Dollar		
+1		Ordinary business income (loss)	1 ordinary business income (loss)	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_21[0]	/formK1s/*/ordinaryIncome	Dollar		
+2		Net rental real estate income (loss); the shared leaf, whose Description names this Form 1120-S box	net rental real estate income (loss); the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_22[0]	/formK1s/*/writableK1065Box2NetRentalRealEstateIncome	Dollar		
+3		Other net rental income (loss); the shared leaf, whose Description names this Form 1120-S box	other net rental income (loss); the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_23[0]	/formK1s/*/writableK1065Box3OtherNetRentalIncome	Dollar		
+4		Interest income	4 interest income	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_24[0]	/formK1s/*/writablePortfolioInterestIncome	Dollar		
+5a		Ordinary dividends	5a ordinary dividends	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_25[0]	/formK1s/*/writablePortfolioOrdinaryDividends	Dollar		
+5b		Qualified dividends	qualified dividends	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_26[0]	/formK1s/*/writablePortfolioQualifiedDividends	Dollar		
+6		Royalties; the shared leaf, whose Description names this Form 1120-S box	royalties; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_27[0]	/formK1s/*/writableK1065Box7Royalties	Dollar		
+7		Net short-term capital gain (loss); the shared leaf, whose Description names this Form 1120-S box	net short-term capital gain (loss); the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_28[0]	/formK1s/*/writableK1065Box8NetShortTermCapitalGain	Dollar		
+8a		Net long-term capital gain (loss); the shared leaf, whose Description names this Form 1120-S box	net long-term capital gain (loss); the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_29[0]	/formK1s/*/writableK1065Box9aNetLongTermCapitalGain	Dollar		
+8b		Collectibles (28%) gain (loss); the shared leaf, whose Description names this Form 1120-S box	collectibles (28%) gain (loss); the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_30[0]	/formK1s/*/writableK1065Box9bCollectiblesGain	Dollar		
+8c		Unrecaptured section 1250 gain; the shared leaf, whose Description names this Form 1120-S box	unrecaptured section 1250 gain; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_31[0]	/formK1s/*/writableK1065Box9cUnrecapturedSection1250Gain	Dollar		
+9		Net section 1231 gain (loss); the leaf records K-1 (1065) box 10 and K-1 (1120-S) box 9	net section 1231 gain (loss); the leaf records k-1 (1065) box 10 and k-1 (1120-s) box 9	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_32[0]	/formK1s/*/writableK1065Box10NetSection1231Gain	Dollar		
+10	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_33[0]	/formK1s/*/otherIncomeEntries/[0]/writableCode	String		
+10	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_34[0]	/formK1s/*/otherIncomeEntries/[0]/writableAmount	Dollar		
+10	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_35[0]	/formK1s/*/otherIncomeEntries/[1]/writableCode	String		
+10	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_36[0]	/formK1s/*/otherIncomeEntries/[1]/writableAmount	Dollar		
+10	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_37[0]	/formK1s/*/otherIncomeEntries/[2]/writableCode	String		
+10	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_38[0]	/formK1s/*/otherIncomeEntries/[2]/writableAmount	Dollar		
+10	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_39[0]	/formK1s/*/otherIncomeEntries/[3]/writableCode	String		
+10	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_40[0]	/formK1s/*/otherIncomeEntries/[3]/writableAmount	Dollar		
+10	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_41[0]	/formK1s/*/otherIncomeEntries/[4]/writableCode	String		
+10	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_42[0]	/formK1s/*/otherIncomeEntries/[4]/writableAmount	Dollar		
+11		Section 179 deduction	section 179 deduction	topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_43[0]	/formK1s/*/writableSection179Deduction	Dollar		
+12	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_44[0]	/formK1s/*/otherDeductionEntries/[0]/writableCode	String		
+12	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_45[0]	/formK1s/*/otherDeductionEntries/[0]/writableAmount	Dollar		
+12	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_46[0]	/formK1s/*/otherDeductionEntries/[1]/writableCode	String		
+12	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_47[0]	/formK1s/*/otherDeductionEntries/[1]/writableAmount	Dollar		
+12	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_48[0]	/formK1s/*/otherDeductionEntries/[2]/writableCode	String		
+12	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_49[0]	/formK1s/*/otherDeductionEntries/[2]/writableAmount	Dollar		
+12	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_50[0]	/formK1s/*/otherDeductionEntries/[3]/writableCode	String		
+12	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_51[0]	/formK1s/*/otherDeductionEntries/[3]/writableAmount	Dollar		
+12	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_52[0]	/formK1s/*/otherDeductionEntries/[4]/writableCode	String		
+12	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_53[0]	/formK1s/*/otherDeductionEntries/[4]/writableAmount	Dollar		
+12	11	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_54[0]	/formK1s/*/otherDeductionEntries/[5]/writableCode	String		
+12	12	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_55[0]	/formK1s/*/otherDeductionEntries/[5]/writableAmount	Dollar		
+12	13	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_56[0]	/formK1s/*/otherDeductionEntries/[6]/writableCode	String		
+12	14	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_57[0]	/formK1s/*/otherDeductionEntries/[6]/writableAmount	Dollar		
+12	15	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_58[0]	/formK1s/*/otherDeductionEntries/[7]/writableCode	String		
+12	16	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-12[0].f1_59[0]	/formK1s/*/otherDeductionEntries/[7]/writableAmount	Dollar		
+13	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_60[0]	/formK1s/*/creditEntries/[0]/writableCode	String		
+13	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_61[0]	/formK1s/*/creditEntries/[0]/writableAmount	Dollar		
+13	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_62[0]	/formK1s/*/creditEntries/[1]/writableCode	String		
+13	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_63[0]	/formK1s/*/creditEntries/[1]/writableAmount	Dollar		
+13	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_64[0]	/formK1s/*/creditEntries/[2]/writableCode	String		
+13	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_65[0]	/formK1s/*/creditEntries/[2]/writableAmount	Dollar		
+13	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_66[0]	/formK1s/*/creditEntries/[3]/writableCode	String		
+13	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_67[0]	/formK1s/*/creditEntries/[3]/writableAmount	Dollar		
+13	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_68[0]	/formK1s/*/creditEntries/[4]/writableCode	String		
+13	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_69[0]	/formK1s/*/creditEntries/[4]/writableAmount	Dollar		
+14		Schedule K-3 is attached if checked; the shared leaf, whose Description names this Form 1120-S box	schedule k-3 is attached if checked; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].c1_03[0]	/formK1s/*/writableK1065Box16ScheduleK3Attached	Bool		
+15	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_70[0]	/formK1s/*/amtItemEntries/[0]/writableCode	String		
+15	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_71[0]	/formK1s/*/amtItemEntries/[0]/writableAmount	Dollar		
+15	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_72[0]	/formK1s/*/amtItemEntries/[1]/writableCode	String		
+15	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_73[0]	/formK1s/*/amtItemEntries/[1]/writableAmount	Dollar		
+15	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_74[0]	/formK1s/*/amtItemEntries/[2]/writableCode	String		
+15	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_75[0]	/formK1s/*/amtItemEntries/[2]/writableAmount	Dollar		
+15	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_76[0]	/formK1s/*/amtItemEntries/[3]/writableCode	String		
+15	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_77[0]	/formK1s/*/amtItemEntries/[3]/writableAmount	Dollar		
+15	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_78[0]	/formK1s/*/amtItemEntries/[4]/writableCode	String		
+15	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_79[0]	/formK1s/*/amtItemEntries/[4]/writableAmount	Dollar		
+16	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_80[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[0]/writableCode	String		
+16	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_81[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[0]/writableAmount	Dollar		
+16	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_82[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[1]/writableCode	String		
+16	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_83[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[1]/writableAmount	Dollar		
+16	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_84[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[2]/writableCode	String		
+16	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_85[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[2]/writableAmount	Dollar		
+16	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_86[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[3]/writableCode	String		
+16	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_87[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[3]/writableAmount	Dollar		
+16	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_88[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[4]/writableCode	String		
+16	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_89[0]	/formK1s/*/itemsAffectingShareholderBasisEntries/[4]/writableAmount	Dollar		
+17	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_90[0]	/formK1s/*/otherInformationEntries/[0]/writableCode	String		
+17	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_91[0]	/formK1s/*/otherInformationEntries/[0]/writableAmount	Dollar		
+17	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_92[0]	/formK1s/*/otherInformationEntries/[1]/writableCode	String		
+17	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_93[0]	/formK1s/*/otherInformationEntries/[1]/writableAmount	Dollar		
+17	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_94[0]	/formK1s/*/otherInformationEntries/[2]/writableCode	String		
+17	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_95[0]	/formK1s/*/otherInformationEntries/[2]/writableAmount	Dollar		
+17	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_96[0]	/formK1s/*/otherInformationEntries/[3]/writableCode	String		
+17	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_97[0]	/formK1s/*/otherInformationEntries/[3]/writableAmount	Dollar		
+17	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_98[0]	/formK1s/*/otherInformationEntries/[4]/writableCode	String		
+17	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_99[0]	/formK1s/*/otherInformationEntries/[4]/writableAmount	Dollar		
+17	11	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_100[0]	/formK1s/*/otherInformationEntries/[5]/writableCode	String		
+17	12	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_101[0]	/formK1s/*/otherInformationEntries/[5]/writableAmount	Dollar		
+17	13	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_102[0]	/formK1s/*/otherInformationEntries/[6]/writableCode	String		
+17	14	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_103[0]	/formK1s/*/otherInformationEntries/[6]/writableAmount	Dollar		
+17	15	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_104[0]	/formK1s/*/otherInformationEntries/[7]/writableCode	String		
+17	16	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_105[0]	/formK1s/*/otherInformationEntries/[7]/writableAmount	Dollar		
+17	17	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_106[0]	/formK1s/*/otherInformationEntries/[8]/writableCode	String		
+17	18	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_107[0]	/formK1s/*/otherInformationEntries/[8]/writableAmount	Dollar		
+17	19	code		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_108[0]	/formK1s/*/otherInformationEntries/[9]/writableCode	String		
+17	20	amount		topmostSubform[0].Page1[0].RightCol[0].Lines13-17[0].f1_109[0]	/formK1s/*/otherInformationEntries/[9]/writableAmount	Dollar		
+18		More than one activity for at-risk purposes; the shared leaf, whose Description names this Form 1120-S box	more than one activity for at-risk purposes; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].c1_04[0]	/formK1s/*/writableK1065Box22MoreThanOneAtRiskActivity	Bool		
+19		More than one activity for passive activity purposes; the shared leaf, whose Description names this Form 1120-S box	more than one activity for passive activity purposes; the shared leaf, whose description names this form 1120-s box	topmostSubform[0].Page1[0].RightCol[0].c1_05[0]	/formK1s/*/writableK1065Box23MoreThanOnePassiveActivity	Bool		

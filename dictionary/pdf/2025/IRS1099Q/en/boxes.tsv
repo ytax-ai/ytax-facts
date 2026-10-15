@@ -1,0 +1,54 @@
+# IRS1099Q — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099Q/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: ca8f0f1e991a3b76490e1f4eb3b9962f9f3fc0a8a937ffebb5806adf645f368b
+# boxes: 20   acroform fields: 38   boxes with a fact: 20
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyAHeader[0].YEAR[0].f1_1[0]|topmostSubform[0].CopyB[0].CopyBHeader[0].YEAR[0].f1_1[0]	/form1099Qs/*/writableCalendarYear	String		
+void		VOID	void	topmostSubform[0].CopyA[0].c1_1[0]	/form1099Qs/*/writableVoid	Bool		
+corrected		CORRECTED; Copy B: CORRECTED (if checked)	corrected; copy b: corrected	topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].CopyB[0].c1_1[0]	/form1099Qs/*/writableCorrected	Bool		
+payer-trustee-name		PAYER'S/TRUSTEE'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no.	payer's/trustee's name, street address, city or town, state or province, country, zip or foreign postal code, and telephone no	topmostSubform[0].CopyA[0].LeftColumn[0].f1_2[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_2[0]	/form1099Qs/*/writablePayerTrusteeNameAddress	String		
+payer-trustee-tin		PAYER'S/TRUSTEE'S TIN	payer's/trustee's tin	topmostSubform[0].CopyA[0].LeftColumn[0].f1_3[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_3[0]	/form1099Qs/*/writablePayerTrusteeTin	EIN		
+recipient-tin		RECIPIENT'S TIN; a TIN writable	recipient's tin; a tin writable	topmostSubform[0].CopyA[0].LeftColumn[0].f1_4[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_4[0]	/form1099Qs/*/writableRecipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftColumn[0].f1_5[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_5[0]	/form1099Qs/*/writableRecipientName	String		
+recipient-street		Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftColumn[0].f1_6[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_6[0]	/form1099Qs/*/writableRecipientStreetAddress	String		
+recipient-city		City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftColumn[0].f1_7[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_7[0]	/form1099Qs/*/writableRecipientCityStateZip	String		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftColumn[0].f1_8[0]|topmostSubform[0].CopyB[0].LeftColumn[0].f1_8[0]	/form1099Qs/*/writableAccountNumber	String		
+1		Gross distribution	gross distribution	topmostSubform[0].CopyA[0].RightColumn[0].f1_9[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_9[0]	/form1099Qs/*/writableGrossDistribution	Dollar		
+2		Earnings	earnings	topmostSubform[0].CopyA[0].RightColumn[0].f1_10[0]|topmostSubform[0].CopyB[0].RghtCol[0].f1_10[0]	/form1099Qs/*/writableEarnings	Dollar		
+3		Basis	basis	topmostSubform[0].CopyA[0].RightColumn[0].Box3_ReadOrder[0].f1_11[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box3_ReadOrder[0].f1_11[0]	/form1099Qs/*/writableBasis	Dollar		
+4a		Type of transfer: Trustee-to-trustee	type of transfer: trustee-to-trustee	topmostSubform[0].CopyA[0].RightColumn[0].c1_2[0]|topmostSubform[0].CopyB[0].RghtCol[0].c1_2[0]	/form1099Qs/*/writableTypeOfTransferTrusteeToTrustee	Bool		
+4b		Type of transfer: QTP to Roth IRA	type of transfer: qtp to roth ira	topmostSubform[0].CopyA[0].RightColumn[0].c1_2[1]|topmostSubform[0].CopyB[0].RghtCol[0].c1_2[1]	/form1099Qs/*/writableTypeOfTransferQtpToRothIra	Bool		
+5a		Distribution is from: Private QTP	distribution is from: private qtp	topmostSubform[0].CopyA[0].RightColumn[0].Box5_ReadOrder[0].c1_3[0]|topmostSubform[0].CopyB[0].RghtCol[0].Box5_ReadOrder[0].c1_3[0]	/form1099Qs/*/writableDistributionIsFromPrivateQtp	Bool		
+5b		Distribution is from: State QTP	distribution is from: state qtp	topmostSubform[0].CopyA[0].RightColumn[0].Box5_ReadOrder[0].c1_3[1]|topmostSubform[0].CopyB[0].RghtCol[0].Box5_ReadOrder[0].c1_3[1]	/form1099Qs/*/writableDistributionIsFromStateQtp	Bool		
+5c		Distribution is from: Coverdell ESA	distribution is from: coverdell esa	topmostSubform[0].CopyA[0].RightColumn[0].Box5_ReadOrder[0].c1_3[2]|topmostSubform[0].CopyB[0].RghtCol[0].Box5_ReadOrder[0].c1_3[2]	/form1099Qs/*/writableDistributionIsFromCoverdellEsa	Bool		
+6		Check if the recipient is not the designated beneficiary	check if the recipient is not the designated beneficiary	topmostSubform[0].CopyA[0].RightColumn[0].c1_4[0]|topmostSubform[0].CopyB[0].RghtCol[0].c1_4[0]	/form1099Qs/*/writableRecipientIsNotTheDesignatedBeneficiary	Bool		
+7		If the fair market value (FMV) is shown below, see Pub. 970; Copy B only	if the fair market value (fmv) is shown below, see pub. 970; copy b only	topmostSubform[0].CopyB[0].RghtCol[0].f1_12[0]	/form1099Qs/*/writableBox7	String		

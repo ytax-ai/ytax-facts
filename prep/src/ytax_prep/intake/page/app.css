@@ -1,0 +1,60 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-PolyForm-Strict-1.0.0
+ * Copyright (c) 2026 TRIPLE J AI LLC
+ * Contains original software from the ytax project.
+ * See the release-root LICENSING.md for scope and separate licensing options.
+ */
+
+:root { --ink: #1b1f24; --muted: #57606a; --line: #d0d7de; --accent: #0b5cad; --bg: #fbfbfa; --warn: #9a2b00; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+header, main { max-width: 52rem; margin: 0 auto; padding: 1rem 1.25rem; }
+h1 { margin: 0; font-size: 1.6rem; }
+.lede { color: var(--muted); margin: .25rem 0 0; }
+section { border-top: 1px solid var(--line); padding: 1rem 0; }
+.drop { display: block; border: 2px dashed var(--line); border-radius: .5rem; padding: 1.25rem; cursor: pointer; }
+.drop:focus-within, .drop.over { border-color: var(--accent); }
+.drop input { display: block; margin-top: .5rem; }
+#turn .ask { font-size: 1.1rem; margin: 0 0 .25rem; }
+#turn .why { color: var(--muted); margin: 0 0 .75rem; }
+#turn table, #lines { border-collapse: collapse; width: 100%; margin: .5rem 0; }
+#turn td, #turn th, #lines td, #lines th { border-bottom: 1px solid var(--line); padding: .35rem .5rem; text-align: left; }
+#lines td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+input[type=text], select { font: inherit; padding: .35rem .5rem; min-width: 12rem; }
+button { font: inherit; padding: .45rem .9rem; border-radius: .35rem; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+button.quiet { background: #fff; color: var(--accent); }
+#error { color: var(--warn); min-height: 1.5em; }
+/* over the page, never in it: a bar that took its own row pushed every field down while a
+   request ran and pulled it back after, so a field moved under the pointer (seen 2026-09-22) */
+.busy { position: fixed; top: .5rem; left: 50%; transform: translateX(-50%); width: min(44rem, calc(100% - 2rem)); box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 2; background: #fff8e1; border: 1px solid #e0c36a; border-radius: .35rem; padding: .5rem .75rem; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.busy progress { flex: 1 1 10rem; }
+.busy[hidden], [hidden] { display: none !important; }
+#ai-rows table { border-collapse: collapse; width: 100%; margin: .5rem 0; }
+#ai-rows td, #ai-rows th { border-bottom: 1px solid var(--line); padding: .35rem .5rem; text-align: left; vertical-align: top; }
+#ai-rows tr.differs td { background: #fde2dd; }
+#ai-rows tr.differs td:last-child { color: var(--warn); font-weight: 600; }
+#ai-rows tr.neutral td { background: #eef3f8; }
+#ai-rows tr.agrees td { color: var(--muted); }
+#work-log { width: 100%; font: 13px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: pre; background: #111; color: #e6e6e6; padding: .5rem; }
+#documents .identity-note { color: var(--warn); }
+#documents .not-read-changes { color: var(--warn); font-weight: 600; }
+.duplicate { border: 1px solid #e0c36a; background: #fff8e1; border-radius: .35rem; padding: .75rem; margin: .5rem 0; }
+#ai-log { width: 100%; font: 13px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: pre; background: #111; color: #e6e6e6; padding: .5rem; }
+.tree { margin-top: .5rem; }
+.folders { list-style: none; padding-left: 0; }
+.folders button { margin: .1rem 0; }
+
+/* the privacy notice (2026-09-23): always shown, above everything the page asks */
+.privacy { max-width: 49.5rem; margin: 0 auto 1rem; padding: .6rem 1rem; border: 1px solid #b9d7b9;
+           background: #f1f8f1; border-radius: .4rem; }
+.privacy h2 { font-size: 1rem; margin: 0 0 .3rem; }
+.privacy ul { margin: 0; padding-left: 1.2rem; }
+.privacy li { margin: .15rem 0; }
+
+/* the demonstration notice (2026-10-13): always shown, beside the privacy notice */
+.demo-notice { max-width: 49.5rem; margin: 0 auto 1rem; padding: .6rem 1rem; border: 1px solid #e0c27a;
+               background: #fdf6e3; border-radius: .4rem; }
+.demo-notice h2 { font-size: 1rem; margin: 0 0 .3rem; }
+.demo-notice p { margin: 0; }
+
+.app-footer { margin: 2rem 0 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; font-size: 0.9rem; }

@@ -1,0 +1,2183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<?xml-model href="./FactDictionaryModule.rng"?>
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/writableMortgageInterestOnCertifiedIndebtedness">
+      <Name>Interest paid on the certified indebtedness amount (Form 8396 line 1)</Name>
+      <Description>The mortgage interest the taxpayer paid during 2025 on the loan amount (certified
+        indebtedness) shown on the Mortgage Credit Certificate — in most cases Form 1098 box 1, or the
+        allocated share if the MCC loan is less than the total mortgage. If someone else other than a
+        spouse filing jointly also held an interest in the home, enter only this taxpayer's share.
+        Integer cents; Min 0. Optional — absent ⇒ complete-safe 0, so every prior scenario is
+        unchanged. If the home was your main home for only part of 2025, enter only the interest paid for that part of the year: the certificate stops applying when the home stops being your main home (IRC 25(e)(3)(A)(ii)(II)).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccCreditRatePercent">
+      <Name>Certificate credit rate, whole percent (Form 8396 line 2)</Name>
+      <Description>Screen: "What is the certificate credit rate shown on your Mortgage Credit
+        Certificate?" — the WHOLE-NUMBER PART of the rate, e.g. 25 for 25%, or 12 for 12.5% (the
+        fraction is a separate question, /writableMccCreditRateFractionalPercent). Help text: this
+        is the rate printed ON THE CERTIFICATE itself, NOT the interest rate on the home mortgage —
+        the two numbers are frequently confused because both appear on the closing paperwork
+        (https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 1, "Enter the certificate credit rate shown on your
+        Mortgage Credit Certificate. Do not enter the interest rate on your home mortgage"). Asked
+        whenever the filer has indicated an MCC-backed mortgage (the Form 8396 section gate,
+        /mortgageInterestCreditIsActive). Unanswered ⇒ complete-safe: line 3 (the tentative credit)
+        resolves to $0 and Schedule 3 line 6g is unaffected — a filer who skips this question simply
+        claims no mortgage interest credit, which is a safe default because the credit is elective
+        and there is no printed penalty for not claiming it. Validation on THIS screen: whole
+        percent, Min 10 / Max 50 (the certificate credit rate cannot be less than 10% or more than
+        50%, https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2). The rate the credit is actually computed from
+        is this whole percent combined with the fractional-percent screen, so the band that binds
+        the COMBINED rate is 10.00% through 50.99%; a combined rate above 50.00% is outside the
+        statutory band and is refused by /knockoutMortgageInterestCreditIneligible rather than
+        silently capped. Feeds /form8396CreditRateHundredths (combined with
+        the fractional-percent screen) which drives /form8396LineOneTimesLineTwo (line 3) and the
+        over-20% ceiling test /form8396RateOverTwentyPercent.
+
+        The PRINTED line 2 box shows the COMBINED rate, not this whole-number part alone: the box is
+        bound to /form8396Line2Printed, which renders /form8396CreditRateHundredths. That is what
+        makes the rendered form foot — printed line 3 is computed on the combined rate, so a printed
+        line 2 carrying only the whole part would leave a reader unable to reproduce line 3 from the
+        printed line 1 and line 2.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>10</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>50</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccCreditRateFractionalPercent">
+      <Name>Certificate credit rate, fractional part in hundredths of a percent (Form 8396 line 2)</Name>
+      <Description>Screen: "Does your certificate credit rate include a fraction of a percent (for
+        example, 12.5% or 20.25%)? If so, enter the TWO DIGITS that follow the decimal point —
+        12.5% is entered as 50, 20.25% as 25, 12.05% as 5. Enter nothing if your rate is a whole
+        percent." Help text: neither IRC §25(b)(1), which defines the certificate credit rate, nor
+        §25(d)(1), which bands it at 10% to 50%, nor the printed line 2 restricts the rate to a
+        whole percent, and MCC-issuing agencies do publish half-point and finer rates; leaving this
+        question unasked forces a filer with, say, a 12.5% certificate to round to 12% or 13%,
+        misstating the credit by up to $100 per $20,000 of interest in either direction. The screen
+        must say TWO DIGITS in as many words: a filer who reads "the digits after the decimal point"
+        and types 5 for 12.5% enters 12.05%, a 0.45-point understatement in the same class of error
+        this screen exists to remove. Asked immediately after /writableMccCreditRatePercent, same
+        gate (/mortgageInterestCreditIsActive), as one grouped screen ("whole percent, then any
+        fraction"). Unanswered ⇒ complete-safe 0 (a whole-percent rate, the ordinary case and every
+        rate in the committed corpus), via /form8396CreditRateFractionalPercentOrZero — so this
+        screen changes no return that does not answer it. Validation: Int, Min 0 / Max 99, optional;
+        the pair is banded at a combined 50.00%, which /knockoutMortgageInterestCreditIneligible
+        enforces because a Limit cannot span two writables. Feeds /form8396CreditRateHundredths,
+        which drives both the credit arithmetic and the printed line 2
+        (/form8396Line2Printed).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>99</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8396CreditRateFractionalPercentOrZero">
+      <Name>Fractional-percent rate leg, defaulted to zero (Form 8396 line 2 helper)</Name>
+      <Description>/writableMccCreditRateFractionalPercent when answered, else 0 — a whole-percent
+        rate. Complete-safe 0 so /form8396CreditRateHundredths is exactly
+        /writableMccCreditRatePercent x 100 on every return that has not seen the new fractional
+        screen, which is the entire committed corpus.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableMccCreditRateFractionalPercent" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Int>0</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableMccCreditRateFractionalPercent" />
+                <Int>0</Int>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CreditRateHundredths">
+      <Name>Certificate credit rate, in hundredths of a percent (Form 8396 line 2, combined)</Name>
+      <Description>/writableMccCreditRatePercent x 100, plus
+        /form8396CreditRateFractionalPercentOrZero — the whole-percent screen and the
+        fractional-percent screen combined into one rate expressed in hundredths of a percent (2000
+        for 20%, 1250 for 12.5%). THE BAND THIS COMPOSITE CAN REACH is 1000 through 5099, not the
+        1000-5000 either screen's own Limit suggests: a Limit sits on one writable and cannot span
+        two, so the statutory 50% ceiling of IRC 25(d)(1) is enforced on the composite by
+        /knockoutMortgageInterestCreditIneligible, which refuses a return whose combined rate
+        exceeds 5000. Complete exactly when /writableMccCreditRatePercent is answered
+        (the fractional leg is complete-safe by construction), which is exactly the same gate
+        /form8396RateOverTwentyPercent and /form8396LineOneTimesLineTwo already used on the bare
+        whole-percent writable. The scaled-Int-plus-divide shape is shared with
+        scheduleH:/scheduleHFutaStateContributions/*/writableStateExperienceRate, which scales to
+        millionths for its own, finer-grained rate population.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Multiply>
+            <GreaterOf>
+              <Dependency path="/writableMccCreditRatePercent" />
+              <Int>10</Int>
+            </GreaterOf>
+            <Int>100</Int>
+          </Multiply>
+          <Dependency path="/form8396CreditRateFractionalPercentOrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CreditRatePercentAsRational">
+      <Name>Certificate credit rate as a percent number (Form 8396 line 2, rational form)</Name>
+      <Description>/form8396CreditRateHundredths divided by 100 — the same rate the arithmetic uses,
+        carried as a Rational so it can be rendered as a decimal percent number for the printed
+        Form 8396 line 2 (/form8396Line2Printed). 1250 hundredths becomes 12.5, 2000 becomes 20.
+        Complete exactly when /writableMccCreditRatePercent is answered. This fact is a rendering
+        intermediate only: no dollar computation reads it, and /form8396LineOneTimesLineTwo keeps
+        computing from /form8396CreditRateHundredths in integer hundredths so that no committed
+        credit amount depends on a rational division.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Divide>
+          <Dividend>
+            <Dependency path="/form8396CreditRateHundredths" />
+          </Dividend>
+          <Divisors>
+            <Int>100</Int>
+          </Divisors>
+        </Divide>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line2Printed">
+      <Name>Certificate credit rate as printed on Form 8396 line 2</Name>
+      <Description>The certificate credit rate rendered for the printed Form 8396 line 2 box
+        (configuration.yml f1_8[0]): the WHOLE rate the credit is actually computed from, not just
+        its whole-number part. A whole-percent certificate prints without decimals ("20" for 20%);
+        a certificate whose rate carries a fraction prints two decimal places ("12.50" for 12.5%,
+        "20.25" for 20.25%), which is the granularity /writableMccCreditRateFractionalPercent
+        accepts. Two decimals rather than a trimmed "12.5" because the fractional screen is asked in
+        hundredths and the renderer has no trailing-zero trim; the printed figure is exact either
+        way. This exists so the rendered form FOOTS: printed line 3 (/form8396TentativeCredit)
+        is computed on the full rate, so a line 2 showing only the whole part would leave a filer
+        or an examiner unable to reproduce line 3 from the printed line 1 and line 2. Complete
+        exactly when /writableMccCreditRatePercent is answered, so an unanswered rate leaves the
+        printed box empty exactly as before.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8396CreditRateFractionalPercentOrZero" />
+                </Left>
+                <Right>
+                  <Int>0</Int>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <AsDecimalString scale="2">
+                <Dependency path="/form8396CreditRatePercentAsRational" />
+              </AsDecimalString>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <AsDecimalString scale="0">
+                <Dependency path="/form8396CreditRatePercentAsRational" />
+              </AsDecimalString>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableMccCoOwnerInterestPercent">
+      <Name>This taxpayer's percentage interest in the home, when a non-spouse co-owner also holds one</Name>
+      <Description>The share of the home held by this taxpayer (and, on a joint return, by the
+        jointly-filing spouse), as a whole percent, answered ONLY when someone else other than a
+        jointly-filing spouse also held an interest in the home. It exists to allocate the $2,000
+        line-3 limit, which the Line 3 instruction requires to be "allocated to each owner in
+        proportion to the interest held".
+
+        WHAT IT IS NOT, and the distinction is already half-shipped so getting it wrong here would
+        double-count: it is NOT the share of the INTEREST PAID. That is already handled by
+        attestation on line 1 - /writableMortgageInterestOnCertifiedIndebtedness's own Description
+        says "If someone else other than a spouse filing jointly also held an interest in the home,
+        enter only this taxpayer's share", and the printed line 1 says the same ("enter only your
+        share of the interest paid"). A co-owner therefore reports their own interest on line 1 AND
+        their own slice of the $2,000 ceiling here; the two are different numbers and both are
+        required.
+
+        IT ONLY BITES IN THE OVER-20% BRANCH, because that is the only branch in which a $2,000
+        limit exists at all: at a certificate credit rate of 20% or less line 3 is simply line 1 x
+        line 2 with no ceiling. Answering it on a 20%-or-less return changes nothing.
+
+        FILING STATUS IS NOT PART OF THE TEST, beyond the one exclusion the parenthetical states. A
+        spouse who files SEPARATELY and co-owns the residence is a co-owner like any other and the
+        limitation is allocated between them; only a spouse filing JOINTLY is excluded, because the
+        joint return is one taxpayer for this purpose. Whole percent, Min 1 / Max 100. Optional - absent means no co-owner allocation and the full
+        $2,000 limit, so every committed scenario is unchanged.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>1</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>100</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableReissuedMccOriginalScheduledInterest">
+      <Name>Interest SCHEDULED to be paid on the ORIGINAL mortgage this year (reissued-MCC recomputation)</Name>
+      <Description>Answered only by a filer who refinanced and holds a REISSUED Mortgage Credit
+        Certificate. The Line 3 instruction's Refinanced Mortgage discussion requires such a filer
+        to determine, for each tax year, the credit that would have been allowed under the ORIGINAL
+        MCC, and it says how: multiply the interest that was SCHEDULED to be paid on the original
+        mortgage by the original certificate's rate. This is the first of those two numbers.
+
+        SCHEDULED, NOT PAID, and the distinction is the whole point of the rule: the original loan
+        no longer exists, so nothing was paid on it. The figure comes off the original loan's
+        amortisation schedule. That is why this is a separate writable rather than a reuse of line
+        1 (/writableMortgageInterestOnCertifiedIndebtedness), which is interest ACTUALLY paid on the
+        CURRENT certified indebtedness.
+
+        Integer cents; Min 0. Optional - absent means no reissued-MCC ceiling, so every committed
+        scenario is unchanged. It is load-bearing only together with
+        /writableReissuedMccOriginalCreditRatePercent: /form8396HasReissuedMccLimit requires BOTH,
+        so a half-answered pair is inert rather than half-applied.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableReissuedMccOriginalInterestPaid">
+      <Name>Interest actually paid under the ORIGINAL MCC during the refinance year</Name>
+      <Description>Optional refinance-year split input. Enter the interest actually paid on the
+        original certified indebtedness before the refinance, when the original and reissued
+        certificates were both in effect during 2025. This is distinct from
+        /writableReissuedMccOriginalScheduledInterest, which is the scheduled whole-year amount
+        used for the original-certificate ceiling in ordinary reissued-MCC years, and from
+        /writableMortgageInterestOnCertifiedIndebtedness, which is the amount paid under the
+        reissued certificate. When answered, the two actual-interest amounts are calculated under
+        their respective certificate rates and combined as the Form 8396 refinance-year line-3
+        amount. Unanswered preserves the existing whole-year scheduled-interest ceiling path.
+        Validation: Dollar, Min 0.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableReissuedMccOriginalCreditRatePercent">
+      <Name>Certificate credit rate on the ORIGINAL MCC, whole percent (reissued-MCC recomputation)</Name>
+      <Description>Screen: "What was the certificate credit rate on your ORIGINAL Mortgage Credit
+        Certificate (before the refinance), as a whole percent?" — the second of the two numbers
+        the Refinanced Mortgage rule needs, paired on one screen with
+        /writableReissuedMccOriginalScheduledInterest. Help text: this is NOT the reissued
+        certificate's rate (that is /writableMccCreditRatePercent); it is the rate on the loan that
+        no longer exists, off the original certificate's own paperwork. Asked only when the filer
+        has indicated a refinance into a reissued MCC (the same gate that asks the scheduled-
+        interest question). Unanswered ⇒ complete-safe: /form8396HasReissuedMccLimit stays false and
+        the reissued-MCC ceiling does not apply — safe because the filer is telling the return there
+        is no reissued certificate. Validation: whole percent, Min 10 / Max 50 (same statutory band
+        as the current certificate). Feeds
+        /form8396ReissuedMccOriginalCreditRateHundredths (combined with the fractional-percent
+        screen below), which drives /form8396ReissuedMccOriginalCertificateLimit.
+
+        THE RATE ORDERING IS NOT ENFORCED HERE and that is deliberate. The instruction's reissuance
+        conditions require that the reissued certificate's rate not exceed the original's, but that
+        is a condition on whether the certificate is VALID, not arithmetic this form performs; the
+        line-3 ceiling is what the form computes and it is computed the same way whichever rate is
+        larger. A filer whose reissued rate exceeds the original holds a certificate that does not
+        qualify, and no line of Form 8396 detects that.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>10</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>50</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableReissuedMccOriginalCreditRateFractionalPercent">
+      <Name>Certificate credit rate on the ORIGINAL MCC, fractional part in hundredths of a percent</Name>
+      <Description>Screen: "Does your ORIGINAL certificate's credit rate include a fraction of a
+        percent? If so, enter the TWO DIGITS that follow the decimal point — 12.5% is entered as 50,
+        20.25% as 25, 12.05% as 5. Enter nothing if the original rate was a whole percent." The
+        reissued-MCC twin of /writableMccCreditRateFractionalPercent, same reasoning, same
+        two-digit wording and same half-point example population. Asked immediately after
+        /writableReissuedMccOriginalCreditRatePercent, same gate. Unanswered ⇒ complete-safe 0 (a
+        whole-percent original rate), via
+        /form8396ReissuedMccOriginalCreditRateFractionalPercentOrZero. Validation: Int, Min 0 /
+        Max 99, optional. The whole-percent writable's Min 10 / Max 50 does NOT band the pair (50
+        plus 99 hundredths is 50.99%), so the combined original rate is banded at 50.00% by its own
+        leg of /knockoutMortgageInterestCreditIneligible, as the current-certificate pair is. Feeds
+        /form8396ReissuedMccOriginalCreditRateHundredths only.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+        <Limit type="Max">
+          <Int>99</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8396ReissuedMccOriginalCreditRateFractionalPercentOrZero">
+      <Name>Original-MCC fractional-percent rate leg, defaulted to zero (reissued-MCC helper)</Name>
+      <Description>/writableReissuedMccOriginalCreditRateFractionalPercent when answered, else 0. The
+        reissued-MCC twin of /form8396CreditRateFractionalPercentOrZero.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <IsComplete>
+                  <Dependency path="/writableReissuedMccOriginalCreditRateFractionalPercent" />
+                </IsComplete>
+              </Not>
+            </When>
+            <Then>
+              <Int>0</Int>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableReissuedMccOriginalCreditRateFractionalPercent" />
+                <Int>0</Int>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396ReissuedMccOriginalCreditRateHundredths">
+      <Name>Certificate credit rate on the ORIGINAL MCC, in hundredths of a percent (combined)</Name>
+      <Description>/writableReissuedMccOriginalCreditRatePercent x 100, plus
+        /form8396ReissuedMccOriginalCreditRateFractionalPercentOrZero. The reissued-MCC twin of
+        /form8396CreditRateHundredths, same reasoning: the shipped whole-percent writable and its
+        committed corpus are untouched, only the fractional remainder is new. Same composite band as
+        the current-certificate twin: the two Limits reach 5099 between them, and the statutory 50%
+        ceiling of IRC 25(d)(1) is carried on the composite, by its own leg of
+        /knockoutMortgageInterestCreditIneligible, rather than on either writable. Complete
+        only when /writableReissuedMccOriginalCreditRatePercent is answered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Add>
+          <Multiply>
+            <GreaterOf>
+              <Dependency path="/writableReissuedMccOriginalCreditRatePercent" />
+              <Int>10</Int>
+            </GreaterOf>
+            <Int>100</Int>
+          </Multiply>
+          <Dependency path="/form8396ReissuedMccOriginalCreditRateFractionalPercentOrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writablePriorYearMortgageCreditCarryforward">
+      <Name>Prior-year mortgage interest credit carryforward IN, UNDATED (Form 8396 line 6, legacy)</Name>
+      <Description>THE UNDATED CARRY-IN, and it is now the FALLBACK rather than the only path. The
+        unused mortgage interest credit carried forward INTO 2025, entered on Form 8396 line 6 — the
+        2024 vintage, which is what a filer whose only prior carryforward is from last year has.
+
+        SUPPRESSED BY THE DATED SLOTS (the dated-slot suppression idiom, as scheduleA extends it to its own vintage slots). Answering ANY of /writableMortgageCreditCarryforwardIn2022/2023/2024 moves the whole
+        line 4-6 intake onto the dated path and this amount is dropped to $0 in the graph —
+        /form8396CarryforwardIn reads it only when no slot is answered. One printed line group, at
+        most one intake path. DIRECTION: taxpayer-ADVERSE where a filer answers both, because an
+        undated amount left behind is dropped and never reappears in the carry-OUT; it is never an
+        over-credit, and the intake rule is unchanged — answer ONE carry-in path. RETAINED rather than renamed so that nothing already answering this path breaks: it keeps its
+        name, its type and its meaning. Integer cents; Min 0. Optional — absent ⇒ complete-safe
+        0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/writableMortgageCreditCarryforwardIn2022">
+      <Name>2022 mortgage interest credit carryforward IN (Form 8396 line 4, dated lot)</Name>
+      <Description>THE DATED CARRY-IN, 2022 vintage. The part of the filer's unused mortgage interest
+        credit that originates in 2022, transcribed from line 16 of their 2024 Form 8396 — a figure
+        they read off a form they already hold, so the slot is a direct transcription with no
+        arithmetic to get wrong.
+
+        2022 IS THE OLDEST SURVIVING VINTAGE AND THIS LOT EXPIRES THIS YEAR. 2025 is its third and
+        last succeeding year, so whatever it does not use here is lost. The form encodes that
+        WITHOUT A ROW: line 10 adds lines 3 and 4 and line 12 takes the larger of line 9 or line 10,
+        which writes this lot off the carry-forward base whether or not the credit reached it. There
+        is deliberately no fact for the expired amount — the form declines to compute it. Answering this slot suppresses the undated writable (M2). Integer cents; Min 0. Optional —
+        absent ⇒ complete-safe 0, so every prior scenario is unchanged.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMortgageCreditCarryforwardIn2023">
+      <Name>2023 mortgage interest credit carryforward IN (Form 8396 line 5, dated lot)</Name>
+      <Description>THE DATED CARRY-IN, 2023 vintage. The part of the filer's unused mortgage interest
+        credit that originates in 2023, transcribed from line 14 of their 2024 Form 8396. Consumed
+        AFTER the current-year credit and after the 2022 lot, and therefore the FIRST prior lot to be
+        eaten into once the 2022 lot is gone — which is why the printed residue rows give it only
+        what line 15 leaves after the 2024 lot has taken its share (see /form8396Carryforward2023To2026).
+        Survives to 2026 if unused: 2026 is only its third succeeding year.
+
+        Answering this slot suppresses the undated writable (M2). Integer cents; Min 0. Optional —
+        absent ⇒ complete-safe 0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMortgageCreditCarryforwardIn2024">
+      <Name>2024 mortgage interest credit carryforward IN (Form 8396 line 6, dated lot)</Name>
+      <Description>THE DATED CARRY-IN, 2024 vintage — the newest prior lot, transcribed from line 17
+        of their 2024 Form 8396 (that form's own current-year residue). Consumed LAST of the four,
+        and correspondingly it has FIRST claim on the residue: printed line 14 gives it the whole of
+        line 13 up to its own size before line 16 lets the 2023 lot have any.
+
+        THIS SLOT IS THE DATED TWIN OF /writablePriorYearMortgageCreditCarryforward: the undated
+        writable already meant exactly this line, so a filer moving onto the dated path re-enters the
+        same amount here and the undated one is suppressed. Answering it (or either sibling)
+        suppresses the undated writable (M2). Integer cents; Min 0. Optional — absent ⇒ complete-safe
+        0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/mortgageCreditCarryforwardVintageSlotsAnswered">
+      <Name>The Form 8396 line 4-6 intake is on the DATED path (any vintage slot answered)</Name>
+      <Description>True when the filer answered ANY of the three per-vintage carryforward slots. This
+        is the mutual-exclusion switch for the whole line 4-6 intake and it is the dated-slot suppression idiom applied where scheduleA already applied it to its own vintage slots: a more specific intake
+        path anywhere on the carry-in takes the whole carry-in.
+
+        GLOBAL, NOT PER SLOT. Answering the 2022 slot alone suppresses the undated writable even
+        though the undated writable meant line 6 — because a filer who has begun dating their lots
+        has, by doing so, told us the undated figure is superseded rather than additional. DIRECTION:
+        taxpayer-ADVERSE where a filer answers both, since the undated amount is dropped and does not
+        reappear in the carry-OUT; it is never an over-credit, and the intake rule is unchanged —
+        answer ONE carry-in path.
+
+        IsComplete never propagates incompleteness, so this fact is Complete on every return and
+        false on every committed one.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writableMortgageCreditCarryforwardIn2022" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableMortgageCreditCarryforwardIn2023" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableMortgageCreditCarryforwardIn2024" />
+          </IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CarryforwardIn2022">
+      <Name>2022 mortgage interest credit carryforward IN, complete-safe (Form 8396 line 4)</Name>
+      <Description>= /writableMortgageCreditCarryforwardIn2022 when answered, else $0. Complete-safe
+        wrapper, so a return that dates only some of its lots (or none) still resolves lines 7 and 10.
+        There is no undated fallback for this line: the undated writable meant line 6, never line 4.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (a credit amount); whole dollars as
+        the filer transcribes them.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableMortgageCreditCarryforwardIn2022" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableMortgageCreditCarryforwardIn2022" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CarryforwardIn2023">
+      <Name>2023 mortgage interest credit carryforward IN, complete-safe (Form 8396 line 5)</Name>
+      <Description>= /writableMortgageCreditCarryforwardIn2023 when answered, else $0. Complete-safe
+        wrapper. There is no undated fallback for this line: the undated writable meant line 6, never
+        line 5. TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableMortgageCreditCarryforwardIn2023" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableMortgageCreditCarryforwardIn2023" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CarryforwardIn">
+      <Name>Mortgage interest credit carryforward IN, complete-safe (Form 8396 line 6)</Name>
+      <Description>Form 8396 line 6, the 2024-vintage carry-in, complete-safe. THIS PATH STILL MEANS
+        LINE 6 AND ONLY LINE 6 — it is deliberately NOT the total of lines 4 through 6, because
+        printed Part II line 14 reads line 6 specifically ("Enter the smaller of line 6 or line 13")
+        and a reader that picked up the total there would over-carry the 2024 lot on exactly the
+        multi-vintage returns this module exists to serve. Lines 4 and 5 have their own paths.
+
+        THE M2 SELECTOR, and it is written as the intake rule itself rather than as four ranked
+        arms: ON THE DATED PATH (any slot answered), line 6 comes from the dated 2024 slot — its own
+        value if answered, else $0 because the filer dated their lots and left this one blank — and
+        the undated writable is SUPPRESSED entirely. OFF the dated path, the undated
+        /writablePriorYearMortgageCreditCarryforward supplies line 6, which is the shipping
+        behaviour, unchanged, for every return that has not moved onto the dated path (all 940 of the
+        committed corpus). THE INNER SWITCH IS NOT DECORATION. Reading the dated slot through a nested complete-safe
+        Switch, under an outer arm keyed on /mortgageCreditCarryforwardVintageSlotsAnswered rather
+        than on the slot's own IsComplete, is what keeps an ANSWERED-ZERO 2024 slot from being a
+        silent shadow of the undated writable (the answered-zero class,
+        scripts/lint_answered_zero.py). Here the shadowing would have been harmless — the suppression
+        arm returns the same $0 — but the shape now says so structurally instead of relying on two
+        arms agreeing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/mortgageCreditCarryforwardVintageSlotsAnswered" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableMortgageCreditCarryforwardIn2024" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableMortgageCreditCarryforwardIn2024" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writablePriorYearMortgageCreditCarryforward" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writablePriorYearMortgageCreditCarryforward" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396RateOverTwentyPercent">
+      <Name>Certificate credit rate is more than 20% (Form 8396 line 3 branch)</Name>
+      <Description>True when the certificate credit rate is answered AND greater than 20% — the branch
+        in which Form 8396 line 3 is capped at $2,000 (IRC §25(a)(2)). Tested on
+        /form8396CreditRateHundredths (2000 = 20.00%) so a fractional rate like 20.25% correctly
+        takes this branch even though its whole-percent leg alone (20) would not.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/form8396CreditRateHundredths" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form8396CreditRateHundredths" />
+            </Left>
+            <Right>
+              <Int>2000</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line3DollarLimit">
+      <Name>The line-3 dollar limit, allocated among co-owners (Form 8396 line 3, over-20% branch)</Name>
+      <Description>$2,000 when this taxpayer is the only owner, and this taxpayer's proportional
+        slice of $2,000 when someone else other than a jointly-filing spouse also holds an interest
+        in the home. IRC §25(a)(2)(B) allocates the subparagraph-(A) limitation "among such persons
+        in proportion to their respective interests in the residence", and the Line 3 instruction
+        says the same in return-preparation terms.
+
+        WHERE IT IS CONSUMED: /form8396TentativeCredit, and only on the branch where the certificate
+        credit rate exceeds 20% — that is the only branch in which any dollar limit exists. This
+        fact is therefore computed on every return and BINDS on almost none, which is the same shape
+        as the $2,000 literal it replaces.
+
+        COMPLETE-SAFE $2,000 when /writableMccCoOwnerInterestPercent is unanswered, which is every
+        committed scenario, so this fact moves no value anywhere it did not already stand: the old
+        body was the bare literal 2000 inside the LesserOf and the new body returns exactly 2000 on
+        the same inputs. Rounded HALF_UP to whole dollars, the convention line 3 already uses.
+
+        </Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableMccCoOwnerInterestPercent" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <GreaterOf>
+                        <Dependency path="/writableMccCoOwnerInterestPercent" />
+                        <Int>1</Int>
+                      </GreaterOf>
+                      <Dollar>2000</Dollar>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Int>100</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>2000</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396HasReissuedMccLimit">
+      <Name>A reissued-MCC original-certificate ceiling applies to line 3</Name>
+      <Description>True when BOTH halves of the reissued-MCC recomputation are answered — the
+        interest scheduled to be paid on the original mortgage and the original certificate's credit
+        rate. Requiring both is the guard against a half-answered pair silently halving the credit:
+        with only the interest answered the product would be interest × 0, and with only the rate
+        answered it would be 0 × rate, either of which would cap line 3 at $0 on a return the rule
+        does not even reach.
+
+        Complete-safe false — IsComplete never propagates incompleteness — so this is a new
+        Complete-false row on every committed scenario.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableReissuedMccOriginalScheduledInterest" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableReissuedMccOriginalCreditRatePercent" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396ReissuedRateAboveOriginal">
+      <Name>The reissued certificate's credit rate is above the original certificate's</Name>
+      <Description>True when both reissued-certificate figures are answered (/form8396HasReissuedMccLimit)
+        and the certificate credit rate on line 2 (/form8396CreditRateHundredths, the reissued
+        certificate's) is above the original certificate's rate
+        (/form8396ReissuedMccOriginalCreditRateHundredths). A refinance keeps the credit only when the
+        reissued certificate meets every condition Form 8396 lists, one of which is that its credit rate
+        cannot exceed the existing certificate's; a certificate issued at a higher rate is not such a
+        reissuance, so no credit is allowed under it: /form8396TentativeCredit is $0 in a year after the
+        refinance, and in the refinance year only the original certificate's leg is kept
+        (/form8396ReissuedMccSplitReissuedCredit is $0). Complete-safe false when either rate or the
+        reissued pair is unanswered.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <All>
+          <Dependency path="/form8396HasReissuedMccLimit" />
+          <IsComplete>
+            <Dependency path="/form8396CreditRateHundredths" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+          </IsComplete>
+          <GreaterThan>
+            <Left><Dependency path="/form8396CreditRateHundredths" /></Left>
+            <Right><Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" /></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396HasReissuedMccSplitInterest">
+      <Name>The refinance-year original-interest split is supplied</Name>
+      <Description>Complete-safe gate for the refinance-year split calculation. It is true only when
+        the ordinary reissued-MCC pair is active, the filer supplied the additional actual interest
+        paid under the original certificate, AND both Form 8396 line 1 (interest paid under the
+        reissued certificate) and line 2 (the reissued certificate's rate) are answered. An
+        unanswered split input leaves the existing scheduled-interest ceiling calculation in force,
+        preserving all ordinary reissued-MCC years.
+
+        WHY LINES 1 AND 2 ARE PART OF THE GATE. The split is the refinance year of a filer who holds
+        BOTH certificates, and the reissued leg is line 1 times line 2. The current-year gates —
+        /form8396ClaimsCurrentYearCredit, which asks the eligibility questions and arms the
+        knockout, and /mortgageInterestCreditIsActive, which lets line 9 reach Schedule 3 — read
+        only lines 1 and 2 and the carry-ins. A split answered WITHOUT lines 1 and 2 would put the
+        original leg on line 3, and so reduce the Schedule A mortgage interest deduction, while line
+        9 stayed $0 and no eligibility question was asked. Requiring lines 1 and 2 here keeps the
+        three gates aligned: with them unanswered, line 3 falls to the reissued-MCC ceiling arm over
+        a $0 product and the Schedule A deduction is not reduced.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <All>
+          <Dependency path="/form8396HasReissuedMccLimit" />
+          <IsComplete>
+            <Dependency path="/writableReissuedMccOriginalInterestPaid" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableMortgageInterestOnCertifiedIndebtedness" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableMccCreditRatePercent" />
+          </IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396ReissuedMccSplitOriginalCredit">
+      <Name>Credit from the original-certificate leg of the refinance-year split</Name>
+      <Description>The original-certificate leg: actual interest paid before the refinance times the
+        original certificate rate, with the applicable allocated $2,000 ceiling when that rate is
+        above 20%. This is used only when /form8396HasReissuedMccSplitInterest is true.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/form8396HasReissuedMccSplitInterest" />
+                  <GreaterThan>
+                    <Left><Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" /></Left>
+                    <Right><Int>2000</Int></Right>
+                  </GreaterThan>
+                </All>
+              </When>
+              <Then>
+                <LesserOf>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+                        <GreaterOf>
+                          <Dependency path="/writableReissuedMccOriginalInterestPaid" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Multiply>
+                    </Dividend>
+                    <Divisors><Int>10000</Int></Divisors>
+                  </Divide>
+                  <Dependency path="/form8396Line3DollarLimit" />
+                </LesserOf>
+              </Then>
+            </Case>
+            <Case>
+              <When><Dependency path="/form8396HasReissuedMccSplitInterest" /></When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+                      <GreaterOf>
+                        <Dependency path="/writableReissuedMccOriginalInterestPaid" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors><Int>10000</Int></Divisors>
+                </Divide>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396ReissuedMccSplitReissuedCredit">
+      <Name>Credit from the reissued-certificate leg of the refinance-year split</Name>
+      <Description>The reissued-certificate leg: interest paid after the refinance times the
+        reissued rate, with the current certificate's allocated $2,000 ceiling when that rate is
+        above 20%. This is used only when /form8396HasReissuedMccSplitInterest is true. $0 when the
+        reissued rate is above the original (/form8396ReissuedRateAboveOriginal): such a certificate
+        is not a reissuance that keeps the credit.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When><Dependency path="/form8396ReissuedRateAboveOriginal" /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/form8396HasReissuedMccSplitInterest" />
+                  <Dependency path="/form8396RateOverTwentyPercent" />
+                </All>
+              </When>
+              <Then>
+                <LesserOf>
+                  <Dependency path="/form8396LineOneTimesLineTwo" />
+                  <Dependency path="/form8396Line3DollarLimit" />
+                </LesserOf>
+              </Then>
+            </Case>
+            <Case>
+              <When><Dependency path="/form8396HasReissuedMccSplitInterest" /></When>
+              <Then><Dependency path="/form8396LineOneTimesLineTwo" /></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396ReissuedMccOriginalCertificateLimit">
+      <Name>Credit that would have been allowed under the ORIGINAL MCC (reissued-MCC line-3 ceiling)</Name>
+      <Description>The credit that would have been allowed under the ORIGINAL certificate: the
+        interest SCHEDULED to be paid on the original mortgage × the original certificate's credit
+        rate, rounded HALF_UP to whole dollars, and then held to the line-3 dollar limit if the
+        ORIGINAL certificate's rate was itself more than 20%. The Refinanced Mortgage instruction
+        computes this figure for exactly one purpose — it "may limit your line 3 credit allowed when
+        you have a reissued MCC, even if your new loan has a lower interest rate".
+
+        THE $2,000 CAP APPLIES ON THE ORIGINAL SIDE TOO, and getting this wrong over-credits a real
+        population. THE SHORTEST PROOF IS PRINTED AND NEEDS NO STATUTE: the reissuance conditions
+        say "The reissued certificate cannot result in a larger amount ON LINE 3 than would have
+        otherwise been allowable under the existing certificate for any tax year", and "the amount
+        on line 3" is post-cap by construction. Take the corner below — an uncapped ceiling puts
+        4,000 on line 3 where the original certificate's own line 3 would have been 2,000, which is
+        exactly the outcome that bullet forbids. IRC §25(e)(4) reaches the same answer by the longer
+        route: it conditions reissuance on the reissued credit being "equal to or less than the
+        amount of credit which would be ALLOWABLE UNDER SUBSECTION (a)" for the original
+        certificate, and subsection (a) is (a)(1) AS LIMITED BY (a)(2)(A), the $2,000 ceiling for a
+        rate over 20%. The instruction's mechanical sentence ("multiply the interest that was
+        scheduled to be paid ... by the certificate rate") is the only text pulling the other way,
+        and it is subordinate to its own lead sentence, "the amount of credit that you would have
+        been ALLOWED", which is (a)(2)(A)'s operative verb. So "what the original MCC would have
+        allowed" is the CAPPED figure, not the raw product. (Every printed sentence quoted in this Description is JOINED across consecutive lines of ONE column of a two-column page; the authority comment below spells each fragment against its own physical line, which is where a checker should look.) The case that makes the difference visible is a filer
+        who refinanced DOWN out of a high-rate certificate: original rate 30% (capped at $2,000),
+        reissued rate 20% (legal — the reissuance condition only forbids the reissued rate EXCEEDING
+        the original). Without this arm the ceiling would be the raw product and line 3 would take
+        the current-side figure untouched, over-crediting by up to $2,000, because the current side's
+        own cap does not engage at a 20% rate. THE CAP USED IS /form8396Line3DollarLimit, NOT A BARE $2,000, so a co-owner's ceiling is
+        their allocated share on the original side as well. The ownership share is a property of the
+        residence, not of which certificate is in force, and IRC 25(a)(2)(B) allocates the
+        subparagraph (A) limitation itself rather than allocating a particular year's application of
+        it. THE ASSUMPTION THAT CARRIES, NAMED RATHER THAN LEFT IN THE interpretation TAG: there is ONE
+        /writableMccCoOwnerInterestPercent and it is used for BOTH years, so this fact assumes the
+        filer's proportional interest in the residence was the SAME in the original certificate's
+        year as it is now. That is right whenever the ownership did not change, which is the
+        ordinary case, and wrong for a filer who bought out or sold down a share between the
+        original certificate and the reissued one. No line of Form 8396 asks for a prior-year
+        ownership share, so the alternative would be a second writable the filer has nothing to read
+        it off; the single share is the honest modelling and this sentence is the disclosure, not
+        the tag alone.
+
+        NOT DOUBLE-CAPPED: the two ceilings still meet only once, in
+        /form8396TentativeCredit's LesserOf. When the CURRENT rate is over 20% the dollar limit is
+        applied there; the arm below applies it here on the strength of the ORIGINAL rate, which is a
+        different test on a different number.
+
+        Complete-safe $0 when the pair is unanswered — and $0 is SAFE here only because
+        /form8396TentativeCredit consults /form8396HasReissuedMccLimit before it consults this
+        value. A branch that read this fact unguarded would cap every return's line 3 at zero. That
+        coupling is the reason the two facts exist rather than one.
+
+        THE RATE IS /form8396ReissuedMccOriginalCreditRateHundredths, not the bare whole-percent
+        writable, so an original certificate with a fractional rate (e.g. 12.5%) is held to the
+        same corrected arithmetic as the current-year side.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableReissuedMccOriginalCreditRatePercent" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+                    </Left>
+                    <Right>
+                      <Int>2000</Int>
+                    </Right>
+                  </GreaterThan>
+                  <Dependency path="/form8396HasReissuedMccLimit" />
+                </All>
+              </When>
+              <Then>
+                <LesserOf>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+                        <GreaterOf>
+                          <Dependency path="/writableReissuedMccOriginalScheduledInterest" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Multiply>
+                    </Dividend>
+                    <Divisors>
+                      <Int>10000</Int>
+                    </Divisors>
+                  </Divide>
+                  <Dependency path="/form8396Line3DollarLimit" />
+                </LesserOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <Dependency path="/form8396HasReissuedMccLimit" />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+                      <GreaterOf>
+                        <Dependency path="/writableReissuedMccOriginalScheduledInterest" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Int>10000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396LineOneTimesLineTwo">
+      <Name>Line 1 × line 2, before any line-3 ceiling (Form 8396 line 3, uncapped)</Name>
+      <Description>The product the printed line 3 opens with — "If line 2 is 20% or less, multiply
+        line 1 by line 2" — rounded HALF_UP to whole dollars. Extracted from
+        /form8396TentativeCredit so that the three ceilings that may sit on top of it (the $2,000
+        over-20% limit as allocated among co-owners, and the reissued-MCC original-certificate
+        limit) read one expression rather than four copies of it.
+
+        Complete-safe $0 unless BOTH line 1 and line 2 are answered, exactly as the body it was
+        lifted out of, so a carryforward-only return still resolves and every return without an MCC
+        keeps line 3 = 0.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableMortgageInterestOnCertifiedIndebtedness" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableMccCreditRatePercent" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="/form8396CreditRateHundredths" />
+                      <GreaterOf>
+                        <Dependency path="/writableMortgageInterestOnCertifiedIndebtedness" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Int>10000</Int>
+                  </Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396TentativeCredit">
+      <Name>Tentative current-year mortgage interest credit (Form 8396 line 3)</Name>
+      <Description>Form 8396 line 3 = /form8396LineOneTimesLineTwo (interest paid on the certified
+        indebtedness × the certificate credit rate, rounded HALF_UP to whole dollars — the IRS
+        whole-dollar convention shared with Form 5695 / Form 8863), held down by whichever of TWO
+        independent ceilings apply.
+
+        THE PRINTED LINE IS ONE LINE WITH THREE CASES and this dictionary used to model one and a
+        half of them: "If line 2 is 20% or less, multiply line 1 by line 2. If line 2 is more than
+        20%, OR YOU REFINANCED YOUR MORTGAGE AND RECEIVED A REISSUED CERTIFICATE, see the
+        instructions for the amount to enter." The reissued-certificate case was the second of the four items the module header once deferred, and it is filled here together
+        with the third, the co-owner allocation of the $2,000.
+
+          CEILING 1 — the over-20% dollar limit, ALLOCATED. If the certificate credit rate is more
+          than 20%, line 3 may not exceed /form8396Line3DollarLimit: $2,000 under IRC §25(a)(2)(A),
+          or this taxpayer's proportional slice of it under §25(a)(2)(B) when someone else other
+          than a jointly-filing spouse also holds an interest in the home. The excess is neither
+          credited nor carried forward — the Part II Caution says so of the allocated figure too
+          (https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2: "no amount over the $2,000 limit (or your prorated share of the $2,000 if you must
+          allocate the credit) may be carried forward for use in a later year") — and the cap is
+          applied HERE, before line 7 adds it up, so no Part II row can ever see it.
+
+          CEILING 2 — the reissued-MCC original-certificate limit. A filer who refinanced and holds
+          a reissued MCC may not take more than the credit the ORIGINAL certificate would have
+          allowed, which is /form8396ReissuedMccOriginalCertificateLimit. It applies at ANY rate,
+          including 20% or less, because the instruction attaches it to the refinancing and not to
+          the rate — which is why the four-case switch below is not a three-case one.
+
+        THE TWO CEILINGS ARE INDEPENDENT AND BOTH MAY BIND, and the intersection is a real
+        population rather than a hypothetical: a co-owner who also refinanced. WHAT THAT POPULATION
+        LOOKS LIKE IS CONSTRAINED, and the first draft of this paragraph got it wrong. The
+        reissuance conditions forbid the reissued rate from EXCEEDING the original's ("The credit
+        rate of the reissued certificate cannot exceed the credit rate of the existing
+        certificate"), so originalRate is always at least currentRate — which means a return that
+        reaches the both-ceilings arm at all (currentRate over 20) ALWAYS has originalRate over 20
+        too, and its original-side ceiling is therefore capped by the same allocated dollar limit
+        (not equal to it — the witness five lines below has the original-side value at 800 against
+        an allocated limit of 1,000).
+        The arm collapses to the smallest of three numbers: the product, the allocated limit, and
+        the original certificate's own capped credit. Complete-safe: 0 unless BOTH line 1 and line 2 are answered (the guard now lives in
+        /form8396LineOneTimesLineTwo) — so a carryforward-only return still resolves, and every
+        return without an MCC keeps line 3 = 0. Both ceiling gates are complete-safe false, so on
+        every committed scenario this fact takes the same arm and the same value it took before.
+
+        APPENDED: External block 1
+        added a FIFTH case AHEAD of all four above: when /form8396HasReissuedMccSplitInterest is
+        true, line 3 is the SUM of the two separately-capped refinance-year legs
+        (/form8396ReissuedMccSplitOriginalCredit + /form8396ReissuedMccSplitReissuedCredit). The
+        combination itself is right - f8396 lines 135-141, "Combine the amounts from both
+        calculations for line 3" - but as landed it BYPASSED CEILING 2 entirely and let each leg
+        carry its own $2,000, so the sum could reach $4,000. THE FIX: the split sum is now held down by
+        /form8396ReissuedMccOriginalCertificateLimit, which is CEILING 2 and already carries the
+        allocated dollar limit inside itself whenever the ORIGINAL rate is over 20% (its own
+        LesserOf against /form8396Line3DollarLimit). That is NOT the whole of the bound: the rate
+        ordering the reissuance conditions impose (the reissued rate may not exceed the original's)
+        is not enforced by this module, so a return can pair an original rate at or below 20%
+        (an uncapped ceiling) with a current rate over 20%, and the two legs then sum past $2,000.
+        IRC 25(a)(2)(A) caps the credit "for any taxable year", not per certificate, so a split
+        case whose CURRENT rate is over 20% now holds the sum to /form8396Line3DollarLimit as well
+        as to the original-certificate ceiling (the case ahead of the plain split case). Authority: 2025 Form 8396 line 3 instructions,
+        "The reissued certificate cannot result in a larger amount on line 3 than would have
+        otherwise been allowable under the existing certificate for any tax year";
+        https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2. IRC 25(a)(2)(A), the $2,000 taxable-year
+        cap on an over-20% rate, 26 U.S.C. 25, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section25&amp;num=0&amp;edition=2024. IRC 25(e)(4), reissuance
+        permitted only where the credit allowable under the reissued certificate "is equal to or
+        less than the amount of credit which would be allowable ... with respect to the original
+        certificate for any taxable year ending after such reissuance", 26 U.S.C. 25, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section25&amp;num=0&amp;edition=2024. The witness now asserts 2,000 on line 3, line 7 and Schedule 3 line 6g.
+
+        A REISSUED RATE ABOVE THE ORIGINAL comes first: such a certificate fails the reissuance
+        conditions ("The credit rate of the reissued certificate cannot exceed the credit rate of the
+        existing certificate"), and a refinance keeps the credit only when every condition is met, so
+        line 3 is $0 in a year after the refinance; in the refinance year the split arms apply with
+        the reissued leg at $0 (/form8396ReissuedRateAboveOriginal).
+
+        WHAT FLOWS DOWNSTREAM, named because it is easy to miss: line 3 is what
+        scheduleA:/mortgageInterestDeductionAfterCredit subtracts from the Schedule A home-mortgage
+        interest deduction (Line 3 instructions: "you must reduce the amount of home mortgage
+        interest you would otherwise deduct on Schedule A by the amount on Form 8396, line 3"). Both
+        new ceilings therefore make that reduction SMALLER, i.e. the itemized deduction larger, for
+        the filers they bind — the correct direction, and the reason these two fills are
+        taxpayer-favourable on the Schedule A side as well as adverse on the credit side.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form8396ReissuedRateAboveOriginal" />
+                <Not>
+                  <Dependency path="/form8396HasReissuedMccSplitInterest" />
+                </Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form8396HasReissuedMccSplitInterest" />
+                <Dependency path="/form8396RateOverTwentyPercent" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <LesserOf>
+                  <Add>
+                    <Dependency path="/form8396ReissuedMccSplitOriginalCredit" />
+                    <Dependency path="/form8396ReissuedMccSplitReissuedCredit" />
+                  </Add>
+                  <Dependency path="/form8396Line3DollarLimit" />
+                </LesserOf>
+                <Dependency path="/form8396ReissuedMccOriginalCertificateLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/form8396HasReissuedMccSplitInterest" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Add>
+                  <Dependency path="/form8396ReissuedMccSplitOriginalCredit" />
+                  <Dependency path="/form8396ReissuedMccSplitReissuedCredit" />
+                </Add>
+                <Dependency path="/form8396ReissuedMccOriginalCertificateLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Dependency path="/form8396RateOverTwentyPercent" />
+                <Dependency path="/form8396HasReissuedMccLimit" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <LesserOf>
+                  <Dependency path="/form8396LineOneTimesLineTwo" />
+                  <Dependency path="/form8396Line3DollarLimit" />
+                </LesserOf>
+                <Dependency path="/form8396ReissuedMccOriginalCertificateLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/form8396RateOverTwentyPercent" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8396LineOneTimesLineTwo" />
+                <Dependency path="/form8396Line3DollarLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/form8396HasReissuedMccLimit" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8396LineOneTimesLineTwo" />
+                <Dependency path="/form8396ReissuedMccOriginalCertificateLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8396LineOneTimesLineTwo" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396TotalCreditBeforeLimit">
+      <Name>Total mortgage interest credit available (Form 8396 line 7)</Name>
+      <Description>Form 8396 line 7 = add lines 3 through 6, and it is now genuinely FOUR addends:
+        /form8396TentativeCredit (line 3) + /form8396CarryforwardIn2022 (line 4) +
+        /form8396CarryforwardIn2023 (line 5) + /form8396CarryforwardIn (line 6). The total credit
+        available to offset tax before the line-8 tax-liability limit.
+
+        The two new addends are complete-safe 0 unless a dated slot is answered, so on every return
+        that has not moved onto the dated path this fact is byte-identical to the two-addend version
+        it replaces. Note the ORDER of the addends is the consumption order the Part II rows then
+        unwind: current year, then 2022, then 2023, then 2024.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars, where line 3 already
+        puts them.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8396TentativeCredit" />
+          <Dependency path="/form8396CarryforwardIn2022" />
+          <Dependency path="/form8396CarryforwardIn2023" />
+          <Dependency path="/form8396CarryforwardIn" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CreditLimitWorksheetLine2">
+      <Name>Mortgage Interest Credit Limit Worksheet line 2 (credits ordered before this credit)</Name>
+      <Description>Form 8396 Line 8 Credit Limit Worksheet line 2: the total of the credits taken on the
+        2025 return that are applied against tax BEFORE the mortgage interest credit — Form 1040 line 19
+        (CTC/ODC); Schedule 3 lines 1 (foreign tax credit), 2 (child &amp; dependent care), 3
+        (nonrefundable education), 4 (retirement savings), 6d (elderly/disabled), 6f and 6m (clean
+        vehicle), 6l; and Form 5695 line 32 (energy efficient home improvement, Schedule 3 line 5b). The
+        printed list does NOT include Schedule 3 line 5a (residential clean energy) — 6g is ordered
+        before 5a. Non-circular: none of these ten terms depends on /sched3Line6g (grep-verified). The
+        CTC/ODC term is entered "only if allowed and taken" (IsComplete-gated, the Form 5695 pattern) so
+        a return whose dependent-credit facts are Incomplete enters 0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/sched3Line1" />
+          <Dependency module="cdcc" path="/cdccTotalCredit" />
+          <Dependency module="schedule3" path="/sched3Line3" />
+          <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+          <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+          <Dependency module="schedule3" path="/sched3Line6f" />
+          <Dependency module="schedule3" path="/sched3Line6l" />
+          <Dependency module="schedule3" path="/sched3Line6m" />
+          <Dependency module="schedule3" path="/sched3Line5b" />
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency module="ctcOdc" path="/totalCtcAndOdc" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency module="ctcOdc" path="/totalCtcAndOdc" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8396CreditLimitWorksheetLine2Wsb">
+      <Name>Mortgage Interest Credit Limit Worksheet line 2 — the Credit Limit Worksheet B twin</Name>
+      <Description>/form8396CreditLimitWorksheetLine2 with ONE substitution: the Form 1040 line 19
+        (CTC/ODC) term is replaced by ctcOdc:/sched8812CreditLimitWorksheetBLine14. Every other term
+        is the same fact in the same order.
+
+        THE SUBSTITUTION IS PRINTED ON THIS VERY WORKSHEET — not inferred from the sibling forms,
+        which is a CORRECTION to what the contract assumed. The contract cited only the i5695
+        and i8839 footnotes and left Form 8396's own instruction unquoted; reading the vendored form
+        settles it. Credit Limit Worksheet line 2 prints "Form 1040 or 1040-SR, line 19;*" with an
+        asterisk, and the asterisk resolves at the foot of the same page: "* If you are directed to
+        complete Form 8396 by Credit Limit Worksheet B in the Instructions for Schedule 8812 (Form
+        1040), include the amount from line 14 of Credit Limit Worksheet B instead of the amount
+        from Form 1040, 1040-SR, or 1040-NR, line 19" (https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2). So all THREE bridge credits this dictionary models carry the same printed
+        footnote in the same words, and this twin is the footnote, not a reading of it.
+
+        The Schedule 8812 instructions order the whole thing from their side, which is what makes it
+        acyclic: Credit Limit Worksheet B line 14 comes first, then "Next, figure the amount of any
+        of the following credits that you are claiming ... Mortgage interest credit, Form 8396 ...
+        Then, go to line 15" (https://www.irs.gov/pub/irs-pdf/i1040s8.pdf, page 6), and line 15 sums
+        this credit's Schedule 3 line back into Credit Limit Worksheet A line 4. Reading Form 1040
+        line 19 here while Worksheet A line 4 subtracts this credit from the CTC limit is the
+        double-counting the whole worksheet exists to prevent.
+
+        WHY THE LINE-14 TERM KEEPS THE IsComplete/Switch WRAPPER the CTC term already had: a bare
+        Dependency would make this fact Incomplete whenever any Worksheet B line 1-13 input is, and
+        on a trigger-true return that propagates through the selector to Schedule 3 line 6g,
+        /line8OfSchedule3 and total tax. The worksheet's own "only if allowed and taken" note is the
+        same reading it was for Form 1040 line 19.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (a total of credits); whole dollars,
+        where the plain twin already puts them.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/sched3Line1" />
+          <Dependency module="cdcc" path="/cdccTotalCredit" />
+          <Dependency module="schedule3" path="/sched3Line3" />
+          <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+          <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+          <Dependency module="schedule3" path="/sched3Line6f" />
+          <Dependency module="schedule3" path="/sched3Line6l" />
+          <Dependency module="schedule3" path="/sched3Line6m" />
+          <Dependency module="schedule3" path="/sched3Line5b" />
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency module="ctcOdc" path="/sched8812CreditLimitWorksheetBLine14" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency module="ctcOdc" path="/sched8812CreditLimitWorksheetBLine14" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396TaxLiabilityLimitWsb">
+      <Name>Limitation based on tax liability (Form 8396 line 8) — the Credit Limit Worksheet B twin</Name>
+      <Description>/form8396TaxLiabilityLimit computed from /form8396CreditLimitWorksheetLine2Wsb:
+        Form 1040 line 18 minus the worksheet's line 2 with the Credit Limit Worksheet B line-14
+        substitution, floored at 0. Identical shape to the plain arm; only the subtrahend
+        differs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8396CreditLimitWorksheetLine2Wsb" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mortgageInterestCreditWsb">
+      <Name>Current-year mortgage interest credit — the Credit Limit Worksheet B twin (Form 8396 line 9)</Name>
+      <Description>Form 8396 line 9 computed on the Worksheet B arm: the smaller of line 7
+        (/form8396TotalCreditBeforeLimit) and the twin line-8 limit. This is the value Credit Limit
+        Worksheet B line 15 takes for Schedule 3 line 6g, and it is the value the public
+        /mortgageInterestCredit selects when the filer is completing Worksheet B.
+
+        IT IS NOT ITSELF GATED ON THE TRIGGER, deliberately: the selector below owns that choice, so
+        this fact stays a pure "what would the credit be under the Worksheet B ordering" and can be
+        read by /sched8812CreditLimit's chain without dragging the trigger — and hence the public
+        credit paths — into that cone. It keeps the SAME /mortgageInterestCreditIsActive branch gate
+        the public fact has, so a return with no Form 8396 input takes the else-0 branch without
+        evaluating the limit chain (the branch-gate lesson).
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars, as the plain
+        arm.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/mortgageInterestCreditIsActive" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8396TotalCreditBeforeLimit" />
+                <Dependency path="/form8396TaxLiabilityLimitWsb" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396TaxLiabilityLimit">
+      <Name>Limitation based on tax liability (Form 8396 line 8)</Name>
+      <Description>Form 8396 line 8, from the Credit Limit Worksheet: line 1 (Form 1040 line 18,
+        taxCalculations /totalTentativeTax) minus line 2 (/form8396CreditLimitWorksheetLine2, the credits
+        ordered before this credit), floored at 0 ("If zero or less, enter -0- here and on Form 8396,
+        lines 8 and 9").</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8396CreditLimitWorksheetLine2" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mortgageInterestCreditIsActive">
+      <Name>Return has Form 8396 mortgage interest credit inputs</Name>
+      <Description>True when any Form 8396 input is answered — interest on the certified indebtedness,
+        the certificate credit rate, the undated prior-year carryforward, or ANY of the three dated
+        vintage slots. Gates /mortgageInterestCredit so a return with no MCC takes the else-0 branch
+        WITHOUT evaluating the line-8 tax-liability chain — keeping /sched3Line6g and
+        /line8OfSchedule3 byte-identical on scenarios whose tax/credit facts are Placeholder or
+        Incomplete (the branch-gate lesson).
+
+        THE THREE DATED SLOTS ARE LOAD-BEARING TERMS HERE, not bookkeeping: a return whose only Form
+        8396 input is a 2022 or 2023 lot has a real credit to claim, and omitting those terms would
+        leave this gate false and silently resolve the whole credit to $0 while every existing test
+        still passed. </Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writableMortgageInterestOnCertifiedIndebtedness" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableMccCreditRatePercent" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writablePriorYearMortgageCreditCarryforward" />
+          </IsComplete>
+          <Dependency path="/mortgageCreditCarryforwardVintageSlotsAnswered" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/mortgageInterestCredit">
+      <Name>Current-year mortgage interest credit (Form 8396 line 9 → Schedule 3 line 6g)</Name>
+      <Description>Form 8396 line 9 = smaller of line 7 (/form8396TotalCreditBeforeLimit) and line 8
+        (/form8396TaxLiabilityLimit). Nonrefundable; flows to Schedule 3 line 6g → line 7 →
+        /line8OfSchedule3 → Form 1040 line 20. Complete-safe: with no Form 8396 input the else branch
+        yields 0 WITHOUT evaluating the line-8 limit chain, so every prior scenario keeps /sched3Line6g,
+        /line8OfSchedule3 and total tax byte-identical.
+
+        NOW A SELECTOR OVER TWO ARMS (Worksheet B build, step 2), and the arm order is the whole
+        point. The FIRST Case asks ctcOdc:/isCompletingCreditLimitWorksheetB — Credit Limit Worksheet
+        A line 3's trigger — and returns /mortgageInterestCreditWsb, the twin whose line-8 limit
+        subtracts Credit Limit Worksheet B line 14 in place of Form 1040 line 19. The remaining two
+        Cases are the body this fact has always had, unchanged. So this fact is strictly DOWNSTREAM
+        of both arms and neither arm is downstream of it; the twin cone never reads this path, which
+        is what lets /sched8812CreditLimit read the twin (step 5) without closing a cycle.
+
+        ADDITIVE ON THE WHOLE CORPUS, measured rather than argued: the trigger is Complete-FALSE on
+        all 938 baseline cases, and true on NONE — 26 claim one of the modeled Worksheet-B credits
+        (re-measured by this build; the contract's figure was 27) and 60 have CTC-eligible
+        dependents, and the two sets are disjoint — so the new first Case is never taken and every
+        scenario keeps /sched3Line6g, /line8OfSchedule3 and total tax byte-identical.
+        The regression net therefore CANNOT validate this arm; tests/nodes/ty2025/form8396/wsb-* are
+        the evidence. California TY2025 reads this fact through its stateSystems export (Schedule CA (540) Part II line 8 mortgage interest credit add-back).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="ctcOdc" path="/isCompletingCreditLimitWorksheetB" />
+            </When>
+            <Then>
+              <Dependency path="/mortgageInterestCreditWsb" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/mortgageInterestCreditIsActive" />
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8396TotalCreditBeforeLimit" />
+                <Dependency path="/form8396TaxLiabilityLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8396Line10">
+      <Name>Add lines 3 and 4 (Form 8396 line 10)</Name>
+      <Description>Form 8396 line 10 = /form8396TentativeCredit (line 3) + /form8396CarryforwardIn2022
+        (line 4). The sum of the two lots that CANNOT appear in a 2024/2023 carry-out row: the
+        current-year credit, which has its own line 17, and the 2022 lot, whose 3-year window closes
+        with this return. Feeding it into line 12 as a floor is how the form retires the unused part
+        of the 2022 lot without ever naming it.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8396TentativeCredit" />
+          <Dependency path="/form8396CarryforwardIn2022" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line12">
+      <Name>The larger of line 9 or line 10 (Form 8396 line 12)</Name>
+      <Description>Form 8396 line 12 = the larger of /mortgageInterestCredit (line 9) and
+        /form8396Line10. THE WRITE-OFF FLOOR, and the single most load-bearing line in Part II: by
+        taking line 10 when line 10 exceeds line 9, the form removes the whole of lines 3 and 4 from
+        the carry-forward base even though the credit never reached that far. That is the 2022
+        expiry, expressed as arithmetic rather than as a row.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/mortgageInterestCredit" />
+          <Dependency path="/form8396Line10" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line13">
+      <Name>Subtract line 12 from line 11 (Form 8396 line 13)</Name>
+      <Description>Form 8396 line 13 = line 11 (= line 7, /form8396TotalCreditBeforeLimit) minus line
+        12. The residue available to carry forward, and it belongs to the 2023 and 2024 lots ONLY —
+        lines 3 and 4 were removed by line 12. Never negative: line 11 dominates line 10 term by term
+        and dominates line 9 because line 9 = min(line 7, line 8) ≤ line 7 = line 11. The form prints
+        no "if zero or less" instruction on this row precisely because it cannot go below zero.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8396TotalCreditBeforeLimit" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8396Line12" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Carryforward2024To2026">
+      <Name>2024 credit carryforward to 2026 (Form 8396 line 14, REPORTED)</Name>
+      <Description>Form 8396 line 14 = the smaller of line 6 (/form8396CarryforwardIn — the 2024 lot,
+        and this is why that path must mean line 6 alone rather than the total of lines 4-6) and line
+        13. THE 2024 LOT HAS FIRST CLAIM ON THE RESIDUE, which is the complement of consuming the
+        lots earliest-first: whatever the credit did not reach, it did not reach starting from the
+        newest end.
+
+        REPORTED, not applied: the single-year engine never carries this into a 2026 return (the single-year carryforward posture). It is reported SEPARATELY from the 2023 row because a filer transcribes
+        the two onto different lines of next year's form — line 14 here becomes next year's line 5,
+        and line 16 here becomes next year's line 4.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8396CarryforwardIn" />
+          <Dependency path="/form8396Line13" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line15">
+      <Name>Subtract line 14 from line 13 (Form 8396 line 15)</Name>
+      <Description>Form 8396 line 15 = line 13 minus line 14 — the residue still unclaimed after the
+        2024 lot has taken its share, and therefore the ceiling on what the 2023 lot may carry. Never
+        negative: line 14 = min(line 6, line 13) ≤ line 13 by construction.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8396Line13" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8396Carryforward2024To2026" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Carryforward2023To2026">
+      <Name>2023 credit carryforward to 2026 (Form 8396 line 16, REPORTED)</Name>
+      <Description>Form 8396 line 16 = the smaller of line 5 (/form8396CarryforwardIn2023) and line 15.
+        The 2023 lot gets only what the 2024 lot left, because it is consumed FIRST of the two — the
+        assertion that makes this module's oldest-first claim falsifiable rather than decorative. REPORTED, not applied (the single-year carryforward posture). Becomes line 4 of the filer's 2026 Form 8396,
+        where it will be the expiring vintage.
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE; whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8396CarryforwardIn2023" />
+          <Dependency path="/form8396Line15" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Carryforward2025To2026">
+      <Name>2025 credit carryforward to 2026 (Form 8396 line 17, REPORTED)</Name>
+      <Description>Form 8396 line 17 = line 3 minus line 9, floored at 0 ("If zero or less, enter
+        -0-"). The part of THIS year's credit the tax-liability limit would not let the filer take.
+        Nonzero only when line 9 &lt; line 3, i.e. when the limit bit before the current-year credit
+        was even exhausted — in which case every prior lot is untouched and the 2022 lot expires in
+        full.
+
+        ANY AMOUNT OVER THE $2,000 CAP IS ALREADY EXCLUDED and cannot reach this row: line 3 is
+        capped BEFORE it enters line 7, so the cap's excess never becomes a carryforward. TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (floored); whole dollars.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8396TentativeCredit" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/mortgageInterestCredit" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396CarryforwardTo2026">
+      <Name>Mortgage interest credit carryforward to 2026, TOTAL (Form 8396 Part II, REPORTED)</Name>
+      <Description>Form 8396 Part II total carryforward to 2026 = line 14 + line 16 + line 17, each
+        now its own printed per-vintage fact. The total is what a summary screen shows; the three
+        vintage rows are what the filer transcribes onto next year's lines 4-6, so both are reported.
+
+        WHAT IS DELIBERATELY NOT IN THIS SUM: the unused part of the 2022 lot, which EXPIRES. Line 12
+        removes lines 3 and 4 from the base whether or not the credit reached them, so a return can
+        have line 7 − line 9 strictly greater than this total, and the difference is exactly the
+        expired 2022 residue. The
+        single-writable model this replaces could not lose it, because it had no line 4 to lose it
+        from; that is a correctness gap, not merely a fidelity one.
+
+        Amounts over the $2,000 cap are likewise absent, because line 3 is capped before entering
+        line 7. REPORTED as an output only — the single-year engine never applies it to a future
+        return (the single-year carryforward posture). Complete-safe 0 when no Form 8396 input.
+
+        VALUE-IDENTICAL TO THE EXPRESSION IT REPLACES on every return that has not moved onto the
+        dated path: with lines 4 and 5 at 0, line 10 collapses to line 3, line 16 to 0, and the sum
+        to min(line 6, line 7 − max(line 9, line 3)) + max(0, line 3 − line 9), term for
+        term.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/mortgageInterestCreditIsActive" />
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/form8396Carryforward2024To2026" />
+                <Dependency path="/form8396Carryforward2023To2026" />
+                <Dependency path="/form8396Carryforward2025To2026" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8396CreditLimitWorksheetLine2Printed">
+      <Name>Form 8396 Credit Limit Worksheet line 2 as printed</Name>
+      <Description>The Form 8396 line 8 Credit Limit Worksheet line 2 total of the credits ordered ahead of the mortgage interest credit. The dictionary computes it twice: the plain arm reads Form 1040 line 19 (/form8396CreditLimitWorksheetLine2) and the Worksheet B arm reads Credit Limit Worksheet B line 14 in its place (/form8396CreditLimitWorksheetLine2Wsb), which is what the asterisk footnote printed on the worksheet directs. This fact is the printed value: the Worksheet B arm when ctcOdc:/isCompletingCreditLimitWorksheetB is true, the plain arm otherwise.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="ctcOdc" path="/isCompletingCreditLimitWorksheetB" />
+            </When>
+            <Then>
+              <Dependency path="/form8396CreditLimitWorksheetLine2Wsb" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8396CreditLimitWorksheetLine2" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line11">
+      <Name>Enter the amount from line 7 (Form 8396 line 11)</Name>
+      <Description>Form 8396 line 11 restates line 7, the total credit available before the tax liability limit, as the base of the Part II remainder chain that line 13 subtracts from. It is an exact restatement of /form8396TotalCreditBeforeLimit, so it is an alias rather than a recomputation; the printed line exists only so Part II can be read down the page.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency path="/form8396TotalCreditBeforeLimit" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8396Line8Printed">
+      <Name>Form 8396 line 8 as printed: the limitation based on tax liability on whichever arm applies</Name>
+      <Description>Form 8396 line 8, which is also line 3 of the Form 8396 Credit Limit Worksheet: the tax liability limit on the mortgage interest credit. The dictionary computes it twice, /form8396TaxLiabilityLimit on the plain Form 1040 line 19 path and /form8396TaxLiabilityLimitWsb on the Credit Limit Worksheet B path. This fact is the printed value, selected by ctcOdc:/isCompletingCreditLimitWorksheetB, the same selector /mortgageInterestCredit already applies one line below.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="ctcOdc" path="/isCompletingCreditLimitWorksheetB" />
+            </When>
+            <Then>
+              <Dependency path="/form8396TaxLiabilityLimitWsb" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8396TaxLiabilityLimit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableMccCertificateNumber">
+      <Name>Mortgage Credit Certificate number</Name>
+      <Description>The certificate number printed on the qualified Mortgage Credit Certificate. Identity intake for the Form 8396 certificate block; a String rather than an Int because issuers number certificates with letters and separators.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccIssueDate">
+      <Name>Issue date of the Mortgage Credit Certificate</Name>
+      <Description>The date the qualified Mortgage Credit Certificate was issued, as printed on the certificate. A Day intake, not a String, because it is a calendar date; identity intake for the Form 8396 certificate block.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccIssuerName">
+      <Name>Name of the issuer of the Mortgage Credit Certificate</Name>
+      <Description>The state or local governmental unit or agency that issued the qualified Mortgage Credit Certificate, as printed on the certificate. Identity intake for the Form 8396 certificate block; nothing in the graph carries the issuer.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccMainHomeAddress">
+      <Name>Address of the main home the Mortgage Credit Certificate relates to</Name>
+      <Description>The address of the taxpayer's main home to which the qualified mortgage credit certificate relates, answered only when it differs from the address shown on the tax return. A free text intake box in the Form 8396 certificate identity block; the graph has no per-certificate property address, and the return address fact cannot stand in because the printed box exists precisely for the case where the two differ.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/form8396ClaimsCurrentYearCredit">
+      <Name>Return claims a CURRENT-year mortgage interest credit</Name>
+      <Description>True when the return answers either Form 8396 line 1 (the interest paid on the
+        certified indebtedness, /writableMortgageInterestOnCertifiedIndebtedness) or line 2 (the
+        certificate credit rate, /writableMccCreditRatePercent) — the two inputs a current-year
+        credit is computed from. Narrower than /mortgageInterestCreditIsActive, deliberately: that
+        gate is also true for a return whose ONLY Form 8396 input is a prior-year carryforward, on
+        which lines 1 through 3 are blank and only lines 4 through 6 carry an amount. Such a return
+        files a Form 8396 but claims nothing under a current-year certificate: IRC 25(e)(1)(A)
+        carries an unused credit into each of the 3 succeeding taxable years without re-testing
+        certificate eligibility in the year the carryover is used, and the two printed eligibility
+        conditions the attestations below implement — the main home in the issuer's jurisdiction,
+        and interest not paid to a related person — are both stated about interest claimed on this
+        return. So the three attestations are asked, and
+        /knockoutMortgageInterestCreditIneligible fires, on THIS fact rather than on the section
+        gate; a carryforward-only return is asked nothing new and is never refused.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="/writableMortgageInterestOnCertifiedIndebtedness" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/writableMccCreditRatePercent" />
+          </IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableMccCertificateIsQualifyingType">
+      <Name>The Mortgage Credit Certificate is a qualifying certificate, not an excluded type</Name>
+      <Description>Screen: "Is your Mortgage Credit Certificate a QUALIFYING certificate — issued
+        directly by a state or local governmental unit or agency under a qualified mortgage credit
+        certificate program? Answer No if it is a Homestead Staff Exemption Certificate, or was
+        issued by the Federal Housing Administration (FHA), the Department of Veterans Affairs
+        (VA), or the Farmers Home Administration (FmHA) / USDA Rural Development." Help text: the
+        form's own CAUTION names these four as certificates that "do not qualify for the credit"
+        (https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2) because none of them is issued by a State or
+        political subdivision, which IRC §25(c)(1)(A) requires. Asked once, alongside the
+        certificate-identity block above, whenever the return claims a CURRENT-year mortgage interest
+        credit — interest on the certified indebtedness or a certificate credit rate is answered
+        (/form8396ClaimsCurrentYearCredit). A return whose only Form 8396 input is a prior-year
+        carryforward is not asked. Unanswered or answered No ⇒ REFUSED: this leg feeds
+        /knockoutMortgageInterestCreditIneligible, which blocks submission rather than silently
+        allowing the credit — there is no printed line that lets a disqualified certificate claim a
+        partial credit. Validation: Boolean, no default (an unanswered attestation is not the same
+        as a "No" for any OTHER purpose; it is only the knockout that treats them alike).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccHomeIsMainHomeInIssuersJurisdiction">
+      <Name>The certified home was the filer's main home, in the issuer's jurisdiction, for the whole claimed period</Name>
+      <Description>Screen: "Was the home this certificate relates to your MAIN home, located within
+        the jurisdiction of the governmental unit that issued the certificate, for the ENTIRE period
+        you are claiming interest on this return?" Help text: the form states both halves of this
+        as a single requirement — "The home to which the certificate relates must be your main home
+        and must also be located in the jurisdiction of the governmental unit that issued the
+        certificate" (https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2) — and IRC §25(e)(3)(A)(ii)(II) ends
+        the certificate's effective period the day the residence "ceases to be the principal
+        residence" of the certificate holder. Asked once, same gate as the qualifying-type leg
+        (/form8396ClaimsCurrentYearCredit) — the question is about the period interest is claimed
+        for on this return, so a carryforward-only return, which claims interest for no period at
+        all, is never asked it. Unanswered or answered No ⇒ REFUSED via
+        /knockoutMortgageInterestCreditIneligible.
+
+        A HOME THAT WAS THE MAIN HOME FOR ONLY PART OF THE YEAR. The certificate stops applying the day
+        the home ceases to be the holder's principal residence (IRC 25(e)(3)(A)(ii)(II)), so the credit
+        is figured on the interest paid while it was the main home, not on the whole year's interest
+        and not by a count of months. Help text for that filer: "If the home was your main home for
+        only part of 2025 (for example, you moved out and rented it), answer Yes and enter on line 1
+        only the interest paid for the part of the year it was your main home." The claimed period is
+        then exactly the main-home period, so Yes is the truthful answer and the credit is not lost
+        for the whole year. A filer whose home was never the main home in 2025, or was outside the
+        issuer's jurisdiction, answers No and is refused.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableMccInterestNotPaidToRelatedPerson">
+      <Name>The mortgage interest was not paid to a related person</Name>
+      <Description>Screen: "Confirm: the mortgage interest you are claiming on line 1 was NOT paid
+        to a person related to you." Help text: the form says plainly, "If the interest on the
+        mortgage was paid to a related person, you cannot claim the credit"
+        (https://www.irs.gov/pub/irs-pdf/f8396.pdf, page 2), and IRC §25(e)(6) codifies the bar by reference
+        to the related-person test of section 144(a)(3)(A). Asked once, same gate as the other two
+        legs (/form8396ClaimsCurrentYearCredit) — the bar is about interest claimed on line 1, so a
+        carryforward-only return is not asked it. Unanswered or answered No ⇒ REFUSED via
+        /knockoutMortgageInterestCreditIneligible — there is no printed mechanism to claim a partial
+        credit on related-person interest.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutMortgageInterestCreditIneligible">
+      <Name>Refusal: Form 8396 current-year credit eligibility unattested, unmet, or out of band</Name>
+      <Description>The return claims a CURRENT-year mortgage interest credit
+        (/form8396ClaimsCurrentYearCredit) and at least one of five conditions holds: one of the
+        three §25 eligibility attestations — the certificate is a qualifying type, the certified
+        home was the filer's main home in the issuer's jurisdiction for the whole claimed period,
+        the interest was not paid to a related person — is EITHER unanswered OR answered No; or the
+        combined certificate credit rate (/form8396CreditRateHundredths, the whole-percent screen
+        plus the fractional-percent screen) exceeds 50.00%, which IRC §25(d)(1) forbids a
+        certificate credit rate to do; or the ORIGINAL certificate's combined rate on a reissued-MCC
+        return (/form8396ReissuedMccOriginalCreditRateHundredths) exceeds 50.00%. The band is a rule
+        about ANY mortgage credit certificate, and the original certificate's rate is an operand of
+        the line-3 ceiling (/form8396ReissuedMccOriginalCertificateLimit) and of the refinance-year
+        original leg, so an out-of-band original rate would otherwise raise both. Its whole-percent
+        writable carries Min 10 / Max 50, but 50 whole plus 99 hundredths is inside both Limits and
+        outside the statute, exactly as on the current side.
+
+        The graph cannot compute any of the three attested facts from other return data, so an
+        unattested return is refused rather than silently allowed the full credit — a disqualified
+        filer (an FHA, VA or FmHA certificate, a home converted to a rental, a related-person
+        lender) would otherwise receive the whole credit with nothing asked. The rate leg is here
+        rather than on a Limit because the rate is entered on two screens and a Limit sits on one
+        writable: 50 whole plus 99 hundredths is inside both Limits and outside the statute.
+
+        THIS IS THE PERMANENT RESIDUE, not a placeholder: answering all three attestations Yes with
+        a rate inside the band clears it. The interview obligation that closes it in practice is a
+        the application routing row for the three attestation writables, asked whenever
+        /form8396ClaimsCurrentYearCredit.
+
+        GATED ON /form8396ClaimsCurrentYearCredit rather than on the Form 8396 section gate
+        /mortgageInterestCreditIsActive, and the narrowing is load-bearing in both directions. A
+        return with no Form 8396 activity at all leaves the three attestations Incomplete, and the
+        wider gate would fire this refusal on the entire corpus. A return whose ONLY Form 8396 input
+        is a prior-year carryforward — the home is gone, no interest is paid this year, no
+        certificate rate applies — is inside the wider gate too, and refusing it would demand an
+        attestation about "the entire period you are claiming interest on this return" from a filer
+        claiming interest for no period at all; IRC §25(e)(1)(A) carries that unused credit forward
+        without re-testing certificate eligibility, so such a return files.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency path="/form8396ClaimsCurrentYearCredit" />
+          <Any>
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableMccCertificateIsQualifyingType" />
+                </IsComplete>
+                <Dependency path="/writableMccCertificateIsQualifyingType" />
+              </All>
+            </Not>
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableMccHomeIsMainHomeInIssuersJurisdiction" />
+                </IsComplete>
+                <Dependency path="/writableMccHomeIsMainHomeInIssuersJurisdiction" />
+              </All>
+            </Not>
+            <Not>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableMccInterestNotPaidToRelatedPerson" />
+                </IsComplete>
+                <Dependency path="/writableMccInterestNotPaidToRelatedPerson" />
+              </All>
+            </Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableMccCreditRatePercent" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8396CreditRateHundredths" />
+                </Left>
+                <Right>
+                  <Int>5000</Int>
+                </Right>
+              </GreaterThan>
+            </All>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableReissuedMccOriginalCreditRatePercent" />
+              </IsComplete>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8396ReissuedMccOriginalCreditRateHundredths" />
+                </Left>
+                <Right>
+                  <Int>5000</Int>
+                </Right>
+              </GreaterThan>
+            </All>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

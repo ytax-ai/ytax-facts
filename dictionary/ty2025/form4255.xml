@@ -1,0 +1,828 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form4255ReturnFilesThisForm">
+      <Name>Return files Form 4255</Name>
+      <Description>True when a positive amount is entered in one of the four dedicated Form 4255 intakes this module holds - the Schedule 2 line 1d and line 19 net EPE recaptures, the line 1e excessive payment, and the line 1f twenty percent addition - or when a positive Part II Section D line 16 recapture is COMPUTED here from the filer's full-year count and credit base. Form 4255 also reaches a Form 1040 return through the GENERIC Schedule 2 line 1y, 17a and 17z boxes, which carry a single amount and a free-text type each and are shared with recaptures from other forms; a return whose only Form 4255 amounts ride those boxes leaves this fact false even though the form is still attached to it. The generic boxes hold no evidence that the amount came from Form 4255, so the filer answers /writableForm4255AttachedForScheduleTwoGenericLineAmount instead, and Yes makes this fact true (node-test form4255/files-form-gate-generic-line-attested); left unanswered the generic amount alone does not (node-test form4255/files-form-gate-schedule2-line17a-only). A positive computed Part II Section C line 9, Part III line 9 or Worksheet 3 line 7 also makes it true. The imported Schedule 2 values remain optional; no unanswered value is silently converted to an amount.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <All><IsComplete><Dependency path="/writableForm4255NetEpeRecaptureFromLine1d" /></IsComplete><GreaterThan><Left><Dependency path="/writableForm4255NetEpeRecaptureFromLine1d" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writableForm4255NetEpeRecaptureFromLine2a" /></IsComplete><GreaterThan><Left><Dependency path="/writableForm4255NetEpeRecaptureFromLine2a" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writableForm4255ExcessivePaymentsOnGrossEpe" /></IsComplete><GreaterThan><Left><Dependency path="/writableForm4255ExcessivePaymentsOnGrossEpe" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <All><IsComplete><Dependency path="/writableForm4255TwentyPercentExcessivePayment" /></IsComplete><GreaterThan><Left><Dependency path="/writableForm4255TwentyPercentExcessivePayment" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></All>
+          <GreaterThan><Left><Dependency path="/form4255PartIISectionDLine16RecaptureTax" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+          <GreaterThan><Left><Dependency path="/form4255PartIISectionCLine9RecaptureTax" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+          <GreaterThan><Left><Dependency path="/form4255PartIIILine9EmissionsTierRecapture" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+          <GreaterThan><Left><Dependency path="/form4255Worksheet3Line7Recapture" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+          <All><IsComplete><Dependency path="/writableForm4255AttachedForScheduleTwoGenericLineAmount" /></IsComplete><Dependency path="/writableForm4255AttachedForScheduleTwoGenericLineAmount" /></All>
+        </Any>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm4255ExcessivePaymentRelatesToLine1a">
+      <Name>Does the Schedule 2 line 1e excessive payment relate to Form 4255 line 1a?</Name>
+      <Description>Schedule 2 (Form 1040) line 1e check box for Form 4255 line 1a. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the excessive payment on the gross elective payment election amount came from. One Bool per box, because the form prints four independent boxes and a filer with more than one source line checks more than one. Attested by the filer from the Form 4255 they prepared outside this dictionary.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255ExcessivePaymentRelatesToLine1c">
+      <Name>Does the Schedule 2 line 1e excessive payment relate to Form 4255 line 1c?</Name>
+      <Description>Schedule 2 (Form 1040) line 1e check box for Form 4255 line 1c. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the excessive payment on the gross elective payment election amount came from. One Bool per box, because the form prints four independent boxes and a filer with more than one source line checks more than one. Attested by the filer from the Form 4255 they prepared outside this dictionary.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255ExcessivePaymentRelatesToLine1d">
+      <Name>Does the Schedule 2 line 1e excessive payment relate to Form 4255 line 1d?</Name>
+      <Description>Schedule 2 (Form 1040) line 1e check box for Form 4255 line 1d. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the excessive payment on the gross elective payment election amount came from. One Bool per box, because the form prints four independent boxes and a filer with more than one source line checks more than one. Attested by the filer from the Form 4255 they prepared outside this dictionary.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255ExcessivePaymentRelatesToLine2a">
+      <Name>Does the Schedule 2 line 1e excessive payment relate to Form 4255 line 2a?</Name>
+      <Description>Schedule 2 (Form 1040) line 1e check box for Form 4255 line 2a. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the excessive payment on the gross elective payment election amount came from. One Bool per box, because the form prints four independent boxes and a filer with more than one source line checks more than one. Attested by the filer from the Form 4255 they prepared outside this dictionary.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255ExcessivePaymentsOnGrossEpe">
+      <Name>Excessive payments on gross elective payment election amount from Form 4255 (writable)</Name>
+      <Description>Schedule 2 (Form 1040) line 1e amount, printed "Excessive payments (EPs) on gross EPE from Form 4255". This line takes ONE column of Form 4255, not the whole excessive payment. Enter only the amounts reported in Form 4255 COLUMN (n)(1) on Form 4255 line 1a, 1c, 1d and/or 2a, and if more than one box is checked, their total. A column (n)(2) amount belongs on Schedule 2 line 1y instead, identified as "EPGEPE"; a column (n)(3) amount belongs on Schedule 2 line 1f. Entering either of those here would add the same excessive payment to tax twice. IRC 6417(d)(6)(A)(i) increases the tax by the amount of an excessive payment; the filer carries the column (n)(1) figure from Form 4255, which this dictionary does not compute. The four boxes beside it say which Form 4255 line the excessive payment relates to and are separate Bool intakes. Nonnegative, because the printed line asks for an addition to tax. Print only until /line1zOfSchedule2 consumes it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255NetEpeRecaptureFromLine1d">
+      <Name>Recapture of net elective payment election amount from Form 4255 line 1d, column (l) (writable)</Name>
+      <Description>Schedule 2 (Form 1040) line 19, printed "Recapture of net EPE from Form 4255, line 1d, column (l)". It is the Part II twin of line 1d: the same Form 4255 recapture, taken from a different column (l) row, that Schedule 2 carries to the other taxes total rather than to the additions to tax subtotal. The filer carries the figure across from Form 4255, which this dictionary does not compute. Nonnegative, because the printed line asks for an addition to tax. Print only until /line21OfSchedule2 consumes it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255NetEpeRecaptureFromLine2a">
+      <Name>Recapture of net elective payment election amount from Form 4255 line 2a, column (l) (writable)</Name>
+      <Description>Schedule 2 (Form 1040) line 1d, printed "Recapture of net EPE from Form 4255, line 2a, column (l)". The filer carries the figure across from Form 4255, which this dictionary does not compute: nothing here recomputes the elective payment election, the credit it stood in for, or the recapture that reverses it. Nonnegative, because the printed line asks for an addition to tax. Print only until /line1zOfSchedule2 consumes it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255TwentyPercentExcessivePayment">
+      <Name>Twenty percent addition on an excessive payment from Form 4255 (writable)</Name>
+      <Description>Schedule 2 (Form 1040) line 1f amount, printed "20% EP from Form 4255". IRC 6417(d)(6)(A)(ii) adds an amount equal to 20 percent of the excessive payment on top of the excessive payment itself, and IRC 6417(d)(6)(B) waives that addition for reasonable cause; neither the base nor the reasonable cause test is computed here, so the filer carries the printed figure from Form 4255. Nonnegative, because the printed line asks for an addition to tax. Print only until /line1zOfSchedule2 consumes it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255TwentyPercentPenaltyRelatesToLine1a">
+      <Name>Does the Schedule 2 line 1f twenty percent addition relate to Form 4255 line 1a?</Name>
+      <Description>Schedule 2 (Form 1040) line 1f check box for Form 4255 line 1a. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the 20 percent addition on an excessive payment came from. One Bool per box, kept separate from the line 1e boxes because the two printed lines carry their own four boxes and a filer can check different ones on each.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255TwentyPercentPenaltyRelatesToLine1c">
+      <Name>Does the Schedule 2 line 1f twenty percent addition relate to Form 4255 line 1c?</Name>
+      <Description>Schedule 2 (Form 1040) line 1f check box for Form 4255 line 1c. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the 20 percent addition on an excessive payment came from. One Bool per box, kept separate from the line 1e boxes because the two printed lines carry their own four boxes and a filer can check different ones on each.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255TwentyPercentPenaltyRelatesToLine1d">
+      <Name>Does the Schedule 2 line 1f twenty percent addition relate to Form 4255 line 1d?</Name>
+      <Description>Schedule 2 (Form 1040) line 1f check box for Form 4255 line 1d. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the 20 percent addition on an excessive payment came from. One Bool per box, kept separate from the line 1e boxes because the two printed lines carry their own four boxes and a filer can check different ones on each.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255TwentyPercentPenaltyRelatesToLine2a">
+      <Name>Does the Schedule 2 line 1f twenty percent addition relate to Form 4255 line 2a?</Name>
+      <Description>Schedule 2 (Form 1040) line 1f check box for Form 4255 line 2a. The printed line reads "Check applicable box and enter amount", and the four boxes (i) line 1a, (ii) line 1c, (iii) line 1d and (iv) line 2a name the Form 4255 line the 20 percent addition on an excessive payment came from. One Bool per box, kept separate from the line 1e boxes because the two printed lines carry their own four boxes and a filer can check different ones on each.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4255NetEpeRecaptureFromLine2aOrZero">
+      <Name>Schedule 2 line 1d term from Form 4255, 0 when unanswered (complete safe)</Name>
+      <Description>/writableForm4255NetEpeRecaptureFromLine2a when the filer entered it, else $0: the complete-safe wrapper that lets schedule2 /line1zOfSchedule2 add the Schedule 2 line 1d amount on every return, exactly as the schedule2 line 14 through 17 wrappers do for their intakes. The printed box still maps the writable itself, which stays Incomplete and prints blank when never answered. With this wrapper the intake is no longer print-only: the amount reaches schedule2 /line1zOfSchedule2 and from there Form 1040.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4255NetEpeRecaptureFromLine2a" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm4255NetEpeRecaptureFromLine2a" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255ExcessivePaymentsOnGrossEpeOrZero">
+      <Name>Schedule 2 line 1e term from Form 4255, 0 when unanswered (complete safe)</Name>
+      <Description>/writableForm4255ExcessivePaymentsOnGrossEpe when the filer entered it, else $0: the complete-safe wrapper that lets schedule2 /line1zOfSchedule2 add the Schedule 2 line 1e amount on every return, exactly as the schedule2 line 14 through 17 wrappers do for their intakes. The printed box still maps the writable itself, which stays Incomplete and prints blank when never answered. With this wrapper the intake is no longer print-only: the amount reaches schedule2 /line1zOfSchedule2 and from there Form 1040.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4255ExcessivePaymentsOnGrossEpe" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/form4255ExcessivePaymentsOnGrossEpeAtLeastZero" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255ExcessivePaymentsOnGrossEpeAtLeastZero">
+      <Name>Excessive payments on gross EPE, floored at zero for Form 4255 Schedule 2 line 1e</Name>
+      <Description>Complete-only nonnegative reader for /writableForm4255ExcessivePaymentsOnGrossEpe. The writable declares a minimum of $0, and the Schedule 2 line 1e addition must not let a persisted negative answer reduce tax. Unanswered input remains Incomplete; the complete-safe wrapper decides when an absent line contributes $0. Authority: 26 U.S.C. 6417, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section6417&amp;num=0&amp;edition=2024 ("increased by an amount equal to the sum of-"); https://www.irs.gov/pub/irs-pdf/f1040s2.pdf, page 1 ("Excessive payments (EPs) on gross EPE from Form 4255").</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableForm4255ExcessivePaymentsOnGrossEpe" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255TwentyPercentExcessivePaymentOrZero">
+      <Name>Schedule 2 line 1f term from Form 4255, 0 when unanswered (complete safe)</Name>
+      <Description>/writableForm4255TwentyPercentExcessivePayment when the filer entered it, else $0: the complete-safe wrapper that lets schedule2 /line1zOfSchedule2 add the Schedule 2 line 1f amount on every return, exactly as the schedule2 line 14 through 17 wrappers do for their intakes. The printed box still maps the writable itself, which stays Incomplete and prints blank when never answered. With this wrapper the intake is no longer print-only: the amount reaches schedule2 /line1zOfSchedule2 and from there Form 1040.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4255TwentyPercentExcessivePayment" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm4255TwentyPercentExcessivePayment" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255NetEpeRecaptureFromLine1dOrZero">
+      <Name>Schedule 2 line 19 term from Form 4255, 0 when unanswered (complete safe)</Name>
+      <Description>/writableForm4255NetEpeRecaptureFromLine1d when the filer entered it, else $0: the complete-safe wrapper that lets taxCalculations /line21OfSchedule2 add the Schedule 2 line 19 amount on every return, exactly as the schedule2 line 14 through 17 wrappers do for their intakes. The printed box still maps the writable itself, which stays Incomplete and prints blank when never answered. With this wrapper the intake is no longer print-only: the amount reaches taxCalculations /line21OfSchedule2 and from there Form 1040.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm4255NetEpeRecaptureFromLine1d" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm4255NetEpeRecaptureFromLine1d" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255TotalNetEpeRecapture">
+      <Name>Form 4255 Part I total net EPE recapture from lines 1d and 2a</Name>
+      <Description>Form 4255 Part I, line 3, column (l): the total of the line-specific net EPE recapture amounts carried on line 1d and line 2a. Each source amount is complete-safe $0 when unanswered, so the printed total is complete on returns that do not use either line. This total is a print projection only; Schedule 2 consumes the two source-specific wrappers separately.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form4255NetEpeRecaptureFromLine1dOrZero" />
+          <Dependency path="/form4255NetEpeRecaptureFromLine2aOrZero" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIISectionDFullYearsHeld">
+      <Name>Form 4255 Part II Section D line 12: number of full years between the two dates (writable)</Name>
+      <Description>Form 4255 Part II Section D line 12, printed "Number of full years between the date on line 10 and the date on line 11". Line 10 is the date the property was placed in service, entered as the FIRST day of the month in which it was placed in service; line 11 is the date it ceased to be qualified credit property. Whole years only: the instructions say "Don't enter partial years. If the property was held less than 12 months, enter -0-." This is the count the IRC 50(a)(1)(B) recapture percentage table is read with, so an off-by-one here moves the recapture by twenty points of the credit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture">
+      <Name>Form 4255 Part II Section D line 14: credit subject to the recapture percentage (writable)</Name>
+      <Description>Form 4255 Part II Section D line 14, printed "Subtract line 13 from line 6": the credit taken for this property on Form 3800 in prior years (line 6), less the unused general business credits that would have been allowed had there been no credit from this property (line 13, which Worksheet 2 figures). Both terms are the filer's: this dictionary holds no per-property investment credit history and no general business credit carryforward, so the filer carries the line 14 figure from the Form 4255 they prepared. Nonnegative, because the printed line feeds an addition to tax. It is the base the recapture percentage multiplies.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4255PartIISectionDFullYearsHeldCompleteSafe">
+      <Name>Form 4255 Section D full years held, complete-safe comparison value</Name>
+      <Description>Passes the full-year answer through when complete and supplies zero only
+        for the later percentage-table comparisons when the answer is absent. The preceding
+        completeness arm still returns the required zero recapture for an unanswered row.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm4255PartIISectionDFullYearsHeld" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableForm4255PartIISectionDFullYearsHeld" /><Int>0</Int></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Int>0</Int></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255PartIISectionDLine16RecaptureTax">
+      <Name>Form 4255 Part II Section D line 16: the increase in tax from this recapture</Name>
+      <Description>Form 4255 Part II Section D line 16, printed "Multiply line 14 by the percentage on line 15": the line 14 credit base times the IRC 50(a)(1)(B) recapture percentage that the full-year count on line 12 selects - 100 percent at 0 full years, then 80, 60, 40 and 20, and nothing at all once five full years have passed. The percentage table is the statute's own, reprinted unchanged in the Line 15 instructions. Complete-safe: $0 whenever the filer has not answered both line 12 and line 14, so the fact resolves on every return. Pinned by the IRS's own worked example in the Line 15 instructions, where a property placed in service in January 2023 and disposed of in June 2025 - two full years, not three - gives 60 percent and $21,600 on a $36,000 line 14, at node-test form4255/part-ii-section-d-line16-irs-example-1. A second IRS example pins the row above it: property placed in service in July 2023 that ceased to be investment credit property on February 1, 2025 is one full year, and the instructions say "Your recapture percentage is 80%"; https://www.irs.gov/pub/irs-pdf/i4255.pdf, page 8. The count on line 12 is therefore full years ELAPSED, so the statute's first bracket - a cessation "within one full year after placed in service" - is the line 12 value 0, not 1. Every row of the table has its own node-test on a $36,000 base, and a fifth arm of the Switch that no row matches returns the whole credit: the Min 0 limit on line 12 is a write-time limit, so a value below zero seeded straight into the graph resolves as 0 full years and 100 percent, while any count of 5 or more returns $0. This is ONE property's Section D figure; the printed form carries four property columns and adds them on line 19, and the total then travels through Part I column (h) rather than through the four Schedule 2 intakes this module holds, so nothing downstream reads it: /totalAdditionalTaxesOwed, /line1zOfSchedule2 and /schedule2Line17aRecaptureOfOtherCredits remain $0.00 while this fact is $21,600. The filer carries the finished Form 4255 total to Schedule 2 line 1y or 17a by hand; a routed line 16 would replace that amount, not add to it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete><Dependency path="/writableForm4255PartIISectionDFullYearsHeld" /></IsComplete>
+                  <IsComplete><Dependency path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture" /></IsComplete>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/form4255PartIISectionDFullYearsHeldCompleteSafe" /></Left>
+                <Right><Int>5</Int></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                  <Left><Dependency path="/form4255PartIISectionDFullYearsHeldCompleteSafe" /></Left>
+                <Right><Int>4</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>20/100</Rational>
+                  <GreaterOf>
+                    <Dependency path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255PartIISectionDFullYearsHeldCompleteSafe" /></Left>
+                <Right><Int>3</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>40/100</Rational>
+                  <GreaterOf>
+                    <Dependency path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255PartIISectionDFullYearsHeldCompleteSafe" /></Left>
+                <Right><Int>2</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>60/100</Rational>
+                  <GreaterOf>
+                    <Dependency path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255PartIISectionDFullYearsHeldCompleteSafe" /></Left>
+                <Right><Int>1</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>80/100</Rational>
+                  <GreaterOf>
+                    <Dependency path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm4255PartIISectionDLine14CreditSubjectToRecapture" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm4255AttachedForScheduleTwoGenericLineAmount">
+      <Name>Form 4255 completed for an amount on Schedule 2 line 1y, 17a or 17z (writable)</Name>
+      <Description>Did you complete Form 4255 for an amount you entered on Schedule 2 line 1y, line 17a or line 17z? The Form 1040 instructions send several Form 4255 columns to those three generic Schedule 2 lines (line 17a identified as 3468, NEPE3468 or 6418(g)(3); line 1y identified as NEPE8933, EPGEPE or 6418(g)(2); line 17z identified as PWA7210 or PWA8933). Those lines are shared with recaptures from other forms and carry no evidence that an amount came from Form 4255, so the filer says so here. Yes makes /form4255ReturnFilesThisForm true. Optional: unanswered changes nothing.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIISectionBLine5RefiguredCredit">
+      <Name>Form 4255 Part II Section B line 5: refigured credit (writable)</Name>
+      <Description>Form 4255 Part II Section B line 5, printed "Refigured credit (see instructions)": the original rate of credit on line 1 times the credit base at the end of the current tax year on line 4 (line 2 less the net change in nonqualified nonrecourse financing on line 3), and no more than any dollar limit on the credit for that property, such as the kilowatt limit. The filer figures it from the Form 3468 they filed; it is used by Section C. One property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIISectionBLine6PriorYearCreditTaken">
+      <Name>Form 4255 Part II Section B line 6: credit taken for this property on Form 3800 in prior years (writable)</Name>
+      <Description>Form 4255 Part II Section B line 6, printed "Credit taken for this property on Form 3800 in prior years (see instructions)": the total of all credits taken for the property on Form 3800 in prior years, not counting any credit already recaptured because of an increase in nonqualified nonrecourse financing. Used by Section C line 7. One property. Section D reads its own line 14 entry, which already nets line 6.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIISectionCLine8UnusedCredits">
+      <Name>Form 4255 Part II Section C line 8: unused general business credits that would have been allowed (writable)</Name>
+      <Description>Form 4255 Part II Section C line 8, printed "Unused general business credits that would have been allowed if original credit had been figured with current-year credit base": the Worksheet 1 result, which the filer figures from their own credit history. One property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4255PartIISectionCLine7CreditSubjectToRecapture">
+      <Name>Form 4255 Part II Section C line 7: credit subject to recapture from the financing increase</Name>
+      <Description>Form 4255 Part II Section C line 7, printed "Subtract line 5 from line 6. If zero or less, enter -0-". Complete-safe: $0 unless both line 5 and line 6 are answered. Negative entries are read as zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm4255PartIISectionBLine5RefiguredCredit" /></IsComplete>
+                <IsComplete><Dependency path="/writableForm4255PartIISectionBLine6PriorYearCreditTaken" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <GreaterOf>
+                      <Dependency path="/writableForm4255PartIISectionBLine6PriorYearCreditTaken" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Minuend>
+                  <Subtrahends>
+                    <GreaterOf>
+                      <Dependency path="/writableForm4255PartIISectionBLine5RefiguredCredit" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255PartIISectionCLine9RecaptureTax">
+      <Name>Form 4255 Part II Section C line 9: recapture tax from the increase in nonqualified nonrecourse financing</Name>
+      <Description>Form 4255 Part II Section C line 9, printed "Subtract line 8 from line 7. This is the recapture tax as a result of a net increase in nonqualified nonrecourse financing". Floored at zero: line 8 is the part of line 7 that other credits would have covered, so it cannot turn the recapture into a credit. An unanswered line 8 is read as zero. This is ONE property's Section C figure; the printed form adds the four property columns on line 18 and carries the total through Part I column (h). Nothing downstream reads it except /form4255ReturnFilesThisForm: the filer still carries the finished Form 4255 total to Schedule 2 by hand, so a later route of this line to Schedule 2 must replace that hand entry, never add to it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form4255PartIISectionCLine7CreditSubjectToRecapture" />
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When><IsComplete><Dependency path="/writableForm4255PartIISectionCLine8UnusedCredits" /></IsComplete></When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableForm4255PartIISectionCLine8UnusedCredits" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When><True /></When>
+                  <Then><Dollar>0</Dollar></Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIIILine4CreditAtDesignedEmissionsRate">
+      <Name>Form 4255 Part III line 4: basis times the energy percentage used for the credit (writable)</Name>
+      <Description>Form 4255 Part III line 4, printed "Multiply line 2 by line 3": the basis of the specified clean hydrogen production facility property (line 2, from Form 3468 Part VI Section M) times the energy percentage used to figure the section 48 credit for the emissions rate the facility was designed to produce (line 3). The filer multiplies; this dictionary holds no energy percentage. One facility.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255PartIIILine7CreditAtActualEmissionsRate">
+      <Name>Form 4255 Part III line 7: basis times the energy percentage for the actual emissions rate (writable)</Name>
+      <Description>Form 4255 Part III line 7, printed "Multiply line 6 by line 2": the same basis times the energy percentage that matches the emissions rate verified for the current tax year (line 6). If no annual verification report was obtained, line 6 is -0- and so is this line: enter 0. One facility.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4255PartIIILine9EmissionsTierRecapture">
+      <Name>Form 4255 Part III line 9: emissions tier recapture</Name>
+      <Description>Form 4255 Part III lines 8 and 9: line 8 is line 4 minus line 7, and line 9 is 20 percent of line 8, "the total increase in tax resulting from the emissions tier recapture event in the current tax year", which the form carries to Part I line 1j column (h). Line 8 is floored at zero: a verified emissions rate at or better than the designed one recaptures nothing. Complete-safe: $0 unless both line 4 and line 7 are answered. Nothing downstream reads it except /form4255ReturnFilesThisForm: the filer still carries the finished Form 4255 total to Schedule 2 by hand, so a later route of this line must replace that hand entry, never add to it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm4255PartIIILine4CreditAtDesignedEmissionsRate" /></IsComplete>
+                <IsComplete><Dependency path="/writableForm4255PartIIILine7CreditAtActualEmissionsRate" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>20/100</Rational>
+                  <GreaterOf>
+                    <Subtract>
+                      <Minuend>
+                        <GreaterOf>
+                          <Dependency path="/writableForm4255PartIIILine4CreditAtDesignedEmissionsRate" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Minuend>
+                      <Subtrahends>
+                        <GreaterOf>
+                          <Dependency path="/writableForm4255PartIIILine7CreditAtActualEmissionsRate" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Subtrahends>
+                    </Subtract>
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm4255Worksheet3Line1IncreasedCredit">
+      <Name>Form 4255 Worksheet 3 line 1: the section 48 or 48E credit originally figured with the increased amount (writable)</Name>
+      <Description>Worksheet 3 line 1 in the Form 4255 instructions: the section 48E or 48 credit originally figured on Form 3468 for property on which the increased credit amount for meeting the prevailing wage and apprenticeship requirements was claimed, not counting amounts for meeting the 1 megawatt or beginning of construction exception. Used when the property later fails the prevailing wage requirements for alteration or repair during the 5-year period after it was placed in service. One property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm4255Worksheet3Line5FullYears">
+      <Name>Form 4255 Worksheet 3 line 5: number of full years between placed in service and the prevailing wage failure (writable)</Name>
+      <Description>Worksheet 3 line 5 in the Form 4255 instructions: the number of full years between the date the property was placed in service (line 3) and the date it failed the prevailing wage requirements (line 4). The count selects the recapture percentage on line 6: 100 percent at 0 full years, then 80, 60, 40 and 20, and none at 5 or more. One property.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form4255Worksheet3Line5FullYearsCompleteSafe">
+      <Name>Form 4255 Worksheet 3 full years, complete-safe comparison value</Name>
+      <Description>Passes the Worksheet 3 line 5 answer through, floored at zero, and zero when unanswered. Only the percentage-table comparisons read it; /form4255Worksheet3Line7Recapture returns zero on its own when line 1 or line 5 is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm4255Worksheet3Line5FullYears" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableForm4255Worksheet3Line5FullYears" /><Int>0</Int></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Int>0</Int></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255Worksheet3Line2EightyPercentOfCredit">
+      <Name>Form 4255 Worksheet 3 line 2: 80 percent of the increased credit</Name>
+      <Description>Worksheet 3 line 2, printed "Multiply line 1 by 0.80". Rounded at the line. Complete-safe: $0 when line 1 is unanswered; a negative entry is read as zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm4255Worksheet3Line1IncreasedCredit" /></IsComplete></When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>80/100</Rational>
+                  <GreaterOf>
+                    <Dependency path="/writableForm4255Worksheet3Line1IncreasedCredit" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form4255Worksheet3Line7Recapture">
+      <Name>Form 4255 Worksheet 3 line 7: prevailing wage alteration-or-repair recapture</Name>
+      <Description>Worksheet 3 line 7, printed "Multiply line 2 by the percentage on line 6": 80 percent of the increased credit times the recapture percentage the full-year count on line 5 selects (0 full years 100, 1 = 80, 2 = 60, 3 = 40, 4 = 20, 5 or more = 0). The worksheet total goes to Part I line 1g column (h). Complete-safe: $0 unless both line 1 and line 5 are answered. One property. Nothing downstream reads it except /form4255ReturnFilesThisForm: the filer still carries the finished Form 4255 total to Schedule 2 by hand, so a later route of this line must replace that hand entry, never add to it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete><Dependency path="/writableForm4255Worksheet3Line1IncreasedCredit" /></IsComplete>
+                  <IsComplete><Dependency path="/writableForm4255Worksheet3Line5FullYears" /></IsComplete>
+                </All>
+              </Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left><Dependency path="/form4255Worksheet3Line5FullYearsCompleteSafe" /></Left>
+                <Right><Int>5</Int></Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255Worksheet3Line5FullYearsCompleteSafe" /></Left>
+                <Right><Int>4</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>20/100</Rational>
+                  <Dependency path="/form4255Worksheet3Line2EightyPercentOfCredit" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255Worksheet3Line5FullYearsCompleteSafe" /></Left>
+                <Right><Int>3</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>40/100</Rational>
+                  <Dependency path="/form4255Worksheet3Line2EightyPercentOfCredit" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255Worksheet3Line5FullYearsCompleteSafe" /></Left>
+                <Right><Int>2</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>60/100</Rational>
+                  <Dependency path="/form4255Worksheet3Line2EightyPercentOfCredit" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Equal>
+                <Left><Dependency path="/form4255Worksheet3Line5FullYearsCompleteSafe" /></Left>
+                <Right><Int>1</Int></Right>
+              </Equal>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>80/100</Rational>
+                  <Dependency path="/form4255Worksheet3Line2EightyPercentOfCredit" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Dependency path="/form4255Worksheet3Line2EightyPercentOfCredit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

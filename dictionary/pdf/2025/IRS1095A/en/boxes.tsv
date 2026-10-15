@@ -1,0 +1,115 @@
+# IRS1095A — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1095A/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 22cb33c212ef660d6e00e6923f8ba797d3d32c55000e342b5e1bcf2b2534b01d
+# boxes: 81   acroform fields: 81   boxes with a fact: 81
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+void		VOID	void	topmostSubform[0].Page1[0].Pg1Header[0].c1_1[0]	/1095As/*/writableVoid	Bool		
+corrected		CORRECTED	corrected	topmostSubform[0].Page1[0].Pg1Header[0].c1_1[1]	/1095As/*/writableCorrected	Bool		
+1		Marketplace identifier (i1095a: the marketplace's state)	marketplace identifier	topmostSubform[0].Page1[0].f1_1[0]	/1095As/*/marketplaceState	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+2		Marketplace-assigned policy number	marketplace-assigned policy number	topmostSubform[0].Page1[0].f1_2[0]	/1095As/*/policyNumber	String		
+3		Policy issuer's name	policy issuer's name	topmostSubform[0].Page1[0].f1_3[0]	/1095As/*/writablePolicyIssuerName	String		
+4		Recipient's name	recipient's name	topmostSubform[0].Page1[0].f1_4[0]	/1095As/*/writableRecipientName	String		
+5		Recipient's SSN; a TIN writable, /1095As has no filer link	recipient's ssn; a tin writable, /1095as has no filer link	topmostSubform[0].Page1[0].f1_5[0]	/1095As/*/writableRecipientSsn	TIN		
+6		Recipient's date of birth	recipient's date of birth	topmostSubform[0].Page1[0].f1_6[0]	/1095As/*/writableRecipientDateOfBirth	Day		
+7		Recipient's spouse's name	recipient's spouse's name	topmostSubform[0].Page1[0].f1_7[0]	/1095As/*/writableRecipientSpouseName	String		
+8		Recipient's spouse's SSN	recipient's spouse's ssn	topmostSubform[0].Page1[0].f1_8[0]	/1095As/*/writableRecipientSpouseSsn	TIN		
+9		Recipient's spouse's date of birth	recipient's spouse's date of birth	topmostSubform[0].Page1[0].f1_9[0]	/1095As/*/writableRecipientSpouseDateOfBirth	Day		
+10		Policy start date	policy start date	topmostSubform[0].Page1[0].f1_10[0]	/1095As/*/writablePolicyStartDate	Day		
+11		Policy termination date	policy termination date	topmostSubform[0].Page1[0].f1_11[0]	/1095As/*/writablePolicyEndDate	Day		
+12		Street address (including apartment no.)	street address	topmostSubform[0].Page1[0].f1_12[0]	/1095As/*/writableStreetAddress	String		
+13		City or town	city or town	topmostSubform[0].Page1[0].f1_13[0]	/1095As/*/writableCityOrTown	String		
+14		State or province	state or province	topmostSubform[0].Page1[0].f1_14[0]	/1095As/*/writableStateOrProvince	String		
+15		Country and ZIP or foreign postal code	country and zip or foreign postal code	topmostSubform[0].Page1[0].f1_15[0]	/1095As/*/writableCountryAndZipOrForeignPostalCode	String		
+16-A		Part II line 16, column A, covered individual name; printed row 1 of 5	part ii line 16, column a, covered individual name; printed row 1 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row16[0].f1_16[0]	/1095As/*/coveredIndividuals/[0]/writableCoveredIndividualName	String		
+16-B		Part II line 16, column B, covered individual SSN; printed row 1 of 5	part ii line 16, column b, covered individual ssn; printed row 1 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row16[0].f1_17[0]	/1095As/*/coveredIndividuals/[0]/writableCoveredIndividualSsn	TIN		
+16-C		Part II line 16, column C, covered individual date of birth; printed row 1 of 5	part ii line 16, column c, covered individual date of birth; printed row 1 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row16[0].f1_18[0]	/1095As/*/coveredIndividuals/[0]/writableCoveredIndividualDateOfBirth	Day		
+16-D		Part II line 16, column D, coverage start date; printed row 1 of 5	part ii line 16, column d, coverage start date; printed row 1 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row16[0].f1_19[0]	/1095As/*/coveredIndividuals/[0]/writableCoverageStartDate	Day		
+16-E		Part II line 16, column E, coverage termination date; printed row 1 of 5	part ii line 16, column e, coverage termination date; printed row 1 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row16[0].f1_20[0]	/1095As/*/coveredIndividuals/[0]/writableCoverageTerminationDate	Day		
+17-A		Part II line 17, column A, covered individual name; printed row 2 of 5	part ii line 17, column a, covered individual name; printed row 2 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row17[0].f1_21[0]	/1095As/*/coveredIndividuals/[1]/writableCoveredIndividualName	String		
+17-B		Part II line 17, column B, covered individual SSN; printed row 2 of 5	part ii line 17, column b, covered individual ssn; printed row 2 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row17[0].f1_22[0]	/1095As/*/coveredIndividuals/[1]/writableCoveredIndividualSsn	TIN		
+17-C		Part II line 17, column C, covered individual date of birth; printed row 2 of 5	part ii line 17, column c, covered individual date of birth; printed row 2 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row17[0].f1_23[0]	/1095As/*/coveredIndividuals/[1]/writableCoveredIndividualDateOfBirth	Day		
+17-D		Part II line 17, column D, coverage start date; printed row 2 of 5	part ii line 17, column d, coverage start date; printed row 2 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row17[0].f1_24[0]	/1095As/*/coveredIndividuals/[1]/writableCoverageStartDate	Day		
+17-E		Part II line 17, column E, coverage termination date; printed row 2 of 5	part ii line 17, column e, coverage termination date; printed row 2 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row17[0].f1_25[0]	/1095As/*/coveredIndividuals/[1]/writableCoverageTerminationDate	Day		
+18-A		Part II line 18, column A, covered individual name; printed row 3 of 5	part ii line 18, column a, covered individual name; printed row 3 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row18[0].f1_26[0]	/1095As/*/coveredIndividuals/[2]/writableCoveredIndividualName	String		
+18-B		Part II line 18, column B, covered individual SSN; printed row 3 of 5	part ii line 18, column b, covered individual ssn; printed row 3 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row18[0].f1_27[0]	/1095As/*/coveredIndividuals/[2]/writableCoveredIndividualSsn	TIN		
+18-C		Part II line 18, column C, covered individual date of birth; printed row 3 of 5	part ii line 18, column c, covered individual date of birth; printed row 3 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row18[0].f1_28[0]	/1095As/*/coveredIndividuals/[2]/writableCoveredIndividualDateOfBirth	Day		
+18-D		Part II line 18, column D, coverage start date; printed row 3 of 5	part ii line 18, column d, coverage start date; printed row 3 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row18[0].f1_29[0]	/1095As/*/coveredIndividuals/[2]/writableCoverageStartDate	Day		
+18-E		Part II line 18, column E, coverage termination date; printed row 3 of 5	part ii line 18, column e, coverage termination date; printed row 3 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row18[0].f1_30[0]	/1095As/*/coveredIndividuals/[2]/writableCoverageTerminationDate	Day		
+19-A		Part II line 19, column A, covered individual name; printed row 4 of 5	part ii line 19, column a, covered individual name; printed row 4 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row19[0].f1_31[0]	/1095As/*/coveredIndividuals/[3]/writableCoveredIndividualName	String		
+19-B		Part II line 19, column B, covered individual SSN; printed row 4 of 5	part ii line 19, column b, covered individual ssn; printed row 4 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row19[0].f1_32[0]	/1095As/*/coveredIndividuals/[3]/writableCoveredIndividualSsn	TIN		
+19-C		Part II line 19, column C, covered individual date of birth; printed row 4 of 5	part ii line 19, column c, covered individual date of birth; printed row 4 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row19[0].f1_33[0]	/1095As/*/coveredIndividuals/[3]/writableCoveredIndividualDateOfBirth	Day		
+19-D		Part II line 19, column D, coverage start date; printed row 4 of 5	part ii line 19, column d, coverage start date; printed row 4 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row19[0].f1_34[0]	/1095As/*/coveredIndividuals/[3]/writableCoverageStartDate	Day		
+19-E		Part II line 19, column E, coverage termination date; printed row 4 of 5	part ii line 19, column e, coverage termination date; printed row 4 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row19[0].f1_35[0]	/1095As/*/coveredIndividuals/[3]/writableCoverageTerminationDate	Day		
+20-A		Part II line 20, column A, covered individual name; printed row 5 of 5	part ii line 20, column a, covered individual name; printed row 5 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row20[0].f1_36[0]	/1095As/*/coveredIndividuals/[4]/writableCoveredIndividualName	String		
+20-B		Part II line 20, column B, covered individual SSN; printed row 5 of 5	part ii line 20, column b, covered individual ssn; printed row 5 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row20[0].f1_37[0]	/1095As/*/coveredIndividuals/[4]/writableCoveredIndividualSsn	TIN		
+20-C		Part II line 20, column C, covered individual date of birth; printed row 5 of 5	part ii line 20, column c, covered individual date of birth; printed row 5 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row20[0].f1_38[0]	/1095As/*/coveredIndividuals/[4]/writableCoveredIndividualDateOfBirth	Day		
+20-D		Part II line 20, column D, coverage start date; printed row 5 of 5	part ii line 20, column d, coverage start date; printed row 5 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row20[0].f1_39[0]	/1095As/*/coveredIndividuals/[4]/writableCoverageStartDate	Day		
+20-E		Part II line 20, column E, coverage termination date; printed row 5 of 5	part ii line 20, column e, coverage termination date; printed row 5 of 5	topmostSubform[0].Page1[0].Table_PartII[0].Row20[0].f1_40[0]	/1095As/*/coveredIndividuals/[4]/writableCoverageTerminationDate	Day		
+21-A		Part III line 21 January, column A: Monthly enrollment premiums	part iii line 21 january, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row21[0].f1_41[0]	/1095As/*/writablePtcMonthlyPremiumJan	Dollar		
+21-B		Part III line 21 January, column B: Monthly SLCSP premium	part iii line 21 january, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row21[0].f1_42[0]	/1095As/*/writablePtcMonthlySlcspPremiumJan	Dollar		
+21-C		Part III line 21 January, column C: Monthly advance payment of premium tax credit	part iii line 21 january, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row21[0].f1_43[0]	/1095As/*/writablePtcMonthlyAptcPremiumJan	Dollar		
+22-A		Part III line 22 February, column A: Monthly enrollment premiums	part iii line 22 february, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row22[0].f1_44[0]	/1095As/*/writablePtcMonthlyPremiumFeb	Dollar		
+22-B		Part III line 22 February, column B: Monthly SLCSP premium	part iii line 22 february, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row22[0].f1_45[0]	/1095As/*/writablePtcMonthlySlcspPremiumFeb	Dollar		
+22-C		Part III line 22 February, column C: Monthly advance payment of premium tax credit	part iii line 22 february, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row22[0].f1_46[0]	/1095As/*/writablePtcMonthlyAptcPremiumFeb	Dollar		
+23-A		Part III line 23 March, column A: Monthly enrollment premiums	part iii line 23 march, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row23[0].f1_47[0]	/1095As/*/writablePtcMonthlyPremiumMar	Dollar		
+23-B		Part III line 23 March, column B: Monthly SLCSP premium	part iii line 23 march, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row23[0].f1_48[0]	/1095As/*/writablePtcMonthlySlcspPremiumMar	Dollar		
+23-C		Part III line 23 March, column C: Monthly advance payment of premium tax credit	part iii line 23 march, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row23[0].f1_49[0]	/1095As/*/writablePtcMonthlyAptcPremiumMar	Dollar		
+24-A		Part III line 24 April, column A: Monthly enrollment premiums	part iii line 24 april, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row24[0].f1_50[0]	/1095As/*/writablePtcMonthlyPremiumApr	Dollar		
+24-B		Part III line 24 April, column B: Monthly SLCSP premium	part iii line 24 april, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row24[0].f1_51[0]	/1095As/*/writablePtcMonthlySlcspPremiumApr	Dollar		
+24-C		Part III line 24 April, column C: Monthly advance payment of premium tax credit	part iii line 24 april, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row24[0].f1_52[0]	/1095As/*/writablePtcMonthlyAptcPremiumApr	Dollar		
+25-A		Part III line 25 May, column A: Monthly enrollment premiums	part iii line 25 may, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row25[0].f1_53[0]	/1095As/*/writablePtcMonthlyPremiumMay	Dollar		
+25-B		Part III line 25 May, column B: Monthly SLCSP premium	part iii line 25 may, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row25[0].f1_54[0]	/1095As/*/writablePtcMonthlySlcspPremiumMay	Dollar		
+25-C		Part III line 25 May, column C: Monthly advance payment of premium tax credit	part iii line 25 may, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row25[0].f1_55[0]	/1095As/*/writablePtcMonthlyAptcPremiumMay	Dollar		
+26-A		Part III line 26 June, column A: Monthly enrollment premiums	part iii line 26 june, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row26[0].f1_56[0]	/1095As/*/writablePtcMonthlyPremiumJun	Dollar		
+26-B		Part III line 26 June, column B: Monthly SLCSP premium	part iii line 26 june, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row26[0].f1_57[0]	/1095As/*/writablePtcMonthlySlcspPremiumJun	Dollar		
+26-C		Part III line 26 June, column C: Monthly advance payment of premium tax credit	part iii line 26 june, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row26[0].f1_58[0]	/1095As/*/writablePtcMonthlyAptcPremiumJun	Dollar		
+27-A		Part III line 27 July, column A: Monthly enrollment premiums	part iii line 27 july, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row27[0].f1_59[0]	/1095As/*/writablePtcMonthlyPremiumJul	Dollar		
+27-B		Part III line 27 July, column B: Monthly SLCSP premium	part iii line 27 july, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row27[0].f1_60[0]	/1095As/*/writablePtcMonthlySlcspPremiumJul	Dollar		
+27-C		Part III line 27 July, column C: Monthly advance payment of premium tax credit	part iii line 27 july, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row27[0].f1_61[0]	/1095As/*/writablePtcMonthlyAptcPremiumJul	Dollar		
+28-A		Part III line 28 August, column A: Monthly enrollment premiums	part iii line 28 august, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row28[0].f1_62[0]	/1095As/*/writablePtcMonthlyPremiumAug	Dollar		
+28-B		Part III line 28 August, column B: Monthly SLCSP premium	part iii line 28 august, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row28[0].f1_63[0]	/1095As/*/writablePtcMonthlySlcspPremiumAug	Dollar		
+28-C		Part III line 28 August, column C: Monthly advance payment of premium tax credit	part iii line 28 august, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row28[0].f1_64[0]	/1095As/*/writablePtcMonthlyAptcPremiumAug	Dollar		
+29-A		Part III line 29 September, column A: Monthly enrollment premiums	part iii line 29 september, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row29[0].f1_65[0]	/1095As/*/writablePtcMonthlyPremiumSep	Dollar		
+29-B		Part III line 29 September, column B: Monthly SLCSP premium	part iii line 29 september, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row29[0].f1_66[0]	/1095As/*/writablePtcMonthlySlcspPremiumSep	Dollar		
+29-C		Part III line 29 September, column C: Monthly advance payment of premium tax credit	part iii line 29 september, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row29[0].f1_67[0]	/1095As/*/writablePtcMonthlyAptcPremiumSep	Dollar		
+30-A		Part III line 30 October, column A: Monthly enrollment premiums	part iii line 30 october, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row30[0].f1_68[0]	/1095As/*/writablePtcMonthlyPremiumOct	Dollar		
+30-B		Part III line 30 October, column B: Monthly SLCSP premium	part iii line 30 october, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row30[0].f1_69[0]	/1095As/*/writablePtcMonthlySlcspPremiumOct	Dollar		
+30-C		Part III line 30 October, column C: Monthly advance payment of premium tax credit	part iii line 30 october, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row30[0].f1_70[0]	/1095As/*/writablePtcMonthlyAptcPremiumOct	Dollar		
+31-A		Part III line 31 November, column A: Monthly enrollment premiums	part iii line 31 november, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row31[0].f1_71[0]	/1095As/*/writablePtcMonthlyPremiumNov	Dollar		
+31-B		Part III line 31 November, column B: Monthly SLCSP premium	part iii line 31 november, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row31[0].f1_72[0]	/1095As/*/writablePtcMonthlySlcspPremiumNov	Dollar		
+31-C		Part III line 31 November, column C: Monthly advance payment of premium tax credit	part iii line 31 november, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row31[0].f1_73[0]	/1095As/*/writablePtcMonthlyAptcPremiumNov	Dollar		
+32-A		Part III line 32 December, column A: Monthly enrollment premiums	part iii line 32 december, column a: monthly enrollment premiums	topmostSubform[0].Page1[0].Table_PartIII[0].Row32[0].f1_74[0]	/1095As/*/writablePtcMonthlyPremiumDec	Dollar		
+32-B		Part III line 32 December, column B: Monthly SLCSP premium	part iii line 32 december, column b: monthly slcsp premium	topmostSubform[0].Page1[0].Table_PartIII[0].Row32[0].f1_75[0]	/1095As/*/writablePtcMonthlySlcspPremiumDec	Dollar		
+32-C		Part III line 32 December, column C: Monthly advance payment of premium tax credit	part iii line 32 december, column c: monthly advance payment of premium tax credit	topmostSubform[0].Page1[0].Table_PartIII[0].Row32[0].f1_76[0]	/1095As/*/writablePtcMonthlyAptcPremiumDec	Dollar		
+33-A		Part III line 33 Annual Totals, column A	part iii line 33 annual totals, column a	topmostSubform[0].Page1[0].Table_PartIII[0].Row33[0].f1_77[0]	/1095As/*/writablePtcAnnualPremium	Dollar		
+33-B		Part III line 33 Annual Totals, column B	part iii line 33 annual totals, column b	topmostSubform[0].Page1[0].Table_PartIII[0].Row33[0].f1_78[0]	/1095As/*/writableSlcspAnnualPremium	Dollar		
+33-C		Part III line 33 Annual Totals, column C	part iii line 33 annual totals, column c	topmostSubform[0].Page1[0].Table_PartIII[0].Row33[0].f1_79[0]	/1095As/*/writableAptcAnnualAmount	Dollar		

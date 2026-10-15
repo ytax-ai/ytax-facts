@@ -1,0 +1,1217 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableForm8881LineAQualifyingEmployees">
+      <Name>Form 8881 line A, number of qualifying employees (writable)</Name>
+      <Description>Form 8881 line A. Question: "How many employees received at least $5,000 of compensation from your business in the tax year before the plan's first credit year?" Help text: count every employee of the business, and of every business treated as a single employer with it (controlled groups, businesses under common control, affiliated service groups), who received at least $5,000 of compensation from you during the tax year preceding the first credit year. The first credit year is generally the tax year that includes the date the plan becomes effective, or the year before it if you elect that year (Instructions for Form 8881, Line A and First credit year). Asked when the filer enters qualified startup costs on line 1 (/writableForm8881Line1QualifiedStartupCosts more than $0). Unanswered: line 2 and line 5 are undecided, so Form 3800 Part III line 1j and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 0 or more. Feeds line 2 (100% of line 1 at 50 or fewer, 50% at 51 to 100) and the eligibility test (more than 100 employees: no credit).</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881Line1QualifiedStartupCosts">
+      <Name>Form 8881 line 1, qualified startup costs incurred during the tax year (writable)</Name>
+      <Description>Form 8881 line 1. Question: "How much did your business pay or incur this year to set up or run its new retirement plan, or to educate employees about it?" Help text: qualified startup costs are ordinary and necessary expenses paid or incurred in connection with establishing or administering an eligible employer plan (a qualified employer plan under section 4972(d)) or the retirement-related education of employees with respect to the plan. The costs of a plan with no eligible employee who is not highly compensated are not qualified startup costs. A member of a controlled group or of businesses under common control figures the credit on its proportionate share and attaches a statement (Instructions for Form 8881, Qualified startup costs and Member of Controlled Group). You may elect not to claim the credit by leaving this line blank. Asked when the filer has a new employer retirement plan. Unanswered or $0: Section 1 is not claimed and line 5 is $0 (the credit is elective; leaving it out only under-claims it). Validation: dollars, $0 or more. Feeds line 2 and line 5; the deduction for these costs must be reduced by the line 5 credit (IRC 45E(e)(2)); /writableForm8881DeductionReducedByCredit asks whether it was.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881Line3EligibleEmployees">
+      <Name>Form 8881 line 3, number of non-highly compensated employees eligible to participate (writable)</Name>
+      <Description>Form 8881 line 3, the count entered before the $250 multiplier. Question: "How many employees who are not highly compensated are eligible to participate in the plan this year?" Help text: enter the number of non-highly compensated employees (section 414(q)) who are eligible to participate in the eligible employer plan during the tax year for which the credit is claimed (Instructions for Form 8881, Line 3). If no employee who is not highly compensated is eligible, the plan's costs are not qualified startup costs and there is no credit. Asked when line 1 is more than $0. Unanswered: line 3, line 4 and line 5 are undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 0 or more. Feeds line 3 ($250 times this count) and the eligibility test.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881StartupCostsCreditYear">
+      <Name>Which year of the startup costs credit period this tax year is (writable)</Name>
+      <Description>Not a printed line; the credit period test behind line 5. Question: "Counting the plan's first credit year as year 1, which year is this tax year? (Enter 1, 2 or 3 for the first credit year and the two years after it; enter 4 for any later year.)" Help text: the first credit year is the tax year that includes the date the plan becomes effective, or, if you elect, the tax year before it. The startup costs credit is allowed for the first credit year and each of the 2 tax years immediately following, and no credit is allowed for any other tax year (Instructions for Form 8881, How To Figure the Credit and First credit year). Asked when line 1 is more than $0. Unanswered: line 5 is undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 1 or more. Feeds the eligibility test of line 5 (years 1 to 3 only).</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881PriorQualifiedPlanWithinThreeYears">
+      <Name>A qualified plan covered substantially the same employees in the 3 tax years before the plan (writable)</Name>
+      <Description>Not a printed line; the eligible employer test of IRC 45E(c)(2). Question: "During the 3 tax years before the new plan's first credit year, did your business (or any member of a controlled group that includes it, or a predecessor of either) establish or maintain a qualified employer plan to which contributions were made, or under which benefits accrued, for substantially the same employees as the new plan covers?" Help text: if yes, you are not an eligible employer and cannot claim the startup costs credit or the employer contributions credit for this plan (Instructions for Form 8881, Eligible employer). Asked when line 1 is more than $0 or Section 2 (line 6b or 6c) is entered. Unanswered: lines 5 and 6g are undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: yes or no. Feeds the eligibility tests of lines 5 and 6g.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881Line1">
+      <Name>Form 8881 line 1, qualified startup costs</Name>
+      <Description>Form 8881 line 1: the qualified startup costs entered, and $0 when the line is left blank (the credit is elective). A negative entry is read as $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line1QualifiedStartupCosts" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line1QualifiedStartupCosts" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line1QualifiedStartupCosts" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Section1Claimed">
+      <Name>Form 8881 Part I Section 1 is claimed</Name>
+      <Description>True when line 1 is answered and more than $0. Always Complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/writableForm8881Line1QualifiedStartupCosts" /></IsComplete>
+          <GreaterThan>
+            <Left><Dependency path="/writableForm8881Line1QualifiedStartupCosts" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line2">
+      <Name>Form 8881 line 2</Name>
+      <Description>Form 8881 line 2: line 1 for an employer with 1 to 50 employees on line A, 50% of line 1 for an employer with 51 or more. Undecided while line A is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881LineAQualifyingEmployees" /></IsComplete>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/writableForm8881LineAQualifyingEmployees" /></Left>
+                  <Right>
+                    <Int>50</Int>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then><Dependency path="/form8881Line1" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881LineAQualifyingEmployees" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/writableForm8881LineAQualifyingEmployees" /></Left>
+                  <Right>
+                    <Int>50</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/form8881Line1" />
+                <Rational>1/2</Rational>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line3">
+      <Name>Form 8881 line 3</Name>
+      <Description>Form 8881 line 3: the number of non-highly compensated employees eligible to participate in the plan, times $250. Undecided while the count is unanswered.</Description>
+      <Derived>
+        <Multiply>
+          <GreaterOf>
+            <Dependency path="/writableForm8881Line3EligibleEmployees" />
+            <Int>0</Int>
+          </GreaterOf>
+          <Dollar>250</Dollar>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line4">
+      <Name>Form 8881 line 4</Name>
+      <Description>Form 8881 line 4: the greater of $500 or line 3, never more than $5,000.</Description>
+      <Derived>
+        <LesserOf>
+          <GreaterOf>
+            <Dollar>500</Dollar>
+            <Dependency path="/form8881Line3" />
+          </GreaterOf>
+          <Dollar>5000</Dollar>
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Section1EmployerEligible">
+      <Name>The employer may claim the startup costs credit this year</Name>
+      <Description>True when line A is 100 or fewer, no qualified plan covered substantially the same employees in the 3 prior years, this tax year is the first, second or third credit year, and at least one non-highly compensated employee is eligible to participate (line 3 count of 1 or more). Complete false as soon as any one test is answered and fails; undecided while a deciding answer is missing.</Description>
+      <Derived>
+        <All>
+          <LessThanOrEqual>
+            <Left><Dependency path="/writableForm8881LineAQualifyingEmployees" /></Left>
+            <Right>
+              <Int>100</Int>
+            </Right>
+          </LessThanOrEqual>
+          <Not><Dependency path="/writableForm8881PriorQualifiedPlanWithinThreeYears" /></Not>
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/writableForm8881StartupCostsCreditYear" /></Left>
+            <Right><Int>1</Int></Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left><Dependency path="/writableForm8881StartupCostsCreditYear" /></Left>
+            <Right>
+              <Int>3</Int>
+            </Right>
+          </LessThanOrEqual>
+          <GreaterThan>
+            <Left><Dependency path="/writableForm8881Line3EligibleEmployees" /></Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line5">
+      <Name>Form 8881 line 5, small employer pension plan startup costs credit</Name>
+      <Description>Form 8881 line 5: the smaller of line 2 or line 4 for an eligible employer in the first three credit years whose plan has an eligible non-highly compensated employee; $0 when Section 1 is not claimed or the employer is not eligible this year; undecided (so Schedule 3 line 6a is owed) while an answer the eligibility test needs is missing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8881Section1Claimed" /></IsComplete><Not><Dependency path="/form8881Section1Claimed" /></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881Section1EmployerEligible" /></IsComplete>
+                <Dependency path="/form8881Section1Claimed" />
+                <Dependency path="/form8881Section1EmployerEligible" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8881Line2" />
+                <Dependency path="/form8881Line4" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881Section1EmployerEligible" /></IsComplete>
+                <Dependency path="/form8881Section1Claimed" />
+                <Not><Dependency path="/form8881Section1EmployerEligible" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8881Line6aEmployeesPrecedingTaxYear">
+      <Name>Form 8881 line 6a, number of employees in the preceding tax year (writable)</Name>
+      <Description>Form 8881 line 6a, also the Part III eligibility count. Question: "How many employees received at least $5,000 of compensation from your business in 2024 (the tax year before this one)?" Help text: count every employee of the business and of every business treated as a single employer with it who received at least $5,000 of compensation from you during the preceding tax year. Up to 50, the employer contributions credit is not reduced; from 51 to 100 it is reduced by 2% for each employee over 50; above 100 there is no employer contributions credit and no military spouse participation credit (Form 8881 lines 6a-6e and the Part III caution). Asked when Section 2 (line 6b or 6c) or Part III (line 12 or 13) is entered. Unanswered: lines 6f, 6g, 12 and 13 are undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 0 or more. Feeds lines 6e(1) and 6f and the Part III eligibility test.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881Line6bEmployerContributions">
+      <Name>Form 8881 line 6b, employer contributions (writable)</Name>
+      <Description>Form 8881 line 6b. Question: "How much did your business contribute to the plan this year for employees who each received $1,000 or less of employer contributions?" Help text: enter employer contributions to a defined contribution plan (not a defined benefit plan), but do not include (i) elective deferrals, (ii) contributions for employees whose wages from you were more than $105,000, or (iii) any contributions for an employee to whom you contributed more than $1,000 (those go on line 6c). Asked when the filer is figuring the credit for employer contributions. Unanswered or $0 together with line 6c: Section 2 is not claimed and line 6g is $0 (the credit is elective; leaving it out only under-claims it). Validation: dollars, $0 or more. Feeds line 6d. The deduction for these contributions must be reduced by the line 6g credit (IRC 45E(e)(2)); the filer reduces it where it is taken and says so on /writableForm8881DeductionReducedByCredit, and /knockoutForm8881DeductionNotReducedByCredit refuses the return until they do.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881Line6cCappedEmployerContributions">
+      <Name>Form 8881 line 6c, capped contributions for employees above $1,000 (writable)</Name>
+      <Description>Form 8881 line 6c. Question: "For employees to whom your business contributed more than $1,000 this year, what is the total of those contributions after the per-employee cap for this plan year?" Help text: for each such employee (not counting an employee whose wages were more than $105,000), take the employer contributions but no more than $1,000 in the first or second plan year, $1,333.33 in the third, $2,000 in the fourth or $4,000 in the fifth, then add the amounts together (Instructions for Form 8881, Line 6c). The law caps the credit at $1,000 per employee after the plan-year percentage, so in the third year (75%) contributions above $1,333.33 add nothing; the instructions print $1,334, which at 75% would give $1,000.50, more than the law allows. Enter $0 if you made no such contributions. Asked when the filer is figuring the credit for employer contributions. Unanswered: read as $0. Validation: dollars, $0 or more; the per-employee caps are the filer's to apply, since this return does not take contributions employee by employee. Feeds line 6d.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881ContributionsCreditPlanYear">
+      <Name>Which year of the plan this tax year is treated as, for line 6g (writable)</Name>
+      <Description>Not a printed line; the line 6g applicable percentage. Question: "Counting the tax year the plan was established as year 1, which year of the plan is this tax year? (Enter 6 for any year after the fifth.)" Help text: the applicable percentage is 100% for the first and second years, 75% for the third, 50% for the fourth, 25% for the fifth, and 0% after that (Form 8881 line 6g; IRC 45E(f)(3)). Asked when Section 2 (line 6b or 6c) is entered. Unanswered: line 6g is undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 1 or more. Feeds /form8881Line6gApplicablePercentage.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881Line6b">
+      <Name>Form 8881 line 6b</Name>
+      <Description>Form 8881 line 6b: the employer contributions entered, $0 when blank. A negative entry is read as $0.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line6bEmployerContributions" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line6bEmployerContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line6bEmployerContributions" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6c">
+      <Name>Form 8881 line 6c</Name>
+      <Description>Form 8881 line 6c: the capped contributions entered, $0 when blank (the line reads enter -0- when there are none). A negative entry is read as $0.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line6cCappedEmployerContributions" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line6cCappedEmployerContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line6cCappedEmployerContributions" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Section2Claimed">
+      <Name>Form 8881 Part I Section 2 is claimed</Name>
+      <Description>True when line 6b or line 6c is answered and more than $0. Always Complete.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line6bEmployerContributions" /></IsComplete>
+            <GreaterThan>
+              <Left><Dependency path="/writableForm8881Line6bEmployerContributions" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line6cCappedEmployerContributions" /></IsComplete>
+            <GreaterThan>
+              <Left><Dependency path="/writableForm8881Line6cCappedEmployerContributions" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6d">
+      <Name>Form 8881 line 6d</Name>
+      <Description>Form 8881 line 6d: line 6b plus line 6c.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8881Line6b" />
+          <Dependency path="/form8881Line6c" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6e1">
+      <Name>Form 8881 line 6e(1)</Name>
+      <Description>Form 8881 line 6e(1): line 6a less 50, completed only when line 6a is 51 or more; undecided otherwise (the line is not completed).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></Left>
+                  <Right>
+                    <Int>50</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <GreaterOf>
+                    <Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" />
+                    <Int>0</Int>
+                  </GreaterOf>
+                </Minuend>
+                <Subtrahends>
+                  <Int>50</Int>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6e2">
+      <Name>Form 8881 line 6e(2)</Name>
+      <Description>Form 8881 line 6e(2): line 6e(1) times 2%, the reduction as a fraction of line 6d.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/form8881Line6e1" />
+          <Rational>2/100</Rational>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6e3">
+      <Name>Form 8881 line 6e(3)</Name>
+      <Description>Form 8881 line 6e(3): line 6e(2) times line 6d, rounded to cents.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/form8881Line6d" />
+          <Dependency path="/form8881Line6e2" />
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6e4">
+      <Name>Form 8881 line 6e(4)</Name>
+      <Description>Form 8881 line 6e(4): line 6d less line 6e(3). Negative when line 6a is above 100 (the reduction then exceeds the whole amount); line 6f floors it.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="/form8881Line6d" /></Minuend>
+          <Subtrahends><Dependency path="/form8881Line6e3" /></Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6f">
+      <Name>Form 8881 line 6f</Name>
+      <Description>Form 8881 line 6f: line 6d when line 6a is 50 or less; otherwise line 6e(4), and $0 when line 6e(4) is below zero (line 6a above 100). Undecided while line 6a is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></IsComplete>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></Left>
+                  <Right>
+                    <Int>50</Int>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then><Dependency path="/form8881Line6d" /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></Left>
+                  <Right>
+                    <Int>50</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/form8881Line6e4" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6gApplicablePercentage">
+      <Name>Form 8881 line 6g applicable percentage</Name>
+      <Description>The line 6g applicable percentage for the plan year: 100% in the first and second years, 75% in the third, 50% in the fourth, 25% in the fifth, 0% after. Undecided while the plan year is unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></Left>
+                  <Right><Int>1</Int></Right>
+                </GreaterThanOrEqual>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></Left>
+                  <Right>
+                    <Int>2</Int>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Rational>100/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></IsComplete>
+                <Equal>
+                  <Left><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></Left>
+                  <Right>
+                    <Int>3</Int>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Rational>75/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></IsComplete>
+                <Equal>
+                  <Left><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></Left>
+                  <Right>
+                    <Int>4</Int>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Rational>50/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></IsComplete>
+                <Equal>
+                  <Left><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></Left>
+                  <Right>
+                    <Int>5</Int>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Rational>25/100</Rational>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/writableForm8881ContributionsCreditPlanYear" /></Left>
+                  <Right>
+                    <Int>5</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then><Rational>0/100</Rational></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line6g">
+      <Name>Form 8881 line 6g, small employer contributions credit</Name>
+      <Description>Form 8881 line 6g: line 6f times the applicable percentage for the plan year; $0 when Section 2 is not claimed or a qualified plan covered substantially the same employees in the 3 years before the plan; undecided (so Schedule 3 line 6a is owed) while line 6a, the plan year or the prior-plan answer is missing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8881Section2Claimed" /></IsComplete><Not><Dependency path="/form8881Section2Claimed" /></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881PriorQualifiedPlanWithinThreeYears" /></IsComplete>
+                <Dependency path="/form8881Section2Claimed" />
+                <Dependency path="/writableForm8881PriorQualifiedPlanWithinThreeYears" />
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8881PriorQualifiedPlanWithinThreeYears" /></IsComplete>
+                <Dependency path="/form8881Section2Claimed" />
+                <Not><Dependency path="/writableForm8881PriorQualifiedPlanWithinThreeYears" /></Not>
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="/form8881Line6f" />
+                <Dependency path="/form8881Line6gApplicablePercentage" />
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8881Line7PassThroughCredit">
+      <Name>Form 8881 line 7, startup costs and contributions credits from partnerships and S corporations (writable)</Name>
+      <Description>Form 8881 line 7. Question: "Did a partnership or S corporation pass through to you a small employer pension plan startup costs credit or small employer contributions credit? If so, how much (from your Schedule K-1)?" Help text: enter the amount your Schedule K-1 reports for these credits. If a partnership or S corporation is your only source of these credits, you are not required to file Form 8881 and can report them directly on Form 3800 (Instructions for Form 8881, page 1). Asked when the filer reports a Schedule K-1. Unanswered: read as $0. Validation: dollars. Feeds line 8.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881Line7">
+      <Name>Form 8881 line 7</Name>
+      <Description>Form 8881 line 7: the pass-through amount entered, $0 when blank. A negative entry is read as $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line7PassThroughCredit" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line7PassThroughCredit" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line7PassThroughCredit" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8881Line7PassThroughEntityEin">
+      <Name>EIN of the partnership or S corporation that passed through the Form 8881 line 7 credit (Form 3800 Part III line 1j column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership or S corporation that passed this small employer pension plan startup costs or contributions credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 that reports the credit. Asked when /writableForm8881Line7PassThroughCredit is more than $0. Unanswered: Form 3800 Part III line 1j column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine1jColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form8881Line8">
+      <Name>Form 8881 line 8, Part I total (Form 3800 Part III line 1j)</Name>
+      <Description>Form 8881 line 8: line 5 plus line 6g plus line 7. An individual reports it on Form 3800 Part III line 1j.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8881Line5" />
+          <Dependency path="/form8881Line6g" />
+          <Dependency path="/form8881Line7" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8881AutoEnrollmentArrangementIncluded">
+      <Name>The plan includes an eligible automatic contribution arrangement this year (writable)</Name>
+      <Description>Form 8881 line 9, the condition for the $500. Question: "Did your retirement plan include an eligible automatic contribution arrangement (auto-enrollment) at any time this tax year?" Help text: an eligible automatic contribution arrangement is defined in section 414(w)(3); the credit is available only for a year in which the arrangement is included in the plan (Instructions for Form 8881, Part II). Asked of a filer with an employer retirement plan. Unanswered or No: Part II is not claimed and line 9 is $0 (the credit is elective; leaving it out only under-claims it). Validation: yes or no. Feeds line 9.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881AutoEnrollmentCreditYear">
+      <Name>Which year of the auto-enrollment credit period this tax year is (writable)</Name>
+      <Description>Not a printed line; the credit period test behind line 9. Question: "Counting the first tax year your plan included the auto-enrollment arrangement as year 1, which year is this tax year? (Enter 4 for any year after the third.)" Help text: the credit is $500 for the first tax year you include an eligible automatic contribution arrangement and for each of the following 2 tax years in which you keep it; no credit is allowed for any other year (Instructions for Form 8881, Part II). Asked when the arrangement question is answered Yes. Unanswered: line 9 is undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 1 or more. Feeds line 9.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>1</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881AutoEnrollmentQualifyingEmployees">
+      <Name>Number of employees paid at least $5,000 in the year before the first auto-enrollment credit year (writable)</Name>
+      <Description>Not a printed line; the Part II eligible employer test. Question: "How many employees received at least $5,000 of compensation from your business in the tax year before the first year your plan included the auto-enrollment arrangement?" Help text: to be an eligible employer you must have had no more than 100 such employees in that year; count every business treated as a single employer with yours (Instructions for Form 8881, Part II, Eligible employer). Asked when the arrangement question is answered Yes. Unanswered: line 9 is undecided, so Form 3800 Part III and Schedule 3 line 6a are owed until it is answered. Validation: a whole number, 0 or more. Feeds line 9.</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881PartIiClaimed">
+      <Name>Form 8881 Part II is claimed</Name>
+      <Description>True when the arrangement question is answered Yes. Always Complete.</Description>
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/writableForm8881AutoEnrollmentArrangementIncluded" /></IsComplete>
+          <Dependency path="/writableForm8881AutoEnrollmentArrangementIncluded" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIiEmployerInCreditPeriod">
+      <Name>The employer is an eligible employer in the auto-enrollment credit period</Name>
+      <Description>True when this tax year is the first, second or third year of the credit period and the Part II employee count is 100 or fewer. Complete false as soon as one test is answered and fails; undecided while a deciding answer is missing.</Description>
+      <Derived>
+        <All>
+          <GreaterThanOrEqual>
+            <Left><Dependency path="/writableForm8881AutoEnrollmentCreditYear" /></Left>
+            <Right><Int>1</Int></Right>
+          </GreaterThanOrEqual>
+          <LessThanOrEqual>
+            <Left><Dependency path="/writableForm8881AutoEnrollmentCreditYear" /></Left>
+            <Right>
+              <Int>3</Int>
+            </Right>
+          </LessThanOrEqual>
+          <LessThanOrEqual>
+            <Left><Dependency path="/writableForm8881AutoEnrollmentQualifyingEmployees" /></Left>
+            <Right>
+              <Int>100</Int>
+            </Right>
+          </LessThanOrEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line9">
+      <Name>Form 8881 line 9, small employer auto-enrollment credit</Name>
+      <Description>Form 8881 line 9: $500 for an eligible employer in a year of the 3-year credit period in which the plan includes the arrangement; $0 when Part II is not claimed or the employer is outside the period or not eligible; undecided (so Schedule 3 line 6a is owed) while the credit year or the employee count is missing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8881PartIiClaimed" /></IsComplete><Not><Dependency path="/form8881PartIiClaimed" /></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881PartIiEmployerInCreditPeriod" /></IsComplete>
+                <Dependency path="/form8881PartIiClaimed" />
+                <Dependency path="/form8881PartIiEmployerInCreditPeriod" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>500</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881PartIiEmployerInCreditPeriod" /></IsComplete>
+                <Dependency path="/form8881PartIiClaimed" />
+                <Not><Dependency path="/form8881PartIiEmployerInCreditPeriod" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8881Line10PassThroughCredit">
+      <Name>Form 8881 line 10, auto-enrollment credit from partnerships and S corporations (writable)</Name>
+      <Description>Form 8881 line 10. Question: "Did a partnership or S corporation pass through to you a small employer auto-enrollment credit? If so, how much (from your Schedule K-1)?" Help text: enter the amount your Schedule K-1 reports for this credit. Asked when the filer reports a Schedule K-1. Unanswered: read as $0. Validation: dollars. Feeds line 11.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881Line10">
+      <Name>Form 8881 line 10</Name>
+      <Description>Form 8881 line 10: the pass-through amount entered, $0 when blank. A negative entry is read as $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line10PassThroughCredit" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line10PassThroughCredit" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line10PassThroughCredit" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8881Line10PassThroughEntityEin">
+      <Name>EIN of the partnership or S corporation that passed through the Form 8881 line 10 credit (Form 3800 Part III line 1dd column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership or S corporation that passed this small employer auto-enrollment credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 that reports the credit. Asked when /writableForm8881Line10PassThroughCredit is more than $0. Unanswered: Form 3800 Part III line 1dd column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine1ddColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form8881Line11">
+      <Name>Form 8881 line 11, Part II total (Form 3800 Part III line 1dd)</Name>
+      <Description>Form 8881 line 11: line 9 plus line 10. An individual reports it on Form 3800 Part III line 1dd.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8881Line9" />
+          <Dependency path="/form8881Line10" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8881Line12MilitarySpouseEmployees">
+      <Name>Form 8881 line 12, number of military spouse employees participating in an eligible plan (writable)</Name>
+      <Description>Form 8881 line 12, the count entered before the $200 multiplier. Question: "How many military spouse employees participated in your eligible defined contribution plan this tax year?" Help text: a military spouse is an employee who is not highly compensated and who, when first employed or rehired by you, was married to a member of the uniformed services serving on active duty; you may rely on the employee's certification giving the spouse's name, rank and service branch. Include only employees who participated in the eligible defined contribution plan at any time during the tax year and who did not participate in it before the 2 tax years preceding this one (Instructions for Form 8881, Part III and Line 12). Asked of a filer with an employer retirement plan. Unanswered or 0: Part III is not claimed unless line 13 is entered. Validation: a whole number, 0 or more. Feeds line 12 ($200 per employee) and the line 13 cap ($300 per employee).</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8881Line13MilitarySpouseContributions">
+      <Name>Form 8881 line 13, employer contributions for military spouse employees (writable)</Name>
+      <Description>Form 8881 line 13. Question: "How much did your business contribute to the plan this tax year for those military spouse employees, counting no more than $300 for each?" Help text: include only employer contributions (not elective deferrals) on behalf of an employee counted on line 12, and no more than $300 per employee (Form 8881 line 13; Instructions for Form 8881, Line 13). Asked when line 12 is more than 0. Unanswered: read as $0. Validation: dollars, $0 or more; the total is capped here at $300 times the line 12 count, the per-employee cap cannot be checked employee by employee. Feeds line 13.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881PartIiiClaimed">
+      <Name>Form 8881 Part III is claimed</Name>
+      <Description>True when the line 12 count is answered and more than 0 or line 13 is answered and more than $0. Always Complete.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line12MilitarySpouseEmployees" /></IsComplete>
+            <GreaterThan>
+              <Left><Dependency path="/writableForm8881Line12MilitarySpouseEmployees" /></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line13MilitarySpouseContributions" /></IsComplete>
+            <GreaterThan>
+              <Left><Dependency path="/writableForm8881Line13MilitarySpouseContributions" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIiiEmployerEligible">
+      <Name>The employer is an eligible small employer for the military spouse participation credit</Name>
+      <Description>True when line 6a (employees paid at least $5,000 in the preceding tax year) is 100 or fewer; undecided while line 6a is unanswered.</Description>
+      <Derived>
+        <LessThanOrEqual>
+          <Left><Dependency path="/writableForm8881Line6aEmployeesPrecedingTaxYear" /></Left>
+          <Right>
+            <Int>100</Int>
+          </Right>
+        </LessThanOrEqual>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line12">
+      <Name>Form 8881 line 12</Name>
+      <Description>Form 8881 line 12: the line 12 count times $200 for an eligible small employer; $0 when Part III is not claimed or the employer had more than 100 employees in the preceding tax year; undecided (so Schedule 3 line 6a is owed) while line 6a or the count is missing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8881PartIiiClaimed" /></IsComplete><Not><Dependency path="/form8881PartIiiClaimed" /></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881PartIiiEmployerEligible" /></IsComplete>
+                <Dependency path="/form8881PartIiiClaimed" />
+                <Dependency path="/form8881PartIiiEmployerEligible" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <GreaterOf>
+                  <Dependency path="/writableForm8881Line12MilitarySpouseEmployees" />
+                  <Int>0</Int>
+                </GreaterOf>
+                <Dollar>200</Dollar>
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881PartIiiEmployerEligible" /></IsComplete>
+                <Dependency path="/form8881PartIiiClaimed" />
+                <Not><Dependency path="/form8881PartIiiEmployerEligible" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line13ContributionsEntered">
+      <Name>Form 8881 line 13 contributions as entered</Name>
+      <Description>The line 13 contributions entered, $0 when blank. A negative entry is read as $0.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line13MilitarySpouseContributions" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line13MilitarySpouseContributions" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line13MilitarySpouseContributions" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881Line13">
+      <Name>Form 8881 line 13</Name>
+      <Description>Form 8881 line 13: the contributions entered, no more than $300 times the line 12 count, for an eligible small employer; $0 when Part III is not claimed or the employer had more than 100 employees in the preceding tax year; undecided (so Schedule 3 line 6a is owed) while line 6a or the line 12 count is missing.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/form8881PartIiiClaimed" /></IsComplete><Not><Dependency path="/form8881PartIiiClaimed" /></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881PartIiiEmployerEligible" /></IsComplete>
+                <Dependency path="/form8881PartIiiClaimed" />
+                <Dependency path="/form8881PartIiiEmployerEligible" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8881Line13ContributionsEntered" />
+                <Multiply>
+                  <GreaterOf>
+                    <Dependency path="/writableForm8881Line12MilitarySpouseEmployees" />
+                    <Int>0</Int>
+                  </GreaterOf>
+                  <Dollar>300</Dollar>
+                </Multiply>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8881PartIiiEmployerEligible" /></IsComplete>
+                <Dependency path="/form8881PartIiiClaimed" />
+                <Not><Dependency path="/form8881PartIiiEmployerEligible" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8881Line14PassThroughCredit">
+      <Name>Form 8881 line 14, military spouse participation credit from partnerships and S corporations (writable)</Name>
+      <Description>Form 8881 line 14. Question: "Did a partnership or S corporation pass through to you a small employer military spouse participation credit? If so, how much (from your Schedule K-1)?" Help text: enter the amount your Schedule K-1 reports for this credit. Asked when the filer reports a Schedule K-1. Unanswered: read as $0. Validation: dollars. Feeds line 15.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8881Line14">
+      <Name>Form 8881 line 14</Name>
+      <Description>Form 8881 line 14: the pass-through amount entered, $0 when blank. A negative entry is read as $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8881Line14PassThroughCredit" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8881Line14PassThroughCredit" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8881Line14PassThroughCredit" /></IsComplete></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8881Line14PassThroughEntityEin">
+      <Name>EIN of the partnership or S corporation that passed through the Form 8881 line 14 credit (Form 3800 Part III line 1ee column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership or S corporation that passed this small employer military spouse participation credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 that reports the credit. Asked when /writableForm8881Line14PassThroughCredit is more than $0. Unanswered: Form 3800 Part III line 1ee column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine1eeColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form8881Line15">
+      <Name>Form 8881 line 15, Part III total (Form 3800 Part III line 1ee)</Name>
+      <Description>Form 8881 line 15: line 12 plus line 13 plus line 14. An individual reports it on Form 3800 Part III line 1ee.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8881Line12" />
+          <Dependency path="/form8881Line13" />
+          <Dependency path="/form8881Line14" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8881PartIEntered">
+      <Name>Form 8881 Part I is entered</Name>
+      <Description>True when Section 1 or Section 2 is claimed or line 7 is answered with an amount other than $0. Always Complete.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/form8881Section1Claimed" />
+          <Dependency path="/form8881Section2Claimed" />
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line7PassThroughCredit" /></IsComplete>
+            <Not>
+              <Equal>
+                <Left><Dependency path="/writableForm8881Line7PassThroughCredit" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </Equal>
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIClaimsCredit">
+      <Name>Form 8881 Part I claims a credit or cannot be totalled</Name>
+      <Description>True when line 8 is Complete and more than $0, or when Part I is entered and line 8 is undecided. Always Complete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8881Line8" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Dependency path="/form8881Line8" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form8881Line8" /></IsComplete></Not></When>
+            <Then><Dependency path="/form8881PartIEntered" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIiEntered">
+      <Name>Form 8881 Part II is entered</Name>
+      <Description>True when Part II is claimed or line 10 is answered with an amount other than $0. Always Complete.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/form8881PartIiClaimed" />
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line10PassThroughCredit" /></IsComplete>
+            <Not>
+              <Equal>
+                <Left><Dependency path="/writableForm8881Line10PassThroughCredit" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </Equal>
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIiClaimsCredit">
+      <Name>Form 8881 Part II claims a credit or cannot be totalled</Name>
+      <Description>True when line 11 is Complete and more than $0, or when Part II is entered and line 11 is undecided. Always Complete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8881Line11" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Dependency path="/form8881Line11" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form8881Line11" /></IsComplete></Not></When>
+            <Then><Dependency path="/form8881PartIiEntered" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIiiEntered">
+      <Name>Form 8881 Part III is entered</Name>
+      <Description>True when Part III is claimed or line 14 is answered with an amount other than $0. Always Complete.</Description>
+      <Derived>
+        <Any>
+          <Dependency path="/form8881PartIiiClaimed" />
+          <All>
+            <IsComplete><Dependency path="/writableForm8881Line14PassThroughCredit" /></IsComplete>
+            <Not>
+              <Equal>
+                <Left><Dependency path="/writableForm8881Line14PassThroughCredit" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </Equal>
+            </Not>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8881PartIiiClaimsCredit">
+      <Name>Form 8881 Part III claims a credit or cannot be totalled</Name>
+      <Description>True when line 15 is Complete and more than $0, or when Part III is entered and line 15 is undecided. Always Complete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8881Line15" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Dependency path="/form8881Line15" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form8881Line15" /></IsComplete></Not></When>
+            <Then><Dependency path="/form8881PartIiiEntered" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8881DeductionReducedByCredit">
+      <Name>The deduction for the startup costs and employer contributions is reduced by the Form 8881 credit (writable)</Name>
+      <Description>QUESTION: "Did you reduce the deduction you took for these plan startup costs and employer contributions by the amount of this credit (Form 8881 line 5 and line 6g)? Answer Yes if you did not deduct them at all." HELP: The law allows no deduction for the part of the qualified startup costs equal to the line 5 credit, or for the part of the employer contributions equal to the line 6g credit. Where you deducted them (for a business, Schedule C line 19, "Pension and profit-sharing plans", for the contributions and its other expenses for the startup costs, or Schedule F), enter the deduction already reduced by the credit (Instructions for Form 8881, No Deduction Allowed for Credit Amount). A credit passed through to you on a Schedule K-1 (line 7) was already taken into account by the partnership or S corporation. ASKED WHEN: /form8881Line5 plus /form8881Line6g is more than $0. UNANSWERED: the return is refused by /knockoutForm8881DeductionNotReducedByCredit until it is answered Yes. VALIDATION: Yes or No. FEEDS: /knockoutForm8881DeductionNotReducedByCredit (No or unanswered refuses).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutForm8881DeductionNotReducedByCredit">
+      <Name>Knockout: a Form 8881 startup costs or contributions credit whose deduction is not reduced by it</Name>
+      <Description>You have a small employer pension plan startup costs credit (Form 8881 line 5) or employer contributions credit (line 6g), and the law allows no deduction for the part of those costs or contributions equal to the credit. You have not told us that you reduced that deduction (for example on Schedule C or Schedule F) by the credit. Reduce the deduction by the credit and answer Yes, or this return cannot be filed here. True when line 5 plus line 6g is more than $0 and /writableForm8881DeductionReducedByCredit is not answered Yes. Every read is IsComplete-fenced, so an untouched form is false.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form8881Line5" /></IsComplete>
+          <IsComplete><Dependency path="/form8881Line6g" /></IsComplete>
+          <GreaterThan>
+            <Left><Add><Dependency path="/form8881Line5" /><Dependency path="/form8881Line6g" /></Add></Left>
+            <Right><Dollar>0</Dollar> </Right>
+          </GreaterThan>
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/writableForm8881DeductionReducedByCredit" /></IsComplete>
+              <Dependency path="/writableForm8881DeductionReducedByCredit" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

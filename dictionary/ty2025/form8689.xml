@@ -1,0 +1,1367 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/writableForm8689Applies">
+      <Name>Form8689 is being completed</Name>
+      <Description>Form8689 is being completed. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Applies">
+      <Name>Form8689 is active</Name>
+      <Description>Form8689 is active. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForm8689Applies" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableForm8689Applies" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Eligible">
+      <Name>U.S. citizen or resident alien with USVI source income; not a full-year bona fide USVI resident under the joint-return higher-AGI-spouse rule</Name>
+      <Description>U.S. citizen or resident alien with USVI source income; not a full-year bona fide USVI resident under the joint-return higher-AGI-spouse rule. See the cited form and instructions.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line1">
+      <Name>USVI source Wages, salaries and tips</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line2">
+      <Name>USVI source Taxable interest</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line3">
+      <Name>USVI source Ordinary dividends</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line4">
+      <Name>USVI source Local USVI income tax refunds</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line5">
+      <Name>USVI source Alimony received</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line6">
+      <Name>USVI source Business income or loss</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line7">
+      <Name>USVI source Capital gain or loss</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line8">
+      <Name>USVI source Other gains or losses</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line9">
+      <Name>USVI source Taxable IRA distributions</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line10">
+      <Name>USVI source Taxable pensions and annuities</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line11">
+      <Name>USVI source Rental, royalty and pass-through income</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line12">
+      <Name>USVI source Farm income or loss</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line13">
+      <Name>USVI source Unemployment compensation</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line14">
+      <Name>USVI source Taxable social security</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689Line15">
+      <Name>USVI source Other income</Name>
+      <Description>Only the USVI-source/effectively-connected portion already included in the worldwide U.S. return. Apply sections 861-865 and 937, military sourcing and the $3,000/90-day de minimis exception. Do not add this amount again to U.S. income.</Description>
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line1">
+      <Name>Form 8689 line 1</Name>
+      <Description>Form 8689 line 1. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line1" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line2">
+      <Name>Form 8689 line 2</Name>
+      <Description>Form 8689 line 2. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line2" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line3">
+      <Name>Form 8689 line 3</Name>
+      <Description>Form 8689 line 3. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line3" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line4">
+      <Name>Form 8689 line 4</Name>
+      <Description>Form 8689 line 4. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line4" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line5">
+      <Name>Form 8689 line 5</Name>
+      <Description>Form 8689 line 5. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line5" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line6">
+      <Name>Form 8689 line 6</Name>
+      <Description>Form 8689 line 6. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/writableForm8689Line6" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line7">
+      <Name>Form 8689 line 7</Name>
+      <Description>Form 8689 line 7. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/writableForm8689Line7" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line8">
+      <Name>Form 8689 line 8</Name>
+      <Description>Form 8689 line 8. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/writableForm8689Line8" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line9">
+      <Name>Form 8689 line 9</Name>
+      <Description>Form 8689 line 9. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line9" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line10">
+      <Name>Form 8689 line 10</Name>
+      <Description>Form 8689 line 10. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line10" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line11">
+      <Name>Form 8689 line 11</Name>
+      <Description>Form 8689 line 11. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/writableForm8689Line11" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line12">
+      <Name>Form 8689 line 12</Name>
+      <Description>Form 8689 line 12. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/writableForm8689Line12" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line13">
+      <Name>Form 8689 line 13</Name>
+      <Description>Form 8689 line 13. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line13" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line14">
+      <Name>Form 8689 line 14</Name>
+      <Description>Form 8689 line 14. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line14" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line15">
+      <Name>Form 8689 line 15</Name>
+      <Description>Form 8689 line 15. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/writableForm8689Line15" />
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689OtherIncomeDescription">
+      <Name>Line 15 other income types</Name>
+      <Description>Line 15 other income types. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line16">
+      <Name>Total USVI income</Name>
+      <Description>Total USVI income. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8689Line1" />
+          <Dependency path="/form8689Line2" />
+          <Dependency path="/form8689Line3" />
+          <Dependency path="/form8689Line4" />
+          <Dependency path="/form8689Line5" />
+          <Dependency path="/form8689Line6" />
+          <Dependency path="/form8689Line7" />
+          <Dependency path="/form8689Line8" />
+          <Dependency path="/form8689Line9" />
+          <Dependency path="/form8689Line10" />
+          <Dependency path="/form8689Line11" />
+          <Dependency path="/form8689Line12" />
+          <Dependency path="/form8689Line13" />
+          <Dependency path="/form8689Line14" />
+          <Dependency path="/form8689Line15" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line17">
+      <Name>USVI portion: Educator expenses</Name>
+      <Description>USVI portion: Educator expenses. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line17">
+      <Name>Form 8689 line 17</Name>
+      <Description>Form 8689 line 17. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line17" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line18">
+      <Name>USVI portion: Reservist, performing artist and fee-basis official expenses</Name>
+      <Description>USVI portion: Reservist, performing artist and fee-basis official expenses. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line18">
+      <Name>Form 8689 line 18</Name>
+      <Description>Form 8689 line 18. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line18" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line19">
+      <Name>USVI portion: HSA deduction</Name>
+      <Description>USVI portion: HSA deduction. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line19">
+      <Name>Form 8689 line 19</Name>
+      <Description>Form 8689 line 19. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line19" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line20">
+      <Name>USVI portion: Military moving expenses</Name>
+      <Description>USVI portion: Military moving expenses. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line20">
+      <Name>Form 8689 line 20</Name>
+      <Description>Form 8689 line 20. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line20" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line24">
+      <Name>USVI portion: Penalty on early withdrawal from USVI savings</Name>
+      <Description>USVI portion: Penalty on early withdrawal from USVI savings. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line24">
+      <Name>Form 8689 line 24</Name>
+      <Description>Form 8689 line 24. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line24" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line26">
+      <Name>USVI portion: Student loan interest</Name>
+      <Description>USVI portion: Student loan interest. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line26">
+      <Name>Form 8689 line 26</Name>
+      <Description>Form 8689 line 26. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line26" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689UsviSelfEmploymentIncome">
+      <Name>USVI self-employment income</Name>
+      <Description>USVI self-employment income. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689WorldwideSelfEmploymentIncome">
+      <Name>Worldwide self-employment income</Name>
+      <Description>Worldwide self-employment income. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689SelfEmploymentRatio">
+      <Name>USVI share of worldwide self-employment income</Name>
+      <Description>USVI share of worldwide self-employment income. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/writableForm8689WorldwideSelfEmploymentIncome" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/form8689SelfEmploymentRatioMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Rational>0/1</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689WorldwideRetirementPlanDeduction">
+      <Name>Worldwide self-employed SEP, SIMPLE and qualified plan deduction (not read)</Name>
+      <Description>Not read by line 22. Form 8689 line 22 multiplies the deduction the return itself takes on Schedule 1 line 16 (scheduleSE:/schedule1Line16SelfEmployedRetirementPlansOrZero) by the USVI share of self-employment income, so this separate figure is not asked; a second entry could disagree with the return. Kept so saved returns that answered it still load.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line21">
+      <Name>Allocated USVI deduction, line 21</Name>
+      <Description>Allocated USVI deduction, line 21. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/form8689SelfEmploymentRatio" />
+          <Dependency path="/selfEmploymentTaxDeduction" module="scheduleSE" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line22">
+      <Name>Allocated USVI deduction, line 22</Name>
+      <Description>Form 8689 line 22, the self-employed SEP, SIMPLE and qualified plan deduction attributable to USVI income: the deduction the return takes on Schedule 1 line 16 multiplied by the USVI share of self-employment income (USVI source self-employment income divided by worldwide self-employment income, at most one). The deduction is read from the return itself, so it is never entered a second time for this form; $0 when the return takes no Schedule 1 line 16 deduction or has no USVI self-employment income.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/form8689SelfEmploymentRatio" />
+          <Dependency module="scheduleSE" path="/schedule1Line16SelfEmployedRetirementPlansOrZero" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line23">
+      <Name>Allocated USVI deduction, line 23</Name>
+      <Description>Allocated USVI deduction, line 23. See the cited form and instructions.</Description>
+      <Derived>
+        <Multiply>
+          <Dependency path="/form8689SelfEmploymentRatio" />
+          <Dependency path="/selfEmployedHealthInsuranceDeduction" module="scheduleSE" />
+        </Multiply>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689PrimaryCompensation">
+      <Name>Primary USVI compensation or earned income</Name>
+      <Description>Primary USVI compensation or earned income. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689PrimaryWorldwideCompensation">
+      <Name>Primary Worldwide compensation or earned income</Name>
+      <Description>Primary Worldwide compensation or earned income. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689PrimaryIraDeduction">
+      <Name>Primary Worldwide IRA deduction (not read)</Name>
+      <Description>Not read by line 25. Form 8689 line 25 multiplies the primary filer's IRA deduction the return itself takes on Schedule 1 line 20 (iraDeduction:/primaryFilerTraditionalIraDeduction plus /primaryFilerSection219f6PriorYearExcessDeduction) by the primary filer's USVI share of compensation, so this separate figure is not asked; a second entry could disagree with the return. Kept so saved returns that answered it still load.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689PrimaryMsaDeduction">
+      <Name>Primary Worldwide Archer MSA deduction</Name>
+      <Description>Primary Worldwide Archer MSA deduction. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689PrimaryCompensationRatio">
+      <Name>Primary USVI compensation fraction</Name>
+      <Description>Primary USVI compensation fraction. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/writableForm8689PrimaryWorldwideCompensation" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/form8689PrimaryCompensationRatioMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Rational>0/1</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689SpouseCompensation">
+      <Name>Spouse USVI compensation or earned income</Name>
+      <Description>Spouse USVI compensation or earned income. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689SpouseWorldwideCompensation">
+      <Name>Spouse Worldwide compensation or earned income</Name>
+      <Description>Spouse Worldwide compensation or earned income. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689SpouseIraDeduction">
+      <Name>Spouse Worldwide IRA deduction (not read)</Name>
+      <Description>Not read by line 25. Form 8689 line 25 multiplies the spouse's IRA deduction the return itself takes on Schedule 1 line 20 (iraDeduction:/secondaryFilerTraditionalIraDeduction plus the spouse's section 219(f)(6) deemed amount, /secondaryFilerSection219f6PriorYearExcessDeduction) by the spouse's USVI share of compensation, so this separate figure is not asked; a second entry could disagree with the return. Kept so saved returns that answered it still load.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689SpouseMsaDeduction">
+      <Name>Spouse Worldwide Archer MSA deduction</Name>
+      <Description>Spouse Worldwide Archer MSA deduction. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689SpouseCompensationRatio">
+      <Name>Spouse USVI compensation fraction</Name>
+      <Description>Spouse USVI compensation fraction. See the cited form and instructions.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/writableForm8689SpouseWorldwideCompensation" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/form8689SpouseCompensationRatioMinimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Rational>0/1</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line25">
+      <Name>USVI IRA deductions, allocated separately by spouse</Name>
+      <Description>Form 8689 line 25, the IRA deductions attributable to USVI compensation or earned income, figured separately for each spouse: the primary filer's Schedule 1 line 20 IRA deduction (the ordinary traditional IRA deduction plus the section 219(f)(6) deduction of a prior-year excess contribution) times the primary filer's USVI share of compensation, plus the spouse's Schedule 1 line 20 IRA deduction (the spouse's ordinary deduction plus the spouse's own section 219(f)(6) deduction, IRC 219(f)(2)) times the spouse's USVI share. Each deduction is read from the return itself, so it is never entered a second time for this form; the spouse term is $0 on a return with no spouse IRA deduction.</Description>
+      <Derived>
+        <Add>
+          <Multiply>
+            <Dependency path="/form8689PrimaryCompensationRatio" />
+            <Add>
+              <Dependency module="iraDeduction" path="/primaryFilerTraditionalIraDeduction" />
+              <Dependency module="iraDeduction" path="/primaryFilerSection219f6DeductionTaken" />
+            </Add>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/form8689SpouseCompensationRatio" />
+            <Add>
+              <Dependency module="iraDeduction" path="/secondaryFilerTraditionalIraDeduction" />
+              <Dependency module="iraDeduction" path="/secondaryFilerSection219f6DeductionTaken" />
+            </Add>
+          </Multiply>
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689OtherAdjustments">
+      <Name>Other adjustments attributable to USVI income, excluding separately allocated MSA deductions</Name>
+      <Description>Other adjustments attributable to USVI income, excluding separately allocated MSA deductions. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/writableForm8689OtherAdjustmentsDescription">
+      <Name>Line 29 additional deduction descriptions</Name>
+      <Description>Line 29 additional deduction descriptions. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line29">
+      <Name>Total USVI adjustments including MSA and other adjustments</Name>
+      <Description>Total USVI adjustments including MSA and other adjustments. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8689Line17" />
+          <Dependency path="/form8689Line18" />
+          <Dependency path="/form8689Line19" />
+          <Dependency path="/form8689Line20" />
+          <Dependency path="/form8689Line21" />
+          <Dependency path="/form8689Line22" />
+          <Dependency path="/form8689Line23" />
+          <Dependency path="/form8689Line24" />
+          <Dependency path="/form8689Line25" />
+          <Dependency path="/form8689Line26" />
+          <GreaterOf><Dependency path="/writableForm8689OtherAdjustments" /><Dollar>0</Dollar></GreaterOf>
+          <Multiply>
+            <Dependency path="/form8689PrimaryCompensationRatio" />
+            <GreaterOf><Dependency path="/writableForm8689PrimaryMsaDeduction" /><Dollar>0</Dollar></GreaterOf>
+          </Multiply>
+          <Multiply>
+            <Dependency path="/form8689SpouseCompensationRatio" />
+            <GreaterOf><Dependency path="/writableForm8689SpouseMsaDeduction" /><Dollar>0</Dollar></GreaterOf>
+          </Multiply>
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line30">
+      <Name>USVI adjusted gross income</Name>
+      <Description>USVI adjusted gross income. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8689Line16" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8689Line29" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line31">
+      <Name>Worldwide total income tax</Name>
+      <Description>Worldwide total income tax. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/totalTax" module="taxCalculations" />
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689GoldenParachuteTax">
+      <Name>Tax on excess golden parachute payments for line 32 (not read)</Name>
+      <Description>Not read by line 32. The line 32 amount for the tax on excess golden parachute payments is the Schedule 2 line 17k tax (formW2s:/schedule2Line17kGoldenParachutePaymentsTax), which already carries both sources the line 17k instruction names: box 12 code K of Form W-2 and 20 percent of the excess parachute payment in box 3 of Form 1099-NEC. Adding a separate figure here would count the same tax twice.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line32">
+      <Name>Amounts excluded from tax allocated to the USVI</Name>
+      <Description>Form 8689 line 32, the total of the amounts the line 32 instruction lists, as the return carries them. The section 960(c) credit is the one Schedule 3 line 13z carries (schedule3 /sched3Line13zSection960cCreditOrZero), entered once on schedule3 /writableSchedule3Line13zSection960cCredit, so line 32 and line 13z read the same amount.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/earnedIncomeCredit" module="eitc" />
+          <Dependency path="/additionalCtc" module="ctcOdc" />
+          <Dependency path="/aotcRefundableAmount" module="form8863" />
+          <Dependency path="/selfEmploymentTax" module="scheduleSE" />
+          <Dependency path="/line7OfSchedule2" module="schedule2" />
+          <Dependency path="/schedule2Line13UncollectedBox12Tax" module="formW2s" />
+          <Dependency path="/scheduleHTotalHouseholdEmploymentTaxes" module="scheduleH" />
+          <Dependency path="/schedule2Line17kGoldenParachutePaymentsTax" module="formW2s" />
+          <Dependency path="/schedule2Line17mInsiderStockCompensationExciseTax" module="schedule2" />
+          <Dependency path="/form5329PartIiiTraditionalIraExcessTaxOrZero" module="form5329" />
+          <Dependency path="/form5329PartIvRothIraExcessTaxOrZero" module="form5329" />
+          <Dependency path="/form5329PartVCoverdellEsaExcessTaxOrZero" module="form5329" />
+          <Dependency path="/form5329PartViArcherMsaExcessTaxOrZero" module="form5329" />
+          <Dependency path="/form5329PartViiHsaExcessTaxOrZero" module="form5329" />
+          <Dependency path="/form5329PartViiiAbleExcessTaxOrZero" module="form5329" />
+          <Dependency path="/form5329PartIxExcessAccumulationTaxOrZero" module="form5329" />
+          <Dependency path="/sched3Line13b" module="schedule3" />
+          <Dependency path="/sched3Line13d" module="schedule3" />
+          <Dependency path="/sched3Line13zSection960cCreditOrZero" module="schedule3" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line33">
+      <Name>Net tax subject to allocation</Name>
+      <Description>Net tax subject to allocation. See the cited form and instructions.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8689Line31" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8689Line32" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line34">
+      <Name>Worldwide adjusted gross income</Name>
+      <Description>Worldwide adjusted gross income. See the cited form and instructions.</Description>
+      <Derived>
+        <Dependency path="/agi" module="taxCalculations" />
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line35">
+      <Name>Allocation ratio, at least three decimal places and capped at one</Name>
+      <Description>Retains nine decimal places instead of rounding to only three places. A nonpositive worldwide AGI with nonzero USVI AGI requires a supported special allocation; it remains incomplete instead of dividing by zero or inventing a ratio.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form8689Line34" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Dependency path="/form8689Line35Minimum1" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <Equal>
+                  <Left>
+                    <Dependency path="/form8689Line34" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </Equal>
+                <Equal>
+                  <Left>
+                    <Dependency path="/form8689Line30" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </Equal>
+              </All>
+            </When>
+            <Then>
+              <Rational>0/1</Rational>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line36">
+      <Name>Tax allocated to the USVI</Name>
+      <Description>Form 8689 line 36: line 33 times line 35, the tax allocated to the USVI, never below $0. Line 32 subtracts the refundable credits from the total tax, so line 33 can be negative for a low-income filer; a negative allocation is not a tax the filer is required to pay to the USVI, so line 36 floors at $0, line 41 is then $0 and every USVI payment on line 40 is an overpayment on line 42.</Description>
+      <Derived>
+        <GreaterOf>
+          <Round>
+            <Multiply>
+              <Dependency path="/form8689Line33" />
+              <Dependency path="/form8689Line35" />
+            </Multiply>
+          </Round>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line37">
+      <Name>USVI income tax withheld that is not on a Form W-2VI entered on this return</Name>
+      <Description>Question: "How much U.S. Virgin Islands income tax was withheld from your income, other than the box 2 amounts of the Forms W-2VI you entered?" Help text: Form 8689 line 37 includes the USVI income tax withheld (box 2 of Form W-2VI); the box 2 amounts of the Forms W-2VI on this return are added for you. Do not include this amount on the federal income tax withheld lines. Enter 0 if there is none. Asked when the return files Form 8689. Unanswered: line 37 and the Form 8689 credit are Incomplete. Validation: dollars, not less than $0. Feeds /form8689Line37.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line37">
+      <Name>Form 8689 line 37</Name>
+      <Description>Form 8689 line 37, the USVI income tax withheld: the box 2 amounts of every Form W-2VI on the return that is not VOID (formW2s /formW2VisVirginIslandsIncomeTaxWithheldTotal) plus the other USVI withholding the filer enters (/writableForm8689Line37), floored at $0.</Description>
+      <Derived>
+        <Add>
+          <Dependency module="formW2s" path="/formW2VisVirginIslandsIncomeTaxWithheldTotal" />
+          <GreaterOf><Dependency path="/writableForm8689Line37" /><Dollar>0</Dollar></GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line38">
+      <Name>USVI estimated payments and prior overpayment applied</Name>
+      <Description>USVI estimated payments and prior overpayment applied. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line38">
+      <Name>Form 8689 line 38</Name>
+      <Description>Form 8689 line 38. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line38" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line39">
+      <Name>USVI extension payment</Name>
+      <Description>USVI extension payment. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line39">
+      <Name>Form 8689 line 39</Name>
+      <Description>Form 8689 line 39. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line39" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line44">
+      <Name>Overpayment elected for 2026 USVI estimated tax</Name>
+      <Description>Overpayment elected for 2026 USVI estimated tax. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line44">
+      <Name>Form 8689 line 44</Name>
+      <Description>Form 8689 line 44. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line44" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/writableForm8689Line46">
+      <Name>Balance that will actually be paid to the USVI with this return</Name>
+      <Description>Balance that will actually be paid to the USVI with this return. See the cited form and instructions.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8689Line46">
+      <Name>Form 8689 line 46</Name>
+      <Description>Form 8689 line 46. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf><Dependency path="/writableForm8689Line46" /><Dollar>0</Dollar></GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line40">
+      <Name>Form 8689 line 40</Name>
+      <Description>Form 8689 line 40. See the cited form and instructions.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form8689Line37" />
+          <Dependency path="/form8689Line38" />
+          <Dependency path="/form8689Line39" />
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line41">
+      <Name>Form 8689 line 41</Name>
+      <Description>Form 8689 line 41. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8689Line36" />
+          <Dependency path="/form8689Line40" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line42">
+      <Name>Form 8689 line 42</Name>
+      <Description>Form 8689 line 42. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8689Line40" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8689Line36" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line43">
+      <Name>Form 8689 line 43</Name>
+      <Description>Form 8689 line 43. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form8689Line42" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form8689Line44" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line45">
+      <Name>Form 8689 line 45</Name>
+      <Description>Form 8689 line 45. See the cited form and instructions.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/form8689Line36" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8689Line40" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Credit">
+      <Name>USVI tax actually paid; Schedule 3 line 13z</Name>
+      <Description>USVI tax actually paid; Schedule 3 line 13z. See the cited form and instructions.</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/form8689Applies" />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <All>
+                      <Dependency path="/writableForm8689Eligible" />
+                      <LessThanOrEqual>
+                        <Left>
+                          <Dependency path="/form8689Line46" />
+                        </Left>
+                        <Right>
+                          <Dependency path="/form8689Line45" />
+                        </Right>
+                      </LessThanOrEqual>
+                      <LessThanOrEqual>
+                        <Left>
+                          <Dependency path="/form8689Line44" />
+                        </Left>
+                        <Right>
+                          <Dependency path="/form8689Line42" />
+                        </Right>
+                      </LessThanOrEqual>
+                    </All>
+                  </When>
+                  <Then>
+                    <Round>
+                      <Add>
+                        <Dependency path="/form8689Line41" />
+                        <Dependency path="/form8689Line46" />
+                      </Add>
+                    </Round>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689SelfEmploymentRatioMinimum1">
+      <Name>USVI share of worldwide self-employment income: intermediate minimum 1</Name>
+      <Description>USVI share of worldwide self-employment income: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="/writableForm8689UsviSelfEmploymentIncome" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="/writableForm8689UsviSelfEmploymentIncome" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8689WorldwideSelfEmploymentIncome" />
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <GreaterOf><Dependency path="/writableForm8689UsviSelfEmploymentIncome" /><Dollar>0</Dollar></GreaterOf>
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <GreaterOf><Dependency path="/writableForm8689WorldwideSelfEmploymentIncome" /><Dollar>0</Dollar></GreaterOf>
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689PrimaryCompensationRatioMinimum1">
+      <Name>Primary USVI compensation fraction: intermediate minimum 1</Name>
+      <Description>Primary USVI compensation fraction: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="/writableForm8689PrimaryCompensation" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="/writableForm8689PrimaryCompensation" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8689PrimaryWorldwideCompensation" />
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <GreaterOf><Dependency path="/writableForm8689PrimaryCompensation" /><Dollar>0</Dollar></GreaterOf>
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <GreaterOf><Dependency path="/writableForm8689PrimaryWorldwideCompensation" /><Dollar>0</Dollar></GreaterOf>
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689SpouseCompensationRatioMinimum1">
+      <Name>Spouse USVI compensation fraction: intermediate minimum 1</Name>
+      <Description>Spouse USVI compensation fraction: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="/writableForm8689SpouseCompensation" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="/writableForm8689SpouseCompensation" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/writableForm8689SpouseWorldwideCompensation" />
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <GreaterOf><Dependency path="/writableForm8689SpouseCompensation" /><Dollar>0</Dollar></GreaterOf>
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <GreaterOf><Dependency path="/writableForm8689SpouseWorldwideCompensation" /><Dollar>0</Dollar></GreaterOf>
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+    <Fact path="/form8689Line35Minimum1">
+      <Name>Allocation ratio, at least three decimal places and capped at one: intermediate minimum 1</Name>
+      <Description>Allocation ratio, at least three decimal places and capped at one: intermediate minimum 1. See the cited form and instructions.</Description>
+      <Derived>
+        <LesserOf>
+          <Rational>1/1</Rational>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left>
+                    <Dependency path="/form8689Line30" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Rational>0/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="/form8689Line30" />
+                  </Left>
+                  <Right>
+                    <Dependency path="/form8689Line34" />
+                  </Right>
+                </GreaterThanOrEqual>
+              </When>
+              <Then>
+                <Rational>1/1</Rational>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Divide>
+                  <Dividend>
+                    <RoundToInt>
+                      <Divide>
+                        <Dividend>
+                          <Multiply>
+                            <Dependency path="/form8689Line30" />
+                            <Int>1000000000</Int>
+                          </Multiply>
+                        </Dividend>
+                        <Divisors>
+                          <Dependency path="/form8689Line34" />
+                        </Divisors>
+                      </Divide>
+                    </RoundToInt>
+                  </Dividend>
+                  <Divisors>
+                    <Int>1000000000</Int>
+                  </Divisors>
+                </Divide>
+              </Then>
+            </Case>
+          </Switch>
+        </LesserOf>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

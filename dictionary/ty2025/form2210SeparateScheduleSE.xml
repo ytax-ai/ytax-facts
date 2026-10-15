@@ -1,0 +1,2626 @@
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA">
+      <Name>Schedule AI separate Schedule SE line 5a, primary filer, column (a)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-3/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColA">
+      <Name>Schedule AI separate Schedule SE line 5b, primary filer, column (a)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6PrimaryColA">
+      <Name>Schedule AI separate Schedule SE line 6, primary filer, column (a)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Export downstreamFacts="true" />
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcilePrimary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColA"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColA" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColA"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB">
+      <Name>Schedule AI separate Schedule SE line 5a, primary filer, column (b)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-5/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColB">
+      <Name>Schedule AI separate Schedule SE line 5b, primary filer, column (b)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6PrimaryColB">
+      <Name>Schedule AI separate Schedule SE line 6, primary filer, column (b)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Export downstreamFacts="true" />
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcilePrimary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColB"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColB" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColB"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC">
+      <Name>Schedule AI separate Schedule SE line 5a, primary filer, column (c)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-8/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColC">
+      <Name>Schedule AI separate Schedule SE line 5b, primary filer, column (c)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6PrimaryColC">
+      <Name>Schedule AI separate Schedule SE line 6, primary filer, column (c)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Export downstreamFacts="true" />
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcilePrimary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColC"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColC" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColC"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD">
+      <Name>Schedule AI separate Schedule SE line 5a, primary filer, column (d)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-12/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColD">
+      <Name>Schedule AI separate Schedule SE line 5b, primary filer, column (d)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6PrimaryColD">
+      <Name>Schedule AI separate Schedule SE line 6, primary filer, column (d)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Export downstreamFacts="true" />
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcilePrimary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColD"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColD" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedPrimaryColD"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeSubstantiatedPrimary">
+      <Name>Schedule AI separate Schedule SE is substantiated for the primary filer</Name>
+      <Description>Complete-safe reconciliation, armed on either measure that can actually move a
+        figure. When this filer's Schedule SE line 5b — church employee income after the 92.35%
+        haircut and the printed $100 floor — is above zero, OR when any of the four cumulative
+        source allocations has been answered, all four must be present, nondecreasing, and column
+        (d) must equal the annual line 5a W-2 intake.
+
+        BOTH ARMS ARE LOAD-BEARING. Line 5b floors to zero for every annual line 5a at or below
+        $108.27, so a wage-only filer with $60 of church income who supplies no period allocation
+        needs no extra inputs and is not refused — that band is what the 5b arm exists to release,
+        and a filer with no church income at all passes through the fall-through case. The floor is
+        applied per period, though, to the figure entered in each column and not to the annual, so
+        an answered column carries a church component of its own and moves that period's line 6
+        even while the annual floors to zero. Nothing outside this fence holds the columns at or
+        under the annual figure; the reconciliation that would is inside the armed branch, so the
+        arming cannot presume it. Any answered column therefore arms the demand, and four columns of
+        zero against a nonzero annual line 5a is contradictory intake that is refused here rather
+        than filed.
+
+        A FILER EXEMPT FROM SELF-EMPLOYMENT TAX (the Form 4029 religious-sect exemption or a
+        totalization agreement) passes without any allocation: every period line 6 is zero for that
+        filer, so no church allocation can move a figure, and a demand for one would refuse a return
+        over inputs that feed nothing.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <GreaterThan><Left><Dependency module="scheduleSE" path="/primaryFilerChurchEmployeeIncomeAdjusted" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+                <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /></IsComplete>
+              </Any>
+            </When>
+            <Then>
+              <Any>
+              <Dependency module="scheduleSE" path="/primaryFilerIsExemptFromSelfEmploymentTax" />
+                            <All>
+                <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /></IsComplete>
+                <LessThanOrEqual><Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColA" /></Left><Right><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /></Right></LessThanOrEqual><LessThanOrEqual><Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColB" /></Left><Right><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /></Right></LessThanOrEqual><LessThanOrEqual><Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColC" /></Left><Right><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /></Right></LessThanOrEqual>
+                <Equal>
+                  <Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomePrimaryColD" /></Left>
+                  <Right><Dependency module="scheduleSE" path="/writableChurchEmployeeIncome" /></Right>
+                </Equal>
+              </All>
+              </Any>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><True /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA">
+      <Name>Schedule AI separate Schedule SE line 5a, secondary filer, column (a)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-3/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColA">
+      <Name>Schedule AI separate Schedule SE line 5b, secondary filer, column (a)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6SecondaryColA">
+      <Name>Schedule AI separate Schedule SE line 6, secondary filer, column (a)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcileSecondary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColA"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColA" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColA"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB">
+      <Name>Schedule AI separate Schedule SE line 5a, secondary filer, column (b)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-5/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColB">
+      <Name>Schedule AI separate Schedule SE line 5b, secondary filer, column (b)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6SecondaryColB">
+      <Name>Schedule AI separate Schedule SE line 6, secondary filer, column (b)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcileSecondary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColB"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColB" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColB"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC">
+      <Name>Schedule AI separate Schedule SE line 5a, secondary filer, column (c)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-8/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColC">
+      <Name>Schedule AI separate Schedule SE line 5b, secondary filer, column (c)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6SecondaryColC">
+      <Name>Schedule AI separate Schedule SE line 6, secondary filer, column (c)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcileSecondary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColC"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColC" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColC"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD">
+      <Name>Schedule AI separate Schedule SE line 5a, secondary filer, column (d)</Name>
+      <Description>Cumulative church employee income from Form W-2 for 1/1/25-12/31/25. This is a
+        source allocation from the filer's payroll records, not a taxpayer-computed Schedule SE
+        result. Column (d) reconciles to the annual Schedule SE line-5a intake.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min"><Dollar>0</Dollar></Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColD">
+      <Name>Schedule AI separate Schedule SE line 5b, secondary filer, column (d)</Name>
+      <Description>The cumulative period's church employee income multiplied by 92.35%, with the
+        printed Schedule SE line-5b $100 floor applied before whole-dollar rounding.</Description>
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /></IsComplete>
+                  <GreaterThanOrEqual>
+                    <Left><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /><Dollar>0</Dollar></GreaterOf></Multiply></Left>
+                    <Right><Dollar>100</Dollar></Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </When>
+              <Then><Multiply><Rational>9235/10000</Rational><GreaterOf><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /><Dollar>0</Dollar></GreaterOf></Multiply></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeLine6SecondaryColD">
+      <Name>Schedule AI separate Schedule SE line 6, secondary filer, column (d)</Name>
+      <Description>The computed line 6 for the cumulative period: the existing non-church line-4c
+        component plus the computed church-employee line-5b component.
+
+        The period Schedule SE line 6. On a selected CRP route, add the reconciled calculated ordinary line-4c component to the existing church-employee line-5b component. Without CRP selection preserve the legacy line-28 ordinary component. Missing or conflicting selected CRP data have no zero/manual fallback. Column D does not subtract CRP from an already-net annual line-28 figure.
+      
+        A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a
+        totalization agreement has a period line 6 of zero, ahead of every other arm, exactly as the
+        annual Schedule SE line 6 is zero for that filer. The exemption reaches the whole of the
+        tax on self-employment income, so no period of the year carries any of it, and column (d)
+        then equals the annual figure the Part II reconciliation compares it with.
+      </Description>
+      <Derived><Add><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><All><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/><Dependency path="/form2210ScheduleAiCrpSourcesReconcileSecondary"/></All></When><Then><Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColD"/></Then></Case><Case><When><Not><Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/></Not></When><Then><Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColD" module="form2210"/></Then></Case></Switch><Switch><Case><When><Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax"/></When><Then><Dollar>0</Dollar></Then></Case><Case><When><True/></When><Then><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeAdjustedSecondaryColD"/></Then></Case></Switch></Add></Derived></Fact>
+
+    <Fact path="/form2210ScheduleAiSeparateScheduleSeSubstantiatedSecondary">
+      <Name>Schedule AI separate Schedule SE is substantiated for the secondary filer</Name>
+      <Description>Complete-safe reconciliation, armed on either measure that can actually move a
+        figure, and only on a joint return. When this filer's Schedule SE line 5b — church employee
+        income after the 92.35% haircut and the printed $100 floor — is above zero, OR when any of
+        the four cumulative source allocations has been answered, all four must be present,
+        nondecreasing, and column (d) must equal the annual line 5a W-2 intake.
+
+        BOTH ARMS ARE LOAD-BEARING. Line 5b floors to zero for every annual line 5a at or below
+        $108.27, so a wage-only filer with $60 of church income who supplies no period allocation
+        needs no extra inputs and is not refused — that band is what the 5b arm exists to release,
+        and a filer with no church income at all passes through the fall-through case. The floor is
+        applied per period, though, to the figure entered in each column and not to the annual, so
+        an answered column carries a church component of its own and moves that period's line 6
+        even while the annual floors to zero. Nothing outside this fence holds the columns at or
+        under the annual figure; the reconciliation that would is inside the armed branch, so the
+        arming cannot presume it. Any answered column therefore arms the demand, and four columns of
+        zero against a nonzero annual line 5a is contradictory intake that is refused here rather
+        than filed.
+
+        GUARDED ON MARRIED FILING JOINTLY, with the same polarity its consumer
+        /form2210ScheduleAiPart2AttestationsConsistentSecondary uses. Only a joint return has a
+        second filer's Part II at all, so a return that still holds an answered secondary
+        church-income figure but is no longer filing jointly must not inherit a demand from a fact
+        no computation on that return reads.
+
+        A FILER EXEMPT FROM SELF-EMPLOYMENT TAX (the Form 4029 religious-sect exemption or a
+        totalization agreement) passes without any allocation: every period line 6 is zero for that
+        filer, so no church allocation can move a figure, and a demand for one would refuse a return
+        over inputs that feed nothing.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <Any>
+                  <GreaterThan><Left><Dependency module="scheduleSE" path="/secondaryFilerChurchEmployeeIncomeAdjusted" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan>
+                  <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /></IsComplete>
+                </Any>
+              </All>
+            </When>
+            <Then>
+              <Any>
+              <Dependency module="scheduleSE" path="/secondaryFilerIsExemptFromSelfEmploymentTax" />
+                            <All>
+                <IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /></IsComplete><IsComplete><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /></IsComplete>
+                <LessThanOrEqual><Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColA" /></Left><Right><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /></Right></LessThanOrEqual><LessThanOrEqual><Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColB" /></Left><Right><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /></Right></LessThanOrEqual><LessThanOrEqual><Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColC" /></Left><Right><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /></Right></LessThanOrEqual>
+                <Equal>
+                  <Left><Dependency path="/form2210ScheduleAiChurchEmployeeIncomeSecondaryColD" /></Left>
+                  <Right><Dependency module="scheduleSE" path="/writableSecondaryFilerChurchEmployeeIncome" /></Right>
+                </Equal>
+              </All>
+              </Any>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><True /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form2210ScheduleAiPart2SeparateScheduleSeNetEarningsSubstantiated">
+      <Name>Schedule AI separate Schedule SE net earnings are substantiated</Name>
+      <Description>TRUE when each filer's selected period source route is substantiated. See
+        /form2210ScheduleAiSeparateScheduleSeSubstantiatedPrimary and its secondary and CRP twins
+        for each leg's exact arming rule: the church-income checks arm on annual Schedule SE line
+        5b above zero, or any cumulative allocation column answered, not merely on having church
+        employee income; the CRP checks require complete cumulative allocations and full-year
+        per-filer reconciliation whenever annual deductible CRP or an answered period source input
+        activates the route. This data fence gates Schedule AI line 27, not the line-28 substitution: the
+        computed per-period Schedule SE line-6 facts replace the ordinary line-28 components
+        whatever this fact resolves to; CRP line-6 substitution additionally has its own source
+        guard.
+      </Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/form2210ScheduleAiPart2SeparateScheduleSeRouteRequired"/>
+          </IsComplete>
+          <Dependency path="/form2210ScheduleAiSeparateScheduleSeSubstantiatedPrimary"/>
+          <Dependency path="/form2210ScheduleAiSeparateScheduleSeSubstantiatedSecondary"/>
+        <Dependency path="/form2210ScheduleAiCrpSubstantiatedPrimary"/><Dependency path="/form2210ScheduleAiCrpSubstantiatedSecondary"/></All>
+      </Derived>
+</Fact>
+
+  
+    <Fact path="/form2210ScheduleAiCrpScopeConfirmedPrimary">
+  <Name>Primary filer confirms regular-method CRP source scope</Name>
+  <Description>Confirm a calendar-2025 individual-return allocation for this filer: the complete single directly owned Schedule F CRP source, plus any ordinary nonfarm net profit included in Schedule SE line 2. The net-profit figures include CRP before the qualified deduction; each CRP figure includes ONLY payments received while the filer was receiving section 202 or 223 Social Security retirement/disability benefits. No optional method, QJV, farm partnership CRP, multiple-farm allocation, community-property adjustment, Chapter 11, exemption, or other special Schedule SE adjustment is included. Nonfarm amounts and source deductions must already be correctly prepared. This is a scope/source attestation, not documentary proof or a new tax election.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Boolean/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpWorksheetRequiredPrimary">
+  <Name>Primary filer needs a period CRP Schedule SE worksheet</Name>
+  <Description>A known annual deductible CRP amount inside the scope described below, a scope answer of YES, or any answered period amount activates this route, even when the annual self-employment tax is zero. Without those triggers, retain the legacy non-CRP calculation. An annual deductible amount that is unresolved is not inferred from raw CRP receipts; once period data are entered all required entitlement and reconciliation checks apply.
+
+    WHICH FILERS THE ANNUAL AMOUNT ARMS. The annual deductible amount alone arms this route only for a filer inside the scope the period worksheet computes: a Schedule F farm that is not a qualified joint venture, the regular method (neither optional method), and a scope question not answered NO. Every other filer who deducted CRP on the annual Schedule SE, such as a partnership-only CRP recipient, a qualified joint venture spouse or an optional-method filer, takes the attested line-28 route instead: the filer enters line 6 of the separate period Schedule SE the Form 2210 instructions tell them to prepare, and column (d) is reconciled against the annual line 6, which already carries the CRP subtraction. The instructions say to compute that worksheet, not to refuse the filer. The scope question arms the route when answered YES; an answered NO keeps the filer on the attested route unless period amounts were also entered, which is contradictory intake and is still reconciled and refused.
+
+    A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a totalization agreement never takes this route: every period line 6 is zero for that filer, so no period amount can move a figure and none is demanded.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+    <Not><Dependency path="/primaryFilerIsExemptFromSelfEmploymentTax" module="scheduleSE"/></Not>
+    <Any>
+      <All>
+        <IsComplete>
+          <Dependency path="/primaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+        </IsComplete>
+        <LessThan>
+          <Left>
+            <Dependency path="/primaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </LessThan>
+      
+        <Dependency path="/claimsScheduleFFarmIncome" module="scheduleF"/>
+        <Not><All><IsComplete><Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/></IsComplete><Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/></IsComplete><Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/primaryFilerUsesFarmOptionalMethod" module="scheduleSE"/></IsComplete><Dependency path="/primaryFilerUsesFarmOptionalMethod" module="scheduleSE"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/primaryFilerUsesNonfarmOptionalMethod" module="scheduleSE"/></IsComplete><Dependency path="/primaryFilerUsesNonfarmOptionalMethod" module="scheduleSE"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/form2210ScheduleAiCrpScopeConfirmedPrimary"/></IsComplete><Not><Dependency path="/form2210ScheduleAiCrpScopeConfirmedPrimary"/></Not></All></Not>
+      </All>
+      <All><IsComplete><Dependency path="/form2210ScheduleAiCrpScopeConfirmedPrimary"/></IsComplete><Dependency path="/form2210ScheduleAiCrpScopeConfirmedPrimary"/></All>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColA"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColA"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColB"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColC"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColD"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+    </Any>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColA">
+  <Name>Primary cumulative profit before CRP deduction, column A</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through March 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionPrimaryColA">
+  <Name>Primary cumulative deductible CRP, column A</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through March 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3PrimaryColA">
+  <Name>Primary separate Schedule SE line 3, column A</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColA"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColA"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aPrimaryColA">
+  <Name>Primary separate Schedule SE line 4a, column A</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColA"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColA"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cPrimaryColA">
+  <Name>Primary regular-method line 4c amount carried to line 6, column A</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColA"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNotePrimaryColA">
+  <Name>Primary sub-$400 CRP filing-rule note, column A</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColB">
+  <Name>Primary cumulative profit before CRP deduction, column B</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through May 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionPrimaryColB">
+  <Name>Primary cumulative deductible CRP, column B</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through May 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3PrimaryColB">
+  <Name>Primary separate Schedule SE line 3, column B</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColB"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aPrimaryColB">
+  <Name>Primary separate Schedule SE line 4a, column B</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColB"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColB"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cPrimaryColB">
+  <Name>Primary regular-method line 4c amount carried to line 6, column B</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColB"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNotePrimaryColB">
+  <Name>Primary sub-$400 CRP filing-rule note, column B</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColC">
+  <Name>Primary cumulative profit before CRP deduction, column C</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through August 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionPrimaryColC">
+  <Name>Primary cumulative deductible CRP, column C</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through August 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3PrimaryColC">
+  <Name>Primary separate Schedule SE line 3, column C</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColC"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aPrimaryColC">
+  <Name>Primary separate Schedule SE line 4a, column C</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColC"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColC"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cPrimaryColC">
+  <Name>Primary regular-method line 4c amount carried to line 6, column C</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColC"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNotePrimaryColC">
+  <Name>Primary sub-$400 CRP filing-rule note, column C</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColD">
+  <Name>Primary cumulative profit before CRP deduction, column D</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through December 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionPrimaryColD">
+  <Name>Primary cumulative deductible CRP, column D</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through December 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3PrimaryColD">
+  <Name>Primary separate Schedule SE line 3, column D</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColD"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aPrimaryColD">
+  <Name>Primary separate Schedule SE line 4a, column D</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColD"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColD"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cPrimaryColD">
+  <Name>Primary regular-method line 4c amount carried to line 6, column D</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColD"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNotePrimaryColD">
+  <Name>Primary sub-$400 CRP filing-rule note, column D</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aPrimaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSourcesReconcilePrimary">
+  <Name>Primary period CRP sources reconcile</Name>
+  <Description>Data validation, not a filer-computed answer. Require the confirmed supported source scope, all eight cumulative source amounts, regular-method treatment and the correct farm owner. Reconcile full-year CRP and post-CRP profit to the existing annual per-filer Schedule SE facts. CRP receipts are nondecreasing but signed net profit need not be. Any answered legacy line-28 input must match the calculated ordinary post-CRP line-4c component; it is never used as a subtraction base. Missing required data make this fence false, leaving the final period line 6 and its tax incomplete.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpScopeConfirmedPrimary"/>
+      </IsComplete>
+      <Dependency path="/form2210ScheduleAiCrpScopeConfirmedPrimary"/>
+      <IsComplete>
+        <Dependency path="/primaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/primaryFilerSeNetProfitOrLoss" module="scheduleSE"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/primaryFilerIsExemptFromSelfEmploymentTax" module="scheduleSE"/>
+      </IsComplete>
+      <Not>
+        <Dependency path="/primaryFilerIsExemptFromSelfEmploymentTax" module="scheduleSE"/>
+      </Not>
+      <Not>
+        <Dependency path="/primaryFilerUsesFarmOptionalMethod" module="scheduleSE"/>
+      </Not>
+      <Not>
+        <Dependency path="/primaryFilerUsesNonfarmOptionalMethod" module="scheduleSE"/>
+      </Not>
+      <Dependency path="/claimsScheduleFFarmIncome" module="scheduleF"/>
+      <IsComplete>
+        <Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/>
+      </IsComplete>
+      <Not>
+        <Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/>
+      </Not>
+      <Not>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/>
+          </IsComplete>
+          <Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/>
+        </All>
+      </Not>
+      <IsComplete>
+        <Dependency path="/writableScheduleFBelongsToSecondaryFiler" module="scheduleF"/>
+      </IsComplete>
+      <Equal>
+        <Left>
+          <Dependency path="/writableScheduleFBelongsToSecondaryFiler" module="scheduleF"/>
+        </Left>
+        <Right>
+          <False/>
+        </Right>
+      </Equal>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColA"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColA"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28PrimaryColA" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColA" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColA"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColB"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28PrimaryColB" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColB" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColB"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColC"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28PrimaryColC" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColC" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColC"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionPrimaryColD"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28PrimaryColD" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedPrimaryColD" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cPrimaryColD"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <LessThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColA"/>
+        </Left>
+        <Right>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/>
+        </Right>
+      </LessThanOrEqual>
+      <LessThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColB"/>
+        </Left>
+        <Right>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/>
+        </Right>
+      </LessThanOrEqual>
+      <LessThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColC"/>
+        </Left>
+        <Right>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/>
+        </Right>
+      </LessThanOrEqual>
+      <Equal>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionPrimaryColD"/>
+        </Left>
+        <Right>
+          <Subtract>
+            <Minuend>
+              <Dollar>0</Dollar>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/primaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+            </Subtrahends>
+          </Subtract>
+        </Right>
+      </Equal>
+      <Equal>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine3PrimaryColD"/>
+        </Left>
+        <Right>
+          <Dependency path="/primaryFilerSeNetProfitOrLoss" module="scheduleSE"/>
+        </Right>
+      </Equal>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSubstantiatedPrimary">
+  <Name>Primary selected CRP route is substantiated</Name>
+  <Description>On an activated CRP route use its complete source-reconciliation result; otherwise this CRP-specific fence contributes true. The separate existing church-income fence and final annual wage/earnings fence still apply.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpSourcesReconcilePrimary"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <Not>
+            <Dependency path="/form2210ScheduleAiCrpWorksheetRequiredPrimary"/>
+          </Not>
+        </When>
+        <Then>
+          <True/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpScopeConfirmedSecondary">
+  <Name>Secondary filer confirms regular-method CRP source scope</Name>
+  <Description>Confirm a calendar-2025 individual-return allocation for this filer: the complete single directly owned Schedule F CRP source, plus any ordinary nonfarm net profit included in Schedule SE line 2. The net-profit figures include CRP before the qualified deduction; each CRP figure includes ONLY payments received while the filer was receiving section 202 or 223 Social Security retirement/disability benefits. No optional method, QJV, farm partnership CRP, multiple-farm allocation, community-property adjustment, Chapter 11, exemption, or other special Schedule SE adjustment is included. Nonfarm amounts and source deductions must already be correctly prepared. This is a scope/source attestation, not documentary proof or a new tax election.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Boolean/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpWorksheetRequiredSecondary">
+  <Name>Secondary filer needs a period CRP Schedule SE worksheet</Name>
+  <Description>A known annual deductible CRP amount inside the scope described below, a scope answer of YES, or any answered period amount activates this route, even when the annual self-employment tax is zero. Without those triggers, retain the legacy non-CRP calculation. An annual deductible amount that is unresolved is not inferred from raw CRP receipts; once period data are entered all required entitlement and reconciliation checks apply.
+
+    WHICH FILERS THE ANNUAL AMOUNT ARMS. The annual deductible amount alone arms this route only for a filer inside the scope the period worksheet computes: a Schedule F farm that is not a qualified joint venture, the regular method (neither optional method), and a scope question not answered NO. Every other filer who deducted CRP on the annual Schedule SE, such as a partnership-only CRP recipient, a qualified joint venture spouse or an optional-method filer, takes the attested line-28 route instead: the filer enters line 6 of the separate period Schedule SE the Form 2210 instructions tell them to prepare, and column (d) is reconciled against the annual line 6, which already carries the CRP subtraction. The instructions say to compute that worksheet, not to refuse the filer. The scope question arms the route when answered YES; an answered NO keeps the filer on the attested route unless period amounts were also entered, which is contradictory intake and is still reconciled and refused.
+
+    A filer exempt from self-employment tax under the Form 4029 religious-sect exemption or a totalization agreement never takes this route: every period line 6 is zero for that filer, so no period amount can move a figure and none is demanded.
+
+    JOINT RETURNS ONLY. Only a joint return has a second filer's Part II, so a return that still holds an answered secondary scope or period amount but is not filing jointly must not arm a reconciliation against a spouse the return does not have.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+    <IsComplete><Dependency path="/isFilingStatusMFJ" module="filingStatus"/></IsComplete><Dependency path="/isFilingStatusMFJ" module="filingStatus"/>
+    <Not><Dependency path="/secondaryFilerIsExemptFromSelfEmploymentTax" module="scheduleSE"/></Not>
+    <Any>
+      <All>
+        <IsComplete>
+          <Dependency path="/secondaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+        </IsComplete>
+        <LessThan>
+          <Left>
+            <Dependency path="/secondaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </LessThan>
+      
+        <Dependency path="/claimsScheduleFFarmIncome" module="scheduleF"/>
+        <Not><All><IsComplete><Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/></IsComplete><Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/></IsComplete><Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/secondaryFilerUsesFarmOptionalMethod" module="scheduleSE"/></IsComplete><Dependency path="/secondaryFilerUsesFarmOptionalMethod" module="scheduleSE"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/secondaryFilerUsesNonfarmOptionalMethod" module="scheduleSE"/></IsComplete><Dependency path="/secondaryFilerUsesNonfarmOptionalMethod" module="scheduleSE"/></All></Not>
+        <Not><All><IsComplete><Dependency path="/form2210ScheduleAiCrpScopeConfirmedSecondary"/></IsComplete><Not><Dependency path="/form2210ScheduleAiCrpScopeConfirmedSecondary"/></Not></All></Not>
+      </All>
+      <All><IsComplete><Dependency path="/form2210ScheduleAiCrpScopeConfirmedSecondary"/></IsComplete><Dependency path="/form2210ScheduleAiCrpScopeConfirmedSecondary"/></All>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColA"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColA"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColB"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColC"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColD"/>
+      </IsComplete>
+      <IsComplete>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/><Dollar>0</Dollar></GreaterOf>
+      </IsComplete>
+    </Any>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColA">
+  <Name>Secondary cumulative profit before CRP deduction, column A</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through March 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionSecondaryColA">
+  <Name>Secondary cumulative deductible CRP, column A</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through March 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3SecondaryColA">
+  <Name>Secondary separate Schedule SE line 3, column A</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColA"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColA"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aSecondaryColA">
+  <Name>Secondary separate Schedule SE line 4a, column A</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColA"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColA"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cSecondaryColA">
+  <Name>Secondary regular-method line 4c amount carried to line 6, column A</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColA"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColA"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNoteSecondaryColA">
+  <Name>Secondary sub-$400 CRP filing-rule note, column A</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColB">
+  <Name>Secondary cumulative profit before CRP deduction, column B</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through May 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionSecondaryColB">
+  <Name>Secondary cumulative deductible CRP, column B</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through May 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3SecondaryColB">
+  <Name>Secondary separate Schedule SE line 3, column B</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColB"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aSecondaryColB">
+  <Name>Secondary separate Schedule SE line 4a, column B</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColB"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColB"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cSecondaryColB">
+  <Name>Secondary regular-method line 4c amount carried to line 6, column B</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColB"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColB"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNoteSecondaryColB">
+  <Name>Secondary sub-$400 CRP filing-rule note, column B</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColC">
+  <Name>Secondary cumulative profit before CRP deduction, column C</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through August 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionSecondaryColC">
+  <Name>Secondary cumulative deductible CRP, column C</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through August 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3SecondaryColC">
+  <Name>Secondary separate Schedule SE line 3, column C</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColC"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aSecondaryColC">
+  <Name>Secondary separate Schedule SE line 4a, column C</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColC"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColC"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cSecondaryColC">
+  <Name>Secondary regular-method line 4c amount carried to line 6, column C</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColC"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColC"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNoteSecondaryColC">
+  <Name>Secondary sub-$400 CRP filing-rule note, column C</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColD">
+  <Name>Secondary cumulative profit before CRP deduction, column D</Name>
+  <Description>Signed cumulative regular-method net farm and nonfarm profit from January 1 through December 31, 2025, before subtracting the qualified CRP amount. Include CRP receipts in profit first. This is a source allocation, not Schedule AI line 28: it is BEFORE the 92.35 percent calculation. Ordinary source expenses are already deducted. A loss or a decrease from an earlier cumulative period is permitted. Column D less its CRP deduction must reconcile to the existing annual Schedule SE net-profit fact.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpDeductionSecondaryColD">
+  <Name>Secondary cumulative deductible CRP, column D</Name>
+  <Description>Nonnegative cumulative qualified CRP receipts from January 1 through December 31, 2025, for the named filer. Count only payments received while receiving qualifying Social Security benefits. Zero must be explicit when none were paid in this period. Amounts must be nondecreasing across cumulative periods; column D must equal the annual deduction attributed to this filer, not the return-level raw receipt for another filer.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Writable>
+    <Dollar/>
+    <Limit type="Min">
+      <Dollar>0</Dollar>
+    </Limit>
+  </Writable>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine3SecondaryColD">
+  <Name>Secondary separate Schedule SE line 3, column D</Name>
+  <Description>Subtract this period's qualified CRP amount ONCE from the signed net profit before that deduction. Do not subtract it from the pre-existing line-28 net-earnings input. This arithmetic intermediate alone is not proof that all source allocations reconcile.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Subtract>
+      <Minuend>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColD"/>
+      </Minuend>
+      <Subtrahends>
+        <GreaterOf><Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/><Dollar>0</Dollar></GreaterOf>
+      </Subtrahends>
+    </Subtract>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4aSecondaryColD">
+  <Name>Secondary separate Schedule SE line 4a, column D</Name>
+  <Description>For positive line 3, multiply by 92.35 percent and use the repository's existing Schedule SE whole-dollar reporting convention. Otherwise retain signed line 3. Do not apply the haircut a second time in the Schedule AI annualization multipliers. Final period line 6 is available only after full source reconciliation.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+        </When>
+        <Then>
+          <Round>
+            <Multiply>
+              <Rational>9235/10000</Rational>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColD"/>
+            </Multiply>
+          </Round>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColD"/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpLine4cSecondaryColD">
+  <Name>Secondary regular-method line 4c amount carried to line 6, column D</Name>
+  <Description>Carry line 4a when it is at least $400; otherwise the ordinary line-6 component is zero. This bounded route excludes optional-method line 4b amounts. Church employee income has its separate existing line-5b floor and is added separately. The $434 gross-profit instruction concerns filing Schedule SE, not a replacement tax threshold.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <GreaterThanOrEqual>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </GreaterThanOrEqual>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColD"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <LessThan>
+            <Left>
+              <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColD"/>
+            </Left>
+            <Right>
+              <Dollar>400</Dollar>
+            </Right>
+          </LessThan>
+        </When>
+        <Then>
+          <Dollar>0</Dollar>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSub400FilingNoteSecondaryColD">
+  <Name>Secondary sub-$400 CRP filing-rule note, column D</Name>
+  <Description>Informational worksheet result only: deductible CRP is positive, ordinary net earnings are below $400, and pre-CRP line 1a plus line 2 is at least $434. The 2025 Schedule SE instructions call for filing through line 4c and reporting zero ordinary SE tax in this annual-return situation. This period note does NOT levy tax, automatically generate an attachment, or implement the annual PDF include-when rule. Unsupported special adjustments are excluded by the source scope.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <GreaterThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThan>
+      <LessThan>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine4aSecondaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>400</Dollar>
+        </Right>
+      </LessThan>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>434</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSourcesReconcileSecondary">
+  <Name>Secondary period CRP sources reconcile</Name>
+  <Description>Data validation, not a filer-computed answer. Require the confirmed supported source scope, all eight cumulative source amounts, regular-method treatment and the correct farm owner. Reconcile full-year CRP and post-CRP profit to the existing annual per-filer Schedule SE facts. CRP receipts are nondecreasing but signed net profit need not be. Any answered legacy line-28 input must match the calculated ordinary post-CRP line-4c component; it is never used as a subtraction base. Missing required data make this fence false, leaving the final period line 6 and its tax incomplete.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <All>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpScopeConfirmedSecondary"/>
+      </IsComplete>
+      <Dependency path="/form2210ScheduleAiCrpScopeConfirmedSecondary"/>
+      <IsComplete>
+        <Dependency path="/secondaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/secondaryFilerSeNetProfitOrLoss" module="scheduleSE"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/secondaryFilerIsExemptFromSelfEmploymentTax" module="scheduleSE"/>
+      </IsComplete>
+      <Not>
+        <Dependency path="/secondaryFilerIsExemptFromSelfEmploymentTax" module="scheduleSE"/>
+      </Not>
+      <Not>
+        <Dependency path="/secondaryFilerUsesFarmOptionalMethod" module="scheduleSE"/>
+      </Not>
+      <Not>
+        <Dependency path="/secondaryFilerUsesNonfarmOptionalMethod" module="scheduleSE"/>
+      </Not>
+      <Dependency path="/claimsScheduleFFarmIncome" module="scheduleF"/>
+      <IsComplete>
+        <Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/>
+      </IsComplete>
+      <Not>
+        <Dependency path="/scheduleFIsQualifiedJointVenture" module="scheduleF"/>
+      </Not>
+      <Not>
+        <All>
+          <IsComplete>
+            <Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/>
+          </IsComplete>
+          <Dependency path="/writableScheduleFQualifiedJointVentureElection" module="scheduleF"/>
+        </All>
+      </Not>
+      <IsComplete>
+        <Dependency path="/writableScheduleFBelongsToSecondaryFiler" module="scheduleF"/>
+      </IsComplete>
+      <Equal>
+        <Left>
+          <Dependency path="/writableScheduleFBelongsToSecondaryFiler" module="scheduleF"/>
+        </Left>
+        <Right>
+          <True/>
+        </Right>
+      </Equal>
+      <IsComplete>
+        <Dependency path="/isFilingStatusMFJ" module="filingStatus"/>
+      </IsComplete>
+      <Dependency path="/isFilingStatusMFJ" module="filingStatus"/>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColA"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColA"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColA"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28SecondaryColA" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColA" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColA"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColB"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28SecondaryColB" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColB" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColB"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColC"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28SecondaryColC" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColC" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColC"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpNetProfitBeforeDeductionSecondaryColD"/>
+      </IsComplete>
+      <IsComplete>
+        <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/>
+      </IsComplete>
+      <GreaterThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/>
+        </Left>
+        <Right>
+          <Dollar>0</Dollar>
+        </Right>
+      </GreaterThanOrEqual>
+      <Switch>
+        <Case>
+          <When>
+            <IsComplete>
+              <Dependency path="/form2210ScheduleAiLine28SecondaryColD" module="form2210"/>
+            </IsComplete>
+          </When>
+          <Then>
+            <Equal>
+              <Left>
+                <Dependency path="/form2210ScheduleAiLine28AppliedSecondaryColD" module="form2210"/>
+              </Left>
+              <Right>
+                <Dependency path="/form2210ScheduleAiCrpLine4cSecondaryColD"/>
+              </Right>
+            </Equal>
+          </Then>
+        </Case>
+        <Case>
+          <When>
+            <True/>
+          </When>
+          <Then>
+            <True/>
+          </Then>
+        </Case>
+      </Switch>
+      <LessThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColA"/>
+        </Left>
+        <Right>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/>
+        </Right>
+      </LessThanOrEqual>
+      <LessThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColB"/>
+        </Left>
+        <Right>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/>
+        </Right>
+      </LessThanOrEqual>
+      <LessThanOrEqual>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColC"/>
+        </Left>
+        <Right>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/>
+        </Right>
+      </LessThanOrEqual>
+      <Equal>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpDeductionSecondaryColD"/>
+        </Left>
+        <Right>
+          <Subtract>
+            <Minuend>
+              <Dollar>0</Dollar>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/secondaryFilerScheduleSeLine1bAsCombined" module="scheduleSE"/>
+            </Subtrahends>
+          </Subtract>
+        </Right>
+      </Equal>
+      <Equal>
+        <Left>
+          <Dependency path="/form2210ScheduleAiCrpLine3SecondaryColD"/>
+        </Left>
+        <Right>
+          <Dependency path="/secondaryFilerSeNetProfitOrLoss" module="scheduleSE"/>
+        </Right>
+      </Equal>
+    </All>
+  </Derived>
+</Fact>
+
+    <Fact path="/form2210ScheduleAiCrpSubstantiatedSecondary">
+  <Name>Secondary selected CRP route is substantiated</Name>
+  <Description>On an activated CRP route use its complete source-reconciliation result; otherwise this CRP-specific fence contributes true. The separate existing church-income fence and final annual wage/earnings fence still apply.</Description>
+  <Export downstreamFacts="true"/>
+  
+  <Derived>
+    <Switch>
+      <Case>
+        <When>
+          <Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/>
+        </When>
+        <Then>
+          <Dependency path="/form2210ScheduleAiCrpSourcesReconcileSecondary"/>
+        </Then>
+      </Case>
+      <Case>
+        <When>
+          <Not>
+            <Dependency path="/form2210ScheduleAiCrpWorksheetRequiredSecondary"/>
+          </Not>
+        </When>
+        <Then>
+          <True/>
+        </Then>
+      </Case>
+    </Switch>
+  </Derived>
+</Fact>
+
+  </Facts>
+</FactDictionaryModule>

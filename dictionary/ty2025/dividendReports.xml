@@ -1,0 +1,2953 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/dividendReports">
+      <Name>Dividend reports</Name>
+      <Description>Dividend income from Form 1099-DIV. Each item represents one payer.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/filer">
+      <Name>Filer</Name>
+      <Description>The taxpayer who received the dividend income.</Description>
+      <Writable>
+        <CollectionItem collection="/filers" />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/dividendReportsPrimaryFiler">
+      <Description>The primary filer used by this module's dividend-report attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isPrimaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReportsSecondaryFiler">
+      <Description>The secondary filer used by this module's dividend-report attribution guards</Description>
+      <Derived>
+        <Find path="/filers">
+          <Dependency path="isSecondaryFiler" />
+        </Find>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/belongsToPrimaryFiler">
+      <Name>Dividend report belongs to primary filer</Name>
+      <Description>Whether this Form 1099-DIV was received by the primary filer. Incomplete
+        when ../filer is unanswered (that writable carries no Placeholder), which is the
+        complete-safe state: nothing downstream needs a value. See the block comment above for
+        why no tax computation reads this yet. The sibling non-MFJ scope guard is no longer
+        absent: it reads the Secondary half below.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="../filer" />
+          </Left>
+          <Right>
+            <Dependency path="/dividendReportsPrimaryFiler" />
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/belongsToSecondaryFiler">
+      <Name>Dividend report belongs to secondary filer</Name>
+      <Description>Whether this Form 1099-DIV was received by the secondary filer. Incomplete
+        when ../filer is unanswered, and also Incomplete on a return with no secondary filer at
+        all (filers:/secondaryFiler is itself a Find that resolves to nothing) - both are the
+        complete-safe state, and the second of those is MEASURED, not inferred: every one of the
+        28 conformance scenarios carrying a dividend report also carries a second /filers item,
+        so the corpus resolves this Complete false everywhere and can never exercise the
+        no-secondary-filer arm. Note that filers:/isSecondaryFiler is simply "not the primary
+        filer" and does NOT test filing status, so on a return that carries a second filer
+        without being MFJ this resolves true rather than refusing. The refusal for that case is
+        NOT this fact's job and never was: it is ../secondaryFilerUsedWithoutMFJ below, which
+        reads this flag and adds the filing-status test this one deliberately omits.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Equal>
+          <Left>
+            <Dependency path="../filer" />
+          </Left>
+          <Right>
+            <Dependency path="/dividendReportsSecondaryFiler" />
+          </Right>
+        </Equal>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/secondaryFilerUsedWithoutMFJ">
+      <Name>Secondary filer has dividend reports when primary filer is not filing jointly</Name>
+      <Description>Whether this Form 1099-DIV is the secondary filer's on a return that is not
+        filing jointly. Incomplete rather than false when ../belongsToSecondaryFiler is Incomplete
+        on a non-MFJ return (an unanswered ../filer, or a return with no secondary filer at all),
+        which is the complete-safe state: an Incomplete flag refuses nothing. On an MFJ return
+        this is Complete false whatever the attribution, because All short-circuits on the
+        Complete-false filing-status operand.
+
+        NARROWED: it does not refuse a spouse's Form 1099-DIV that Form 8958 line 3 gives this return half of. That node retired into a correct-refusal row in scripts/test_refusal_successor_allowlist.tsv; the retirement comment stands in its place in the records file.
+
+        The sentence above ("Incomplete rather than false
+        when ../belongsToSecondaryFiler is Incomplete on a non-MFJ return") is kept verbatim as the
+        record of what this guard was, and HALF of it no longer holds. The two cases it lumped
+        together are now separated. A return WITH NO SECONDARY FILER AT ALL is Complete FALSE, not
+        Incomplete: filers:/secondaryFiler is a Find that resolves to nothing there, and the new
+        IsComplete conjunct on it makes the whole All Complete false. An UNANSWERED ../filer on a
+        two-filer return is UNCHANGED and still Incomplete, because filers:/secondaryFiler IS
+        Complete there. The reason for the split is that "an Incomplete flag refuses nothing" was
+        true but not sufficient: an Incomplete flag also never RESOLVES, so the collection guard's
+        Count could not be shown false and the single-filer return could not be proved clean.
+
+        Two conjuncts were added at the top of
+        the Derived All - IsComplete(filingStatus:/isFilingStatusMFJ) and
+        IsComplete(filers:/secondaryFiler) - with every pre-existing operand left byte-for-byte in
+        its existing order. WHY: /dividendReports/*/belongsToSecondaryFiler compares ../filer with
+        filers:/secondaryFiler, and on a SINGLE-FILER return /secondaryFiler is a Find that resolves
+        to nothing, so this guard, the collection guard's Count(...) &gt; 0 and everything reading
+        them were Incomplete - the fact never RESOLVED, so the knockout could not be shown false and
+        the return could not be proved clean. "An Incomplete flag refuses nothing" was true and
+        insufficient. NO REFUSAL MOVES: All short-circuits on a Complete-false operand, so the only
+        transition is Incomplete -&gt; Complete false. LEFT ALONE ON PURPOSE: an unanswered ../filer
+        on a TWO-FILER non-MFJ return keeps the base's value byte-for-byte (Incomplete), because
+        filers:/secondaryFiler is Complete there - which is why the conjunct is
+        IsComplete(filers:/secondaryFiler) and not IsComplete(../belongsToSecondaryFiler).</Description>
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="/dividendReportsSecondaryFiler" />
+          </IsComplete>
+          <Not>
+            <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          </Not>
+          <Dependency path="../belongsToSecondaryFiler" />
+          <Not>
+            <All>
+              <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+              <Dependency path="../isCommunityIncome" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/secondaryFilerUsedWithoutMFJ">
+      <Name>Secondary filer has dividend reports when primary filer is not filing jointly</Name>
+      <Description>Whether ANY entered Form 1099-DIV is the secondary filer's on a return that is
+        not filing jointly. Refuses the return: this dictionary supports a secondary filer's
+        income stream only on a joint return, so filing such a dividend would attribute it to a
+        taxpayer the return does not model. Dual-wired - the BlockSubmissionOnTrue below plus
+        membership in flow:/flowIsKnockedOut's Any, both landed in the same commit. Incomplete
+        (and therefore refusing nothing) whenever any item's flag is Incomplete; see the block
+        comment above. That is now true only of an item whose
+        ../filer is unanswered on a two-filer return. On a single-filer return every item flag is
+        Complete false, so this Count is 0 and this fact is Complete false rather than Incomplete.
+        No edit was needed here - the body is Count(the per-item guard) and it narrows exactly as
+        the per-item guard narrows.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/dividendReports" /></IsComplete>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <Dependency path="/dividendReports/*/secondaryFilerUsedWithoutMFJ" />
+              </Count>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/writableIsCommunityIncome">
+      <Name>(Writable) Is this payer's dividend income community income?</Name>
+      <Description>THE PER-ITEM CHARACTER INPUT. Form 8958 splits wages with no state law qualifier but
+        qualifies dividends by their SOURCE: "Interest, dividends, and rents. Interest, dividends, and rents from"
+        continuing "community property are community income and must be evenly"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 3, LEFT column of a two column extraction).
+        Dividends from SEPARATE property are not automatically separate either:
+        "Income from separate property. In some states, income from" continuing
+        "separate property is separate income. Other states characterize" (same file, lines 121 and 122,
+        RIGHT column). So this asks the filer the question the form asks them: is this payer's dividend
+        income community income under YOUR state's law.
+
+        ONE FLAG FOR THE WHOLE FORM 1099-DIV, not one per box. The character is a property of the
+        ACCOUNT the payer reports on, and Form 8958 line 3 is "Dividends (each payer)" — one row per
+        payer, not one per box. So this flag governs box 1a, box 1b and box 4 together, which is also
+        what keeps line 3a from exceeding line 3b.
+
+        NO DEFAULT, DELIBERATELY. An unanswered character makes ../isCommunityIncome FALSE, which leaves
+        the item UNALLOCATED and leaves ../secondaryFilerUsedWithoutMFJ REFUSING when the item is the
+        spouse's. Fail closed; this dictionary never assumes community.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/isCommunityIncome">
+      <Name>This payer's dividend income is community income</Name>
+      <Description>../writableIsCommunityIncome read complete safe. IsComplete FIRST, so an unanswered
+        character resolves FALSE rather than Incomplete: nothing downstream may be dragged Incomplete by
+        a question nobody has been asked, and FALSE is the fail closed direction. Deliberately the same
+        body as interest:/interestReports/*/isCommunityIncome.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableIsCommunityIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableIsCommunityIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/communityPropertyCharacterisationMissing">
+      <Name>This payer's community-property character question is unanswered</Name>
+      <Description>Not(IsComplete(../writableIsCommunityIncome)) and nothing else: TRUE while the
+        per-item character question this collection already carries has no answer, FALSE the moment
+        the filer answers it either way.
+        WHY IT EXISTS: filers:/communityPropertyAllocationInputsComplete may lift the arm of
+        filers:/knockoutSubjectToCommunityPropertyLaws that reads the allocation gate only on a
+        return whose EVERY present item is characterised, so an unanswered character must be VISIBLE
+        at the return level rather than silently defaulted. This fact changes no figure: an
+        unanswered character still allocates nothing (../isCommunityIncome stays false) exactly as
+        before. Read only by /dividendReports/communityPropertyCharacterisationIncomplete.</Description>
+      <Derived>
+        <Not>
+          <IsComplete>
+            <Dependency path="../writableIsCommunityIncome" />
+          </IsComplete>
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/communityPropertyCharacterisationIncomplete">
+      <Name>Some Form 1099-DIV community-property character is unanswered</Name>
+      <Description>GreaterThan(Count of per-item unanswered characters, 0), the same return-level
+        shape as /dividendReports/secondaryFilerUsedWithoutMFJ. Read by
+        filers:/communityPropertyAllocationInputsComplete, whose IsComplete-first wrapper is what
+        keeps filers:/knockoutSubjectToCommunityPropertyLaws complete-safe when this collection is
+        absent: an absent root is Placeholder on the JVM, the wrapper reads that as NOT complete,
+        and the refusal stands. Fail closed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Count>
+              <Dependency path="/dividendReports/*/communityPropertyCharacterisationMissing" />
+            </Count>
+          </Left>
+          <Right>
+            <Int>0</Int>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/communityPropertyAllocatedOrdinaryDividendsUnrounded">
+      <Name>Form 8958 line 3 — the community half of this payer's box 1a that this unit moves</Name>
+      <Description>The taxpayer's allocated share of ONE Form 1099-DIV's ordinary dividends, on a return
+        that must allocate community income AND on an item the filer has characterised as community
+        income. $0 on every other item and on every other return.
+
+        CENTS ARE NOT PRESERVED AND THE FACT SAYS SO ON ITSELF. MEASURED: Multiply(Rational 1/2, Dollar)
+        rounds at the CENT, HALF EVEN — 2,000.01 allocates 1,000.00, not 1,000.005, because 1,000.005
+        rounds to the EVEN cent; 1,000.00 allocates 500.00. BOUNDED CONSEQUENCE, disclosed: on an odd
+        cent COMMUNITY row the two halves can miss Form 8958's own footing rule,
+        "amounts in columns B and C. Together, columns B and C should" / "equal column A."
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column), by one cent. THAT ONE CENT IS
+        A STATEMENT ABOUT A COMMUNITY ROW AND NOTHING ELSE: it is NOT the gap
+        between this fact and column B on a mixed collection, which is the whole of the taxpayer's own
+        separate income and is a different quantity entirely — see the paragraph below. The engine's
+        rounding mode is engine behaviour and is not fixable inside the dictionary.
+
+        THIS IS NOT COLUMN B ON EVERY ROW, AND THE NAME NO LONGER SAYS IT IS. Form 8958 column A holds "Enter the total amount of your community or separate income,"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column of a two column extraction) — SEPARATE
+        income goes on the form too — and the columns must foot:
+        "amounts in columns B and C. Together, columns B and C should" / "equal column A."
+        (lines 201 and 202, LEFT column). So on a SEPARATE property row owned by this taxpayer, column A
+        is the whole amount and column B is the whole amount, with column C zero. This fact is $0 on such
+        a row. It is therefore the COMMUNITY HALF THE ALLOCATION MOVES, not the column B figure, and on a
+        MIXED collection the two differ by the whole of the taxpayer's own separate income — not by a
+        cent.
+        THE ACTUAL COLUMN B TOTAL FOR LINE 3 IS income:/ordinaryDividends, Form 1040 line 3b (and
+        income:/qualifiedDividends for the box 1b subset on line 3a): half of every community item plus
+        the whole of every separate item this taxpayer owns, which is exactly what
+        "You must report half of all community income and all of your" separate income (line 124, LEFT
+        column) describes. That identity holds on the population that can FILE; a return still carrying
+        the spouse's separate item also carries that item whole on line 3b, which is column C's amount,
+        and /dividendReports/secondaryFilerUsedWithoutMFJ refuses that return.
+
+        NOT ROUNDED TO THE DOLLAR: this is an addend of the Form 1040 line 3b chain and that line rounds
+        once, at its own printed line.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../ordinaryDividends" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/communityPropertyAllocatedQualifiedDividendsUnrounded">
+      <Name>Form 8958 line 3 — the community half of this payer's box 1b that this unit moves</Name>
+      <Description>The qualified dividend half, on the same items and the same character flag as
+        ../communityPropertyAllocatedOrdinaryDividendsUnrounded — and, exactly as there, the COMMUNITY HALF THE ALLOCATION MOVES rather than the Form 8958 column B figure, because column B of a separate
+        property row is that row's whole box 1b. The actual column B total for line 3a is
+        income:/qualifiedDividends.
+
+        WHY LINE 3a MOVES WITH LINE 3b RATHER THAN AFTER IT, and it is an obligation of the allocation. Box 1b is a SUBSET of box 1a and Form 1040 line 3a is a subset of line 3b.
+        Allocating line 3b alone would leave a return reporting more qualified dividends than ordinary
+        dividends, which the preferential rate worksheet reads directly
+        (preferentialRateTax, taxCalculations, qbi, scheduleD and form4952 all read
+        income:/qualifiedDividends) and which no return can state. So the two halves ride the SAME
+        character flag and cannot diverge.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../qualifiedDividends" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/communityPropertyAllocatedFederalWithholdingUnrounded">
+      <Name>Form 8958 line 11 — the community half of this payer's box 4 that this unit moves</Name>
+      <Description>The taxpayer's allocated share of ONE Form 1099-DIV's box 4 backup withholding, on the
+        same items and the same halves as the two dividend figures above, because the credit follows the
+        income it was withheld from. Cents preserved; Form 1040 line 25b rounds once at its own line.
+        The COMMUNITY HALF THE ALLOCATION MOVES, not the column B figure: column B of a separate property row
+        is that row's whole box 4. The actual column B total for this leg is
+        /form1099DivFederalIncomeTaxWithheld, which reaches Form 1040 line 25b.
+
+        THE READING, STATED BECAUSE THE HALF IS NOT PRINTED FOR THIS BOX: Form 8958 line 11 is a printed
+        line covering withholding from ANY payer and its instruction says to ALLOCATE without stating a
+        ratio; the ratio one half comes from IRC 31(a)(1), which allows the credit to "the recipient of
+        the income". The form states that conclusion explicitly for community WAGES only. Same reasoning,
+        stated the same way, as interest:/interestReports/*/communityPropertyAllocatedTaxWithheldUnrounded.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../federalWithholding" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyAllocatedDividends">
+      <Name>Community-property allocated dividends (Form 8958 line 3)</Name>
+      <Description>THE CONTRACT PATH. The COMMUNITY HALF of Form 8958 line 3 that the allocation moves,
+        totalled over every payer whose dividends are community income, for the taxpayer whose return
+        this is. Whole dollars: the per payer halves are summed WITH CENTS and the total is rounded once
+        here.
+
+        IT IS NOT THE COLUMN B TOTAL, AND AN EARLIER VERSION OF THIS FACT SAID IT WAS.
+        Form 8958 column A carries "Enter the total amount of your community or separate income,"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 4, LEFT column of a two column extraction) and the
+        columns must foot, "amounts in columns B and C. Together, columns B and C should" /
+        "equal column A." (lines 201 and 202, LEFT column). So column B for this taxpayer is HALF THE
+        COMMUNITY INCOME PLUS ALL OF THIS TAXPAYER'S OWN SEPARATE INCOME — the form's operative sentence
+        read whole, "You must report half of all community income and all of your" separate income
+        (line 124, LEFT column). This fact carries only the first of those two terms. On the mixed anchor
+        return it is 1,500.00 while column B is 2,500.00, short by the taxpayer's own separate 1,000.00
+        item — a whole line item, not a rounding residue.
+        THE ACTUAL COLUMN B TOTAL IS income:/ordinaryDividends, Form 1040 line 3b, on the population that
+        can file. A return still holding the SPOUSE'S separate item carries that whole too, which is
+        column C's amount, and /dividendReports/secondaryFilerUsedWithoutMFJ refuses that return.
+
+        NOT half of the collection — half of the COMMUNITY part of it. A separate property Form 1099-DIV
+        reaches Form 1040 line 3b untouched, which is exactly what Publication 555's worked table shows
+        when it reports each spouse's "Dividends from separate property" in full on their own return.
+
+        This fact is the DISCLOSURE figure. The number Form 1040 line 3b actually carries moves through
+        /communityPropertyOrdinaryDividendsAllocationAdjustmentUnrounded.
+
+        WHAT THIS MODULE STILL DOES NOT ALLOCATE, named rather than silenced (the contract enumerates
+        eight unscoped CollectionSums; the allocation moves box 1a, box 1b and box 4 here, and box 5,
+        box 12 and box 13 through each item's *AfterCommunityPropertySplit fact). Not
+        allocated: capital gain distributions, collectibles gain, the section 1202 exclusion and
+        unrecaptured section 1250 gain, all four of which Form 8958 routes to LINE 6 under a DIFFERENT
+        characterisation rule — "Gains and losses. Gains and losses are classified as community or"
+        (https://www.irs.gov/pub/irs-pdf/f8958.pdf, page 3), which sorts on how the PROPERTY is held rather than
+        on where the income came from, and which this dictionary collects nothing about. A return carrying capital gain distributions is
+        refused on a separate return that allocates community income:
+        filers:/communityPropertyAllocationInputsComplete is false whenever a Schedule D is claimed
+        or Form 1040 line 7 is not zero, and capital gain distributions reach line 7 either through
+        Schedule D or, with no Schedule D, directly. The collectibles gain, section 1202 and
+        unrecaptured section 1250 amounts are refused on the same two tests whenever the return also
+        claims a Schedule D or carries capital gain distributions on line 7; a return with neither
+        is not refused. Section 199A dividends, exempt interest dividends and specified private
+        activity bond interest dividends are not refused: they are dividends, so a community item's
+        amounts are evenly split like its box 1a, and /section199ADividendsFromDividends,
+        /exemptInterestDividends and /specifiedPrivateActivityBondInterestDividends sum the split
+        amounts.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/dividendReports/*/communityPropertyAllocatedOrdinaryDividendsUnrounded" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyAllocatedQualifiedDividends">
+      <Name>Community-property allocated qualified dividends (Form 8958 line 3, box 1b)</Name>
+      <Description>The box 1b COMMUNITY HALF of the Form 8958 line 3 allocation that is moved,
+        totalled over every community payer — not the column B figure, which also carries the whole box
+        1b of every separate property Form 1099-DIV this taxpayer owns; that total is
+        income:/qualifiedDividends, Form 1040 line 3a.
+        Whole dollars, rounded once here. It exists because line 3a is a subset of line 3b and moving one
+        without the other would state a return no filer can file; see
+        /dividendReports/*/communityPropertyAllocatedQualifiedDividendsUnrounded.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/dividendReports/*/communityPropertyAllocatedQualifiedDividendsUnrounded" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyAllocatedDividendWithholding">
+      <Name>Community-property allocated dividend withholding (Form 8958 line 11, dividend leg)</Name>
+      <Description>The COMMUNITY HALF of Form 8958 line 11 that the allocation moves, for Form 1099-DIV box 4
+        only: half the backup withholding on the dividends this return reports half of. Whole dollars,
+        rounded once here.
+
+        NOT THE COLUMN B FIGURE, for the same reason as the dividend total:
+        column B also carries the whole box 4 of every SEPARATE property Form 1099-DIV this taxpayer
+        owns, which this fact reads $0 for. The actual column B total for this leg is
+        /form1099DivFederalIncomeTaxWithheld, reaching Form 1040 line 25b.
+
+        IT IS A LEG, NOT THE LINE — the 1099-INT part is
+        interest:/communityPropertyAllocatedInterestTaxWithheld and the wage part is
+        formW2s:/communityPropertyAllocatedFederalWithholding.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/dividendReports/*/communityPropertyAllocatedFederalWithholdingUnrounded" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyOrdinaryDividendsAllocationAdjustmentUnrounded">
+      <Name>The community dividend half that leaves this return under Form 8958</Name>
+      <Description>A NEGATIVE, cents bearing addend of Form 1040 line 3b: MINUS the sum of the per payer
+        community halves.
+
+        WHY THE NEGATION AND NOT THE WAGES UNIT'S FORMULA. formW2s:/communityPropertyWagesAllocation
+        AdjustmentUnrounded is allocated MINUS unscoped, which is right only because every W-2 is
+        community income. This collection is MIXED, and on a mixed collection that formula deletes the
+        filer's OWN separate property income from the printed line: a $1,000 community item plus a
+        $1,000 separate item of the taxpayer's own has an unscoped base of $2,000 and a reportable
+        figure of $1,500, and allocated minus unscoped would print $500. The negation prints $1,500. It
+        degenerates to the wages formula exactly when every item is community, which is why the wages
+        row is correct as written.
+
+        WHY AN ADDEND AND NOT A REPLACEMENT: the footing discipline, and here it is load bearing in
+        a second way — income:/ordinaryDividends is read by /requiresScheduleB, so the Schedule B
+        trigger moves with the printed line automatically rather than by a second edit.
+
+        NO GATE ON THIS FACT, deliberately: every addend of the CollectionSum is already $0 whenever
+        filers:/isCommunityPropertyAllocationReturn is false. Complete safe $0 for a return with no
+        /dividendReports key at all, which is this module's own IsComplete idiom.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <CollectionSum>
+                    <Dependency path="/dividendReports/*/communityPropertyAllocatedOrdinaryDividendsUnrounded" />
+                  </CollectionSum>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyQualifiedDividendsAllocationAdjustmentUnrounded">
+      <Name>The community qualified-dividend half that leaves this return</Name>
+      <Description>A NEGATIVE, cents bearing addend of Form 1040 line 3a: MINUS the sum of the per payer
+        box 1b community halves. Same shape and same reasoning as
+        /communityPropertyOrdinaryDividendsAllocationAdjustmentUnrounded, and it moves in the SAME edit
+        so line 3a can never exceed line 3b.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <CollectionSum>
+                    <Dependency path="/dividendReports/*/communityPropertyAllocatedQualifiedDividendsUnrounded" />
+                  </CollectionSum>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/communityPropertyDividendWithholdingAllocationAdjustmentUnrounded">
+      <Name>The community dividend withholding half that leaves this return</Name>
+      <Description>A NEGATIVE, cents bearing addend of the Form 1040 line 25b Form 1099-DIV leg: MINUS the
+        sum of the per payer box 4 community halves. Same shape and same reasoning as the two above.
+
+        IT ENTERS INSIDE /form1099DivFederalIncomeTaxWithheld rather than at line 25b itself, because that
+        fact is this module's whole box 4 leg and already carries the module's IsComplete guard; putting
+        the adjustment there keeps one leg with one allocation instead of two facts that could
+        disagree.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <CollectionSum>
+                    <Dependency path="/dividendReports/*/communityPropertyAllocatedFederalWithholdingUnrounded" />
+                  </CollectionSum>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/payer">
+      <Name>Payer</Name>
+      <Description>Name of the payer, used on Form 1040 Schedule B Part II line 5. Form 1099-DIV box payer-name (PAYER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone no.).</Description>
+      <Writable>
+        <String />
+        <Limit type="MaxLength">
+          <Int>75</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableOrdinaryDividends">
+      <Name>Ordinary dividends (writable)</Name>
+      <Description>Box 1a on Form 1099-DIV. Total ordinary dividends paid by this payer.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/ordinaryDividends">
+      <Name>Ordinary dividends</Name>
+      <Description>Box 1a on Form 1099-DIV. Defaults to $0 when not provided.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableOrdinaryDividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableOrdinaryDividends" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableNomineeDistribution">
+      <Name>Nominee Distribution</Name>
+      <Description>SCREEN: "How much of this payer&apos;s ordinary dividends actually belongs to someone else?" HELP TEXT: "If a Form 1099-DIV was issued in your name but part of the dividends is really someone else&apos;s — a joint brokerage account you hold for a parent, for example — you still report the whole Form 1099-DIV box 1a amount on Schedule B line 5, and then subtract the other person&apos;s share below the subtotal as a Nominee Distribution. Enter that other person&apos;s share here. You must also give the actual owner a Form 1099-DIV and file Forms 1096 and 1099-DIV with the IRS, unless the owner is your spouse." (Instructions for Schedule B (Form 1040) (2025), Line 5, Nominees, https://www.irs.gov/pub/irs-pdf/i1040sb.pdf, page 2.) ASKED WHEN: this dividend report exists and the filer has said some of its dividends belong to another person. UNANSWERED POSTURE: defaulted to $0 by ../nomineeDistribution — no return that has never seen the question changes, and the filer who does not answer is reporting all of the dividends as their own, the posture the graph had before this question existed. VALIDATION: Dollar, Min $0; entered as a positive amount and subtracted. It applies to ORDINARY dividends (box 1a); the part of it that is qualified dividends (box 1b) is asked separately by ../writableNomineeQualifiedDividends and comes off Form 1040 line 3a. FEEDS: /dividendNomineeDistributionTotal, the below-the-subtotal subtraction that reaches Schedule B line 6 and Form 1040 line 3b, and the Schedule B filing trigger for the nominee bullet.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/nomineeDistribution">
+      <Name>Nominee Distribution</Name>
+      <Description>The part of this payer&apos;s ordinary dividends that the filer received as a nominee — in the filer&apos;s name, but actually belonging to another person. Schedule B reports the whole Form 1099-DIV box 1a amount on line 5 and subtracts this below the subtotal under the label "Nominee Distribution", so it never reduces the line-5 payer entry and always reduces line 6. The identical mechanic, and the identical placement, as the interest side&apos;s interest:/interestReports/*/nomineeDistribution. Complete-safe $0.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableNomineeDistribution" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableNomineeDistribution" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendNomineeDistributionTotal">
+      <Name>Schedule B line 5 below-the-subtotal subtraction, all payers</Name>
+      <Description>Every payer&apos;s nominee distribution of ordinary dividends, added up. This is what Schedule B subtracts between the line-5 subtotal and line 6, and it is therefore what Form 1040 line 3b must be reduced by. Complete-safe $0 on every return that answers the question for no payer, which is the whole committed corpus.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/dividendReports/*/nomineeDistribution" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasDividendNomineeDistribution">
+      <Name>Received ordinary dividends as a nominee</Name>
+      <Description>Whether any payer on this return carries a nominee distribution of ordinary dividends. With the interest-side twin it makes up one of the eight conditions the Schedule B General Instructions list as reasons to use Schedule B — "You received interest or ordinary dividends as a nominee." — and that bullet carries no dollar threshold, so a $1 nominee distribution requires the schedule. Complete-safe false.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/dividendNomineeDistributionTotal" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/communityPropertyNomineeDistributionNotAllocated">
+      <Name>A community-income Form 1099-DIV with a nominee share, on a Form 8958 allocation return</Name>
+      <Description>True when this return must allocate community income under Form 8958, this payer&apos;s dividends are characterised as community income, and the filer has entered a nominee distribution for this payer. THE WRONG NUMBER IT PREVENTS: the community half (../communityPropertyAllocatedOrdinaryDividendsUnrounded and its box 1b twin) is taken on the whole of box 1a and box 1b, and the whole nominee share is then subtracted again on Form 1040 lines 3b and 3a, so the other person&apos;s money is removed once inside the allocation and once below it. No source in this dictionary states whether the nominee share comes out before the community split or how the split treats it, so the combination is refused rather than filed on a guess. Complete false on every item without a positive nominee distribution, and on every item that is not community income on an allocation return.</Description>
+      <Derived>
+        <All>
+          <GreaterThan>
+            <Left>
+              <Dependency path="../nomineeDistribution" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Dependency path="../isCommunityIncome" />
+          <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutCommunityPropertyNomineeDividends">
+      <Name>Knockout: a nominee share on a community-income Form 1099-DIV, on a Form 8958 allocation return</Name>
+      <Description>Blocks submission when any Form 1099-DIV on a Form 8958 community-property allocation return is characterised as community income and carries a nominee distribution (/dividendReports/*/communityPropertyNomineeDistributionNotAllocated). THE WRONG NUMBER IT PREVENTS: the community half is taken on the whole box 1a and box 1b before the nominee share is subtracted, so the other person&apos;s share would be taken off twice and Form 1040 lines 3a and 3b would be understated. Every return with no nominee distribution, and every return that is not an allocation return, is unaffected.
+        SCREEN: "One of your Forms 1099-DIV is community income and part of it belongs to someone else (a nominee distribution). This product cannot yet split a nominee share between you and your spouse on Form 8958, so this return cannot be filed here."
+        COMPLETE-SAFE FALSE on every return with no dividend reports and every return whose items all resolve false.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/dividendReports" /></IsComplete>
+          <GreaterThan>
+            <Left>
+              <Count>
+                <Dependency path="/dividendReports/*/communityPropertyNomineeDistributionNotAllocated" />
+              </Count>
+            </Left>
+            <Right>
+              <Int>0</Int>
+            </Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableQualifiedDividends">
+      <Name>Qualified dividends (writable)</Name>
+      <Description>Box 1b on Form 1099-DIV. Qualified dividends (a subset of ordinary dividends).
+
+        WHAT BOX 1B IS NOT, disclosed because the graph takes it as reported. The payer is
+        directed to enter a dividend in box 1b whenever the section 1(h)(11)(B)(iii)
+        holding-period test is impractical to determine: "Enter the portion of the dividends in
+        box 1a that qualifies for the reduced capital gains rates. Include dividends for which it
+        is impractical to determine if the section 1(h)(11)(B)(iii) holding period requirement
+        has been met." (2025 Instructions for Form 1099-DIV, Box 1b; https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 4). Box 1b is therefore an UPPER BOUND on qualified dividends, not a certified
+        figure. A recipient must have held common stock more than 60 days of the 121-day period
+        that begins 60 days before the ex-dividend date (more than 90 days of the applicable
+        181-day period for preferred stock attributable to periods over 366 days), and must not be
+        obligated, under a short sale or otherwise, to make related payments on substantially
+        similar or related property (IRC 1(h)(11)(B)(iii); 26 U.S.C. 1, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section1&amp;num=0&amp;edition=2024, RIGHT column; Pub. 550's mirror statement, sources/p550--ty2025--2026-07.xml
+        lines 1580-1584 and 1744). Pub. 550 Example 1 is the failure verbatim: a filer whose 2025
+        Form 1099-DIV "shows $500 in box 1a (ordinary dividends) and in box 1b (qualified
+        dividends)" but who "held ... for only 34 days of the 121-day period" has "no qualified
+        dividends ... for 2025" (sources/p550--ty2025--2026-07.xml line 1587). This writable does
+        not itself test the holding period or the related-payments exclusion — it is the payer's
+        figure exactly as printed. ../writableQualifiedDividendsFailingHoldingPeriod is the
+        sibling intake for the filer's own correction; the module's box-5 writable
+        (../writableSection199ADividends) discloses the identical class of payer-side limitation
+        for a box this graph does not yet correct.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableQualifiedDividendsFailingHoldingPeriod">
+      <Name>Qualified dividends failing the holding-period test (writable)</Name>
+      <Description>SCREEN: "Of the qualified dividends this payer reported, how much was on stock
+        you did not hold long enough to qualify, or that you were obligated to make related
+        payments on?" HELP TEXT: "Form 1099-DIV box 1b can include dividends the payer could not
+        verify your holding period on. You have NO qualified dividends on a share of stock you
+        held 60 days or fewer of the 121-day period that begins 60 days before the ex-dividend
+        date (or, for certain preferred stock, 90 days or fewer of the 181-day period that begins
+        90 days before the ex-dividend date), or on a share to the extent you were obligated,
+        under a short sale or otherwise, to make related payments on substantially similar or
+        related property. Enter the part of this payer's box 1b that fails one of those tests;
+        the rest keeps box 1b's treatment as reported." (2025 Instructions for Form 1099-DIV, Box
+        1b, https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 4; Pub. 550, Holding period and
+        Dividends that are not qualified dividends, sources/p550--ty2025--2026-07.xml lines
+        1580-1584, 1587 and 1744; IRC 1(h)(11)(B)(iii), 26 U.S.C. 1, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section1&amp;num=0&amp;edition=2024.) ASKED WHEN: this payer's box 1b (../writableQualifiedDividends) is answered and
+        positive. UNANSWERED POSTURE: defaulted to $0 by ../qualifiedDividendsFailingHoldingPeriod
+        — an unanswered return keeps its full box 1b figure exactly as it did before this
+        writable existed, which is the document's own authority (the disclosure this module's
+        box-1b writable already carries: box 1b is an upper bound, not a certified figure, and
+        silence leaves that upper bound standing rather than reducing it on a guess). VALIDATION:
+        Dollar, Min $0; entered as a positive amount and subtracted from box 1b. The result is
+        floored at $0 by ../qualifiedDividends, so an entry exceeding box 1b cannot drive the
+        payer's qualified dividends negative — that is a data-entry error, not a below-zero
+        figure. This graph holds no purchase or sale dates and cannot derive the holding period
+        itself; the filer's own figure is the intake, and deriving it from lot dates is a named
+        residue this fact does not attempt. FEEDS: ../qualifiedDividends (this payer's corrected
+        box 1b), which reaches income:/qualifiedDividends (Form 1040 line 3a and the 0/15/20%
+        Qualified Dividends and Capital Gain Tax Worksheet) and the Form 8958 community-property
+        allocation of the same figure (../communityPropertyAllocatedQualifiedDividendsUnrounded),
+        since that allocation already reads ../qualifiedDividends and needs no change of its own.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/qualifiedDividendsFailingHoldingPeriod">
+      <Name>Qualified dividends failing the holding-period test</Name>
+      <Description>The part of this payer's box 1b the filer has said fails the section
+        1(h)(11)(B)(iii) holding-period test or the related-payments exclusion — the filer's own
+        figure, since this graph holds no lot dates to derive it. Complete-safe $0: an unanswered
+        or absent report changes nothing, which leaves box 1b standing as the document's own upper
+        bound (../qualifiedDividends's unanswered posture, unchanged by this fact's existence).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableQualifiedDividendsFailingHoldingPeriod" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableQualifiedDividendsFailingHoldingPeriod" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/qualifiedDividends">
+      <Name>Qualified dividends</Name>
+      <Description>Box 1b on Form 1099-DIV. Defaults to $0 when not provided. If the filer has
+        entered a holding-period-failing portion (../writableQualifiedDividendsFailingHoldingPeriod),
+        that portion is subtracted here and the result is floored at $0, so a reduction exceeding
+        box 1b cannot drive this fact negative. Unanswered box 1b: $0, unchanged. Answered box 1b
+        with no reduction answered: box 1b stands as reported, unchanged from before this
+        writable existed — the document's own figure is the authority until the filer contradicts
+        part of it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableQualifiedDividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="../writableQualifiedDividends" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="../qualifiedDividendsFailingHoldingPeriod" />
+                  </Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableNomineeQualifiedDividends">
+      <Name>Qualified part of the nominee distribution (writable)</Name>
+      <Description>SCREEN: "How much of the nominee amount you entered was qualified dividends (box 1b)?" HELP TEXT: "Form 1099-DIV box 1b is part of box 1a. When part of this payer&apos;s dividends belongs to someone else, part of that other person&apos;s share is usually qualified dividends too. Qualified dividends you received as a nominee do not go on Form 1040 line 3a. Enter the part of the nominee amount you entered for this payer that is included in this payer&apos;s box 1b." (Pub. 550, Qualified dividends, sources/p550-ty2025-2026-07.xml lines 1962-1963; 2025 Instructions for Form 1040, Line 3a, Exception, sources/i1040gi-ty2025-2026-07.xml lines 1344-1345.) ASKED WHEN: this payer&apos;s nominee distribution (../nomineeDistribution) is positive and its box 1b (../writableQualifiedDividends) is answered and positive. UNANSWERED POSTURE: defaulted to $0 by ../nomineeQualifiedDividends, so box 1b stands as reported and no return that has never seen the question changes. VALIDATION: Dollar, Min $0; entered as a positive amount and subtracted from line 3a. The figure used is floored at $0 and capped at the lesser of this payer&apos;s qualified dividends after any holding-period reduction (../qualifiedDividends) and this payer&apos;s nominee distribution (../nomineeDistribution): the qualified part of the nominee share cannot exceed either the payer&apos;s box 1b or the nominee share itself. FEEDS: ../nomineeQualifiedDividends, then /dividendNomineeQualifiedDividendsTotal, the subtraction inside income:/qualifiedDividends (Form 1040 line 3a and the Qualified Dividends and Capital Gain Tax Worksheet).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/nomineeQualifiedDividends">
+      <Name>Qualified part of the nominee distribution</Name>
+      <Description>The part of this payer&apos;s qualified dividends that the filer received as a nominee, which does not belong on Form 1040 line 3a. The filer&apos;s entry, floored at $0 (a Min limit on a writable is not enforced on resolution) and capped at the lesser of this payer&apos;s qualified dividends after any holding-period reduction and this payer&apos;s nominee distribution, so it never exceeds the box 1b figure it is taken out of and never exceeds the nominee share it is a part of. Because it never exceeds ../qualifiedDividends, this payer&apos;s own contribution to line 3a after the subtraction is never negative. Complete-safe $0 when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableNomineeQualifiedDividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="../writableNomineeQualifiedDividends" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Dependency path="../qualifiedDividends" />
+                <Dependency path="../nomineeDistribution" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendNomineeQualifiedDividendsTotal">
+      <Name>Qualified dividends received as a nominee, all payers</Name>
+      <Description>Every payer&apos;s qualified part of its nominee distribution, added up. This is what income:/qualifiedDividends subtracts from the box 1b total, because qualified dividends received as a nominee do not go on Form 1040 line 3a. It is a subset of /dividendNomineeDistributionTotal, which Form 1040 line 3b already subtracts, so line 3a stays inside line 3b. Complete-safe $0 on every return that answers the question for no payer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/dividendReports/*/nomineeQualifiedDividends" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/writableCapitalGainDistributions">
+      <Name>Capital gain distributions (writable)</Name>
+      <Description>Box 2a on Form 1099-DIV. Total capital gain distributions paid by this payer
+        (a regulated investment company / REIT distribution of net realized long-term capital
+        gains). This is the writable optional fact; use the derived alias downstream.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/capitalGainDistributions">
+      <Name>Capital gain distributions</Name>
+      <Description>Box 2a on Form 1099-DIV. Defaults to $0 when not provided (complete-safe). Exported per document so state returns can apply their own exclusions and residency rules before aggregation.</Description>
+      <Export stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableCapitalGainDistributions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableCapitalGainDistributions" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableNomineeCapitalGainDistributions">
+      <Name>Nominee part of the capital gain distributions (writable)</Name>
+      <Description>SCREEN: "How much of this payer&apos;s capital gain distributions (box 2a) actually belongs to someone else?" HELP TEXT: "If capital gain distributions were paid to you but actually belong to someone else, report only the part that belongs to you. Enter the other person&apos;s share of box 2a here. Attach a statement to your return showing the full amount you received and the amount you received as a nominee." ASKED WHEN: this dividend report&apos;s box 2a (../writableCapitalGainDistributions) is answered and positive and the filer has said some of it belongs to another person. UNANSWERED POSTURE: defaulted to $0 by ../nomineeCapitalGainDistributions, so box 2a stands as reported and no return that has never seen the question changes. VALIDATION: Dollar, Min $0; entered as a positive amount. The figure used is floored at $0 and capped at this payer&apos;s box 2a. FEEDS: ../capitalGainDistributionsBelongingToFiler, which /capitalGainDistributions adds up (Schedule D line 13, or Form 1040 line 7a without a Schedule D), and the same share of boxes 2b and 2d (../unrecapturedSection1250GainBelongingToFiler, ../collectiblesGainBelongingToFiler).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/nomineeCapitalGainDistributions">
+      <Name>Nominee part of the capital gain distributions</Name>
+      <Description>The part of this payer&apos;s box 2a capital gain distributions that the filer received as a nominee: the filer&apos;s entry floored at $0 and capped at this payer&apos;s box 2a (../capitalGainDistributions), so the filer&apos;s own part is never negative. Complete-safe $0 when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableNomineeCapitalGainDistributions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="../writableNomineeCapitalGainDistributions" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Dependency path="../capitalGainDistributions" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/capitalGainDistributionsBelongingToFiler">
+      <Name>This payer&apos;s capital gain distributions that belong to the filer</Name>
+      <Description>Box 2a less the part received as a nominee (../nomineeCapitalGainDistributions): the amount of this payer&apos;s capital gain distributions that Schedule D line 13 (or Form 1040 line 7a) reports, since only the amount that belongs to the filer is reported. Cents kept; never negative. Equals box 2a when no nominee part is answered.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../capitalGainDistributions" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../nomineeCapitalGainDistributions" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableFederalWithholding">
+      <Name>Federal income tax withheld (writable)</Name>
+      <Description>Box 4 on Form 1099-DIV. Federal income tax withheld by this payer (backup
+        withholding). This is the writable optional fact; use the derived alias downstream.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/federalWithholding">
+      <Name>Federal income tax withheld</Name>
+      <Description>Box 4 on Form 1099-DIV. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableFederalWithholding" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableFederalWithholding" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableState">
+      <Name>State</Name>
+      <Description>Form 1099-DIV box 14, the abbreviated name of the state this dividend was reported to.
+
+        This is the writable optional fact. Can be left incomplete. Please use the derived fact
+        ../state in downstream calculations. No federal fact reads it: the box is a state key and
+        the federal return has no use for which state a payer withheld for. It exists so the answer
+        can be written down rather than refused, and handed to a state system.</Description>
+
+      <Writable>
+        <Enum optionsPath="/incomeFormStateOptions" />
+      </Writable>
+    </Fact>
+
+
+
+
+
+
+    <Fact path="/dividendReports/*/state">
+      <Name>State</Name>
+      <Description>Alias for writableState to avoid breaking our backend with our convention for
+        optional fields. Form 1099-DIV box 14, the state.
+
+        THE EXPORTED SHAPE, copied from interest:/interestReports/*/state
+        (dictionary/ty2025/interest.xml): the writable stays private and optional and the derived
+        alias carries the state-systems export, so a state system reads one path name on every
+        income collection in this dictionary.
+
+        UNANSWERED IT IS INCOMPLETE, which is the interest alias's behaviour exactly. A state
+        identity has no safe default: constants:/incomeFormStateOptions has two members,
+        sameState and differentState, and neither of them means "not answered".
+
+        THE FEDERAL RETURN READS NOTHING FROM THIS FACT. It is export-only on the federal side and
+        no federal line moves with it.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Dependency path="../writableState" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableStateTaxWithheld">
+      <Name>State income tax withheld</Name>
+      <Description>Form 1099-DIV box 16, the state income tax withheld on this payment.
+
+        This is the writable optional fact. Can be left incomplete. Please use the derived fact
+        ../stateTaxWithheld in downstream calculations.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/stateTaxWithheld">
+      <Name>State income tax withheld</Name>
+      <Description>Form 1099-DIV box 16, the state income tax withheld on this payment.
+
+        COMPLETE-SAFE: $0 when the box is unanswered. That is
+        interest:/interestReports/*/stateTaxWithheld's body exactly, and
+        unemployment:/form1099Gs/*/stateTaxWithheld's - a return that answers nothing resolves this
+        fact Complete $0 on every item of the collection.
+
+        NOT ROUNDED, and deliberately. There is no printed federal line under it; both shipping
+        stateSystems-exported withholding twins in this dictionary are unrounded; and summing
+        already-rounded per-document amounts is the known defect. A consumer that ever puts a total
+        of these on a printed line owes the single Round at that line.
+
+        THE FEDERAL RETURN READS NOTHING FROM THIS FACT. It is export-only on the federal side and
+        no federal line moves with it.</Description>
+      <Export stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableStateTaxWithheld" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableStateTaxWithheld" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1099DivFederalIncomeTaxWithheld">
+      <Name>Form 1099-DIV federal tax withholdings</Name>
+      <Description>Total federal income tax withheld (box 4) across all Form 1099-DIVs, reported
+        on Form 1040 line 25b. UNROUNDED: it is one leg of line 25b beside the other Form 1099
+        and Form SSA-1099 withholding legs, and taxCalculations:/form1099Withholding rounds the
+        line once, as the Form 1040 instructions direct ("include cents when adding the amounts
+        and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23).
+        Complete-safe: 0 when there are no dividend reports.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Add>
+                  <CollectionSum>
+                    <Dependency path="/dividendReports/*/federalWithholding" />
+                  </CollectionSum>
+                  <Dependency path="/communityPropertyDividendWithholdingAllocationAdjustmentUnrounded" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/capitalGainDistributions">
+      <Name>Total capital gain distributions (Form 1099-DIV box 2a → Schedule D line 13)</Name>
+      <Description>Total capital gain distributions (box 2a) across all Form 1099-DIVs — Schedule
+        D line 13. Complete-safe: 0 when there are no dividend reports, so a return with no dividend reports
+        is unaffected. Consumed by scheduleD (folded into the line-16 net when Schedule D is
+        filed) and by income /capitalGainsOrLosses (routed directly to Form 1040 line 7 when
+        Schedule D is not required), and by the interest.xml NIIT knockout guard (a box-2a leg,
+        since box-2a NII — Form 8960 line 5a — is not yet modeled).
+        UNROUNDED: this total is one leg of a line that adds further legs, so its reader rounds that line once ("include cents when adding the amounts and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23). Read by income:/capitalGainsOrLosses (Form 1040 line 7a) and scheduleD:/scheduleDLine13CapitalGainDistributions (Schedule D line 13). A presence test on it (greater than $0) reads the amount as reported, cents included. Each payer contributes only the part that belongs to the filer (/dividendReports/*/capitalGainDistributionsBelongingToFiler): a part received as a nominee is not reported.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                  <Dependency path="/dividendReports/*/capitalGainDistributionsBelongingToFiler" />
+                </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/writableUnrecapturedSection1250Gain">
+      <Name>Unrecaptured section 1250 gain (writable)</Name>
+      <Description>Box 2b on Form 1099-DIV. The portion of this payer's box-2a capital gain
+        distribution that is unrecaptured section 1250 gain (a REIT/RIC distribution of gain on
+        depreciated real property, taxed at 25%). A COMPONENT of box 2a, so it is never negative
+        and never exceeds this payer's box 2a — an upper bound this intake does NOT enforce
+        (only Min $0 is declared); staying within it is left to the filer. Feeds the
+        Unrecaptured Section 1250 Gain
+        Worksheet—Line 19 line 11 leg ("amounts reported to you as 'unrecaptured section 1250
+        gain' on a Schedule K-1, Form 1099-DIV, or Form 2439"),
+        https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 13. This is the writable optional fact;
+        use the derived alias downstream.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/unrecapturedSection1250Gain">
+      <Name>Unrecaptured section 1250 gain</Name>
+      <Description>Box 2b on Form 1099-DIV. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableUnrecapturedSection1250Gain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableUnrecapturedSection1250Gain" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/unrecapturedSection1250GainBelongingToFiler">
+      <Name>This payer&apos;s unrecaptured section 1250 gain (box 2b) that belongs to the filer</Name>
+      <Description>Box 2b is a part of box 2a. When part of this payer&apos;s box 2a was received as a nominee, the same share of box 2b belongs to the other person, because a nominee&apos;s share of one distribution is a share of each of its parts (TAX-INTERPRETATIONS IN-57). So this is box 2b times the filer&apos;s own box 2a (../capitalGainDistributionsBelongingToFiler) over the whole box 2a, capped at box 2b; with no nominee part answered, or with no box 2a, it is box 2b as reported. Cents kept.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left><Dependency path="../nomineeCapitalGainDistributions" /></Left>
+                  <Right><Dollar>0</Dollar> </Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left><Dependency path="../capitalGainDistributions" /></Left>
+                  <Right><Dollar>0</Dollar> </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="../unrecapturedSection1250Gain" />
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="../unrecapturedSection1250Gain" />
+                      <Dependency path="../capitalGainDistributionsBelongingToFiler" />
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Dependency path="../capitalGainDistributions" />
+                  </Divisors>
+                </Divide>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../unrecapturedSection1250Gain" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/unrecapturedSection1250GainFromDividends">
+      <Name>Unrecaptured section 1250 gain from Form 1099-DIV (box 2b total)</Name>
+      <Description>Total box 2b unrecaptured section 1250 gain across all Form 1099-DIVs — the
+        Form 1099-DIV leg of the Unrecaptured Section 1250 Gain Worksheet—Line 19 line 11
+        ("Enter the total of any amounts reported to you as 'unrecaptured section 1250 gain' on a
+        Schedule K-1, Form 1099-DIV, or Form 2439"), https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 13. ONLY the Form 1099-DIV leg: the worksheet line has four independent legs in total
+        — this one; the Form 2439 leg (scheduleD /unrecapturedSection1250GainFromForm2439, an
+        attested box 1b total); the Schedule K-1 (estate or trust) leg (scheduleD
+        /unrecapturedSection1250GainFromScheduleK1); and the Form 1099-R leg (form1099Rs
+        /unrecapturedSection1250GainFromForm1099Rs, a per-form collection field). Complete-safe: 0
+        when there are no dividend reports, so every pre-existing scenario is byte-identical.
+        Worksheet line 13 reads this fact, Schedule D line 19 follows, and taxCalculations
+        /tentativeTaxFromTaxableIncome routes Form 1040 line 16 through the Schedule D Tax
+        Worksheet on a gate-true return.
+        UNROUNDED: this total is one leg of a line that adds further legs, so its reader rounds that line once ("include cents when adding the amounts and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23). Read by scheduleD:/unrecapturedSection1250GainLine13, whose single Round sits on /unrecapturedSection1250Gain. A presence test on it (greater than $0) reads the amount as reported, cents included. Each payer contributes only the part that belongs to the filer (/dividendReports/*/unrecapturedSection1250GainBelongingToFiler): a part received as a nominee is not reported.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                  <Dependency path="/dividendReports/*/unrecapturedSection1250GainBelongingToFiler" />
+                </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableCollectiblesGain">
+      <Name>Collectibles (28% rate) gain (writable)</Name>
+      <Description>Box 2d on Form 1099-DIV. The portion of this payer's box-2a capital gain
+        distribution that is collectibles (28%-rate) gain. A COMPONENT of box 2a, so it is never
+        negative and never exceeds this payer's box 2a (an upper bound this intake does NOT
+        enforce — only Min $0 is declared; staying within it is left to the filer) — which is
+        why this intake carries a
+        Min $0 limit while the 28% Rate Gain Worksheet's line 1 (the Form 8949 Part II leg,
+        a "gain or (loss)") may not: the two legs of the same worksheet carry different sign
+        rules and must never share one intake. Feeds the 28% Rate Gain Worksheet—Line 18 line 4,
+        https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 11. This is the writable optional fact;
+        use the derived alias downstream.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/collectiblesGain">
+      <Name>Collectibles (28% rate) gain</Name>
+      <Description>Box 2d on Form 1099-DIV. Defaults to $0 when not provided (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableCollectiblesGain" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableCollectiblesGain" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/collectiblesGainBelongingToFiler">
+      <Name>This payer&apos;s collectibles gain (box 2d) that belongs to the filer</Name>
+      <Description>Box 2d is a part of box 2a. When part of this payer&apos;s box 2a was received as a nominee, the same share of box 2d belongs to the other person, because a nominee&apos;s share of one distribution is a share of each of its parts (TAX-INTERPRETATIONS IN-57). So this is box 2d times the filer&apos;s own box 2a (../capitalGainDistributionsBelongingToFiler) over the whole box 2a, capped at box 2d; with no nominee part answered, or with no box 2a, it is box 2d as reported. Cents kept.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <GreaterThan>
+                  <Left><Dependency path="../nomineeCapitalGainDistributions" /></Left>
+                  <Right><Dollar>0</Dollar> </Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left><Dependency path="../capitalGainDistributions" /></Left>
+                  <Right><Dollar>0</Dollar> </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="../collectiblesGain" />
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Dependency path="../collectiblesGain" />
+                      <Dependency path="../capitalGainDistributionsBelongingToFiler" />
+                    </Multiply>
+                  </Dividend>
+                  <Divisors>
+                    <Dependency path="../capitalGainDistributions" />
+                  </Divisors>
+                </Divide>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../collectiblesGain" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/collectiblesGainFromDividends">
+      <Name>Collectibles (28% rate) gain from Form 1099-DIV (box 2d total)</Name>
+      <Description>Total box 2d collectibles gain across all Form 1099-DIVs — the Form 1099-DIV
+        leg of the 28% Rate Gain Worksheet—Line 18 line 4 ("Enter the total of any collectibles
+        gain reported to you on: Form 1099-DIV, box 2d; Form 2439, box 1d; and Schedule K-1 from
+        a partnership, S corporation, estate, or trust"), https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 11. ONLY the Form 1099-DIV leg: the Form 2439 box 1d and Schedule K-1 legs of
+        that same worksheet line are separate inputs — scheduleD /collectiblesGainFromForm2439 and
+        /collectiblesGainFromScheduleK1, filer attestations of the totals reported on those notices,
+        each with the same Min $0 this leg carries. Worksheet line 4 is complete, with all three
+        legs entering the lines 1-4 subtotal as independent addends. Complete-safe: 0 when there are
+        no dividend reports, so every pre-existing scenario is byte-identical.
+        UNROUNDED: this total is one leg of a line that adds further legs, so its reader rounds that line once ("include cents when adding the amounts and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23). Read by scheduleD:/twentyEightPercentRateGainLines1Through4, whose single Round sits on the worksheet output. A presence test on it (greater than $0) reads the amount as reported, cents included. Each payer contributes only the part that belongs to the filer (/dividendReports/*/collectiblesGainBelongingToFiler): a part received as a nominee is not reported.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                  <Dependency path="/dividendReports/*/collectiblesGainBelongingToFiler" />
+                </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableSection1202Exclusion">
+      <Name>Section 1202 exclusion claimed against this payer's box-2c gain (writable)</Name>
+      <Description>The section 1202 exclusion the FILER CLAIMS against the qualified small
+        business stock gain this payer reported in Form 1099-DIV box 2c. READ THE SIGN AND THE
+        TIER CAREFULLY, because box 2c and this amount are NOT the same number: box 2c reports
+        the section 1202 GAIN, and the 28% Rate Gain Worksheet consumes the EXCLUSION the filer
+        reported in column (g) of Form 8949, Part II with code "Q" in column (f). Per
+        https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 11 the filer enters, as a POSITIVE
+        number: a 50%-tier exclusion IN FULL; 2/3 of a 60%-tier exclusion; 1/3 of a 75%-tier
+        exclusion; and NOTHING AT ALL for a 100%-tier exclusion. Those tier fractions are applied
+        BY THE FILER BEFORE ENTRY, exactly as the quoted instruction directs — the graph MUST NOT
+        derive this from box 2c, and any prompt that says only "enter your section 1202
+        exclusion" over-states Schedule D line 18 for the 60%, 75% and 100% tiers. Not a
+        component of box 2a. This is the writable optional fact; use the derived alias
+        downstream.</Description>
+      <!-- interpretation:provisional — worksheet line 2 asks for ONE total of the filer's Form 8949 code-Q exclusions; this intake decomposes that total per PAYER on the dividendReports collection because that is the graph's 1099-DIV intake idiom. The split has NO computed anchor: box 2c itself has no fact in the graph, so the per-payer attribution is the filer's own. The aggregate below re-totals it, so the 1099-DIV-ATTRIBUTABLE portion of the worksheet line is unchanged — but a direct QSBS sale (Form 8949 Part II code Q with no 1099-DIV) is NOT capturable here at all; that population's intake is /section1202ExclusionFromForm8949 (scheduleD), which enters the lines 1-4 subtotal as a second, independent addend beside this aggregate. Provisional: the per-payer decomposition. -->
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/section1202Exclusion">
+      <Name>Section 1202 exclusion claimed against this payer's box-2c gain</Name>
+      <Description>The filer-entered section 1202 exclusion for this payer (tier fractions already
+        applied by the filer — see the writable). Defaults to $0 when not provided
+        (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableSection1202Exclusion" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableSection1202Exclusion" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section1202ExclusionFromDividends">
+      <Name>Section 1202 exclusion from Form 1099-DIV box-2c gains (total)</Name>
+      <Description>Total section 1202 exclusion the filer claims against Form 1099-DIV box-2c
+        gains, across all payers — ONLY the Form 1099-DIV-attributable component of the 28% Rate
+        Gain Worksheet—Line 18 line 2 ("Enter as a positive number the total of ..."),
+        https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 11. NOT the whole of line 2: the primary
+        section 1202 population — a direct QSBS sale reported on Form 8949, Part II with code
+        "Q" and no 1099-DIV — has no intake here. It is /section1202ExclusionFromForm8949
+        (scheduleD), its own attestation, which joins this aggregate as a second independent addend
+        of the lines 1-4 subtotal, so line 2 is complete.
+        THE TIER FRACTIONS ARE THE FILER'S, NOT THE GRAPH'S: a 50%-tier exclusion is entered in
+        full, a 60%-tier at 2/3, a 75%-tier at 1/3, and a 100%-tier not at all; this fact only
+        sums what the filer entered and never derives an exclusion from box 2c. Complete-safe: 0
+        when there are no dividend reports, so every pre-existing scenario is
+        byte-identical.
+        UNROUNDED: this total is one leg of a line that adds further legs, so its reader rounds that line once ("include cents when adding the amounts and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23). Read by scheduleD:/twentyEightPercentRateGainLines1Through4 and form172:/form172Line17Section1202Exclusion (Form 172 line 17). A presence test on it (greater than $0) reads the amount as reported, cents included.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                  <Dependency path="/dividendReports/*/section1202Exclusion" />
+                </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/writableNondividendDistribution">
+      <Name>Nondividend distributions (writable)</Name>
+      <Description>SCREEN: "Did this payer report a nondividend distribution (Form 1099-DIV box
+        3)? If so, how much?" HELP TEXT: "Box 3 is a return of your investment in the stock, not
+        income — the payer reports it "if determinable" ("Enter nondividend distributions, if
+        determinable.", 2025 Instructions for Form 1099-DIV, Box 3; https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5). It reduces your basis in the stock rather than being taxed. ONLY the part that
+        exceeds your remaining basis is a capital gain: "Report nondividend distributions (Form
+        1099-DIV, box 3) only after your basis in the stock has been reduced to zero. After the
+        basis of your stock has been reduced to zero, you must show this excess amount on Form
+        8949, Part I, if you held the stock 1 year or less. Show it on Form 8949, Part II, if you
+        held the stock for more than 1 year." (Pub. 550; sources/p550--ty2025--2026-07.xml line
+        1987). Enter the full box 3 amount here." ASKED WHEN: this Form 1099-DIV report exists.
+        UNANSWERED POSTURE: complete-safe $0 via ../nondividendDistribution — an unanswered box 3
+        triggers no disclosure and changes nothing else, the same posture every other optional box
+        on this collection carries. VALIDATION: Dollar, Min $0 — box 3 is a reported distribution
+        amount and is never negative. FEEDS: ../nondividendDistribution, which this graph does NOT
+        reduce by any basis figure — no basis intake exists for a Form 1099-DIV holding, so the
+        basis-exhaustion excess is a NAMED RESIDUE, not computed here. What this fact DOES feed is
+        /hasDividendDistributionsRequiringForm8949 (with the box 9/10 siblings), the return-level
+        disclosure that points the filer at Form 8949/Schedule D — a prompt and a route, not an
+        arithmetic answer. Not allocated under Form 8958 community property (see the block comment
+        above): box 3 is not a "Dividend" on Form 8958 line 3, and a return-of-capital amount has
+        no Form 8958 line of its own until it becomes a gain, which this graph does not compute.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/nondividendDistribution">
+      <Name>Nondividend distributions</Name>
+      <Description>Box 3 on Form 1099-DIV, read complete safe. Complete-safe $0: an unanswered or
+        absent box 3 changes nothing. This graph applies no basis reduction and computes no excess
+        — see ../writableNondividendDistribution for the residue this fact does not attempt.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableNondividendDistribution" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableNondividendDistribution" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableCashLiquidationDistribution">
+      <Name>Cash liquidation distributions (writable)</Name>
+      <Description>SCREEN: "Did this payer report a cash liquidation distribution (Form 1099-DIV
+        box 9)? If so, how much?" HELP TEXT: "Box 9 applies only when the payer is a corporation in
+        partial or complete liquidation: "Boxes 9 and 10 apply only to corporations in partial or
+        complete liquidation. Do not include these amounts in box 1a or 1b." (2025 Instructions for
+        Form 1099-DIV, the boxes 9/10 CAUTION; https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5). Box 9 itself: "Enter cash distributed as part of a liquidation." (same source,
+        line 293). A liquidating distribution is a return of your stock's basis until that basis is
+        used up. ONLY the part that exceeds your basis is a capital gain: "Any liquidating
+        distribution you receive is not taxable to you until you have recovered the basis of your
+        stock. After the basis of your stock has been reduced to zero, you must report the
+        liquidating distribution as a capital gain." (Pub. 550; sources/p550--ty2025--2026-07.xml
+        line 1823) — the distribution is treated as a sale or exchange of the stock under IRC
+        331(a). Enter the full box 9 amount here." ASKED WHEN: this Form 1099-DIV report exists.
+        UNANSWERED POSTURE: complete-safe $0 via ../cashLiquidationDistribution — an unanswered box
+        9 triggers no disclosure. VALIDATION: Dollar, Min $0 — box 9 is a reported distribution
+        amount and is never negative. FEEDS: ../cashLiquidationDistribution, then (with the box 3
+        and box 10 siblings) /hasDividendDistributionsRequiringForm8949 — a prompt and a route to
+        Form 8949/Schedule D, not an arithmetic answer; this graph carries no basis intake for a
+        Form 1099-DIV holding, so the basis-exhaustion excess is a NAMED RESIDUE. Not allocated
+        under Form 8958 community property (see the block comment above this box's section): a
+        liquidating distribution is not a "Dividend" on Form 8958 line 3, and any eventual gain
+        would be line-6 "Gains and losses" territory this graph does not reach.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/cashLiquidationDistribution">
+      <Name>Cash liquidation distributions</Name>
+      <Description>Box 9 on Form 1099-DIV, read complete safe. Complete-safe $0: an unanswered or
+        absent box 9 changes nothing. This graph applies no basis reduction and computes no excess
+        — see ../writableCashLiquidationDistribution for the residue this fact does not attempt.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableCashLiquidationDistribution" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableCashLiquidationDistribution" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableNoncashLiquidationDistribution">
+      <Name>Noncash liquidation distributions (writable)</Name>
+      <Description>SCREEN: "Did this payer report a noncash liquidation distribution (Form
+        1099-DIV box 10)? If so, what was its value?" HELP TEXT: "Box 10 applies only when the
+        payer is a corporation in partial or complete liquidation: "Boxes 9 and 10 apply only to
+        corporations in partial or complete liquidation. Do not include these amounts in box 1a or
+        1b." (2025 Instructions for Form 1099-DIV, the boxes 9/10 CAUTION; https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5). Box 10 itself: "Enter noncash distributions made as part of a liquidation.
+        Show the fair market value as of the date of distribution." (same source, lines 297-298). A
+        liquidating distribution is a return of your stock's basis until that basis is used up.
+        ONLY the part that exceeds your basis is a capital gain: "Any liquidating distribution you
+        receive is not taxable to you until you have recovered the basis of your stock. After the
+        basis of your stock has been reduced to zero, you must report the liquidating distribution
+        as a capital gain." (Pub. 550; sources/p550--ty2025--2026-07.xml line 1823) — the same IRC
+        331(a) sale-or-exchange treatment as box 9. Enter the fair market value shown in box 10
+        here." ASKED WHEN: this Form 1099-DIV report exists. UNANSWERED POSTURE: complete-safe $0
+        via ../noncashLiquidationDistribution — an unanswered box 10 triggers no disclosure.
+        VALIDATION: Dollar, Min $0 — box 10 is a reported fair-market-value amount and is never
+        negative. FEEDS: ../noncashLiquidationDistribution, then (with the box 3 and box 9
+        siblings) /hasDividendDistributionsRequiringForm8949 — a prompt and a route, not an
+        arithmetic answer; this graph carries no basis intake for a Form 1099-DIV holding, so the
+        basis-exhaustion excess is a NAMED RESIDUE. Not allocated under Form 8958 community
+        property, the same reasoning as ../writableCashLiquidationDistribution.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/noncashLiquidationDistribution">
+      <Name>Noncash liquidation distributions</Name>
+      <Description>Box 10 on Form 1099-DIV, read complete safe. Complete-safe $0: an unanswered or
+        absent box 10 changes nothing. This graph applies no basis reduction and computes no excess
+        — see ../writableNoncashLiquidationDistribution for the residue this fact does not
+        attempt.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableNoncashLiquidationDistribution" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableNoncashLiquidationDistribution" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendDistributionsPotentiallyRequiringForm8949Total">
+      <Name>All payers' box 3 / 9 / 10 distributions that may require Form 8949</Name>
+      <Description>The sum, across every Form 1099-DIV on this return, of box 3 (nondividend
+        distributions), box 9 (cash liquidation distributions) and box 10 (noncash liquidation
+        distributions). Not itself a printed line — it exists only to gate
+        /hasDividendDistributionsRequiringForm8949. Complete-safe $0 when there is no dividend
+        report at all (the IsComplete(/dividendReports) guard below, the same idiom
+        /dividendNomineeDistributionTotal already carries and for the same reason: an unguarded
+        CollectionSum over an absent collection resolves as a placeholder on the JVM).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Add>
+                <CollectionSum>
+                  <Dependency path="/dividendReports/*/nondividendDistribution" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="/dividendReports/*/cashLiquidationDistribution" />
+                </CollectionSum>
+                <CollectionSum>
+                  <Dependency path="/dividendReports/*/noncashLiquidationDistribution" />
+                </CollectionSum>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasDividendDistributionsRequiringForm8949">
+      <Name>Has box 3 / 9 / 10 distributions that may require Form 8949</Name>
+      <Description>TRUE when any Form 1099-DIV on this return reports a box 3 nondividend
+        distribution, or a box 9 or box 10 liquidation distribution. Signals that this return MAY
+        owe a Form 8949 entry once the recipient's stock basis is applied — Pub. 550: nondividend
+        distributions, once basis is exhausted, go on Form 8949 Parts I/II by holding period
+        (sources/p550--ty2025--2026-07.xml line 1987); liquidating distributions, once basis is
+        exhausted, are a capital gain under the IRC 331(a) sale-or-exchange treatment
+        (sources/p550--ty2025--2026-07.xml line 1823; 26 U.S.C. 331, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section331&amp;num=0&amp;edition=2024). This
+        graph carries no basis intake for a Form 1099-DIV holding (no lot or purchase-price data
+        anywhere on this path), so it CANNOT compute the excess itself — that is a named residue.
+        What this fact drives is a PROMPT and a ROUTE to scheduleD:/form8949Transactions, not an
+        arithmetic answer. Complete-safe false.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/dividendDistributionsPotentiallyRequiringForm8949Total" />
+          </Left>
+          <Right>
+            <Dollar>0</Dollar>
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableDividendDistributionsExceededStockBasis">
+      <Name>A box 3, 9 or 10 distribution exceeded the remaining basis in the stock</Name>
+      <Description>Whether any Form 1099-DIV nondividend distribution (box 3) or liquidation
+        distribution (box 9 or 10) on this return exceeded the filer's remaining basis in the stock it
+        was paid on, so that part of it is a capital gain. Asked only when
+        /hasDividendDistributionsRequiringForm8949 is true. A nondividend distribution first reduces
+        the basis of the stock and only the excess over basis is a gain; a liquidating distribution is
+        not taxable until the basis is recovered. This graph holds no basis or holding period for a
+        dividend-paying stock, so it cannot figure the gain or its short or long term character, and
+        /knockoutDividendDistributionBasisExhaustionNotComputed refuses the return unless this is
+        answered No.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutDividendDistributionBasisExhaustionNotComputed">
+      <Name>Knockout: a box 3, 9 or 10 distribution whose basis exhaustion is not ruled out</Name>
+      <Description>Blocks submission when a Form 1099-DIV on this return reports a box 3 nondividend
+        distribution or a box 9 or 10 liquidation distribution (/hasDividendDistributionsRequiringForm8949)
+        and the filer has NOT answered No to /writableDividendDistributionsExceededStockBasis. THE WRONG NUMBER IT PREVENTS: the part of such a
+        distribution above the filer's basis in the stock is a capital gain, short or long term by the
+        holding period, and this graph has no basis or acquisition date for the stock, so the gain is
+        neither computed nor placed on Form 8949 and the return would under-report it. A Yes, and an
+        unanswered question, both refuse; a No files, and the distribution stays a nontaxable return of
+        capital. Every return without a box 3, 9 or 10 amount is unaffected.
+        SCREEN: "One of your Forms 1099-DIV shows a nondividend or liquidation distribution that is more
+        than your remaining basis in the stock. The part above your basis is a capital gain that this
+        product does not figure, so this return cannot be filed here."
+        COMPLETE-SAFE FALSE: the trigger is complete-safe and the answer is read after its completeness
+        test.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency path="/hasDividendDistributionsRequiringForm8949" />
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableDividendDistributionsExceededStockBasis" />
+              </IsComplete>
+              <Not>
+                <Dependency path="/writableDividendDistributionsExceededStockBasis" />
+              </Not>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+
+
+    <Fact path="/dividendReports/*/writableSection199ADividends">
+      <Name>Section 199A dividends (writable)</Name>
+      <Description>Box 5 on Form 1099-DIV, "Section 199A dividends" — this payer's qualified
+        REIT dividends. The 2025 Instructions for Form 8995-A name the box: "Qualified REIT
+        dividends are reported to you on Form 1099-DIV, Dividends and Distributions, box 5,
+        Section 199A dividends" (https://www.irs.gov/pub/irs-pdf/i8995a.pdf, page 5). The 2025
+        Instructions for Form 8995 name the same figure as a line rather than a box: "This
+        amount is reported to you on Form 1099-DIV, line 5" (https://www.irs.gov/pub/irs-pdf/i8995.pdf, page 3). This is the writable optional fact; use the derived alias downstream.
+
+        Min $0: box 5 is a REPORTED dividend amount and a dividend is never negative. That is
+        the same split box 2d already makes against the 28% Rate Gain Worksheet's
+        gain-or-(loss) leg, and it is why this intake carries a floor while the COMBINED line-6
+        intake it feeds (qbi:/writableQualifiedReitDividendsAndPtpIncome) deliberately does
+        not — that one also carries qualified PTP income, which may be a loss.
+
+        WHAT BOX 5 IS NOT, disclosed because the graph takes it as reported. The definitions in
+        both instruction sets carry taxpayer-level conditions the PAYER cannot apply: a
+        qualified REIT dividend is one from "a REIT held for more than 45 days and for which the
+        payment isn't obligated to someone else" (https://www.irs.gov/pub/irs-pdf/i8995.pdf, page 3, right column; the statutory definition, IRC 199A(e)(3), carries only the
+        capital-gain-dividend and qualified-dividend-income exclusions and no holding period, so
+        the 45-day test comes from the instructions, not the Code). A filer who fails a holding period on
+        part of a distribution must enter less than the printed box 5. Nothing here derives that
+        reduction, and no fact in this graph could: the holding period is not modeled.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/section199ADividendsAfterCommunityPropertySplit">
+      <Name>This payer's box 5 section 199A dividends this return reports after the community property split</Name>
+      <Description>The amount of this payer's box 5 section 199A dividends this return reports. On a separate return that allocates community income (filers /isCommunityPropertyAllocationReturn) and an item the filer has characterised as community income, it is HALF of ../section199ADividends: dividends from community property are community income and must be evenly split, the same rule and the same half this module applies to box 1a on the item. On every other item and every other return it is ../section199ADividends unchanged. The half is taken at the cent, as the box 1a half is; the total this feeds is the one Form 8995 line 6 (qbi /qualifiedReitDividendsAndPtpIncome) reads. The printed Form 1099-DIV register keeps the whole box as the payer printed it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../section199ADividends" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../section199ADividends" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/section199ADividends">
+      <Name>Section 199A dividends</Name>
+      <Description>Box 5 on Form 1099-DIV. Defaults to $0 when not provided
+        (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableSection199ADividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableSection199ADividends" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/section199ADividendsFromDividends">
+      <Name>Section 199A dividends from Form 1099-DIV (box 5 total)</Name>
+      <Description>Total box 5 section 199A dividends across all Form 1099-DIVs — the
+        documentary half of Form 8995 line 6 / Form 8995-A line 28, read by
+        qbi:/qualifiedReitDividendsAndPtpIncome.
+
+        THE SUM-ACROSS-PAYERS SHAPE IS THE STATUTE'S AND THIS MODULE'S, NOT A QUOTED
+        INSTRUCTION, and saying so precisely matters because the contract this fill
+        retires got it wrong. That contract attributed "The sum of the amounts reported in box 5
+        of the relevant" Forms 1099-DIV to https://www.irs.gov/pub/irs-pdf/i8995a.pdf, page 4. Line 240
+        is the UNMODIFIED BOX METHOD for W-2 WAGES (the "Modified box 1 method" is the NEXT
+        paragraph, at line 243) — "The sum of the amounts reported in box 5
+        of the relevant Forms W-2" — a different form, a different box 5, and a different line of
+        Form 8995-A. Neither i8995 nor i8995a states a per-payer aggregation rule for line 6 at
+        all. What DOES support the sum is IRC 199A(b)(1)(B), which takes "20 percent of the
+        aggregate amount of the qualified REIT dividends" (26 U.S.C. 199A, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section199A&amp;num=0&amp;edition=2024), plus the fact that line 6 is a single printed entry and a filer may hold several
+        REITs. The CollectionSum is therefore this module's own idiom — the same one its sibling
+        1099-DIV box aggregates use — resting on a statutory aggregate, not on a verbatim
+        instruction. (The statutory span is lines 86-87 and stops there: line 88 is a page
+        header, the same one-line-too-far trap /writableQualifiedReitPtpLossCarryforwardFromPriorTaxYear's
+        authority comment already records for this file.)
+
+        ONLY THE FORM 1099-DIV LEG, and the rest of line 6 has other routes. Qualified REIT
+        dividends can also arrive from a regulated investment company (RIC) — "your qualified
+        REIT dividends include those received from a regulated investment company (RIC)"
+        (https://www.irs.gov/pub/irs-pdf/i8995a.pdf, page 5) — which is itself reported in box 5
+        of the RIC's Form 1099-DIV, so that population IS covered here. Qualified PTP income or
+        loss does not land in this module either: the intake is Schedule K-1 item D plus box 20
+        code Z in scheduleE:/formK1s/*, which composes with this box-5 total inside
+        qbi:/qualifiedReitDividendsAndPtpIncome (one line-6 entry, one 20%). The taxpayer override
+        (qbi:/writableQualifiedReitDividendsAndPtpIncome) is unaffected.
+
+        A filer whose only section 199A item is box 5 — REIT dividends and no trade or business at
+        all — is entitled to the deduction under the printed form's own disjunctive test ("You have
+        QBI, qualified REIT dividends, or qualified PTP income or loss",
+        https://www.irs.gov/pub/irs-pdf/i8995.pdf, page 1): qbi:/claimsQbiDeduction is that disjunction
+        itself, Any(/hasQualifiedTradeOrBusiness, /isEntitledByReitOrPtp), so a filer who merely
+        enters a Form 1099-DIV box 5 amount is admitted and computes the REIT/PTP-only deduction. The opt-out and the QBI-side
+        suppression sit on /hasQualifiedTradeOrBusiness, which guards Form 8995 line 5 and
+        Form 8995-A line 27 on both sides of the threshold.
+
+        Complete-safe: $0 when there are no dividend reports, so every pre-existing scenario is
+        byte-identical.
+        UNROUNDED: this total is one leg of a line that adds further legs, so its reader rounds that line once ("include cents when adding the amounts and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23). Read by qbi:/qualifiedReitDividendsAndPtpIncome (Form 8995 line 6 / Form 8995-A line 28). A presence test on it (greater than $0) reads the amount as reported, cents included.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                  <Dependency path="/dividendReports/*/section199ADividendsAfterCommunityPropertySplit" />
+                </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/writableExemptInterestDividends">
+      <Name>Exempt-interest dividends (writable)</Name>
+      <Description>Box 12 on Form 1099-DIV, "Exempt-interest dividends" - this payer's
+        exempt-interest dividends: the distribution a municipal bond fund or other regulated
+        investment company designates as tax-exempt interest in the shareholder's hands. The
+        defining section is 852(b)(5)(A), which this repo does NOT vendor and which is named
+        here only because IRC 57(a)(5)(B) borrows it by reference ("any exempt-interest dividend
+        (as defined in section 852(b)(5)(A))", 26 U.S.C. 57, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section57&amp;num=0&amp;edition=2024); no
+        fact reads that definition and nothing here rests on its text. The 2025 Instructions for
+        Schedule B name the box and its
+        destination in one sentence: "Also include on line 2a of your Form 1040 or 1040-SR any
+        exempt-interest dividends from a mutual fund or other regulated investment company. This
+        amount should be shown in box 12 of Form 1099-DIV"
+        (https://www.irs.gov/pub/irs-pdf/i1040sb.pdf, page 2, under Part I / Line 1, subheading
+        "Tax-exempt interest."). This is the writable optional fact; use the derived alias
+        downstream.
+
+        Min $0: box 12 is a REPORTED dividend amount and a dividend is never negative - the same
+        floor boxes 2a, 2b, 2d and 5 above carry, and for the same reason.
+
+        NO UPPER BOUND, AND ITS ABSENCE IS A DECISION. Box 13 is a portion of this amount; that
+        containment is disclosed in the block header above and deliberately not enforced, on
+        three grounds set out there (a Limit may hold only a literal, this module already
+        declined the identical bound for boxes 2b/2d against 2a, and no vendored authority
+        states the arithmetic).
+
+        WHAT BOX 12 IS NOT, disclosed because the graph takes it as reported. Box 12 is the
+        FUND's designation. Nothing in this graph tests it, and the Schedule B passage quoted
+        above carries a separate netting rule for directly held bonds (amortized bond premium,
+        acquisition premium) that applies to Form 1099-INT box 8 and Form 1099-OID, not to this
+        box.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/exemptInterestDividendsAfterCommunityPropertySplit">
+      <Name>This payer's box 12 exempt-interest dividends this return reports after the community property split</Name>
+      <Description>The amount of this payer's box 12 exempt-interest dividends this return reports. On a separate return that allocates community income (filers /isCommunityPropertyAllocationReturn) and an item the filer has characterised as community income, it is HALF of ../exemptInterestDividends: dividends from community property are community income and must be evenly split, the same rule and the same half this module applies to box 1a on the item. On every other item and every other return it is ../exemptInterestDividends unchanged. The half is taken at the cent, as the box 1a half is; the total this feeds is the one Form 1040 line 2a (interest /taxExemptInterest) reads. The printed Form 1099-DIV register keeps the whole box as the payer printed it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../exemptInterestDividends" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../exemptInterestDividends" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/exemptInterestDividends">
+      <Name>Exempt-interest dividends</Name>
+      <Description>Box 12 on Form 1099-DIV. Defaults to $0 when not provided
+        (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableExemptInterestDividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableExemptInterestDividends" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/exemptInterestDividends">
+      <Name>Exempt-interest dividends from Form 1099-DIV (box 12 total)</Name>
+      <Description>Total box 12 exempt-interest dividends across all Forms 1099-DIV - the Form
+        1099-DIV leg of Form 1040 line 2a ("Also include on line 2a of your Form 1040 or 1040-SR
+        any exempt-interest dividends from a mutual fund or other regulated investment company.
+        This amount should be shown in box 12 of Form 1099-DIV",
+        https://www.irs.gov/pub/irs-pdf/i1040sb.pdf, page 2).
+
+        NOT YET CONSUMED, AND THAT IS THE CONSUMER'S STEP RATHER THAN AN OVERSIGHT. Line 2a's
+        fact is interest:/taxExemptInterest, which today sums only
+        /interestReports/*/taxExemptInterest (Form 1099-INT box 8 and the Form 1099-OID legs)
+        inside a bare Round with no IsComplete guard on /interestReports. Joining this term to
+        it is a completeness decision in that module, so it belongs there; this module exports the total and stops.
+
+        THE SUM-ACROSS-PAYERS SHAPE IS THIS MODULE'S IDIOM, NOT A QUOTED INSTRUCTION. Neither
+        the Schedule B passage nor the Form 1040 instructions state a per-payer aggregation rule
+        for line 2a; what supports the CollectionSum is that line 2a is a single printed entry
+        and a filer may hold several funds, plus the same shape every sibling aggregate in this
+        file already uses.
+
+        UNROUNDED, unlike its siblings here: interest:/taxExemptInterest is itself
+        Round(CollectionSum(...)), so line 2a rounds once at the line rather than twice.
+
+        Complete-safe: $0 when there are no dividend reports, so every pre-existing scenario is
+        byte-identical.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/dividendReports/*/exemptInterestDividendsAfterCommunityPropertySplit" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableSpecifiedPrivateActivityBondInterestDividends">
+      <Name>Specified private activity bond interest dividends (writable)</Name>
+      <Description>Box 13 on Form 1099-DIV, "Specified private activity bond interest dividends"
+        - the portion of this payer's exempt-interest dividends that is attributable to interest
+        on specified private activity bonds, and therefore an alternative-minimum-tax preference
+        item. The 2025 Instructions for Form 6251, "Line 2g-Interest From Private Activity
+        Bonds", name the box and the treatment together: "Exempt-interest dividends paid by a
+        mutual fund or other regulated investment company are treated as interest income on
+        specified private activity bonds to the extent the dividends are attributable to
+        interest on the bonds received by the company, minus an allocable share of the expenses
+        paid or incurred by the company in earning the interest. This specified private activity
+        bond interest dividends amount should be reported to you in box 13 of Form 1099-DIV"
+        (https://www.irs.gov/pub/irs-pdf/i6251.pdf, pages 3-4). This is the writable optional fact;
+        use the derived alias downstream.
+
+        TRANSCRIBED, NEVER ALLOCATED. The quoted sentence's "minus an allocable share of the
+        expenses" is the FUND's arithmetic, already performed before the figure is printed in
+        box 13, and the practical consequence is favourable: this intake takes the reported net
+        figure and no fact in this graph attempts the allocation.
+
+        Min $0: box 13 is a REPORTED dividend amount and a dividend is never negative.
+
+        NO UPPER BOUND AGAINST BOX 12, AND ITS ABSENCE IS A DECISION rather than an oversight.
+        This amount is a portion of the same payer's box 12; the block header above sets out the
+        three grounds for disclosing that containment instead of enforcing it, and expressly
+        refuses the Min(box 13, box 12) synthesis that would silently repair a filer's
+        data-entry error.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/specifiedPrivateActivityBondInterestDividendsAfterCommunityPropertySplit">
+      <Name>This payer's box 13 specified private activity bond interest dividends this return reports after the community property split</Name>
+      <Description>The amount of this payer's box 13 specified private activity bond interest dividends this return reports. On a separate return that allocates community income (filers /isCommunityPropertyAllocationReturn) and an item the filer has characterised as community income, it is HALF of ../specifiedPrivateActivityBondInterestDividends: dividends from community property are community income and must be evenly split, the same rule and the same half this module applies to box 1a on the item. On every other item and every other return it is ../specifiedPrivateActivityBondInterestDividends unchanged. The half is taken at the cent, as the box 1a half is; the total this feeds is the one Form 6251 line 2g reads. The printed Form 1099-DIV register keeps the whole box as the payer printed it.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+                <Dependency path="../isCommunityIncome" />
+              </All>
+            </When>
+            <Then>
+              <Multiply>
+                <Rational>1/2</Rational>
+                <Dependency path="../specifiedPrivateActivityBondInterestDividends" />
+              </Multiply>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../specifiedPrivateActivityBondInterestDividends" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/specifiedPrivateActivityBondInterestDividends">
+      <Name>Specified private activity bond interest dividends</Name>
+      <Description>Box 13 on Form 1099-DIV. Defaults to $0 when not provided
+        (complete-safe).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableSpecifiedPrivateActivityBondInterestDividends" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf><Dependency path="../writableSpecifiedPrivateActivityBondInterestDividends" /><Dollar>0</Dollar></GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/specifiedPrivateActivityBondInterestDividends">
+      <Name>Specified private activity bond interest dividends from Form 1099-DIV (box 13 total)</Name>
+      <Description>Total box 13 specified private activity bond interest dividends across all
+        Forms 1099-DIV - the municipal-FUND leg of Form 6251 line 2g, and the intake level the
+        contract form6251:/amtLine2gExemptInterestDividendShare was waiting on.
+
+        NOT YET CONSUMED, BY DESIGN AND BY BOUNDARY. The AMT preference itself is
+        form6251's fact to build: IRC 57(a)(5)(B) treats an exempt-interest dividend as interest
+        on a specified private activity bond, the printed leg the shipping
+        form6251:/amtLine2gPrivateActivityBondInterest already carries is Form 1099-INT box 9,
+        and the two are DISJOINT populations reaching the same line - a fund shareholder holds
+        no bond directly and so has no box 9 at all. This module supplies the amount and nothing
+        more; no fact here computes an AMT preference.
+
+        UNTIL THAT CONSUMER LANDS, LINE 2g READS ZERO FOR A PURE FUND HOLDER and their AMTI is
+        under-stated. That population is not refused today - interest:/flowKnockoutHasBonds
+        refuses the box-9 population and a fund holder has no box 9 - so the exposure is live in
+        a way the direct-holding leg's never was. It is named here because this aggregate is the
+        half of it that now exists.
+
+        THE SUM-ACROSS-PAYERS SHAPE IS THIS MODULE'S IDIOM, NOT A QUOTED INSTRUCTION: neither
+        the Form 6251 instructions nor section 57 state a per-payer aggregation rule; line 2g is
+        a single printed entry and a filer may hold several funds.
+
+        UNROUNDED, unlike its siblings here, because the leg it joins is:
+        form6251:/amtLine2gPrivateActivityBondInterest is a line-2 summand and Form 6251 rounds
+        once at line 4.
+
+        Complete-safe: $0 when there are no dividend reports, so every pre-existing scenario is
+        byte-identical.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/dividendReports" />
+              </IsComplete>
+            </When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/dividendReports/*/specifiedPrivateActivityBondInterestDividendsAfterCommunityPropertySplit" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/form8958Line3ColumnBThisReturnShareUnrounded">
+      <Name>Form 8958 line 3 column B, this return's share of this payer's dividends</Name>
+      <Description>The share of ONE payer's ordinary dividends that belongs on THIS separate return, which Form 8958 line 3 column B prints. On an allocated community row it is the community half the shipping fact ../communityPropertyAllocatedOrdinaryDividendsUnrounded already computes; on every other row it is the whole item ../ordinaryDividends, because a separate property item that reaches a filable separate return is this taxpayer's own (dividendReports:/dividendReports/secondaryFilerUsedWithoutMFJ blocks submission otherwise). Column A of the printed row is ../ordinaryDividends itself, Form 1099-DIV box 1a, so no separate column A fact is needed here as it was on line 2. The register prints this return's taxpayer in column B and the spouse or RDP in column C, matching the order of the page 1 identity block. Not rounded: the halves are cent scale and the form's footing rule is a cent rule.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../form8958Line3RowIsAllocatedCommunityIncome" />
+            </When>
+            <Then>
+              <Dependency path="../communityPropertyAllocatedOrdinaryDividendsUnrounded" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="../ordinaryDividends" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/form8958Line3ColumnCOtherSpouseShareUnrounded">
+      <Name>Form 8958 line 3 column C, the other spouse or RDP share of this payer's dividends</Name>
+      <Description>The share of ONE payer's ordinary dividends that belongs to the other spouse or RDP, which Form 8958 line 3 column C prints. It is column A minus column B by construction, which is how the form's own instruction that columns B and C together should equal column A is made to hold exactly; column A is ../ordinaryDividends, Form 1099-DIV box 1a. On an odd cent community row the shipping half rounds to the even cent and column B takes it, so the residual cent lands here rather than breaking the footing; that is a disclosed consequence of a per payer allocation printed in cents and it is what the 2,000.01 row of the node test pins. $0 on a separate property row, where column A and column B are both the whole item.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="../ordinaryDividends" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../form8958Line3ColumnBThisReturnShareUnrounded" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/form8958Line3RowIsAllocatedCommunityIncome">
+      <Name>Form 8958 line 3 row is an allocated community income row</Name>
+      <Description>True when this Form 1099-DIV sits on a return that must allocate community income AND the filer has characterised this payer's dividends as community income. It is the condition the shipping fact /dividendReports/*/communityPropertyAllocatedOrdinaryDividendsUnrounded already switches on, lifted to a fact of its own so the Form 8958 line 3 column B and column C facts can select on the same test rather than restating it. False on an ordinary return and false on a separate property row, which is why silence about the character of an item never allocates it. Deliberately the same body as interest:/interestReports/*/form8958Line2RowIsAllocatedCommunityIncome.</Description>
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/isCommunityPropertyAllocationReturn" />
+          <Dependency path="../isCommunityIncome" />
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReportsZeroDollarFloor">
+      <Name>The $0 a dividend comparison in this module measures against</Name>
+      <Description>The named $0 constant this module's Dollar comparisons need. The supported operators have no zero literal inline, so each module declares its own, as scheduleD does with /form8949ZeroDollarFloor and scheduleE with /scheduleEZeroDollarFloor. Structural: it encodes a comparison against nothing, not a statutory dollar amount.</Description>
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasNoQualifiedDividends">
+      <Name>The return has no qualified dividends on Form 1040 line 3a</Name>
+      <Description>The printed Schedule D line 22 No box: the return reaches line 22 and has no qualified dividends on Form 1040 line 3a, so it completes the rest of Form 1040 without the Qualified Dividends and Capital Gain Tax Worksheet. FALSE, so the box stays blank, when line 17 is Yes: that return goes to lines 18 through 20, and both line 20 answers tell the filer not to complete lines 21 and 22. Line 22 is reached through line 17 No, through a line 16 loss (line 21, then line 22) and through a line 16 of zero, which is exactly scheduleD /scheduleDLine17NotBothGains. It is gated on its own and is not the negation of the Yes box, because on a return that does not reach line 22 neither box is checked.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency module="scheduleD" path="/scheduleDLine17NotBothGains" />
+          <Not>
+            <Dependency path="/returnHasQualifiedDividendsOnLine3a" />
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/returnHasQualifiedDividendsOnLine3a">
+      <Name>Form 1040 line 3a is more than zero</Name>
+      <Description>TRUE when income /qualifiedDividends, the Form 1040 line 3a total, is more than zero. The answer to the question Schedule D line 22 prints; the two printed boxes add the line 22 reachability gate to it. The comparison is against the line 3a TOTAL, which also carries the Schedule K-1 box 6b qualified dividends, rather than against a sum rebuilt from this module's per payer amounts.</Description>
+      <Derived>
+        <GreaterThan>
+          <Left>
+                <Dependency module="income" path="/qualifiedDividends" />
+          </Left>
+          <Right>
+                <Dependency path="/dividendReportsZeroDollarFloor" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/hasQualifiedDividends">
+      <Name>The return has qualified dividends on Form 1040 line 3a</Name>
+      <Description>The printed Schedule D line 22 Yes box: TRUE when the return reaches line 22 and Form 1040 line 3a is more than zero (/returnHasQualifiedDividendsOnLine3a). FALSE, so the box stays blank, when line 17 is Yes: that return goes to lines 18 through 20, and both line 20 answers tell the filer not to complete lines 21 and 22. Line 22 is reached through line 17 No, through a line 16 loss and through a line 16 of zero, which is exactly scheduleD /scheduleDLine17NotBothGains. The worksheet the return uses is chosen by scheduleD /useScheduleDTaxWorksheet, not by this box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency module="scheduleD" path="/scheduleDLine17NotBothGains" />
+          <Dependency path="/returnHasQualifiedDividendsOnLine3a" />
+        </All>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/dividendReports/*/payer/tin">
+      <Name>TIN</Name>
+      <Description>The taxpayer identification number of the payer on the dividend report. Form 1099-DIV, PAYER'S TIN (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Payer's TIN as shown on this Form 1099-DIV" (EIN), on the payer-identity screen, on every dividend report; never required. Help text: the nine digits the payer printed under PAYER'S TIN; a payer's TIN is never truncated on the form the filer receives (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 4). Validation: EIN. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal today. Stored for the state and local returns and for MeF, and printed on the Form 1099-DIV register. This is the interest.xml /interestReports/*/payer/tin shape, taken unchanged so the two 1099 modules answer the same box the same way.</Description>
+      <Export mef="true" downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/recipientTin">
+      <Name>Form 1099-DIV recipient's TIN</Name>
+      <Description>The RECIPIENT'S TIN box, as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). Derived, never asked: the recipient of a dividend report on this return is one of this return's own filers, so the number is the filer's, resolved from this item's own ../belongsToPrimaryFiler / ../belongsToSecondaryFiler. This is the interest.xml /interestReports/*/recipientTin shape, taken unchanged. NEVER /primaryFiler/tin unconditionally: a spouse's Form 1099-DIV would then print the wrong person. UNANSWERED: Incomplete while ../filer is unanswered, which is the honest state -- the item does not yet know whose form it is. WHAT IT FEEDS: nothing federal. Printed on the Form 1099-DIV register and exported for the state and local returns.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../belongsToPrimaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/dividendReportsPrimaryFiler/tin" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="../belongsToSecondaryFiler" />
+            </When>
+            <Then>
+              <Dependency path="/dividendReportsSecondaryFiler/tin" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableCalendarYear">
+      <Name>Form 1099-DIV calendar year</Name>
+      <Description>The "For calendar year" entry printed in the form's title block, as a four-digit year (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Calendar year shown on this Form 1099-DIV" (four digits), on the payer-identity screen, on every dividend report; never required. Help text: the year the payer printed after "For calendar year"; a form for a year other than 2025 belongs on that year's return or is a corrected prior-year form. Validation: exactly four digits. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+        <Limit type="Match">
+          <String><![CDATA[[0-9]{4}]]></String>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableVoid">
+      <Name>Form 1099-DIV VOID box</Name>
+      <Description>The VOID checkbox in the form's header. It prints on Copy A, Copy 1 and Copy 2 (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, pages 2, 3, 6); only the recipient's Copy B carries CORRECTED alone (line 91). SCREEN SPEC: ask "Is the VOID box checked on this Form 1099-DIV?" (yes/no), on every dividend report; never required. Help text: a payer checks VOID only on a Copy A it did not mean to file, so the IRS scanner skips it; a correction is never marked VOID. Validation: Boolean. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableCorrected">
+      <Name>Form 1099-DIV CORRECTED box</Name>
+      <Description>The CORRECTED checkbox in the form's header. It prints on every copy: beside VOID on Copy A, Copy 1 and Copy 2 (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, pages 2, 3, 6) and as "CORRECTED (if checked)" alone on the recipient's Copy B (line 91). SCREEN SPEC: ask "Is the CORRECTED box checked on this Form 1099-DIV?" (yes/no), on every dividend report; never required. Help text: a checked CORRECTED means this form replaces one the payer already sent; enter the corrected figures, not both forms. Validation: Boolean. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableRecipientName">
+      <Name>Form 1099-DIV recipient's name</Name>
+      <Description>The RECIPIENT'S name box, as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Recipient's name as shown on this Form 1099-DIV" (free text), on the recipient screen after ../filer, on every dividend report; never required. Help text: copy the name the payer printed, even when it differs from the name on this return (a trust name, a maiden name); which person on the return received the form is ../filer, not this box. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableRecipientStreetAddress">
+      <Name>Form 1099-DIV recipient's street address</Name>
+      <Description>The "Street address (including apt. no.)" box of the recipient block, as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Recipient's street address as shown on this Form 1099-DIV" (free text), on the recipient screen beneath the recipient's name, on every dividend report; never required. Help text: copy the address the payer printed even when the return's own address has since changed; the return's mailing address is /address, not this box. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableRecipientCityStateZip">
+      <Name>Form 1099-DIV recipient's city, state and ZIP</Name>
+      <Description>The "City or town, state or province, country, and ZIP or foreign postal code" box of the recipient block, as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Recipient's city, state and ZIP as shown on this Form 1099-DIV" (free text), on the recipient screen beneath the street address, on every dividend report; never required. Help text: one line, exactly as the payer printed it, foreign postal codes included. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableAccountNumber">
+      <Name>Form 1099-DIV account number</Name>
+      <Description>The "Account number (see instructions)" box, as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Account number shown on this Form 1099-DIV" (free text), on the payer-identity screen, on every dividend report; never required. Help text: the payer instruction makes the account number required only where the payer files more than one Form 1099-DIV for the same recipient (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 4); many forms leave it blank; it is the payer's own account reference, not a bank routing number. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableSecondTinNotice">
+      <Name>Form 1099-DIV 2nd TIN not. box</Name>
+      <Description>The "2nd TIN not." checkbox, as printed on Copy A (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2). SCREEN SPEC: ask "Is the '2nd TIN not.' box checked on this Form 1099-DIV?" (yes/no), on the payer-identity screen, on every dividend report; never required. Help text: the payer enters an "X" here after the IRS has told it twice within three calendar years that the payee gave an incorrect TIN (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 4); it prints on the payer's Copy A, so a recipient copy usually shows nothing. Validation: Boolean. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableSection1202Gain">
+      <Name>Section 1202 gain, Form 1099-DIV box 2c</Name>
+      <Description>Form 1099-DIV box 2c as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the amount included in box 2a that is section 1202 gain from certain qualified small business stock. SCREEN SPEC: ask "Box 2c, section 1202 gain" (dollars), on the capital-gain-distribution screen beneath box 2a, on every dividend report; never required. Help text: the payer reports the whole box 2c gain here; the tiered EXCLUSION the filer may claim against it is a different number and stays in ../writableSection1202Exclusion. Validation: not negative -- box 2c is a component of box 2a. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal from this box. NOT THE SAME FACT as ../writableSection1202Exclusion, which is the filer's own exclusion claim and keeps every consumer it has; this is the payer-reported gain the register had no fact for, and wiring the exclusion to read it would change a shipping computation (drafted successor).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableSection897OrdinaryDividends">
+      <Name>Section 897 ordinary dividends, Form 1099-DIV box 2e</Name>
+      <Description>Form 1099-DIV box 2e as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the amount included in box 1a that is section 897 gain attributable to dispositions of United States real property interests. SCREEN SPEC: ask "Box 2e, section 897 ordinary dividends" (dollars), on the ordinary-dividends screen beneath box 1a, on every dividend report; never required. Help text: box 2e is filled only for a foreign person receiving a distribution from a REIT or a RIC that holds U.S. real property; a domestic shareholder's form leaves it blank. Validation: not negative -- box 2e is a component of box 1a. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal -- Form 1040 has no section 897 line, and the recipients who use it file Form 1040-NR, which this dictionary does not build (Form 1040-NR is OUT of form set F). Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableSection897CapitalGain">
+      <Name>Section 897 capital gain, Form 1099-DIV box 2f</Name>
+      <Description>Form 1099-DIV box 2f as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the amount included in box 2a that is section 897 gain from dispositions of United States real property interests. SCREEN SPEC: ask "Box 2f, section 897 capital gain" (dollars), on the capital-gain-distribution screen beneath box 2a, on every dividend report; never required. Help text: box 2f is filled only for a foreign person receiving a distribution from a REIT or a RIC that holds U.S. real property; a domestic shareholder's form leaves it blank. Validation: not negative -- box 2f is a component of box 2a. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal -- Form 1040 has no section 897 line, and the recipients who use it file Form 1040-NR, which this dictionary does not build (Form 1040-NR is OUT of form set F). Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableInvestmentExpenses">
+      <Name>Investment expenses, Form 1099-DIV box 6</Name>
+      <Description>Form 1099-DIV box 6 as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the recipient's pro rata share of certain amounts deductible by a non-publicly-offered regulated investment company. SCREEN SPEC: ask "Box 6, investment expenses" (dollars), on the dividend-boxes screen, on every dividend report; never required. Help text: only a non-publicly-offered RIC fills this box (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5); an ordinary brokerage Form 1099-DIV leaves it blank. Validation: not negative. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal -- the miscellaneous itemized deduction this box once fed is suspended for TY2025 by IRC 67(g), so no federal line reads it. Stored for the state and local returns (a state that decouples from 67(g) reads it by module-qualified path) and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableForeignTaxPaid">
+      <Name>Foreign tax paid, Form 1099-DIV box 7</Name>
+      <Description>Form 1099-DIV box 7 as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the foreign tax the payer paid on the dividends and other distributions reported on this form. SCREEN SPEC: ask "Box 7, foreign tax paid" (dollars), on the dividend-boxes screen, on every dividend report; never required. Help text: the amount the payer withheld or paid to a foreign country or U.S. possession on these dividends (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5); the country it went to is box 8. Validation: not negative. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal from this intake. The foreign tax credit's own amount is form1116:/writableForeignTaxesPaid, a return-level intake this box does NOT feed; wiring a per-payer box 7 into the Form 1116 legs would change a shipping computation and is a drafted successor, not part of this intake unit. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableForeignCountryOrUsPossession">
+      <Name>Foreign country or U.S. possession, Form 1099-DIV box 8</Name>
+      <Description>Form 1099-DIV box 8 as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the NAME of the foreign country or U.S. possession the box 7 foreign tax was paid to. SCREEN SPEC: ask "Box 8, foreign country or U.S. possession" (free text), on the dividend-boxes screen beside box 7, on every dividend report; never required. Help text: the payer enters the name of the country or possession for which the box 7 tax was paid (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5); leave it blank when box 7 is blank. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. The box 7 AMOUNT is ../writableForeignTaxPaid; the Form 1116 country selection is its own separate intake in form1116.xml. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableFatcaFilingRequirement">
+      <Name>FATCA filing requirement, Form 1099-DIV box 11</Name>
+      <Description>Form 1099-DIV box 11 as printed (https://www.irs.gov/pub/irs-pdf/f1099div.pdf, page 2): the FATCA filing requirement checkbox. SCREEN SPEC: ask "Is box 11, FATCA filing requirement, checked on this Form 1099-DIV?" (yes/no), on the dividend-boxes screen, on every dividend report; never required. Help text: the payer checks it when it is a U.S. payer satisfying chapter 4 reporting by filing this Form 1099 (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5); a checked box can mean the recipient has a Form 8938 filing requirement of its own. Validation: Boolean. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Form 8938 is not built in this dictionary, and interest.xml's counterpart ../factaFilingRequired on /interestReports feeds only its own completeness roll-up; no consumer is added here. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writablePayerStateAbbreviation">
+      <Name>Payer's state, Form 1099-DIV box 14, first state row</Name>
+      <Description>Form 1099-DIV box 14 as the payer prints it in the FIRST state row: the two-letter abbreviation of a state, one of the fifty states or the District of Columbia (constants:/statesAndDistrictsOptions). SCREEN SPEC: ask "Box 14, state" (a state or DC), on the state-rows screen, on every dividend report; never required. Help text: the abbreviated name of the state the payer reported to (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5). Validation: one of /statesAndDistrictsOptions. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal -- box 14 is a state key and the federal return has no use for which state a payer withheld for. NOT THE SAME FACT as ../writableState, which is a two-member sameState/differentState enum (/incomeFormStateOptions) answering whether the state matches the filer's, not which state; ../writableState is kept unchanged. This is the interest.xml /interestReports/*/writablePayerStateAbbreviation disposition, taken for class uniformity. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Enum optionsPath="/statesAndDistrictsOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writablePayerStateAbbreviation2">
+      <Name>Payer's state, Form 1099-DIV box 14, second state row</Name>
+      <Description>Form 1099-DIV box 14 as the payer prints it in the SECOND state row. The printed form carries two state rows separated by a dashed line -- "use the state information boxes to report payments for up to two states. Keep the information for each state separated by the dashed line in each box." (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5) -- and this is the printed multiplicity. The FIRST row is ../writablePayerStateAbbreviation. SCREEN SPEC: ask "Box 14, state (second row)" (a state or DC), on the state-rows screen beneath the first row, on every dividend report; never required. Help text: only a form that shows two state rows fills this; leave it blank otherwise. Validation: one of /statesAndDistrictsOptions. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Enum optionsPath="/statesAndDistrictsOptions" />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableStateIdNumber">
+      <Name>State identification number, Form 1099-DIV box 15, first state row</Name>
+      <Description>Form 1099-DIV box 15 in the FIRST state row: the payer's state identification number, the number that state assigned the payer (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5). SCREEN SPEC: ask "Box 15, state identification number" (free text), on the state-rows screen beside the state, on every dividend report; never required. Help text: copy it exactly as printed. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. This is the interest.xml /interestReports/*/writableStateIdNumber disposition, taken for class uniformity. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableStateIdNumber2">
+      <Name>State identification number, Form 1099-DIV box 15, second state row</Name>
+      <Description>Form 1099-DIV box 15 in the SECOND state row. The printed form carries two state rows separated by a dashed line (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5), and this is the printed multiplicity; the FIRST row is ../writableStateIdNumber. SCREEN SPEC: ask "Box 15, state identification number (second row)" (free text), on the state-rows screen beside the second-row state, on every dividend report; never required. Help text: the payer's number assigned by that second state; leave it blank when the form shows one state row. Validation: free text. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/dividendReports/*/writableStateTaxWithheld2">
+      <Name>State tax withheld, Form 1099-DIV box 16, second state row</Name>
+      <Description>Form 1099-DIV box 16 in the SECOND state row: the state income tax the payer withheld for the second state. The printed form carries two state rows separated by a dashed line (https://www.irs.gov/pub/irs-pdf/i1099div.pdf, page 5), and this is the printed multiplicity; the FIRST row is ../writableStateTaxWithheld, unchanged. SCREEN SPEC: ask "Box 16, state tax withheld (second row)" (dollars), on the state-rows screen beside the second-row state identification number, on every dividend report; never required. Help text: only a form that shows two state rows fills this. Validation: not negative. UNANSWERED: complete-safe; ../isComplete does not read it. WHAT IT FEEDS: nothing federal, and deliberately nothing here either -- the first row's ../stateTaxWithheld keeps every consumer it has, and widening a shipping roll-up to a second row is a drafted successor, not part of this intake unit. Stored for the state and local returns and printed on the Form 1099-DIV register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

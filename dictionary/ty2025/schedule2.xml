@@ -1,0 +1,2547 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+
+Based on IRS-origin material.
+Upstream repository: IRS-Public/direct-file
+Upstream revision: e365f9f43446010af36cccf7edecc52953c00fe9
+Original path: direct-file/backend/src/main/resources/tax/schedule2.xml
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/requiresSchedule2">
+      <Description>Whether the return attaches Schedule 2. It is the render gate the schedule needs in
+        dictionary/pdf/2025/gates.tsv and the MeF attachment signal. The schedule has two printed parts and
+        this gate reads a signal from each: Part I through the line 1a excess-APTC repayment, the line 1b/1c
+        clean vehicle credit dealer-transfer repayment and the line 2 alternative minimum tax; Part II
+        through the line 21 total ("Add lines 4, 7 through 16, 18, and 19"), which is what a return owing
+        self-employment tax, additional Medicare tax, net investment income tax, household employment taxes
+        or any of the Part II excise and recapture lines carries to Form 1040 line 23. A return whose only
+        Schedule 2 content is Part II attaches the schedule, and so does one whose only Schedule 2 content
+        is a Part I entry line the three named items do not cover: the line 1d Form 4255 net elective
+        payment election recapture and the open line 1y additions to tax both reach line 3.</Description>
+      <Export mef="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency module="ptc" path="/netPtcAmountWhenNegative" />
+          </IsComplete>
+          <GreaterThan>
+            <Left>
+              <Dependency module="form6251" path="/alternativeMinimumTax" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency module="cleanVehicleCreditRepayment" path="/totalCleanVehicleCreditRepayment" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <GreaterThan>
+            <Left>
+              <Dependency path="/totalAdditionalTaxesOwed" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Add>
+                    <Dependency module="form8960" path="/niitSection475eTraderScheduleCProfit" />
+                    <Dependency module="form8960" path="/niitSection475eTraderScheduleCNetLossModification" />
+                    <Dependency module="form8960" path="/niitWorksheetRow2iCapitalLossCarryforwardAdjustment" />
+                    <Dependency module="form8960" path="/niitLine17TaxWithResolvedMagi" />
+                  </Add>
+                </IsComplete>
+              </When>
+              <Then>
+                <All>
+                  <IsComplete>
+                    <Dependency module="taxCalculations" path="/line21OfSchedule2" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency module="taxCalculations" path="/line21OfSchedule2" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="taxCalculations" path="/line21OfSchedule2" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </Then>
+            </Case>
+          </Switch>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/line1aOfSchedule2">
+      <Description>Schedule 2 line 1a ("Excess advance premium tax credit repayment. Attach Form 8962"):
+        in scope the excess-APTC repayment (Form 8962 line 29 = /lesserOfNetPtcAmountAndRepaymentLimitation),
+        0 unless the PTC net amount is negative and a repayment limitation applies. Split out from
+        /line1zOfSchedule2 when line 1z gained the clean-vehicle dealer-transfer repayment terms
+        (lines 1b/1c) and is NO LONGER equal to line 1a, so a consumer whose limit is stated on
+        line 1a ALONE — the foreign tax credit no-Form-1116 cap, "line 16 + Schedule 2 line 1a" — must
+        reference this fact, never the full 1z subtotal. Complete-safe: resolves 0 when no excess-APTC
+        repayment applies. NOT mef-exported by design: line 1z (/line1zOfSchedule2, which includes
+        this) carries the MeF/spine Schedule-2 export; line 1a was never a separate exported fact
+        (it was inline in line 1z before that split), so keeping this internal preserves the export surface
+        exactly — value-neutral. It may be promoted to mef="true" if MeF needs line 1a
+        broken out.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="ptc" path="/netPtcAmountWhenNegative" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency module="ptc" path="/lesserOfNetPtcAmountAndRepaymentLimitation" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/line1zOfSchedule2">
+      <Description>Schedule 2 line 1z ("Add lines 1a through 1y"): the additions-to-tax subtotal.
+        Its addends are the excess advance premium tax credit repayment (line 1a, /line1aOfSchedule2),
+        the clean vehicle credit dealer-transfer repayments (line 1b new + line 1c used), line 1d
+        (form4255 /form4255NetEpeRecaptureFromLine2aOrZero), line 1e
+        (/form4255ExcessivePaymentsOnGrossEpeOrZero), line 1f
+        (/form4255TwentyPercentExcessivePaymentOrZero) and line 1y
+        (/schedule2Line1yOtherAdditionsToTax). Reused as the Schedule 2 line 1z term of Form 6251
+        line 10 (the regular tax for the AMT comparison). ⚠ line 1z ≠ line 1a: a line-1a-only
+        consumer must use /line1aOfSchedule2. Every addend other than line 1a is complete-safe 0
+        when unanswered, so on a return with none of them line 1z equals line 1a.</Description>
+      <Export downstreamFacts="true" mef="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/line1aOfSchedule2" />
+          <Dependency module="cleanVehicleCreditRepayment" path="/totalCleanVehicleCreditRepayment" />
+          <Dependency module="form4255" path="/form4255NetEpeRecaptureFromLine2aOrZero" />
+          <Dependency module="form4255" path="/form4255ExcessivePaymentsOnGrossEpeOrZero" />
+          <Dependency module="form4255" path="/form4255TwentyPercentExcessivePaymentOrZero" />
+          <Dependency path="/schedule2Line1yOtherAdditionsToTax" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/totalAdditionalTaxesOwed">
+      <Description>Schedule 2 line 3 ("Add lines 1z and 2"), for Form 1040 line 17: the
+        additions-to-tax subtotal (line 1z) plus the alternative minimum tax (line 2, Form 6251). The AMT term is 0 for every return that is not AMT-liable.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/line1zOfSchedule2" />
+            <Dependency module="form6251" path="/alternativeMinimumTax" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17bMortgageSubsidyRecaptureTax">
+      <Name>Schedule 2 line 17b, recapture of federal mortgage subsidy, as line 18 adds it</Name>
+      <Description>Form 8828 line 23 when the return owes the recapture tax
+        (form8828 /form8828SubjectToRecaptureTax true), and $0 when it does not. Unlike the
+        complete-safe form8828 /form8828Line23RecaptureTaxOrZero, an owed recapture whose Form 8828
+        Part II is not yet complete leaves this line Incomplete rather than falling back to $0, the
+        standard lines 16, 17n, 17p, 17q and 20 already follow: an active form that is not yet
+        complete leaves the line Incomplete, so line 18, line 21 and Form 1040 line 23 cannot file
+        without the tax section 143(m) imposes. THE SAME RULE APPLIES the other way round: a return
+        whose Form 8828 Part II sale figures (/form8828Line14HalfOfGain and
+        /form8828Line22RecaptureAmount) are both answered, so a recapture amount could be computed,
+        but whose filing-population questions (/form8828SubjectToRecaptureTax, gated on the Part I
+        subsidy-type boxes) are not yet answered, is a return that has engaged the form without yet
+        saying whether the tax applies at all -- it is not the ordinary return that never touches
+        Form 8828, and $0 is not a fact about it yet. This line stays Incomplete on exactly that
+        combination; it only falls back to the ordinary-return $0 when the Part II sale figures are
+        ALSO unanswered, which is every return this dictionary has committed apart from that one.
+        The worksheet ceiling for the Negative Form 8978 adjustment keeps reading the complete-safe
+        wrapper, since line 18 is itself Incomplete on exactly the returns where the two differ.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form8828" path="/form8828SubjectToRecaptureTax" />
+                </IsComplete>
+                <Dependency module="form8828" path="/form8828SubjectToRecaptureTax" />
+              </All>
+            </When>
+            <Then>
+              <Dependency module="form8828" path="/form8828Line23RecaptureTax" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form8828" path="/form8828SubjectToRecaptureTax" />
+                </IsComplete>
+                <Not>
+                  <Dependency module="form8828" path="/form8828SubjectToRecaptureTax" />
+                </Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency module="form8828" path="/form8828Line14HalfOfGain" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency module="form8828" path="/form8828Line22RecaptureAmount" />
+                  </IsComplete>
+                </All>
+              </Not>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17bMortgageSubsidyRecaptureTaxPrinted">
+      <Name>Schedule 2 line 17b, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17b box ("Recapture of federal mortgage subsidy"): exactly /schedule2Line17bMortgageSubsidyRecaptureTax, the line 17b term that /line18OfSchedule2 adds, and only when the return is known to owe the recapture tax (form8828 /form8828SubjectToRecaptureTax complete and true). Otherwise Incomplete, so the box prints blank. The box used to show form8828 /form8828Line23RecaptureTax, whose catch-all arm computes a Form 8828 line 23 figure even while the filing-population questions are unanswered; line 18 adds $0 on exactly that return, so the printed line showed a tax the total did not include. Gating on the same answer the line 18 term gates on makes the printed line and the total agree on every return. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="form8828" path="/form8828SubjectToRecaptureTax" />
+                </IsComplete>
+                <Dependency module="form8828" path="/form8828SubjectToRecaptureTax" />
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17bMortgageSubsidyRecaptureTax" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/line18OfSchedule2">
+      <Name>Line 18 of Schedule 2</Name>
+      <Description>Schedule 2 (Form 1040) Part II line 18, "Total additional taxes. Add lines 17a through 17z". EVERY printed sub-line is an addend, in printed order: 17a (/schedule2Line17aRecaptureOfOtherCredits; the recapture of an education credit is NOT a line 17a amount, because the Form 1040 instructions put it on Form 1040 line 16 with box 3 checked and "ECR", where taxCalculations /otherFormEducationCreditRecapture carries it), 17b (form8828 /form8828Line23RecaptureTaxOrZero, the mortgage subsidy recapture), 17c (hsa /hsaCollectionRouteAdditionalTax20PctTotal), 17d (hsa /hsaTestingPeriodFailureAdditionalTax), 17e (hsa /archerMsaSchedule2Line17eAdditional20PctTax), 17f (hsa /medicareAdvantageMsaSchedule2Line17fAdditional50PctTax), 17g, 17h, 17i, 17j, 17l, 17m, 17n, 17o, 17p, 17q and 17z (the schedule2 complete-safe wrappers of the filer intakes) and 17k (formW2s /schedule2Line17kGoldenParachutePaymentsTax). Line 17k combines W-2 code K tax with the 20% tax on Form 1099-NEC box 3 payments; the printed field and this subtotal read the same combined fact. LINE 17z HAS THREE ADDENDS, not one: the filer's own catch-all entry /schedule2Line17zAnyOtherTaxes and hsa /hsaPledgeSchedule2Line17zAdditional20PctTax, the IRC 223(f)(4)(A) 20% additional tax on an HSA amount pledged as security for a loan, which 17z carries because its own instruction admits "any taxes not reported elsewhere on your return or other schedules" and line 17c is tied to Form 8889's own line 16 arithmetic; and /schedule2Line17zNegativeForm8978Adjustment, the only addend of this subtotal that can be NEGATIVE, which is the printed Negative Form 8978 Adjustment Worksheet entry for line 17z and is capped so that it cannot drive the chapter 1 part of Part II below zero. The printed 17z BOX is a third fact, /schedule2Line17zAnyOtherTaxesPrinted, which adds the same two: this subtotal adds the legs individually and never reads the printed-box fact, so an amount named in only one of them makes the filed schedule fail to foot. Every addend is complete-safe, so this fact resolves 0 rather than Incomplete on a return that answers nothing, and $0 on every committed scenario. THE LINE 21 TERM: taxCalculations /line21OfSchedule2 reads THIS subtotal as its line 18 term and no longer reaches the four Form 8889 and Form 8853 taxes directly, so nothing double counts.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule2Line17hBelowSection409AFloor" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/schedule2Line17hBelowSection409AFloor" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+        <Add>
+          <Dependency path="/schedule2Line17aRecaptureOfOtherCredits" />
+          <Dependency path="/schedule2Line17bMortgageSubsidyRecaptureTax" />
+          <Dependency module="hsa" path="/hsaCollectionRouteAdditionalTax20PctTotal" />
+          <Dependency module="hsa" path="/hsaTestingPeriodFailureAdditionalTax" />
+          <Dependency module="hsa" path="/archerMsaSchedule2Line17eAdditional20PctTax" />
+          <Dependency module="hsa" path="/medicareAdvantageMsaSchedule2Line17fAdditional50PctTax" />
+          <Dependency path="/schedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+          <Dependency path="/schedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+          <Dependency path="/schedule2Line17iSection457ADeferredCompensation" />
+          <Dependency path="/schedule2Line17jSection72m5ExcessBenefitsTax" />
+          <Dependency module="formW2s" path="/schedule2Line17kGoldenParachutePaymentsTax" />
+          <Dependency path="/schedule2Line17lTaxOnAccumulationDistributionOfTrusts" />
+          <Dependency path="/schedule2Line17mInsiderStockCompensationExciseTax" />
+          <Dependency path="/schedule2Line17nIncomeForecastLookBackInterest" />
+          <Dependency path="/schedule2Line17oTaxOnNonEffectivelyConnectedIncome" />
+          <Dependency path="/schedule2Line17pForm8621Line16fInterest" />
+          <Dependency path="/schedule2Line17qForm8621Line24Interest" />
+          <Dependency path="/schedule2Line17zAnyOtherTaxes" />
+          <Dependency module="hsa" path="/hsaPledgeSchedule2Line17zAdditional20PctTax" />
+          <Dependency path="/schedule2Line17zNegativeForm8978Adjustment" />
+        </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17hW2CodeZSection409AFloorOrZero">
+      <Name>The Form W-2 box 12 code Z term of the Schedule 2 line 17h section 409A floor</Name>
+      <Description>Round(20 percent of formW2s:/nqdcDeferralsBox12CodeZ), the flat statutory term
+        the return's Forms W-2 establish on their own, or $0 when that total does not resolve.
+        A per-source figure only: the line 17h bound, /schedule2Line17hCombinedSection409AFloor,
+        does not add this rounded term but takes 20 percent of the combined cents-preserving base
+        (/schedule2Line17hW2CodeZUnroundedTotal plus the Form 1099-MISC box 15 total) and rounds
+        once, so the two separately rounded terms cannot overstate the bound.
+
+        WHY THE GUARD IS NOT DECORATION. /nqdcDeferralsBox12CodeZ is an ungated
+        Round(CollectionSum(/formW2s/*/nqdcDeferralsOrZero)): on a return that has never opened the
+        Form W-2 collection it is INCOMPLETE, not $0, and many committed scenarios are exactly that
+        return. Reading it bare would make /schedule2Line17hBelowSection409AFloor Incomplete there,
+        and /line18OfSchedule2 and /totalTax with it. The $0 arm keeps the combined floor
+        complete-safe, and omitting a term only ever LOWERS a lower bound, which is the lawful
+        direction: a floor that is too low lets a return file, a floor that is too high refuses a
+        correct one.
+
+        THE DOUBLE ROUND IS NOT A DIVERGENCE. formW2s's own floor multiplies the cents-preserving
+        CollectionSum and rounds once; this reads the whole-dollar total and rounds after. For a
+        1/5 multiplier the two agree for every input, because a half-cent boundary of 0.2 x S can
+        only arise at a value of S that is itself a rounding boundary and half-up carries both the
+        same way -- the committed w2-box12-code-z-boundary-half-dollar-rounds inputs are the
+        worked case (1002.50 cents-exact gives 200.50 -> 201; 1003.00 whole-dollar gives 200.60 ->
+        201).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency module="formW2s" path="/nqdcDeferralsBox12CodeZ" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Rational>1/5</Rational>
+                  <Dependency module="formW2s" path="/nqdcDeferralsBox12CodeZ" />
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17hW2CodeZUnroundedTotal">
+      <Name>Form W-2 box 12 code Z total, cents preserved, for the Schedule 2 line 17h floor</Name>
+      <Description>The sum of box 12 code Z over every Form W-2 on the return, cents preserved and
+        not rounded (formW2s /formW2s/*/nqdcDeferralsOrZero per document): the Form W-2 half of the
+        base the section 409A 20 percent term is figured on. $0 when no Form W-2 was entered or no
+        code Z amount was answered. /schedule2Line17hCombinedSection409AFloor adds it to the
+        Form 1099-MISC box 15 base before the single rounding of the line.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency module="formW2s" path="/formW2s" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency module="formW2s" path="/formW2s/*/nqdcDeferralsOrZero" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17hCombinedSection409AFloor">
+      <Name>The combined section 409A floor on Schedule 2 line 17h</Name>
+      <Description>The statutory lower bound on Schedule 2 line 17h from both sources the printed
+        line carries: 20 percent of the COMBINED base, the includible Form 1099-MISC box 15 total
+        (form1099Misc /form1099MiscIncludibleNqdcTotal) plus the Form W-2 box 12 code Z total
+        (/schedule2Line17hW2CodeZUnroundedTotal), plus the attested premium interest
+        (form1099Misc /form1099MiscSection409APremiumInterestTotal), rounded ONCE to whole dollars.
+
+        THEY MUST ADD. Measured separately against the one printed line, the two floors would let a
+        return with $10,000 of code Z and $10,000 of box 15 and a $2,000 entry clear both -- $2,000
+        is not greater than either $2,000 floor -- while IRC 409A(a)(1)(B)(i)(II) prices the flat
+        term alone at $4,000. The statute charges 20 percent of THE compensation required to be
+        included in gross income, not 20 percent of each payer's share taken separately, so the
+        bound is 20 percent of the sum.
+
+        ONE ROUND, ON THE TOTAL. Every input keeps its cents and only the line total rounds, as the
+        Form 1040 instructions direct for a line figured by adding amounts. Rounding the two
+        20 percent terms separately can overstate the bound by $1 (box 15 $12.50 and code Z $12.50:
+        $3 + $3 against the correct $5) and refuse a correct entry.
+
+        EVERY TERM IS COMPLETE-SAFE $0, so this is a hard $0 on every return that reports neither
+        source, and /line18OfSchedule2 is byte identical there.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Multiply>
+              <Rational>1/5</Rational>
+              <Add>
+                <Dependency module="form1099Misc" path="/form1099MiscIncludibleNqdcTotal" />
+                <Dependency path="/schedule2Line17hW2CodeZUnroundedTotal" />
+              </Add>
+            </Multiply>
+            <Dependency module="form1099Misc" path="/form1099MiscSection409APremiumInterestTotal" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17hBelowSection409AFloor">
+      <Name>Schedule 2 line 17h is below the combined section 409A floor this return's documents establish</Name>
+      <Description>TRUE when /schedule2Line17hCombinedSection409AFloor is GREATER than
+        /schedule2Line17hSection409ANonqualifiedDeferredCompensation, the complete-safe reading of
+        the filer's own line 17h entry.
+
+        WHY A FLOOR AND NOT A COMPLETENESS TEST. IRC 409A(a)(1)(B)(i) makes the additional tax the
+        SUM of an interest amount and 20 percent of the compensation included in gross income. The
+        20 percent term is flat and its base is the includible Form 1099-MISC box 15 total plus the
+        Form W-2 box 12 code Z total, so it is a computable lower bound the moment either source is
+        positive; the interest term needs the year the pay was first deferred and enters only as
+        far as the filer attested it. A bare Not(IsComplete(...)) would ADMIT an answered $0.00
+        against a positive box 15 total, which is the contradictory intake this fact exists to
+        catch.
+
+        ONE-DIRECTIONAL. A line 17h ABOVE the floor is never refused: it correctly carries interest
+        the filer did not attest per document.
+
+        COMPLETE-SAFE FALSE. Both operands are complete-safe, so this is Complete false on every
+        return that reports neither a Form 1099-MISC box 15 amount nor a Form W-2 box 12 code Z
+        amount, which is every committed scenario, and /line18OfSchedule2 is byte identical there.
+
+        BOTH SOURCES ARE MEASURED TOGETHER. The two floors add, in
+        /schedule2Line17hCombinedSection409AFloor, which reads formW2s /nqdcDeferralsBox12CodeZ
+        through /schedule2Line17hW2CodeZSection409AFloorOrZero. What remains, named and not
+        silent, is that formW2s:/nqdcDeferralsBox12CodeZBelowSchedule2Line17hFloor still measures
+        its own term alone for its own box-12 knockout, and its carve-out sentence -- that a line
+        17h above its floor may carry "a Form 1099-MISC box 15 amount this dictionary does not
+        total" -- is stale prose in formW2s.xml.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left>
+            <Dependency path="/schedule2Line17hCombinedSection409AFloor" />
+          </Left>
+          <Right>
+            <Dependency path="/schedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+          </Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17gFractionalInterestCharitableDeductionRecapture">
+      <Name>Schedule 2 line 17g term of the line 18 subtotal</Name>
+      <Description>The Schedule 2 line 17g amount as an addend of the line 18 subtotal: the filer's line 17g entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps /line18OfSchedule2 resolvable on a return that answers none of the line 17 intakes, exactly as the four Form 8889 and Form 8853 terms of that sum are complete-safe 0. The printed line 17g box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. EXPORTED because Form 2210 Part I line 2 (estimatedPayments /form2210PartILine2OtherTaxes) names Schedule 2 line 17g in its table of admitted lines and adds this complete-safe amount.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17gFractionalInterestCharitableDeductionRecapturePrinted">
+      <Name>Schedule 2 line 17g, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17g box: exactly
+        /schedule2Line17gFractionalInterestCharitableDeductionRecapture, the floored line 17g term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17gFractionalInterestCharitableDeductionRecapture is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17hSection409ANonqualifiedDeferredCompensation">
+      <Name>Schedule 2 line 17h term of the line 18 subtotal</Name>
+      <Description>The Schedule 2 line 17h amount as an addend of the line 18 subtotal: the filer's line 17h entry when they made one, and 0 when they did not. The printed line 17h box maps the writable itself so an unanswered line prints blank.
+
+        EXPORTED. formW2s:/nqdcDeferralsBox12CodeZBelowSchedule2Line17hFloor reads this fact directly
+        as the complete-safe Schedule 2 line 17h amount its box-12-code-Z data-completeness residue
+        compares a statutory 20 percent floor against, rather than formW2s minting its own duplicate
+        wrapper.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17hSection409ANonqualifiedDeferredCompensationPrinted">
+      <Name>Schedule 2 line 17h, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17h box: exactly
+        /schedule2Line17hSection409ANonqualifiedDeferredCompensation, the floored line 17h term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17hSection409ANonqualifiedDeferredCompensation is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17jSection72m5ExcessBenefitsTax">
+      <Name>Schedule 2 line 17j term of the line 18 subtotal</Name>
+      <Description>The Schedule 2 line 17j amount as an addend of the line 18 subtotal: the filer's line 17j entry when they made one, and 0 when they did not. The printed line 17j box maps the writable itself so an unanswered line prints blank. EXPORTED because Form 2210 Part I line 2 (estimatedPayments /form2210PartILine2OtherTaxes) names Schedule 2 line 17j in its table of admitted lines and adds this complete-safe amount.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17jSection72m5ExcessBenefitsTax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17jSection72m5ExcessBenefitsTax" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17jSection72m5ExcessBenefitsTaxPrinted">
+      <Name>Schedule 2 line 17j, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17j box: exactly
+        /schedule2Line17jSection72m5ExcessBenefitsTax, the floored line 17j term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17jSection72m5ExcessBenefitsTax is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17jSection72m5ExcessBenefitsTax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17jSection72m5ExcessBenefitsTax" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17nIncomeForecastLookBackInterest">
+      <Name>Schedule 2 line 17n term of the line 18 subtotal</Name>
+      <Description>The Schedule 2 line 17n amount as an addend of the line 18 subtotal: the filer's line 17n entry when they made one, and 0 when they did not. The printed line 17n box maps /schedule2Line17nIncomeForecastLookBackInterestPrinted, which reads this same term and stays Incomplete, printing blank, when nothing is owed and the filer never answered. This wrapper's first arm reads the SUM of form8697:/form8697NetInterestOwed and form8866:/form8866NetInterestOwed whenever either look-back collection has at least one entry, and the writable is reached only when neither does. The two forms are added because a filer can owe look-back interest on both; each form's own net is already floored, so a refund due on one form is a separate claim and never offsets the interest owed on the other. An active look-back form that is not yet complete leaves this line Incomplete rather than falling back to an unchecked total.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/form8697Years" module="form8697" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <CollectionSize>
+                        <Dependency path="/form8697Years" module="form8697" />
+                      </CollectionSize>
+                    </Left>
+                    <Right>
+                      <Int>0</Int>
+                    </Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/form8866Years" module="form8866" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <CollectionSize>
+                        <Dependency path="/form8866Years" module="form8866" />
+                      </CollectionSize>
+                    </Left>
+                    <Right>
+                      <Int>0</Int>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Any>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/form8697NetInterestOwed" module="form8697" />
+                <Dependency path="/form8866NetInterestOwed" module="form8866" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableSchedule2Line17nIncomeForecastLookBackInterest" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableSchedule2Line17nIncomeForecastLookBackInterest" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17nIncomeForecastLookBackInterestPrinted">
+      <Name>Schedule 2 line 17n, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17n box ("Look-back interest under section 167(g) or 460(b) from Form 8697 or 8866"): exactly /schedule2Line17nIncomeForecastLookBackInterest, the line 17n term that /line18OfSchedule2 adds, whenever that term is positive or the filer typed a line 17n entry, and Incomplete otherwise so that an unused line prints blank rather than a zero. The printed box used to show only the filer's typed entry, so an amount computed on the attached form reached the total without ever appearing on its own printed line and the filed schedule did not foot. Reading the same term the total reads is what makes the printed line and the total agree on every return. No default arm, which is what keeps the box blank; an attached form that is entered but not yet complete leaves both this box and the total Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17nIncomeForecastLookBackInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17nIncomeForecastLookBackInterest" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule2Line17nIncomeForecastLookBackInterest" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/schedule2Line17nIncomeForecastLookBackInterest" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17nIncomeForecastLookBackInterest" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17gFractionalInterestCharitableDeductionRecapture">
+      <Name>Schedule 2 line 17g: recapture of a charitable contribution deduction for a fractional interest (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) Part II line 17g, the additional tax a donor owes when a charitable contribution deduction taken for a fractional interest in an item of tangible personal property is recaptured. No information return in this dictionary carries a fractional gift or the date the donor's remaining interest was or was not given, so the figure is the filer's own entry for the printed line. A minimum of zero applies because the printed line asks for a tax, which cannot be negative. Its complete-safe wrapper /schedule2Line17gFractionalInterestCharitableDeductionRecapture is an addend of the line 18 subtotal (/line18OfSchedule2), which taxCalculations /line21OfSchedule2 ("Add lines 4, 7 through 16, 18, and 19") reads.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17hSection409ANonqualifiedDeferredCompensation">
+      <Name>Schedule 2 line 17h: income from a nonqualified deferred compensation plan failing section 409A (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) Part II line 17h, the additional tax on amounts a filer received from a nonqualified deferred compensation plan that fails the requirements of section 409A. THE FIGURE IS STILL THE FILER'S OWN ENTRY, because the interest component of the tax is priced by IRC 409A(a)(1)(B)(ii) off the year the pay was first deferred and the underpayment rate in each year since, neither of which any information return in this dictionary carries. BOTH AMOUNTS THE LINE IS FIGURED FROM ARE TOTALLED, though: formW2s /nqdcDeferralsBox12CodeZ sums the Form W-2 box 12 code Z amounts, and form1099Misc /form1099MiscNonqualifiedDeferredCompensationTotal sums the Form 1099-MISC box 15 amounts. The two 20 percent statutory floors ADD: /schedule2Line17hCombinedSection409AFloor sums them, and /schedule2Line17hBelowSection409AFloor makes /line18OfSchedule2 Incomplete when this entry falls below that combined bound (formW2s /nqdcDeferralsBox12CodeZBelowSchedule2Line17hFloor still measures its own term alone, for its own box-12 knockout). A minimum of zero applies because the printed line asks for a tax, which cannot be negative. /line18OfSchedule2 carries this line as an addend, and taxCalculations /line21OfSchedule2 reads that subtotal, so the line is wired end to end.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17jSection72m5ExcessBenefitsTax">
+      <Name>Schedule 2 line 17j: section 72(m)(5) excess benefits tax (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) Part II line 17j, the section 72(m)(5) excess benefits tax a 5 percent owner owes on amounts received from a qualified plan in excess of the benefits provided for that owner under the plan formula. Nothing in this dictionary identifies a 5 percent owner or the plan formula the excess is measured against, so the figure is the filer's own entry for the printed line. A minimum of zero applies because the printed line asks for a tax, which cannot be negative. Its complete-safe wrapper /schedule2Line17jSection72m5ExcessBenefitsTax is an addend of the line 18 subtotal (/line18OfSchedule2), which taxCalculations /line21OfSchedule2 ("Add lines 4, 7 through 16, 18, and 19") reads.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17nIncomeForecastLookBackInterest">
+      <Name>Schedule 2 line 17n: look-back interest under section 167(g) or 460(b) (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) Part II line 17n, the look-back interest a filer owes from Form 8697 or Form 8866 under section 167(g) (the income forecast method) or section 460(b) (the percentage of completion method). Both forms are modeled: /schedule2Line17nIncomeForecastLookBackInterest reads the sum of form8697:/form8697NetInterestOwed and form8866:/form8866NetInterestOwed whenever either look-back collection has an entry, and reaches this entry only when neither does, so this is the fallback for a filer who carries the figure from a Form 8697 or Form 8866 prepared outside this return. A minimum of zero applies because the printed line asks for an interest charge collected as tax, which cannot be negative. The line 17n amount reaches the return through the line 18 subtotal (/line18OfSchedule2), which taxCalculations /line21OfSchedule2 ("Add lines 4, 7 through 16, 18, and 19") reads, so no separate line 21 wiring is owed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/line7OfSchedule2">
+      <Name>Line 7 of Schedule 2</Name>
+      <Description>Schedule 2 (Form 1040) Part II line 7, "Total additional social security and Medicare tax. Add lines 5 and 6": the Form 4137 tax on unreported tip income (line 5, form4137 /form4137SocialSecurityAndMedicareTaxOnUnreportedTips) plus the Form 8919 uncollected tax on wages (line 6, form8919 /form8919UncollectedSocialSecurityAndMedicareTaxOnWages). taxCalculations /line21OfSchedule2 reads THIS line 7 subtotal in place of its two addends, so nothing double counts. Both addends are complete-safe, so it resolves 0 on a return with neither form.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="form4137" path="/form4137SocialSecurityAndMedicareTaxOnUnreportedTips" />
+          <Dependency module="form8919" path="/form8919UncollectedSocialSecurityAndMedicareTaxOnWages" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares">
+      <Name>Schedule 2 line 14 term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 14 amount as an addend of the subtotal that carries it: the filer's line 14 entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 14 box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line21OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimesharesPrinted">
+      <Name>Schedule 2 line 14, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 14 box: exactly
+        /schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares, the floored line 14 term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales">
+      <Name>Schedule 2 line 15 term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 15 amount as an addend of the subtotal that carries it: the filer's line 15 entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 15 box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line21OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSalesPrinted">
+      <Name>Schedule 2 line 15, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 15 box: exactly
+        /schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales, the floored line 15 term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line16LowIncomeHousingCreditRecapture">
+      <Name>Schedule 2 line 16 term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 16 amount as an addend of the subtotal that carries it: the filer's line 16 entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. The printed line 16 box maps /schedule2Line16LowIncomeHousingCreditRecapturePrinted, which reads this same term and stays Incomplete, printing blank, when nothing is owed and the filer never answered. /line21OfSchedule2 reads it as an addend. This wrapper's first arm reads form8611:/form8611RecaptureTax whenever the Form 8611 building collection has at least one entry, and the writable is reached only when it does not. The two are ALTERNATIVES, never addends: the writable is the legacy manual carry-in for a filer whose detailed form is not built, and an active form that is not yet complete leaves this line Incomplete rather than falling back to an unchecked total.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8611Buildings" module="form8611" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="/form8611Buildings" module="form8611" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form8611RecaptureTax" module="form8611" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableSchedule2Line16LowIncomeHousingCreditRecapture" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableSchedule2Line16LowIncomeHousingCreditRecapture" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line16LowIncomeHousingCreditRecapturePrinted">
+      <Name>Schedule 2 line 16, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 16 box ("Recapture of low-income housing credit. Attach Form 8611"): exactly /schedule2Line16LowIncomeHousingCreditRecapture, the line 16 term that taxCalculations /line21OfSchedule2 adds, whenever that term is positive or the filer typed a line 16 entry, and Incomplete otherwise so that an unused line prints blank rather than a zero. The printed box used to show only the filer's typed entry, so an amount computed on the attached form reached the total without ever appearing on its own printed line and the filed schedule did not foot. Reading the same term the total reads is what makes the printed line and the total agree on every return. No default arm, which is what keeps the box blank; an attached form that is entered but not yet complete leaves both this box and the total Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line16LowIncomeHousingCreditRecapture" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line16LowIncomeHousingCreditRecapture" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule2Line16LowIncomeHousingCreditRecapture" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/schedule2Line16LowIncomeHousingCreditRecapture" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line16LowIncomeHousingCreditRecapture" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17aRecaptureOfOtherCreditsPrintedAmount">
+      <Name>Schedule 2 line 17a printed recapture amount</Name>
+      <Description>The amount box printed beside Schedule 2 line 17a's type text: the filer's
+        ordinary line-17a recapture amount (/schedule2Line17aRecaptureOfOtherCredits) when they
+        entered one. The recapture of an education credit does not print here: it is a Form 1040
+        line 16 box 3 amount (taxCalculations /otherFormEducationCreditRecapture). With no entry the
+        fact remains Incomplete, so an unanswered Schedule 2 does not print a misleading zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17aRecaptureOfOtherCredits" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17aRecaptureOfOtherCredits" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17aRecaptureOfOtherCreditsTypePrinted">
+      <Name>Schedule 2 line 17a printed recapture type</Name>
+      <Description>The type text printed beside Schedule 2 line 17a's amount: the filer's own
+        type entry when they made one. The recapture of an education credit is not listed here: it
+        prints on Form 1040 line 16 box 3 as "ECR" (taxCalculations /otherFormEcrLabel). With no
+        entry the fact remains Incomplete and prints blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17aRecaptureOfOtherCreditsType" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableSchedule2Line17aRecaptureOfOtherCreditsType" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17aRecaptureOfOtherCredits">
+      <Name>Schedule 2 line 17a term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17a amount as an addend of the subtotal that carries it: the filer's line 17a entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. The printed line 17a amount box maps /schedule2Line17aRecaptureOfOtherCreditsPrintedAmount, which reads this same term and stays Incomplete, printing blank, when the filer never answered. /line18OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17aRecaptureOfOtherCredits" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17aRecaptureOfOtherCredits" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17iSection457ADeferredCompensation">
+      <Name>Schedule 2 line 17i term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17i amount as an addend of the subtotal that carries it: the filer's line 17i entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 17i box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line18OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17iSection457ADeferredCompensation" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17iSection457ADeferredCompensation" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17iSection457ADeferredCompensationPrinted">
+      <Name>Schedule 2 line 17i, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17i box: exactly
+        /schedule2Line17iSection457ADeferredCompensation, the floored line 17i term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17iSection457ADeferredCompensation is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17iSection457ADeferredCompensation" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17iSection457ADeferredCompensation" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17lTaxOnAccumulationDistributionOfTrusts">
+      <Name>Schedule 2 line 17l term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17l amount as an addend of the subtotal that carries it: the filer's line 17l entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 17l box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line18OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17lTaxOnAccumulationDistributionOfTrusts" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17lTaxOnAccumulationDistributionOfTrusts" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17lTaxOnAccumulationDistributionOfTrustsPrinted">
+      <Name>Schedule 2 line 17l, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17l box: exactly
+        /schedule2Line17lTaxOnAccumulationDistributionOfTrusts, the floored line 17l term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17lTaxOnAccumulationDistributionOfTrusts is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17lTaxOnAccumulationDistributionOfTrusts" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17lTaxOnAccumulationDistributionOfTrusts" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17mInsiderStockCompensationExciseTax">
+      <Name>Schedule 2 line 17m term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17m amount as an addend of the subtotal that carries it: the filer's line 17m entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 17m box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line18OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17mInsiderStockCompensationExciseTax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17mInsiderStockCompensationExciseTax" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17mInsiderStockCompensationExciseTaxPrinted">
+      <Name>Schedule 2 line 17m, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17m box: exactly
+        /schedule2Line17mInsiderStockCompensationExciseTax, the floored line 17m term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17mInsiderStockCompensationExciseTax is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17mInsiderStockCompensationExciseTax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17mInsiderStockCompensationExciseTax" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17oTaxOnNonEffectivelyConnectedIncome">
+      <Name>Schedule 2 line 17o term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17o amount as an addend of the subtotal that carries it: the filer's line 17o entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 17o box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line18OfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17oTaxOnNonEffectivelyConnectedIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line17oTaxOnNonEffectivelyConnectedIncome" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17oTaxOnNonEffectivelyConnectedIncomePrinted">
+      <Name>Schedule 2 line 17o, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17o box: exactly
+        /schedule2Line17oTaxOnNonEffectivelyConnectedIncome, the floored line 17o term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line17oTaxOnNonEffectivelyConnectedIncome is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17oTaxOnNonEffectivelyConnectedIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17oTaxOnNonEffectivelyConnectedIncome" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17pForm8621Line16fInterest">
+      <Name>Schedule 2 line 17p term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17p amount as an addend of the subtotal that carries it: the filer's line 17p entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. The printed line 17p box maps /schedule2Line17pForm8621Line16fInterestPrinted, which reads this same term and stays Incomplete, printing blank, when nothing is owed and the filer never answered. /line18OfSchedule2 reads it as an addend. This wrapper's first arm reads form8621:/form8621Section1291Interest (the Form 8621 line 16f interest on the section 1291 deferred tax) whenever the Form 8621 fund collection has at least one entry, and the writable is reached only when it does not. The two are ALTERNATIVES, never addends: the writable is the legacy manual carry-in for a filer whose detailed form is not built, and an active form that is not yet complete leaves this line Incomplete rather than falling back to an unchecked total.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8621Funds" module="form8621" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="/form8621Funds" module="form8621" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form8621Section1291Interest" module="form8621" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableSchedule2Line17pForm8621Line16fInterest" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableSchedule2Line17pForm8621Line16fInterest" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17pForm8621Line16fInterestPrinted">
+      <Name>Schedule 2 line 17p, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17p box ("Any interest from Form 8621, line 16f"): exactly /schedule2Line17pForm8621Line16fInterest, the line 17p term that /line18OfSchedule2 adds, whenever that term is positive or the filer typed a line 17p entry, and Incomplete otherwise so that an unused line prints blank rather than a zero. The printed box used to show only the filer's typed entry, so an amount computed on the attached form reached the total without ever appearing on its own printed line and the filed schedule did not foot. Reading the same term the total reads is what makes the printed line and the total agree on every return. No default arm, which is what keeps the box blank; an attached form that is entered but not yet complete leaves both this box and the total Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17pForm8621Line16fInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17pForm8621Line16fInterest" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule2Line17pForm8621Line16fInterest" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/schedule2Line17pForm8621Line16fInterest" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17pForm8621Line16fInterest" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17qForm8621Line24Interest">
+      <Name>Schedule 2 line 17q term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17q amount as an addend of the subtotal that carries it: the filer's line 17q entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. The printed line 17q box maps /schedule2Line17qForm8621Line24InterestPrinted, which reads this same term and stays Incomplete, printing blank, when nothing is owed and the filer never answered. /line18OfSchedule2 reads it as an addend. This wrapper's first arm reads form8621:/form8621DeferredInterestDue (the Form 8621 line 24 interest on the section 1294 deferred tax that has become due) whenever the Form 8621 fund collection has at least one entry, and the writable is reached only when it does not. The two are ALTERNATIVES, never addends: the writable is the legacy manual carry-in for a filer whose detailed form is not built, and an active form that is not yet complete leaves this line Incomplete rather than falling back to an unchecked total.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form8621Funds" module="form8621" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="/form8621Funds" module="form8621" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form8621DeferredInterestDue" module="form8621" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableSchedule2Line17qForm8621Line24Interest" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableSchedule2Line17qForm8621Line24Interest" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17qForm8621Line24InterestPrinted">
+      <Name>Schedule 2 line 17q, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 17q box ("Any interest from Form 8621, line 24"): exactly /schedule2Line17qForm8621Line24Interest, the line 17q term that /line18OfSchedule2 adds, whenever that term is positive or the filer typed a line 17q entry, and Incomplete otherwise so that an unused line prints blank rather than a zero. The printed box used to show only the filer's typed entry, so an amount computed on the attached form reached the total without ever appearing on its own printed line and the filed schedule did not foot. Reading the same term the total reads is what makes the printed line and the total agree on every return. No default arm, which is what keeps the box blank; an attached form that is entered but not yet complete leaves both this box and the total Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17qForm8621Line24Interest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17qForm8621Line24Interest" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule2Line17qForm8621Line24Interest" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/schedule2Line17qForm8621Line24Interest" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line17qForm8621Line24Interest" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17zAnyOtherTaxes">
+      <Name>Schedule 2 line 17z term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 17z amount as an addend of the subtotal that carries it: the filer's line 17z entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. The printed line 17z box maps /schedule2Line17zAnyOtherTaxesPrinted, which adds this term to the other line 17z legs. /line18OfSchedule2 reads it as an addend. form8621:/form8621DeferredTaxDue is an ADDEND beside that wrapper: the section 1294 deferred tax of Form 8621 line 23 that has become due this year, which the form routes to the Schedule 2 line 17z write-in. It is complete-safe $0 on every return with no Form 8621, so every committed scenario is byte identical. Because the module computes it, the filer's own catch-all entry must not repeat it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/form8621DeferredTaxDue" module="form8621" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17zAnyOtherTaxesPrinted">
+      <Name>Schedule 2 line 17z, the printed amount box</Name>
+      <Description>The whole of printed Schedule 2 (Form 1040) line 17z, "Any other taxes. List type
+        and amount", which is the box the PDF binds. It is the SUM of the two things this dictionary
+        can put on that line: the filer's own catch-all entry, read complete-safely through
+        /schedule2Line17zAnyOtherTaxes, and hsa /hsaPledgeSchedule2Line17zAdditional20PctTax, the
+        IRC 223(f)(4)(A) 20% additional tax on an HSA amount pledged as security for a loan.
+
+        IT IS SEPARATE FROM THE LINE 18 SUBTOTAL'S ADDENDS ON PURPOSE, and the separation is the fix
+        for a defect this dictionary has already shipped once elsewhere: /line18OfSchedule2 adds
+        every printed sub-line's legs INDIVIDUALLY and never reads a printed-box fact, so a leg
+        named in only one of the two places prints a total that its own component box does not
+        support. Naming the pledge tax in both is not double counting.
+
+        NO DEFAULT ARM, WHICH IS WHAT KEEPS THE BOX BLANK. A complete-safe $0 here would print "0"
+        in the 17z box of every Schedule 2 in the corpus, where the printed form wants an empty box.
+        This fact therefore resolves only when the filer typed an entry or the pledge tax is
+        positive, and is Incomplete otherwise, which is the behaviour the writable it replaces on
+        the printed line already had.
+
+        THERE ARE THREE COMPONENTS NOW, NOT TWO. The section 1294 deferred tax that has become due
+        (form8621:/form8621DeferredTaxDue) reaches this box THROUGH /schedule2Line17zAnyOtherTaxes,
+        which already adds it, so this fact names it only in the no-default-arm gate above: the box
+        must print when that tax alone is positive, and it would otherwise stay blank on a return
+        whose only 17z item is the Form 8621 amount. Naming it in the gate and not in the sum is
+        what keeps the box from double counting it.
+
+        A FOURTH COMPONENT, AND THE ONLY ONE THAT SUBTRACTS.
+        /schedule2Line17zNegativeForm8978Adjustment is the negative entry the "Negative Form 8978
+        Adjustment Worksheet-Schedule 2 (Line 17z)" produces, and the instruction is explicit that
+        it belongs in this box rather than beside it: "Combine this amount with any other amounts
+        reported on line 17z to complete the line 17z entry space". It does NOT travel through
+        /schedule2Line17zAnyOtherTaxes, so unlike the Form 8621 leg it is named BOTH in the gate and
+        in the sum, exactly as the pledge tax is. Its gate is LessThan $0 rather than GreaterThan,
+        because a reduction is what makes this box print. The box can therefore now print a negative
+        amount, and a return whose only 17z item is this adjustment prints it alone.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <IsComplete>
+                  <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="hsa" path="/hsaPledgeSchedule2Line17zAdditional20PctTax" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/form8621DeferredTaxDue" module="form8621" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/schedule2Line17zNegativeForm8978Adjustment" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThan>
+              </Any>
+            </When>
+            <Then>
+              <Add>
+                <Dependency path="/schedule2Line17zAnyOtherTaxes" />
+                <Dependency module="hsa" path="/hsaPledgeSchedule2Line17zAdditional20PctTax" />
+                <Dependency path="/schedule2Line17zNegativeForm8978Adjustment" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17zAnyOtherTaxesTypePrinted">
+      <Name>Schedule 2 line 17z, the printed "List type" box</Name>
+      <Description>The free-text half of printed Schedule 2 (Form 1040) line 17z. The printed row
+        carries two separately addressable boxes and the instruction asks the filer to "List the
+        type and amount of tax", so an amount printed without a type is an incomplete row.
+
+        THE FILER'S OWN ENTRY WINS WHERE THERE IS ONE. A filer who typed a type has a tax this
+        dictionary does not compute, and their words are the ones the IRS needs to see. Where the
+        filer typed nothing and the dictionary computed a 17z amount, the type is "HSA PLEDGE",
+        which names the IRC 223(e)(2) / 408(e)(4) deemed distribution and is deliberately not the
+        bare word "HSA": Schedule 2 already prints "Additional tax on HSA distributions" on line
+        17c, and a reader must be able to tell the two apart on the face of the form.
+
+        THE COLLISION IS A NAMED GAP RATHER THAN A SILENT CHOICE. Where the filer typed a type AND
+        the pledge tax is positive, this box prints the filer's text alone while the amount box
+        prints the sum of both, so the printed row understates what it is describing. This
+        dictionary has no string-join primitive to write the filer text and "HSA PLEDGE" into one box, and inventing
+        one for a two-box row is not this line's decision to make. The population is a filer who
+        both pledged an HSA and owes an unrelated catch-all tax.
+
+        NO DEFAULT ARM: the box is Incomplete, and therefore blank, on a return with neither.
+
+        A FOURTH LABEL, AND THE ONLY ONE THE IRS SUPPLIES ITSELF. Where the negative Form 8978
+        adjustment is below $0 the row also carries "Form 8978 ADJ", which is not this dictionary's
+        wording: both arms of the "Negative Form 8978 Adjustment Worksheet-Schedule 2 (Line 17z)"
+        print it in parentheses as the type to list. Its gate is LessThan $0, because the amount it
+        labels is a reduction.
+
+        THE COLLISION GAP ABOVE IS CLOSED, and a third label joins the row. The box is now a
+        Paste of three labels separated by "; " — the filer's own text, "HSA PLEDGE", and "1294DT"
+        for the Form 8621 section 1294 deferred tax that has become due — each an empty String when
+        its own condition is false. Paste drops empty operands, so a row with one label prints that
+        label alone and no stray separator. The filer's text no longer wins alone where a computed
+        tax is also present: it prints first, followed by the computed labels, which is what the
+        instruction's "List the type and amount of tax" asks for when the amount box carries more
+        than one tax. The gate is unchanged in kind: with no filer text and neither computed tax
+        positive there is still no default arm, so the box is Incomplete and prints blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <IsComplete>
+                  <Dependency path="/writableSchedule2Line17zAnyOtherTaxesType" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/hsaPledgeSchedule2Line17zAdditional20PctTax" module="hsa" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/form8621DeferredTaxDue" module="form8621" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <LessThan>
+                  <Left>
+                    <Dependency path="/schedule2Line17zNegativeForm8978Adjustment" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </LessThan>
+              </Any>
+            </When>
+            <Then>
+              <Paste sep="; ">
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/writableSchedule2Line17zAnyOtherTaxesType" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <Dependency path="/writableSchedule2Line17zAnyOtherTaxesType" />
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <String />
+                    </Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When>
+                      <GreaterThan>
+                        <Left>
+                          <Dependency path="/hsaPledgeSchedule2Line17zAdditional20PctTax" module="hsa" />
+                        </Left>
+                        <Right>
+                          <Dollar>0</Dollar>
+                        </Right>
+                      </GreaterThan>
+                    </When>
+                    <Then>
+                      <String>HSA PLEDGE</String>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <String />
+                    </Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When>
+                      <GreaterThan>
+                        <Left>
+                          <Dependency path="/form8621DeferredTaxDue" module="form8621" />
+                        </Left>
+                        <Right>
+                          <Dollar>0</Dollar>
+                        </Right>
+                      </GreaterThan>
+                    </When>
+                    <Then>
+                      <String>1294DT</String>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <String />
+                    </Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When>
+                      <LessThan>
+                        <Left>
+                          <Dependency path="/schedule2Line17zNegativeForm8978Adjustment" />
+                        </Left>
+                        <Right>
+                          <Dollar>0</Dollar>
+                        </Right>
+                      </LessThan>
+                    </When>
+                    <Then>
+                      <String>Form 8978 ADJ</String>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <String />
+                    </Then>
+                  </Case>
+                </Switch>
+              </Paste>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2PartIiChapter1TaxesExcludingNegativeForm8978Adjustment">
+      <Name>Chapter 1 taxes reported in Schedule 2 Part II, other than the negative Form 8978 adjustment</Name>
+      <Description>Line 1 of the "Negative Form 8978 Adjustment Worksheet-Schedule 2 (Line 17z)":
+        "the sum of any chapter 1 taxes* (other than your negative Form 8978 adjustment) reported in
+        Part II of Schedule 2". It is the ceiling the worksheet puts on the negative line 17z entry,
+        and it is the whole reason that entry can never drive the chapter 1 part of Part II below
+        zero. No printed line holds this sum; it exists only inside that worksheet.
+
+        WHAT IS IN AND WHAT IS OUT IS THE FOOTNOTE'S OWN RULE, NOT A CHOICE MADE HERE. The footnote
+        defines chapter 1 taxes as "taxes from sections 1 through 1400Z-2 of the Code" and then
+        names the Part II lines that generally fall outside it: 4, 7, 9, 11 through 13, 17k through
+        17m, and 17z. Applying both halves to this dictionary's Part II terms:
+
+        IN, each a section at or below 1400Z-2 and none of them on the excluded list. Line 8, but
+        only its two chapter 1 legs: form5329 /form5329AdditionalTaxOnEarlyDistributions, the
+        section 72(t) additional tax, and form5329 /form5329PartIiEducationAndAbleTaxOrZero, the
+        education and ABLE distributions tax imposed by sections 529, 529A and 530. Lines 14 and 15,
+        the section 453 and 453A installment interest. Line 16, the section 42 low income housing
+        credit recapture. Line 17a recapture of other credits, 17b (form8828) the section 143
+        mortgage subsidy recapture, 17c through 17f (hsa) the section 220 and 223 additional taxes
+        on HSA, Archer MSA and Medicare Advantage MSA distributions, 17g the section 170 fractional
+        interest recapture, 17h section 409A, 17i section 457A, 17j section 72(m)(5), 17n the
+        section 167 and 460 look back interest, 17o the section 871 tax on non effectively connected
+        income, 17p and 17q the section 1291 and 1294 interest. Line 19 (form4255), the net EPE
+        recapture.
+
+        OUT, and why each. Line 4 self employment tax, line 7 the unreported and uncollected social
+        security and Medicare tax, line 9 household employment taxes, line 11 Additional Medicare
+        Tax, line 12 net investment income tax and line 13 the uncollected box 12 tax are all on the
+        footnote's excluded list, and all sit above 1400Z-2 in the Code. Line 17k golden parachute
+        payments (section 4999), 17l tax on accumulation distribution of trusts and 17m the insider
+        stock compensation excise tax (section 4985) are named by the footnote as excluded; 17l is
+        the one line whose imposing section is below 1400Z-2 and the printed list excludes it
+        anyway, so the printed list wins.
+
+        ONE DELIBERATE RESIDUAL UNDER-INCLUSION remains, in the under-claim direction and named
+        rather than left to be discovered. LINE 17z'S UNCLASSIFIED FILER CATCH-ALL remains excluded. The footnote excludes 17z
+        "(other than chapter 1 taxes)", so a chapter 1 item on that line belongs in this sum. A
+        filer may now classify the adjacent catch-all amount with
+        /writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax, and a complete TRUE classification
+        is included; an unanswered or FALSE classification remains conservatively excluded. The
+        computable hsa section 223(f)(4) pledge tax and form8621 section 1294 deferred tax are
+        included below. The Form 5329 Part III, IV, V, VIII and IX section 4973 and 4974 excise legs
+        of line 8 are NOT included: those sections are above 1400Z-2, so the footnote's own range
+        leaves them out, exactly as it leaves out the HSA and Archer MSA section 4973 legs.
+
+        LINE 20 IS IN. Line 20, the section 965 net tax liability installment, is reported in Part
+        II, section 965 lies inside the footnote's range of sections 1 through 1400Z-2, and line 20
+        is not on the footnote's excluded list (lines 4, 7, 9, 11 through 13, 17k through 17m and
+        17z). Worksheet line 1 asks for chapter 1 taxes "reported in Part II", not for the terms of
+        line 21, so the fact that Schedule 2 line 21 does not add line 20 does not take it out of
+        this sum. It enters through /schedule2Line20Section965NetTaxLiabilityInstallment.
+
+        NO CYCLE, AND THIS IS THE FACT WHERE ONE WOULD HAVE FORMED. Every term above is read
+        INDIVIDUALLY. Reading /line18OfSchedule2 or taxCalculations /line21OfSchedule2 instead
+        would close a loop, because /line18OfSchedule2 now carries
+        /schedule2Line17zNegativeForm8978Adjustment, which reads this fact. The worksheet's own
+        parenthesis "(other than your negative Form 8978 adjustment)" is the printed form of the
+        same requirement.
+
+        Every term resolves $0 rather than Incomplete on a return that answers none of them. The one
+        term that can stay Incomplete is line 20 while an entered Form 965-A is not yet complete,
+        and then the ceiling is truly unknown. /schedule2Line17zNegativeForm8978Adjustment reads
+        this fact only when the Schedule 3 line 6l overflow is above $0, so that Incomplete reaches
+        the tax only on a return where the worksheet applies.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="form5329" path="/form5329AdditionalTaxOnEarlyDistributions" />
+          <Dependency module="form5329" path="/form5329PartIiEducationAndAbleTaxOrZero" />
+          <Dependency path="/schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares" />
+          <Dependency path="/schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales" />
+          <Dependency path="/schedule2Line16LowIncomeHousingCreditRecapture" />
+          <Dependency path="/schedule2Line17aRecaptureOfOtherCredits" />
+          <Dependency module="form8828" path="/form8828Line23RecaptureTaxOrZero" />
+          <Dependency module="hsa" path="/hsaCollectionRouteAdditionalTax20PctTotal" />
+          <Dependency module="hsa" path="/hsaTestingPeriodFailureAdditionalTax" />
+          <Dependency module="hsa" path="/archerMsaSchedule2Line17eAdditional20PctTax" />
+          <Dependency module="hsa" path="/medicareAdvantageMsaSchedule2Line17fAdditional50PctTax" />
+          <Dependency path="/schedule2Line17gFractionalInterestCharitableDeductionRecapture" />
+          <Dependency path="/schedule2Line17hSection409ANonqualifiedDeferredCompensation" />
+          <Dependency path="/schedule2Line17iSection457ADeferredCompensation" />
+          <Dependency path="/schedule2Line17jSection72m5ExcessBenefitsTax" />
+          <Dependency path="/schedule2Line17nIncomeForecastLookBackInterest" />
+          <Dependency path="/schedule2Line17oTaxOnNonEffectivelyConnectedIncome" />
+          <Dependency path="/schedule2Line17pForm8621Line16fInterest" />
+          <Dependency path="/schedule2Line17qForm8621Line24Interest" />
+          <Dependency module="hsa" path="/hsaPledgeSchedule2Line17zAdditional20PctTax" />
+          <Dependency module="form8621" path="/form8621DeferredTaxDue" />
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax" />
+                  </IsComplete>
+                  <Dependency path="/schedule2Line17zAnyOtherTaxesIsChapter1TaxOrFalse" />
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Dependency module="form4255" path="/form4255NetEpeRecaptureFromLine1dOrZero" />
+          <Dependency path="/schedule2Line20Section965NetTaxLiabilityInstallment" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17zNegativeForm8978Adjustment">
+      <Name>Schedule 2 line 17z, the negative Form 8978 adjustment</Name>
+      <Description>The line 17z entry the "Negative Form 8978 Adjustment Worksheet-Schedule 2
+        (Line 17z)" produces: a NEGATIVE number, the lesser of the overflow that the Schedule 3 line
+        6l worksheet could not fit under its own cap and the chapter 1 taxes reported elsewhere in
+        Schedule 2 Part II. It is the other half of a single printed routing. schedule3
+        /sched3Line6lWorksheetOverflowToSchedule2Line17z carries the magnitude here; this fact
+        applies the sign and the second cap, and /line18OfSchedule2 carries it into the total.
+
+        WHY IT IS A REDUCTION AND NOT A CREDIT. The worksheet does not send the overflow to Schedule
+        3. Both of its arms say to list the type and an amount "as a negative number (in
+        parentheses) on line 17z", which is Part II, other taxes. A section 6226 push out that
+        decreases tax is therefore split by the printed forms across two places: the part that fits
+        under Form 1040 line 18 is a nonrefundable credit on Schedule 3 line 6l, and the part above
+        it reduces Schedule 2 other taxes instead. A filer with both an over cap adjustment and
+        chapter 1 other taxes now gets the whole of their decrease; before this fact they got only
+        the part under the cap.
+
+        LESSEROF IS EXACT EVEN THOUGH THE TWO WORKSHEETS ASK DIFFERENT QUESTIONS. The Schedule 3
+        worksheet asks whether line 1 is "equal to or more than" line 2 and this one asks whether
+        line 1 is "more than" line 2. At equality the Yes arm gives line 2 and the No arm gives line
+        1, which are the same number, so the strict and non strict comparisons cannot disagree and
+        one LesserOf serves.
+
+        THE CAP IS THE ONLY FLOOR THE INSTRUCTION PRINTS, and it is enough. Nothing in either
+        worksheet, in the line 17z instruction, or at Schedule 2 line 21 says to floor line 18, line
+        21 or total tax. It does not need to: capping the negative entry at the chapter 1 taxes
+        reported in Part II is exactly what stops the chapter 1 part of Part II going below zero.
+        Line 18 itself CAN go negative and that is the printed arithmetic, not a defect: the ceiling
+        counts Part II chapter 1 taxes that sit outside line 18 as well (lines 8, 14, 15, 16, 19
+        and 20), so a filer whose only chapter 1 tax is one of lines 8 through 19 gets a negative
+        line 18 that line 21 then absorbs. Line 20 is the exception: line 21 does not add it, so a
+        filer whose only chapter 1 tax is the line 20 installment can reach a line 21 below zero.
+        That is the printed arithmetic of worksheet line 1 ("reported in Part II") and is left as
+        printed. The one deliberate under-inclusion in the ceiling, an unclassified line 17z
+        catch-all, is named on /schedule2PartIiChapter1TaxesExcludingNegativeForm8978Adjustment; it
+        makes the ceiling smaller, i.e. the reduction smaller and the tax higher.
+
+        SIGN ONCE, HERE. The overflow fact holds a nonnegative magnitude because the Schedule 2
+        worksheet's line 2 asks for the Schedule 3 worksheet's negative line 3 "as a positive
+        number". The single negation is applied at this entry, as Subtract from $0, so no pair of
+        negations can quietly cancel.
+
+        GUARDED ON THE MAGNITUDE BEING POSITIVE, not merely complete. Both operands are complete
+        safe, so an IsComplete gate alone would be vacuous; the printed worksheet is completed only
+        when the Schedule 3 worksheet reached its line 3, which is exactly overflow greater than $0.
+        ADDITIVE: $0 on every return that does not answer the Schedule 3 line 6l intake and on every
+        return whose adjustment fits under Form 1040 line 18, so every committed scenario is byte
+        identical.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency module="schedule3" path="/sched3Line6lWorksheetOverflowToSchedule2Line17z" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <Subtract>
+                <Minuend>
+                  <Dollar>0</Dollar>
+                </Minuend>
+                <Subtrahends>
+                  <LesserOf>
+                    <Dependency module="schedule3" path="/sched3Line6lWorksheetOverflowToSchedule2Line17z" />
+                    <Dependency path="/schedule2PartIiChapter1TaxesExcludingNegativeForm8978Adjustment" />
+                  </LesserOf>
+                </Subtrahends>
+              </Subtract>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line1yOtherAdditionsToTax">
+      <Name>Schedule 2 line 1y term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 1y amount as an addend of the subtotal that carries it: the filer's line 1y entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 1y box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered. /line1zOfSchedule2 reads it as an addend.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line1yOtherAdditionsToTax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line1yOtherAdditionsToTax" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+                  <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line1yOtherAdditionsToTaxPrinted">
+      <Name>Schedule 2 line 1y, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 1y box: exactly
+        /schedule2Line1yOtherAdditionsToTax, the floored line 1y term /line18OfSchedule2 (or /line1zOfSchedule2 for
+        line 1y) adds, and only when the filer answered the line (/writableSchedule2Line1yOtherAdditionsToTax is complete). A
+        negative entry is floored the same way for print and for the total, so the two never
+        disagree; an unanswered line stays Incomplete, so the box prints blank exactly as
+        before. No default arm, which is what keeps the box blank.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line1yOtherAdditionsToTax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/schedule2Line1yOtherAdditionsToTax" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line20Section965NetTaxLiabilityInstallment">
+      <Name>Schedule 2 line 20 term of the printed subtotal above it</Name>
+      <Description>The Schedule 2 line 20 amount as an addend of the subtotal that carries it: the filer's line 20 entry when they made one, and 0 when they did not. The complete-safe wrapper is what keeps the subtotal resolvable on a return that answers none of these intakes, exactly as the four line 17 wrappers already shipping in this module are. An unexported helper: the printed line 20 box maps the writable itself, which stays Incomplete and therefore prints blank when the filer never answered.
+
+        LINE 20 IS OUTSIDE LINE 21, and adding it there would ADD A TAX THE FORM DOES NOT ADD. Printed line 21 states its own arithmetic: "Add lines 4, 7 through 16, 18, and 19. These are your total other taxes." (https://www.irs.gov/pub/irs-pdf/f1040s2.pdf, page 2). Line 20 is not in that list, and /line21OfSchedule2 in taxCalculations.xml correctly carries no line 20 term. The section 965(h) net tax liability installment is a memo figure carried from Form 965-A and paid on its own installment schedule, not a component of total other taxes, so no total on the return adds it. Its one reader is /schedule2PartIiChapter1TaxesExcludingNegativeForm8978Adjustment, line 1 of the Negative Form 8978 Adjustment Worksheet for line 17z, which counts chapter 1 taxes "reported in Part II" whether or not line 21 adds them. This wrapper's first arm reads form965A:/form965ACurrentInstallment (the current year's section 965(h) installment as Form 965-A Part I computes it) whenever the Form 965-A liability collection has at least one entry, and the writable is reached only when it does not. The two are ALTERNATIVES, never addends: the writable is the legacy manual carry-in for a filer whose detailed form is not built, and an active form that is not yet complete leaves this line Incomplete rather than falling back to an unchecked total. Line 20 stays OUTSIDE the printed line 21 total either way.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form965ALiabilities" module="form965A" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="/form965ALiabilities" module="form965A" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form965ACurrentInstallment" module="form965A" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableSchedule2Line20Section965NetTaxLiabilityInstallment" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <GreaterOf>
+                      <Dependency path="/writableSchedule2Line20Section965NetTaxLiabilityInstallment" />
+                      <Dollar>0</Dollar>
+                    </GreaterOf>
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line20Section965NetTaxLiabilityInstallmentPrinted">
+      <Name>Schedule 2 line 20, the printed amount box</Name>
+      <Description>The amount printed in the Schedule 2 line 20 box: the Form 965-A current
+        installment while that form is entered and complete, else the filer's own line 20 entry
+        floored at $0 (the same two alternatives /schedule2Line20Section965NetTaxLiabilityInstallment
+        reads, minus its terminal $0 default), and Incomplete otherwise. A negative manual entry is
+        floored the same way for print as /schedule2Line20Section965NetTaxLiabilityInstallment
+        already floors it for that wrapper's own reading, so the two never disagree; an unanswered
+        line stays Incomplete, so the box prints blank exactly as before. No default arm, which is
+        what keeps the box blank. Line 20 is still outside the printed line 21 total (see the
+        unprinted wrapper's own description); this fact is print only.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form965ALiabilities" module="form965A" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <CollectionSize>
+                      <Dependency path="/form965ALiabilities" module="form965A" />
+                    </CollectionSize>
+                  </Left>
+                  <Right>
+                    <Int>0</Int>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dependency path="/form965ACurrentInstallment" module="form965A" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line20Section965NetTaxLiabilityInstallment" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule2Line20Section965NetTaxLiabilityInstallment" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares">
+      <Name>Schedule 2 line 14: Interest on tax due on installment income from the sale of certain residential lots and timeshares (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 14, printed as "Interest on tax due on installment income from the sale of certain residential lots and timeshares". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 453(l)(3); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line14InstallmentSaleInterestOnResidentialLotsAndTimeshares is an addend of /line21OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales">
+      <Name>Schedule 2 line 15: Interest on the deferred tax on gain from certain installment sales with a sales price over $150,000 (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 15, printed as "Interest on the deferred tax on gain from certain installment sales with a sales price over $150,000". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 453A(c); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line15InterestOnDeferredTaxFromLargeInstallmentSales is an addend of /line21OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line16LowIncomeHousingCreditRecapture">
+      <Name>Schedule 2 line 16: Recapture of low-income housing credit. Attach Form 8611 (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 16, printed as "Recapture of low-income housing credit. Attach Form 8611". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 42(j); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line16LowIncomeHousingCreditRecapture is an addend of /line21OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17aRecaptureOfOtherCredits">
+      <Name>Schedule 2 line 17a: Recapture of other credits. List type, form number, and amount (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17a, printed as "Recapture of other credits. List type, form number, and amount". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is no single Code section (the line collects several recapture provisions, for example IRC 42(j), 45A(d) and 50(a)); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17aRecaptureOfOtherCredits is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17aRecaptureOfOtherCreditsType">
+      <Name>Schedule 2 line 17a: Recapture of other credits: the type and form number (filer entry)</Name>
+      <Description>The free text box of Schedule 2 line 17a, printed as "Recapture of other credits. List type, form number, and amount". The printed row carries two separately addressable boxes, this description and the amount beside it, so each gets its own fact. Nothing in this dictionary names the type or the form number the filer must list here, so it is the filer's own entry. Print only: no total reads a string. The governing provision is no single Code section (the line collects several recapture provisions, for example IRC 42(j), 45A(d) and 50(a)); the authority comment anchors it provisionally to IRC 1.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17iSection457ADeferredCompensation">
+      <Name>Schedule 2 line 17i: Compensation you received from a nonqualified deferred compensation plan (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17i, printed as "Compensation you received from a nonqualified deferred compensation plan". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 457A(c); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17iSection457ADeferredCompensation is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17lTaxOnAccumulationDistributionOfTrusts">
+      <Name>Schedule 2 line 17l: Tax on accumulation distribution of trusts (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17l, printed as "Tax on accumulation distribution of trusts". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 667(b); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17lTaxOnAccumulationDistributionOfTrusts is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17mInsiderStockCompensationExciseTax">
+      <Name>Schedule 2 line 17m: Excise tax on insider stock compensation from an expatriated corporation (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17m, printed as "Excise tax on insider stock compensation from an expatriated corporation". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 4985(a); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17mInsiderStockCompensationExciseTax is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17oTaxOnNonEffectivelyConnectedIncome">
+      <Name>Schedule 2 line 17o: Tax on non-effectively connected income for any part of the year you were a (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17o, printed as "Tax on non-effectively connected income for any part of the year you were a". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 871(a); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17oTaxOnNonEffectivelyConnectedIncome is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17pForm8621Line16fInterest">
+      <Name>Schedule 2 line 17p: Any interest from Form 8621, line 16f, relating to distributions from, and (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17p, printed as "Any interest from Form 8621, line 16f, relating to distributions from, and". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 1291(c); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17pForm8621Line16fInterest is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17qForm8621Line24Interest">
+      <Name>Schedule 2 line 17q: Any interest from Form 8621, line 24 (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17q, printed as "Any interest from Form 8621, line 24". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 1294(c); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17qForm8621Line24Interest is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17zAnyOtherTaxes">
+      <Name>Schedule 2 line 17z: Any other taxes. List type and amount (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 17z, printed as "Any other taxes. List type and amount". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is no Code section at all (the open residual of Part II); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line17zAnyOtherTaxes is an addend of /line18OfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax">
+      <Name>Schedule 2 line 17z: filer catch-all is a Chapter 1 tax (filer entry)</Name>
+      <Description>Whether the amount entered in Schedule 2 line 17z's filer catch-all is a
+        tax imposed by Chapter 1 (sections 1 through 1400Z-2). The printed line 17z instruction
+        admits taxes not reported elsewhere, while the Negative Form 8978 Adjustment Worksheet
+        requires Chapter 1 taxes on that line to be included in its ceiling. The dictionary cannot
+        identify the section of a free-text catch-all entry, so this Boolean records the filer's
+        classification of the adjacent amount. An unanswered classification conservatively leaves
+        the amount out of the ceiling; it never changes the printed line 17z amount itself.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/schedule2Line17zAnyOtherTaxesIsChapter1TaxOrFalse">
+      <Name>Schedule 2 line 17z Chapter 1 classification, or false when unanswered</Name>
+      <Description>Complete-safe reading of /writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax for
+        the Negative Form 8978 Adjustment Worksheet ceiling. An answered classification keeps its
+        true or false value; an unanswered classification becomes false, so the adjacent catch-all
+        amount is conservatively excluded instead of allowing an unanswered selector to fall through
+        the chapter 1 arm.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule2Line17zChapter1ClassificationIsComplete">
+      <Name>Schedule 2 line 17z Chapter 1 classification is complete</Name>
+      <Description>Complete-safe requiredness signal for the Negative Form 8978 Adjustment Worksheet
+        ceiling. A positive filer-entered line 17z catch-all must have its adjacent Chapter 1 tax
+        classification answered; an unanswered classification cannot safely be treated as either
+        Chapter 1 or not Chapter 1. Returns with no positive catch-all, or with the classification
+        answered either way, are complete. This signal feeds flow:/flowIncomplete so an unclassified
+        positive catch-all cannot be filed while the ceiling silently omits a Chapter 1 tax. The
+        question is required only when the Schedule 3 line 6l worksheet sends an overflow to line
+        17z (schedule3 /sched3Line6lWorksheetOverflowToSchedule2Line17z above $0), because the
+        Schedule 2 worksheet is completed only then; on every other return this signal is TRUE.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <All>
+                  <IsComplete>
+                    <Dependency module="schedule3" path="/sched3Line6lWorksheetOverflowToSchedule2Line17z" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency module="schedule3" path="/sched3Line6lWorksheetOverflowToSchedule2Line17z" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Not>
+            </When>
+            <Then>
+              <True />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/writableSchedule2Line17zAnyOtherTaxes" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <IsComplete>
+                <Dependency path="/writableSchedule2Line17zAnyOtherTaxesIsChapter1Tax" />
+              </IsComplete>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><True /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line17zAnyOtherTaxesType">
+      <Name>Schedule 2 line 17z: Any other taxes: the type (filer entry)</Name>
+      <Description>The free text box of Schedule 2 line 17z, printed as "Any other taxes. List type and amount". The printed row carries two separately addressable boxes, this description and the amount beside it, so each gets its own fact. Nothing in this dictionary names the type or the form number the filer must list here, so it is the filer's own entry. Print only: no total reads a string. The governing provision is no Code section at all (the open residual of Part II); the authority comment anchors it provisionally to IRC 1.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line1yOtherAdditionsToTax">
+      <Name>Schedule 2 line 1y: Other additions to tax (see instructions) (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 1y, printed as "Other additions to tax (see instructions)". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is no single Code section (an open catch-all); the authority comment anchors it provisionally to IRC 1. Its complete-safe wrapper /schedule2Line1yOtherAdditionsToTax is an addend of /line1zOfSchedule2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line1yOtherAdditionsToTaxType">
+      <Name>Schedule 2 line 1y: Other additions to tax (filer entry)</Name>
+      <Description>The free text box of Schedule 2 line 1y, printed as "Other additions to tax (see instructions)". The printed row carries two separately addressable boxes, this description and the amount beside it, so each gets its own fact. Nothing in this dictionary names the type or the form number the filer must list here, so it is the filer's own entry. Print only: no total reads a string. The governing provision is no single Code section (an open catch-all); the authority comment anchors it provisionally to IRC 1.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule2Line20Section965NetTaxLiabilityInstallment">
+      <Name>Schedule 2 line 20: Section 965 net tax liability installment from Form 965-A (filer entry)</Name>
+      <Description>Schedule 2 (Form 1040) line 20, printed as "Section 965 net tax liability installment from Form 965-A". Nothing in this dictionary computes it: the return this graph can represent carries no input for it, so the figure is the filer's own entry for the printed line, exactly as the four line 17 intakes already shipping in this module are. A minimum of zero applies because the printed line asks for a tax or an interest charge collected as a tax, which cannot be negative. The governing provision is IRC 965(h), which the authority comment cites. No total on the return adds it: printed line 21 adds "lines 4, 7 through 16, 18, and 19" and does not add line 20, so the installment is a memo line rather than a term of total other taxes. Its complete-safe wrapper /schedule2Line20Section965NetTaxLiabilityInstallment is read only by the chapter 1 ceiling of the line 17z Negative Form 8978 worksheet. See that wrapper for the reasoning.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/form1099NecExcessParachutePaymentsTotal">
+      <Name>Total Form 1099-NEC box 3 excess golden parachute payments</Name>
+      <Description>Sum of box 3 (excess golden parachute payments) over every Form 1099-NEC on the return, before applying the 20% rate, with cents intact. The amounts are read from the Form 1099-NEC document intake (scheduleC:/form1099Necs), the one intake for that box; a blank box, an empty collection or an unopened collection contributes zero. The combined Schedule 2 line 17k calculation keeps the W-2 code K tax amounts and applies 20% only to this payment total, rounding once at the line.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Switch>
+        <Case><When><IsComplete><Dependency module="scheduleC" path="/form1099Necs" /></IsComplete></When><Then><CollectionSum><Dependency module="scheduleC" path="/form1099Necs/*/excessGoldenParachutePaymentsOrZero" /></CollectionSum></Then></Case>
+        <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+      </Switch></Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

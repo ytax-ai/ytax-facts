@@ -1,0 +1,125 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form1099Lss">
+      <Name>Forms 1099-LS</Name>
+      <Description>Forms 1099-LS received for the 2025 return, one item per acquirer notice.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableCalendarYear">
+      <Name>Form 1099-LS calendar year</Name>
+      <Description>The calendar year shown in the header of this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{4}</String></Limit></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableVoid">
+      <Name>Form 1099-LS void</Name>
+      <Description>The VOID box of Copy A, the acquirer's copy filed with the IRS. The payment recipient's Copy B has no VOID box (its header prints only CORRECTED (if checked)), so a recipient leaves this unanswered. Read by nothing: a notice is reviewed whether or not this box is answered, and no answer here removes a reportable policy sale from the return.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableCorrected">
+      <Name>Form 1099-LS corrected</Name>
+      <Description>Whether the acquirer marked this Form 1099-LS CORRECTED.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableAcquirerNameAddressAndTelephoneNumber">
+      <Name>Form 1099-LS acquirer name address and telephone number</Name>
+      <Description>The acquirer's name, mailing address, and telephone number from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableAcquirerTin">
+      <Name>Form 1099-LS acquirer TIN</Name>
+      <Description>The acquirer's taxpayer identification number (TIN) from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><TIN /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writablePaymentRecipientTin">
+      <Name>Form 1099-LS payment recipient TIN</Name>
+      <Description>The payment recipient's taxpayer identification number (TIN) from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><TIN /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writablePaymentRecipientName">
+      <Name>Form 1099-LS payment recipient name</Name>
+      <Description>The payment recipient's name from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableStreetAddress">
+      <Name>Form 1099-LS street address</Name>
+      <Description>The payment recipient's street address from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode">
+      <Name>Form 1099-LS city or town state or province country and zip or foreign postal code</Name>
+      <Description>The payment recipient's city, state or province, country, and postal code from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writablePolicyNumber">
+      <Name>Form 1099-LS policy number</Name>
+      <Description>The life insurance policy number in the reportable sale on this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableAmountPaidToPaymentRecipient">
+      <Name>Form 1099-LS amount paid to payment recipient</Name>
+      <Description>Box 1 amount paid to the payment recipient in the reportable policy sale on this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableDateOfSale">
+      <Name>Form 1099-LS date of sale</Name>
+      <Description>Box 2 date of the reportable policy sale on this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Day /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableIssuerName">
+      <Name>Form 1099-LS issuer name</Name>
+      <Description>The name of the life insurance contract issuer on this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Lss/*/writableAcquirerInformationContactNameAddressAndTelephoneNumber">
+      <Name>Form 1099-LS acquirer information contact name address and telephone number</Name>
+      <Description>The acquirer's information contact name, address, and telephone number from this Form 1099-LS.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/knockoutForm1099LsTaxTreatmentUnbuilt">
+      <Name>Form 1099-LS tax treatment unavailable</Name>
+      <Description>A Form 1099-LS is present whose policy-transfer tax treatment cannot yet be determined for the 2025 return. Every entered notice counts: the recipient copy has no VOID box, so no answer removes a notice from this review.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived><All><IsComplete><Dependency path="/form1099Lss" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency path="/form1099Lss" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan></All></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

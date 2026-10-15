@@ -1,0 +1,20 @@
+{
+  "comment": "Blessed from the pinned engine and hand-checked to the dollar: the ABOVE-THE-UPPER-THRESHOLD half of the Form 8995-A scaffold, where the section 199A phase-in is complete. Wages 48,250 with a K-1 box 1 of 215,000 put total income and AGI at 263,250 and taxable income before the deduction at 263,250 - 15,750 = 247,500, which is 200 PAST the 2025 single upper threshold of 247,300 (197,300 + the 50,000 phase-in range). Item D is checked and this publicly traded partnership is NOT a specified service trade or business, so no applicable percentage applies to its qualified amount: Form 8995 line 8 is the full 12,000 and line 9 is 20% x 12,000 = 2,400, with the overall ceiling (20% x 247,500 = 49,500) nowhere near binding. Taxable income 247,500 - 2,400 = 245,100. Income tax 55,495 by the 2025 single rate schedule, not the table (over 100,000): 1,192.50 + 12% x 36,550 (4,386) + 22% x 54,875 (12,072.50) + 24% x 93,950 (22,548) = 40,199.00 through 197,300, then 32% x 47,800 (15,296). Total tax is the same 55,495 — wages of 48,250 are below the 200,000 Additional Medicare Tax threshold, and the PTP's overall gain is nonpassive, so net investment income tax is 0. Withholding 30,000 is less than the tax, so the overpayment is 0. THE SSTB TWIN OF THIS SHAPE is asserted rather than committed: with qualified_ptp_is_sstb true the applicable percentage past the upper threshold is 0, so Form 8995 line 8 is 0, the deduction is 0, taxable income stays 247,500 and the tax is 56,263 (40,199.00 + 32% x 50,200) — Form8995AScaffoldTest.test_above_the_UPPER_threshold_the_SSTB_flag_ZEROES_the_deduction. The moved shape is the one committed here because a computed 2,400 locks the newly reachable Form 8995-A arm, where a 0 would be indistinguishable from the $0 catch-all since removed.",
+  "expected_lines": {
+    "1a": 4825000,
+    "1e": 0,
+    "6a": 0,
+    "6b": 0,
+    "8": 21500000,
+    "9": 26325000,
+    "11": 26325000,
+    "12": 1575000,
+    "15": 24510000,
+    "16": 5549500,
+    "24": 5549500,
+    "25d": 3000000,
+    "26": 0,
+    "33": 3000000,
+    "34": 0
+  }
+}

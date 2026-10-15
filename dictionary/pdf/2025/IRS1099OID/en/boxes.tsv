@@ -1,0 +1,69 @@
+# IRS1099OID — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099OID/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: e367548996fa8a4270fa4621a3c885772b8fc05a093c57e1581309d4c831c2f0
+# boxes: 29   acroform fields: 111   boxes with a fact: 29
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (6): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 12 row 1 `State`: shared spelling `state` names 2 readings
+# unspelled: box 12 row 2 `State`: shared spelling `state` names 2 readings
+# unspelled: box 13 row 1 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 13 row 2 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 14 row 1 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+# unspelled: box 14 row 2 `State tax withheld`: shared spelling `state tax withheld` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/originalIssueDiscountReports/*/writableCalendarYear	String		
+void		VOID	void	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]	/originalIssueDiscountReports/*/writableVoid	Bool		
+corrected		CORRECTED	corrected	topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]|topmostSubform[0].CopyB[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[0]	/originalIssueDiscountReports/*/writableCorrected	Bool		
+payer-name		PAYER'S name	payer's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_2[0]	/originalIssueDiscountReports/*/payer	String		
+payer-tin		PAYER'S TIN	payer's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_3[0]	/originalIssueDiscountReports/*/payer/tin	EIN		
+recipient-tin		RECIPIENT'S TIN; the per-item Derived TIN resolved from this item's own filer	recipient's tin; the per-item derived tin resolved from this item's own filer	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_4[0]	/originalIssueDiscountReports/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_5[0]	/originalIssueDiscountReports/*/writableRecipientName	String		
+recipient-address	1	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_6[0]	/originalIssueDiscountReports/*/writableRecipientStreetAddress	String		
+recipient-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_7[0]	/originalIssueDiscountReports/*/writableRecipientCityStateZip	String		
+fatca		FATCA filing requirement	fatca filing requirement	topmostSubform[0].CopyA[0].LeftCol[0].c1_3[0]|topmostSubform[0].Copy1[0].LeftCol[0].c2_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].c2_3[0]|topmostSubform[0].Copy2[0].LeftCol[0].c2_3[0]	/originalIssueDiscountReports/*/writableFatcaFilingRequirement	Bool		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_8[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_8[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_8[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_8[0]	/originalIssueDiscountReports/*/writableAccountNumber	String		
+2nd-tin-not		2nd TIN not. checkbox	2nd tin not. checkbox	topmostSubform[0].CopyA[0].LeftCol[0].c1_4[0]	/originalIssueDiscountReports/*/writableSecondTinNotice	Bool		
+1		Original issue discount for the year	original issue discount for the year	topmostSubform[0].CopyA[0].RightCol[0].f1_9[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_9[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_9[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_9[0]	/originalIssueDiscountReports/*/writableOriginalIssueDiscount	Dollar		
+2		Other periodic interest	other periodic interest	topmostSubform[0].CopyA[0].RightCol[0].f1_10[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_10[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_10[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_10[0]	/originalIssueDiscountReports/*/writableBox2StatedInterest	Dollar		
+3		Early withdrawal penalty	early withdrawal penalty	topmostSubform[0].CopyA[0].RightCol[0].Box3_ReadOrder[0].f1_11[0]|topmostSubform[0].Copy1[0].RightCol[0].Box3_ReadOrder[0].f2_11[0]|topmostSubform[0].CopyB[0].RightCol[0].Box3_ReadOrder[0].f2_11[0]|topmostSubform[0].Copy2[0].RightCol[0].Box3_ReadOrder[0].f2_11[0]	/originalIssueDiscountReports/*/writableEarlyWithdrawalPenalty	Dollar		
+4		Federal income tax withheld	federal income tax withheld	topmostSubform[0].CopyA[0].RightCol[0].f1_12[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_12[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_12[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_12[0]	/originalIssueDiscountReports/*/writableTaxWithheld	Dollar		
+5		Market discount	market discount	topmostSubform[0].CopyA[0].RightCol[0].Box5_ReadOrder[0].f1_13[0]|topmostSubform[0].Copy1[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]|topmostSubform[0].Copy2[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]	/originalIssueDiscountReports/*/writableMarketDiscount	Dollar		
+6		Acquisition premium	acquisition premium	topmostSubform[0].CopyA[0].RightCol[0].f1_14[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_14[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_14[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_14[0]	/originalIssueDiscountReports/*/writableAcquisitionPremium	Dollar		
+7		Description	description	topmostSubform[0].CopyA[0].RightCol[0].f1_15[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_15[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_15[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_15[0]	/originalIssueDiscountReports/*/writableDescription	String		
+8		Original issue discount on U.S. Treasury obligations	original issue discount on u.s. treasury obligations	topmostSubform[0].CopyA[0].RightCol[0].Box8_ReadOrder[0].f1_16[0]|topmostSubform[0].Copy1[0].RightCol[0].Box8_ReadOrder[0].f2_16[0]|topmostSubform[0].CopyB[0].RightCol[0].Box8_ReadOrder[0].f2_16[0]|topmostSubform[0].Copy2[0].RightCol[0].Box8[0].f2_16[0]	/originalIssueDiscountReports/*/writableOriginalIssueDiscountOnTreasuryObligations	Dollar		
+9		Investment expenses	investment expenses	topmostSubform[0].CopyA[0].RightCol[0].f1_17[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_17[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_17[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_17[0]	/originalIssueDiscountReports/*/writableInvestmentExpenses	Dollar		
+10		Bond premium	bond premium	topmostSubform[0].CopyA[0].RightCol[0].Box10_ReadOrder[0].f1_18[0]|topmostSubform[0].Copy1[0].RightCol[0].Box10_ReadOrder[0].f2_18[0]|topmostSubform[0].CopyB[0].RightCol[0].Box10_ReadOrder[0].f2_18[0]|topmostSubform[0].Copy2[0].RightCol[0].Box10_ReadOrder[0].f2_18[0]	/originalIssueDiscountReports/*/writableBondPremium	Dollar		
+11		Tax-exempt OID	tax-exempt oid	topmostSubform[0].CopyA[0].RightCol[0].f1_19[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_19[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_19[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_19[0]	/originalIssueDiscountReports/*/writableBox11TaxExemptOid	Dollar		
+12	1	State		topmostSubform[0].CopyA[0].RightCol[0].Box12[0].f1_20[0]|topmostSubform[0].Copy1[0].RightCol[0].Box12[0].f2_20[0]|topmostSubform[0].CopyB[0].RightCol[0].Box12[0].f2_20[0]|topmostSubform[0].Copy2[0].RightCol[0].Box12[0].f2_20[0]	/originalIssueDiscountReports/*/writablePayerStateAbbreviation	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+12	2	State		topmostSubform[0].CopyA[0].RightCol[0].Box12[0].f1_21[0]|topmostSubform[0].Copy1[0].RightCol[0].Box12[0].f2_21[0]|topmostSubform[0].CopyB[0].RightCol[0].Box12[0].f2_21[0]|topmostSubform[0].Copy2[0].RightCol[0].Box12[0].f2_21[0]	/originalIssueDiscountReports/*/writablePayerStateAbbreviation2	Enum	al;ak;az;ar;ca;co;ct;de;dc;fl;ga;hi;id;il;in;ia;ks;ky;la;me;md;ma;mi;mn;ms;mo;mt;ne;nv;nh;nj;nm;ny;nc;nd;oh;ok;or;pa;ri;sc;sd;tn;tx;ut;vt;va;wa;wv;wi;wy	
+13	1	State identification no.		topmostSubform[0].CopyA[0].RightCol[0].Box13[0].f1_22[0]|topmostSubform[0].Copy1[0].RightCol[0].Box13[0].f2_22[0]|topmostSubform[0].CopyB[0].RightCol[0].Box13[0].f2_22[0]|topmostSubform[0].Copy2[0].RightCol[0].Box13[0].f2_22[0]	/originalIssueDiscountReports/*/writableStateIdNumber	String		
+13	2	State identification no.		topmostSubform[0].CopyA[0].RightCol[0].Box13[0].f1_23[0]|topmostSubform[0].Copy1[0].RightCol[0].Box13[0].f2_23[0]|topmostSubform[0].CopyB[0].RightCol[0].Box13[0].f2_23[0]|topmostSubform[0].Copy2[0].RightCol[0].Box13[0].f2_23[0]	/originalIssueDiscountReports/*/writableStateIdNumber2	String		
+14	1	State tax withheld		topmostSubform[0].CopyA[0].RightCol[0].f1_24[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_24[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_24[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_24[0]	/originalIssueDiscountReports/*/writableStateTaxWithheld	Dollar		
+14	2	State tax withheld		topmostSubform[0].CopyA[0].RightCol[0].f1_25[0]|topmostSubform[0].Copy1[0].RightCol[0].f2_25[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_25[0]|topmostSubform[0].Copy2[0].RightCol[0].f2_25[0]	/originalIssueDiscountReports/*/writableStateTaxWithheld2	Dollar		

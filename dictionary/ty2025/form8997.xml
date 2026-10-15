@@ -1,0 +1,815 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form8997SpecialGainCodeOptions">
+      <Name>Form 8997 special gain codes</Name>
+      <Description>The special gain codes of Form 8997 column (d): A section 1256 gain, B Form 4797 (section 1231), C straddle(s), D collectibles, E exempt by treaty (but for election to defer rather than claim exemption), F deferred gain relating to a noninclusion transfer, G adjustment to basis 5-year, H adjustment to basis 7-year. Most rows carry no code.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <EnumOptions>
+          <String>A</String>
+          <String>B</String>
+          <String>C</String>
+          <String>D</String>
+          <String>E</String>
+          <String>F</String>
+          <String>G</String>
+          <String>H</String>
+        </EnumOptions>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997IsForeignEligibleTaxpayer">
+      <Name>Form 8997: are you a foreign eligible taxpayer?</Name>
+      <Description>Form 8997 page 1: is the filer a foreign eligible taxpayer, that is, an eligible taxpayer that is not a U.S. person or that is treated as a resident of another country for purposes of an applicable income tax treaty. A U.S. citizen or resident alien who files Form 1040 or 1040-SR is not. Asked only when the return defers gain by investing in a QOF.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997WaivesTreatyBenefits">
+      <Name>Form 8997: do you irrevocably waive treaty benefits on future inclusions?</Name>
+      <Description>Form 8997 page 1: the foreign eligible taxpayer's irrevocable waiver of any income tax treaty benefit that would exempt the deferred gain from tax when it is included. Without the waiver such a taxpayer may not elect to defer.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997ClaimsQofDeferral">
+      <Name>The return defers gain by investing in a QOF</Name>
+      <Description>True when the Schedule D short-term or long-term QOF deferral (Form 8997 Part II line 2) is more than $0. False when both are complete and $0, and false while either is incomplete (an incomplete deferral already leaves Schedule D incomplete).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency module="scheduleD" path="/qofDeferredGainShortTerm" /></IsComplete>
+                <IsComplete><Dependency module="scheduleD" path="/qofDeferredGainLongTerm" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Add>
+                    <Dependency module="scheduleD" path="/qofDeferredGainShortTerm" />
+                    <Dependency module="scheduleD" path="/qofDeferredGainLongTerm" />
+                  </Add>
+                </Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutQofDeferralWithoutTreatyWaiver">
+      <Name>Refusal: a foreign eligible taxpayer defers QOF gain without the treaty waiver</Name>
+      <Description>We can't file this return. You said you are a foreign eligible taxpayer and you are deferring gain by investing in a qualified opportunity fund, but you did not waive the treaty benefits that would exempt that gain when it is included. Form 8997 does not allow the deferral without that waiver. Either answer Yes to the waiver or remove the deferral (report the gain without deferring it).</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form8997IsForeignEligibleTaxpayer" /></IsComplete>
+          <Dependency path="/form8997IsForeignEligibleTaxpayer" />
+          <Dependency path="/form8997ClaimsQofDeferral" />
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/form8997WaivesTreatyBenefits" /></IsComplete>
+              <Dependency path="/form8997WaivesTreatyBenefits" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/writableQofDeferralWithinStatutoryLimits">
+      <Name>The QOF deferral is within the statutory limits (writable)</Name>
+      <Description>QUESTION: "For the gain you are deferring this year by investing in a qualified opportunity fund, is each of these true: (1) the gain came from a sale or exchange with a person who is not related to you; (2) you invested the amount in the fund within the 180-day period that begins on the date of that sale or exchange (or on the later start date the regulations allow, for example for gain passed through from a partnership, S corporation, estate or trust); (3) the gain you defer is no more than the amount you invested; and (4) you have not already made a deferral election for the same sale or exchange that is still in effect?" HELP: The law allows the deferral only within these limits; the amount you invested and the date of the sale are on your own records and are not printed on Form 8997. ASKED WHEN: /form8997ClaimsQofDeferral is true (Form 8997 Part II deferral above $0). UNANSWERED: the return is refused by /knockoutQofDeferralLimitsNotAttested until it is answered Yes. VALIDATION: Yes or No. FEEDS: /knockoutQofDeferralLimitsNotAttested (No or unanswered refuses).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/knockoutQofDeferralLimitsNotAttested">
+      <Name>Refusal: a QOF deferral not confirmed to be within the statutory limits</Name>
+      <Description>We can't file this return. You are deferring gain by investing in a qualified opportunity fund, and the law allows that only for gain from a sale or exchange with an unrelated person, invested within the 180-day period, up to the amount invested, and not already deferred under an election still in effect. You have not confirmed that your deferral meets these limits. Reduce the deferral to what the law allows and answer Yes, or report the gain without deferring it. True when /form8997ClaimsQofDeferral is true and /writableQofDeferralWithinStatutoryLimits is not answered Yes.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency path="/form8997ClaimsQofDeferral" />
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/writableQofDeferralWithinStatutoryLimits" /></IsComplete>
+              <Dependency path="/writableQofDeferralWithinStatutoryLimits" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInvestments/*/writableQofInvestmentDescription">
+      <Name>Form 8997 Part II column (c): description</Name>
+      <Description>Form 8997 Part II column (c) for this row: a description of the interest (for example, 100 shares or 25% interest). For a noninclusion transfer, the other taxpayer's name, TIN and the transfer date. Print only; it moves no amount.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/qofInvestments/*/writableQofInvestmentSpecialGainCode">
+      <Name>Form 8997 Part II column (d): special gain code</Name>
+      <Description>Form 8997 Part II column (d) for this row: the special gain code, left blank for most rows. Code B (a Form 4797 section 1231 gain) is refused: the Form 8949 code-O rows and the Form 4797 side it needs are not built.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Enum optionsPath="/form8997SpecialGainCodeOptions" />
+      </Writable>
+    </Fact>
+    <Fact path="/qofInvestments/*/qofInvestmentIsSection1231Code">
+      <Name>This row carries special gain code B (Form 4797, section 1231)</Name>
+      <Description>True when column (d) is answered B. False when it is unanswered or any other code.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableQofInvestmentSpecialGainCode" /></IsComplete></When>
+            <Then>
+              <Equal>
+                <Left><Dependency path="../writableQofInvestmentSpecialGainCode" /></Left>
+                <Right><Enum optionsPath="/form8997SpecialGainCodeOptions">B</Enum></Right>
+              </Equal>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/writableQofInclusionDescription">
+      <Name>Form 8997 Part III column (c): description</Name>
+      <Description>Form 8997 Part III column (c) for this row: a description of the interest (for example, 100 shares or 25% interest) or of the event (for example, sale of 100 shares, gift of 25% interest, or distribution of $1,000). For a noninclusion transfer, the other taxpayer's name, TIN and the transfer date. Print only; it moves no amount.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/writableQofInclusionSpecialGainCode">
+      <Name>Form 8997 Part III column (d): special gain code</Name>
+      <Description>Form 8997 Part III column (d) for this row: the special gain code, left blank for most rows. Code B (a Form 4797 section 1231 gain) is refused: the Form 8949 code-O rows and the Form 4797 side it needs are not built.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Enum optionsPath="/form8997SpecialGainCodeOptions" />
+      </Writable>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionIsSection1231Code">
+      <Name>This row carries special gain code B (Form 4797, section 1231)</Name>
+      <Description>True when column (d) is answered B. False when it is unanswered or any other code.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableQofInclusionSpecialGainCode" /></IsComplete></When>
+            <Then>
+              <Equal>
+                <Left><Dependency path="../writableQofInclusionSpecialGainCode" /></Left>
+                <Right><Enum optionsPath="/form8997SpecialGainCodeOptions">B</Enum></Right>
+              </Equal>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutQofSection1231GainRowsUnbuilt">
+      <Name>Refusal: a QOF row carries special gain code B (Form 4797 section 1231 gain)</Name>
+      <Description>We can't file this return yet. A qualified opportunity fund deferral or inclusion of a section 1231 gain from Form 4797 (special gain code B) is reported on Form 4797 and on two Form 8949 rows, one with code O. That reporting is not built, so the return is refused rather than filed with the gain on the wrong form.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency module="scheduleD" path="/qofInvestments" /></IsComplete>
+            <GreaterThan>
+              <Left><Count><Dependency path="/qofInvestments/*/qofInvestmentIsSection1231Code" /></Count></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+          </All>
+          <All>
+            <IsComplete><Dependency module="scheduleD" path="/qofInclusionDispositions" /></IsComplete>
+            <GreaterThan>
+              <Left><Count><Dependency path="/qofInclusionDispositions/*/qofInclusionIsSection1231Code" /></Count></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/writableQofInclusionDeferredGainDisposed">
+      <Name>Deferred gain attributable to the QOF interest disposed</Name>
+      <Description>The amount of gain deferred under the QOF election that is attributable to the interest sold, exchanged or otherwise disposed of in this inclusion event (the deferred gain the interest carried in Form 8997 Part I or Part II). Entered positive. With the fair market value and the date invested it lets the graph compute the includible gain under IRC 1400Z-2(b)(2)(A) instead of taking an attested figure. It is also what leaves the fund for Form 8997 Part IV: when the return held deferred gain at the start of the year or defers gain this year, an unanswered row leaves Part IV line 2 unresolved rather than overstated.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/writableQofInclusionFairMarketValue">
+      <Name>Fair market value of the QOF interest on the inclusion date</Name>
+      <Description>The fair market value of the QOF interest disposed of, determined as of the date of the inclusion event.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/writableQofInclusionDateInvested">
+      <Name>Date the QOF interest disposed of was acquired</Name>
+      <Description>The date the filer invested in the QOF interest disposed of (Form 8997 column (b) of the row that carried it). It decides whether the interest was held at least 5 or at least 7 years at the inclusion event.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/writableQofInclusionPriorGainRecognized">
+      <Name>Deferred gain already recognized for this interest in earlier years</Name>
+      <Description>Deferred gain already included in income for this same investment in an earlier inclusion event, which increases its basis. Enter 0 if none; unanswered counts as 0.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/hasQofInclusionFormulaInputs">
+      <Name>This disposition carries every input of the includible-gain formula</Name>
+      <Description>True when the deferred gain disposed of, the fair market value, the date invested and the date of the event are all answered. The formula result is then a CHECK on the attested code-Y amount (scheduleD /qofInclusionDispositions/*/writableQofInclusionGain), which still governs the row: when both are answered and differ, the return is refused. Without these inputs the attested amount stands unchecked.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="../writableQofInclusionDeferredGainDisposed" /></IsComplete>
+          <IsComplete><Dependency path="../writableQofInclusionFairMarketValue" /></IsComplete>
+          <IsComplete><Dependency path="../writableQofInclusionDateInvested" /></IsComplete>
+          <IsComplete><Dependency module="scheduleD" path="../writableQofInclusionDateSold" /></IsComplete>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionHeldAtLeast5Years">
+      <Name>The interest was held at least 5 years at the inclusion event</Name>
+      <Description>True when the date of the event is on or after the date invested plus 5 years (60 months). The anniversary date itself counts. The month count uses month-end-preserving month addition: a February 29 investment reaches its anniversary on February 28, and a February 28 investment in a common year reaches it on February 29 when the anniversary year is a leap year (one day later than the calendar anniversary). The anniversary rule is an interpretation.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency module="scheduleD" path="../writableQofInclusionDateSold" /></Left>
+          <Right>
+            <AddPayrollMonths>
+              <Dependency path="../writableQofInclusionDateInvested" />
+              <Int>60</Int>
+            </AddPayrollMonths>
+          </Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionHeldAtLeast7Years">
+      <Name>The interest was held at least 7 years at the inclusion event</Name>
+      <Description>True when the date of the event is on or after the date invested plus 7 years (84 months). The anniversary date itself counts. The month count uses month-end-preserving month addition: a February 29 investment reaches its anniversary on February 28, and a February 28 investment in a common year reaches it on February 29 when the anniversary year is a leap year (one day later than the calendar anniversary). The anniversary rule is an interpretation.</Description>
+      <Derived>
+        <GreaterThanOrEqual>
+          <Left><Dependency module="scheduleD" path="../writableQofInclusionDateSold" /></Left>
+          <Right>
+            <AddPayrollMonths>
+              <Dependency path="../writableQofInclusionDateInvested" />
+              <Int>84</Int>
+            </AddPayrollMonths>
+          </Right>
+        </GreaterThanOrEqual>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionBasis">
+      <Name>Basis in the QOF interest for the includible-gain formula</Name>
+      <Description>IRC 1400Z-2(b)(2)(B): zero, plus deferred gain already recognized for this interest, plus 10% of the deferred gain if held at least 5 years, plus a further 5% if held at least 7 years. The 10-year election of subsection (c) cannot apply in 2025 (no QOF investment is 10 years old) and is not modelled.</Description>
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="../writableQofInclusionPriorGainRecognized" /></IsComplete></When>
+              <Then><GreaterOf><Dependency path="../writableQofInclusionPriorGainRecognized" /><Dollar>0</Dollar></GreaterOf></Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When><Dependency path="../qofInclusionHeldAtLeast5Years" /></When>
+              <Then>
+                <Multiply>
+                  <GreaterOf><Dependency path="../writableQofInclusionDeferredGainDisposed" /><Dollar>0</Dollar></GreaterOf>
+                  <Rational>1/10</Rational>
+                </Multiply>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When><Dependency path="../qofInclusionHeldAtLeast7Years" /></When>
+              <Then>
+                <Multiply>
+                  <GreaterOf><Dependency path="../writableQofInclusionDeferredGainDisposed" /><Dollar>0</Dollar></GreaterOf>
+                  <Rational>1/20</Rational>
+                </Multiply>
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionComputedGain">
+      <Name>Includible gain computed under IRC 1400Z-2(b)(2)(A)</Name>
+      <Description>The excess of the lesser of the deferred gain disposed of or the fair market value over the basis, never below $0. Incomplete until every formula input is answered (the Switch runs off its end), so a partly answered row never yields a figure. It is compared with the attested code-Y amount, which is what reaches Schedule D.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableQofInclusionDeferredGainDisposed" /></IsComplete>
+                <IsComplete><Dependency path="../writableQofInclusionFairMarketValue" /></IsComplete>
+                <IsComplete><Dependency path="../writableQofInclusionDateInvested" /></IsComplete>
+                <IsComplete><Dependency module="scheduleD" path="../writableQofInclusionDateSold" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <LesserOf>
+                <GreaterOf><Dependency path="../writableQofInclusionDeferredGainDisposed" /><Dollar>0</Dollar></GreaterOf>
+                <GreaterOf><Dependency path="../writableQofInclusionFairMarketValue" /><Dollar>0</Dollar></GreaterOf>
+              </LesserOf>
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="../qofInclusionBasis" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionAttestedGainDisagrees">
+      <Name>The attested inclusion amount disagrees with the computed one</Name>
+      <Description>True when every formula input is answered, the attested code-Y amount is also answered, and the two differ by $1 or more. A difference of less than $1 is whole-dollar rounding, which the return may use: the computed amount carries cents from the 10 percent and 5 percent basis increases, and a filer who rounds the entries on the code-Y row to whole dollars lands within $1 of it.</Description>
+      <Derived>
+        <All>
+          <Dependency path="../hasQofInclusionFormulaInputs" />
+          <IsComplete><Dependency module="scheduleD" path="../writableQofInclusionGain" /></IsComplete>
+          <Any>
+            <GreaterThanOrEqual>
+              <Left>
+                <Subtract>
+                  <Minuend><GreaterOf><Dependency module="scheduleD" path="../writableQofInclusionGain" /><Dollar>0</Dollar></GreaterOf></Minuend>
+                  <Subtrahends><Dependency path="../qofInclusionComputedGain" /></Subtrahends>
+                </Subtract>
+              </Left>
+              <Right><Dollar>1</Dollar> </Right>
+            </GreaterThanOrEqual>
+            <GreaterThanOrEqual>
+              <Left>
+                <Subtract>
+                  <Minuend><Dependency path="../qofInclusionComputedGain" /></Minuend>
+                  <Subtrahends><GreaterOf><Dependency module="scheduleD" path="../writableQofInclusionGain" /><Dollar>0</Dollar></GreaterOf></Subtrahends>
+                </Subtract>
+              </Left>
+              <Right><Dollar>1</Dollar> </Right>
+            </GreaterThanOrEqual>
+          </Any>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/knockoutQofInclusionAttestedGainDisagreesWithFormula">
+      <Name>Refusal: an entered QOF inclusion amount disagrees with the amount computed from its inputs</Name>
+      <Description>We can't file this return. For a qualified opportunity fund disposition you entered both the amount of previously deferred gain to include and the figures it is computed from (deferred gain, fair market value, date invested), and they do not agree. Correct one of them: the computed amount is the lesser of the deferred gain or the fair market value, minus your basis (including the 10% and 5% increases for 5 and 7 years). An amount rounded to whole dollars is accepted; a difference of $1 or more is not.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency module="scheduleD" path="/qofInclusionDispositions" /></IsComplete>
+          <GreaterThan>
+            <Left><Count><Dependency path="/qofInclusionDispositions/*/qofInclusionAttestedGainDisagrees" /></Count></Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings">
+      <Name>Form 8997 Part I: QOF investments held at the beginning of the year</Name>
+      <Description>One item per QOF investment held at the beginning of the tax year (January 1, 2025 for an individual) from deferrals in earlier years: last year's Form 8997 Part IV, carried in. Optional: an unanswered or empty list prints an empty Part I and moves no tax.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/writableEin">
+      <Name>Form 8997 Part I column (a): QOF EIN</Name>
+      <Description>The employer identification number of the QOF. Carried in from last year's Form 8997 Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <EIN />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/writableDateAcquired">
+      <Name>Form 8997 Part I column (b): date the QOF investment was acquired</Name>
+      <Description>The date of the investment. Carried in from last year's Form 8997 Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/writableDescription">
+      <Name>Form 8997 Part I column (c): description of the QOF investment</Name>
+      <Description>For example, 100 shares or 25% interest. Carried in from last year's Form 8997 Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/writableSpecialGainCode">
+      <Name>Form 8997 Part I column (d): special gain code</Name>
+      <Description>Usually blank. Carried in from last year's Form 8997 Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Enum optionsPath="/form8997SpecialGainCodeOptions" />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/writableShortTermDeferredGain">
+      <Name>Form 8997 Part I column (e): short-term deferred gain remaining in the QOF</Name>
+      <Description>Entered positive; 0 when the remaining deferred gain is long-term. Carried in from last year's Form 8997 Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/writableLongTermDeferredGain">
+      <Name>Form 8997 Part I column (f): long-term deferred gain remaining in the QOF</Name>
+      <Description>Entered positive; 0 when the remaining deferred gain is short-term. Carried in from last year's Form 8997 Part IV.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/deferredGainShortTermFloored">
+      <Name>Part I column (e) for this investment, floored at $0</Name>
+      <Description>The answered amount never below $0; $0 when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableShortTermDeferredGain" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../writableShortTermDeferredGain" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997PartILine2ShortTerm">
+      <Name>Form 8997 Part I line 2 column (e)</Name>
+      <Description>The total of Part I column (e) over the beginning-of-year holdings; $0 when none are listed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8997BeginningHoldings" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form8997BeginningHoldings/*/deferredGainShortTermFloored" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997BeginningHoldings/*/deferredGainLongTermFloored">
+      <Name>Part I column (f) for this investment, floored at $0</Name>
+      <Description>The answered amount never below $0; $0 when unanswered.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableLongTermDeferredGain" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../writableLongTermDeferredGain" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997PartILine2LongTerm">
+      <Name>Form 8997 Part I line 2 column (f)</Name>
+      <Description>The total of Part I column (f) over the beginning-of-year holdings; $0 when none are listed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8997BeginningHoldings" /></IsComplete></When>
+            <Then><CollectionSum><Dependency path="/form8997BeginningHoldings/*/deferredGainLongTermFloored" /></CollectionSum></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionDeferredGainDisposedShortTerm">
+      <Name>Deferred gain leaving the QOF with this disposition, shortTerm part</Name>
+      <Description>The deferred gain disposed of, placed by the character of the deferred gain. Unresolved while the deferred gain disposed of or its character is unanswered (an attested-only row): the deferred gain that left the fund cannot be read from the attested inclusion amount, which is net of the basis increases.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableQofInclusionDeferredGainDisposed" /></IsComplete>
+                <IsComplete><Dependency module="scheduleD" path="../writableQofInclusionIsLongTerm" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><Dependency module="scheduleD" path="../writableQofInclusionIsLongTerm" /></When>
+                  <Then><Dollar>0</Dollar></Then>
+                </Case>
+                <Case>
+                  <When><True /></When>
+                  <Then><GreaterOf><Dependency path="../writableQofInclusionDeferredGainDisposed" /><Dollar>0</Dollar></GreaterOf></Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/qofInclusionDispositions/*/qofInclusionDeferredGainDisposedLongTerm">
+      <Name>Deferred gain leaving the QOF with this disposition, longTerm part</Name>
+      <Description>The deferred gain disposed of, placed by the character of the deferred gain. Unresolved while the deferred gain disposed of or its character is unanswered (an attested-only row): the deferred gain that left the fund cannot be read from the attested inclusion amount, which is net of the basis increases.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../writableQofInclusionDeferredGainDisposed" /></IsComplete>
+                <IsComplete><Dependency module="scheduleD" path="../writableQofInclusionIsLongTerm" /></IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><Not><Dependency module="scheduleD" path="../writableQofInclusionIsLongTerm" /></Not></When>
+                  <Then><Dollar>0</Dollar></Then>
+                </Case>
+                <Case>
+                  <When><True /></When>
+                  <Then><GreaterOf><Dependency path="../writableQofInclusionDeferredGainDisposed" /><Dollar>0</Dollar></GreaterOf></Then>
+                </Case>
+              </Switch>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997PartIVLine2ShortTerm">
+      <Name>Form 8997 Part IV line 2 column (e): deferred gain held at year end</Name>
+      <Description>Part I line 2 column (e) plus this year's Part II deferral, minus the deferred gain that left the QOF with this year's dispositions, never below $0. It is the carry-in for next year's Part I. $0 when Part I line 2 plus this year's deferral is $0, since nothing is held. Otherwise unresolved while any listed disposition leaves the deferred gain disposed of unanswered (an attested-only row), rather than overstating the year-end holdings; the amount is print-only, moves no 2025 tax, and is next year's Part I carry-in.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8997PartILine2ShortTerm" /></IsComplete>
+                <IsComplete><Dependency module="scheduleD" path="/qofDeferredGainShortTerm" /></IsComplete>
+                <Equal>
+                  <Left><Add><Dependency path="/form8997PartILine2ShortTerm" /><Dependency module="scheduleD" path="/qofDeferredGainShortTerm" /></Add></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleD" path="/qofInclusionDispositions" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Add>
+                      <Dependency path="/form8997PartILine2ShortTerm" />
+                      <Dependency module="scheduleD" path="/qofDeferredGainShortTerm" />
+                    </Add>
+                  </Minuend>
+                  <Subtrahends>
+                    <CollectionSum><Dependency path="/qofInclusionDispositions/*/qofInclusionDeferredGainDisposedShortTerm" /></CollectionSum>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Add>
+                <Dependency path="/form8997PartILine2ShortTerm" />
+                <Dependency module="scheduleD" path="/qofDeferredGainShortTerm" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997PartIVLine2LongTerm">
+      <Name>Form 8997 Part IV line 2 column (f): deferred gain held at year end</Name>
+      <Description>Part I line 2 column (f) plus this year's Part II deferral, minus the deferred gain that left the QOF with this year's dispositions, never below $0. It is the carry-in for next year's Part I. $0 when Part I line 2 plus this year's deferral is $0, since nothing is held. Otherwise unresolved while any listed disposition leaves the deferred gain disposed of unanswered (an attested-only row), rather than overstating the year-end holdings; the amount is print-only, moves no 2025 tax, and is next year's Part I carry-in.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8997PartILine2LongTerm" /></IsComplete>
+                <IsComplete><Dependency module="scheduleD" path="/qofDeferredGainLongTerm" /></IsComplete>
+                <Equal>
+                  <Left><Add><Dependency path="/form8997PartILine2LongTerm" /><Dependency module="scheduleD" path="/qofDeferredGainLongTerm" /></Add></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </Equal>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency module="scheduleD" path="/qofInclusionDispositions" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Subtract>
+                  <Minuend>
+                    <Add>
+                      <Dependency path="/form8997PartILine2LongTerm" />
+                      <Dependency module="scheduleD" path="/qofDeferredGainLongTerm" />
+                    </Add>
+                  </Minuend>
+                  <Subtrahends>
+                    <CollectionSum><Dependency path="/qofInclusionDispositions/*/qofInclusionDeferredGainDisposedLongTerm" /></CollectionSum>
+                  </Subtrahends>
+                </Subtract>
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then>
+              <Add>
+                <Dependency path="/form8997PartILine2LongTerm" />
+                <Dependency module="scheduleD" path="/qofDeferredGainLongTerm" />
+              </Add>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997DisposedWithoutForm1099B">
+      <Name>Form 8997 Part III checkbox: disposed of an investment without a Form 1099-B</Name>
+      <Description>Check if the filer disposed of any QOF investment and did not receive a Form 1099-B reporting the disposition from the QOF or another third party. Print only.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+    <Fact path="/form8997HasQofRows">
+      <Name>The return lists at least one Form 8997 row</Name>
+      <Description>TRUE when the return lists at least one QOF investment held at the beginning of the year (Part I), at least one QOF investment made this year (Part II), or at least one QOF disposition this year (Part III). FALSE when every one of the three lists is unanswered or answered empty.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="/form8997BeginningHoldings" /></IsComplete>
+            <GreaterThan>
+              <Left><CollectionSize><Dependency path="/form8997BeginningHoldings" /></CollectionSize></Left>
+              <Right><Int>0</Int></Right>
+            </GreaterThan>
+          </All>
+          <Dependency module="scheduleD" path="/hasQofInvestmentDetail" />
+          <Dependency module="scheduleD" path="/hasQofInclusionDetail" />
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997ScalarOnlyQofIntake">
+      <Name>A QOF deferral or inclusion was entered as a total without its Form 8997 rows</Name>
+      <Description>TRUE when the return defers gain by investing in a QOF but lists no QOF investment made this year, or when an answered previously deferred gain now included is above $0 but the return lists no QOF disposition this year. Form 8997 reports each investment and each disposition on its own row, so a total alone cannot be filed. FALSE when there is no deferral and no inclusion, or when each one that is present comes from its own list.</Description>
+      <Derived>
+        <Any>
+          <All>
+            <Dependency path="/form8997ClaimsQofDeferral" />
+            <Not><Dependency module="scheduleD" path="/hasQofInvestmentDetail" /></Not>
+          </All>
+          <All>
+            <Not><Dependency module="scheduleD" path="/hasQofInclusionDetail" /></Not>
+            <Any>
+              <All>
+                <IsComplete><Dependency module="scheduleD" path="/writableQofIncludibleGainShortTerm" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency module="scheduleD" path="/writableQofIncludibleGainShortTerm" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+              </All>
+              <All>
+                <IsComplete><Dependency module="scheduleD" path="/writableQofIncludibleGainLongTerm" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency module="scheduleD" path="/writableQofIncludibleGainLongTerm" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+              </All>
+            </Any>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+    <Fact path="/form8997ReturnFilesThisForm">
+      <Name>Return files Form 8997</Name>
+      <Description>Form 8997 is attached when you held a qualified opportunity fund investment at any point in the year: one held at the beginning of the year, one made this year, or one you disposed of this year. Each investment and each disposition is reported on its own row, so when a deferral or an inclusion is entered only as a total, this return is not complete until those rows are entered. FALSE when no QOF investment, deferral or inclusion is entered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8997ScalarOnlyQofIntake" /></IsComplete>
+                <Not><Dependency path="/form8997ScalarOnlyQofIntake" /></Not>
+                <Dependency path="/form8997HasQofRows" />
+              </All>
+            </When>
+            <Then><True /></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8997ScalarOnlyQofIntake" /></IsComplete>
+                <Not><Dependency path="/form8997ScalarOnlyQofIntake" /></Not>
+              </All>
+            </When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

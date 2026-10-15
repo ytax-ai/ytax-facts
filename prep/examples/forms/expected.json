@@ -1,0 +1,245 @@
+{
+  "about": "Synthetic example forms. For each file: the form the reader classifies it as, the fact collection, and every value the reader produces from it (money in integer cents). Regenerate with: python -m syndoc.example_forms",
+  "files": {
+    "w-2.pdf": {
+      "form": "W-2",
+      "group": "w2s",
+      "figures_from": "profile-C",
+      "read": {
+        "medicare_wages_cents": 4378000,
+        "medicare_withheld_cents": 63481,
+        "social_security_wages_cents": 4378000,
+        "social_security_withheld_cents": 271436,
+        "wages_cents": 4378000,
+        "withholding_cents": 324000
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": []
+    },
+    "w-2g.pdf": {
+      "form": "W-2G",
+      "group": "w2gs",
+      "figures_from": "gambling",
+      "read": {
+        "federal_withholding_cents": 195600,
+        "winnings_cents": 816000
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": []
+    },
+    "1099-int.pdf": {
+      "form": "1099-INT",
+      "group": "int1099s",
+      "figures_from": "profile-B",
+      "read": {
+        "bond_premium_cents": 0,
+        "early_withdrawal_penalty_cents": 0,
+        "federal_withholding_cents": 0,
+        "interest_cents": 84300,
+        "market_discount_cents": 0,
+        "private_activity_bond_interest_cents": 0,
+        "tax_exempt_bond_premium_cents": 0,
+        "tax_exempt_interest_cents": 0,
+        "treasury_bond_premium_cents": 0
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "PAYER'S name",
+        "Street address (including apt. no.)"
+      ]
+    },
+    "1099-div.pdf": {
+      "form": "1099-DIV",
+      "group": "div1099s",
+      "figures_from": "profile-B",
+      "read": {
+        "capital_gain_distributions_cents": 0,
+        "federal_withholding_cents": 0,
+        "ordinary_dividends_cents": 261400,
+        "qualified_dividends_cents": 223900
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "PAYER'S name",
+        "Street address (including apt. no.)"
+      ]
+    },
+    "1099-b.pdf": {
+      "form": "1099-B",
+      "group": "b1099s",
+      "figures_from": "(this folder)",
+      "read": {
+        "accrued_market_discount_cents": 0,
+        "federal_withholding_cents": 0,
+        "wash_sale_loss_disallowed_cents": 150000
+      },
+      "unchecked": [
+        "loss_not_allowed"
+      ],
+      "asked": [
+        {
+          "box": "1d",
+          "why": "proceeds: build's printed-box list cannot locate it (development issue 1186)"
+        },
+        {
+          "box": "1e",
+          "why": "cost or other basis: the same (development issue 1186)"
+        },
+        {
+          "box": "2",
+          "why": "short-term / long-term: asked when box 1b or 1c has no date"
+        },
+        {
+          "box": "3",
+          "why": "collectibles / QOF marks: one shared spelling (development issue 1186)"
+        }
+      ],
+      "not_carried_with_sidecar": [
+        "RECIPIENT'S name",
+        "box 2, Short-term gain or loss"
+      ]
+    },
+    "1099-oid.pdf": {
+      "form": "1099-OID",
+      "group": "oid1099s",
+      "figures_from": "(this folder)",
+      "read": {
+        "acquisition_premium_cents": 0,
+        "bond_premium_cents": 0,
+        "early_withdrawal_penalty_cents": 0,
+        "federal_withholding_cents": 0,
+        "market_discount_cents": 0,
+        "original_issue_discount_cents": 100000,
+        "other_periodic_interest_cents": 0,
+        "tax_exempt_oid_cents": 0,
+        "treasury_oid_cents": 0
+      },
+      "unchecked": [
+        "fatca_filing_requirement"
+      ],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "Account number (see instructions)",
+        "PAYER'S name",
+        "Street address (including apt. no.)"
+      ]
+    },
+    "1099-r.pdf": {
+      "form": "1099-R",
+      "group": "r1099s",
+      "figures_from": "profile-C",
+      "read": {
+        "distribution_code": "7",
+        "federal_withholding_cents": 314600,
+        "gross_distribution_cents": 3146000,
+        "taxable_amount_cents": 3146000
+      },
+      "unchecked": [
+        "ira_sep_simple",
+        "taxable_amount_not_determined"
+      ],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "Account number",
+        "PAYER'S name",
+        "Street address (including apt. no.)"
+      ]
+    },
+    "1099-misc.pdf": {
+      "form": "1099-MISC",
+      "group": "misc1099s",
+      "figures_from": "royalty",
+      "read": {
+        "federal_withholding_cents": 0,
+        "other_income_cents": 0,
+        "royalties_cents": 1451700
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "Account number",
+        "Street address (including apt. no.)"
+      ]
+    },
+    "1099-g.pdf": {
+      "form": "1099-G",
+      "group": "g1099s",
+      "figures_from": "layoff-year",
+      "read": {
+        "federal_withholding_cents": 112600,
+        "unemployment_compensation_cents": 1126000
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "Street address (including apt. no.)"
+      ]
+    },
+    "1099-sa.pdf": {
+      "form": "1099-SA",
+      "group": "hsa_distributions",
+      "figures_from": "hsa-distribution",
+      "read": {
+        "gross_distribution_cents": 684000,
+        "hsa_distribution_code": "1"
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "Street address (including apt. no.)"
+      ]
+    },
+    "k1-1065.pdf": {
+      "form": "K-1 (1065)",
+      "group": "k1s",
+      "figures_from": "k1-partnership",
+      "read": {
+        "dividend_income_cents": 0,
+        "guaranteed_payments_capital_cents": 0,
+        "guaranteed_payments_services_cents": 0,
+        "interest_income_cents": 0,
+        "ordinary_business_income_cents": 3871500,
+        "royalties_cents": 0,
+        "source": "partnership"
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": [
+        "box L, Current year net income (loss). $"
+      ]
+    },
+    "k1-1120s.pdf": {
+      "form": "K-1 (1120-S)",
+      "group": "k1s",
+      "figures_from": "k1-partnership",
+      "read": {
+        "dividend_income_cents": 0,
+        "interest_income_cents": 0,
+        "ordinary_business_income_cents": 1420800,
+        "source": "s_corp"
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": []
+    },
+    "k1-1041.pdf": {
+      "form": "K-1 (1041)",
+      "group": "k1s",
+      "figures_from": "estate-trust",
+      "read": {
+        "dividend_income_cents": 0,
+        "interest_income_cents": 0,
+        "ordinary_business_income_cents": 1527000,
+        "qualified_dividends_cents": 0,
+        "source": "estate_trust"
+      },
+      "unchecked": [],
+      "asked": [],
+      "not_carried_with_sidecar": []
+    }
+  }
+}

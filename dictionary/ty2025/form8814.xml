@@ -1,0 +1,1926 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/form8814Children">
+      <Name>Form 8814 elected children</Name>
+      <Description>The children for whom the parent makes the IRC 1(g)(7) election to report the
+        child's interest and dividends on the parent's own return — one Form 8814 per child ("A
+        separate Form 8814 must be filed for each child whose income you choose to report on
+        your return. You can make the election for one or more children and not for others").
+        An empty collection is the no-election
+        return and every consumer below resolves Complete at its default on it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildName">
+      <Name>Form 8814 field A, child's name</Name>
+      <Description>Form 8814 field A, "Child's name (first, initial, and last)" — the child this
+        Form 8814 elects for. Print identity only; no arithmetic reads it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildTin">
+      <Name>Form 8814 field B, child's social security number</Name>
+      <Description>Form 8814 field B, "Child's social security number". Print identity only; no
+        arithmetic reads it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildQualifiesForElection">
+      <Name>Attestation that the Form 8814 election conditions all hold for this child</Name>
+      <Description>User response: the filer attests that EVERY condition the 2025 Instructions
+        for Form 8814 print under "Purpose of Form" and "Parents who qualify to make the
+        election" holds for this child and this return, EXCEPT the two the graph computes itself
+        (the gross-income window, which is /knockoutForm8814ElectionOutsideStatutoryWindow's
+        subject, and "required to file", which the same window implies for a child whose only
+        income is unearned). The attested conditions: the child was under age 19 (or under 24 a
+        full-time student) at the end of 2025; the child's only income was from interest and
+        dividends, including capital gain distributions and Alaska Permanent Fund dividends; the
+        child does not file a joint return for 2025; no estimated tax payments were made for the
+        child for 2025 (including any 2024 overpayment applied) and no federal income tax —
+        backup withholding included — was withheld from the child's income; and the parent filing
+        this return is the parent entitled to make the election under "Which Parent's Return To
+        Use".
+
+        A FOREIGN FINANCIAL ACCOUNT OR FOREIGN TRUST IS NOT ON THAT LIST. No such condition appears in IRC
+        1(g)(7)(A)(i)-(iv) or in the printed "Purpose of Form" condition list. The instructions
+        say the OPPOSITE: under "Foreign accounts and trusts" the electing parent "must complete
+        Schedule B (Form 1040), Part III, and file it with your tax return if your child: 1. Had a
+        foreign financial account; or 2. Received a distribution from, or was the grantor of, or
+        transferor to, a foreign trust", and then enters "Form 8814" on the dotted line next to
+        line 7a or line 8. That is an attachment obligation ON the election, not a bar TO it, so a
+        parent answering truthfully No used to have the whole return refused by
+        /knockoutForm8814EligibilityNotAttested. The obligation itself is NOT wired, and the gap
+        is exact: the Schedule B Part III facts exist and are asked about the PARENT only -
+        income:/hasForeignAccounts, income:/isForeignTrustsGrantor and
+        income:/hasForeignTrustsTransactions - and no fact anywhere carries an elected CHILD's
+        foreign account or foreign-trust role into them, which is what i8814 lines 91-100
+        require. That successor is named here rather than smuggled back in as a condition of the
+        election.
+
+        A faithful taxpayer entry (the /writablePuertoRicoIncomeExclusion933 posture): the
+        graph holds no fact for the child's age, student status or income composition, so the
+        list is attested, not derived. Unanswered or No fails CLOSED through
+        /knockoutForm8814EligibilityNotAttested.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildTaxableInterest">
+      <Name>Form 8814 line 1a, child's taxable interest</Name>
+      <Description>Form 8814 line 1a, the child's taxable interest. Floored at zero: the line
+        reports interest income received. The entry leaves out interest the child received as a
+        nominee for another person (../writableChildNomineeInterest) and the nontaxable accrued
+        interest, amortizable bond premium and OID adjustments (../writableChildAccruedInterestAdjustment,
+        ../writableChildAbpAdjustment, ../writableChildOidAdjustment): the instructions put those on the
+        dotted line next to line 1a and say not to include them in the total.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildTaxExemptInterest">
+      <Name>Form 8814 line 1b, child's tax-exempt interest</Name>
+      <Description>Form 8814 line 1b, the child's tax-exempt interest, excluded from line 1a by
+        the line's own text and therefore NEVER part of line 4 or the Part II tax. It is not
+        inert: IRC 1(g)(7)(B)(iii) treats the child's section 57(a)(5) private-activity-bond interest
+        preference as the PARENT's AMT preference (Form 6251 line 2g), and EIC Worksheet 1 line 2
+        adds Form 8814 line 1b to the parent's investment income. A nonzero line 1b COMPUTES: the
+        whole of it reaches EIC Worksheet 1 line 2 through /form8814TotalTaxExemptInterest, and the
+        section 57(a)(5) PORTION of it reaches Form 6251 line 2g through the per-child sub-intake
+        /form8814Children/*/writableChildPrivateActivityBondInterest and its aggregate
+        /form8814PrivateActivityBondInterest. This writable is the whole printed line 1b, optional,
+        floored at $0, outside line 4.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildPrivateActivityBondInterest">
+      <Name>The section 57(a)(5) preference portion of Form 8814 line 1b, per child</Name>
+      <Description>How much of THIS child's Form 8814 line 1b tax-exempt interest is interest on
+        specified private activity bonds — the part IRC 1(g)(7)(B)(iii) moves onto the PARENT's
+        Form 6251 line 2g as the parent's own item of tax preference. A SUB-INTAKE, not a
+        printed field: the 2025 Instructions for Form 6251 say to include on line 2g "any
+        tax-exempt interest income from line 1b of that form that is a preference item"
+        (https://www.irs.gov/pub/irs-pdf/i6251.pdf, page 4), and NOTHING on the face of Form 8814
+        splits line 1b that way. Line 1b as filed mixes ordinary municipal-bond interest (not a
+        preference) with specified-private-activity-bond interest (a section 57(a)(5)
+        preference), so the split has to be asked.
+
+        Min $0: an interest amount received is never negative.
+
+        NO UPPER BOUND AGAINST LINE 1b, AND ITS ABSENCE IS A DECISION rather than an oversight.
+        This amount is a portion of the same child's line 1b, exactly as Form 1099-DIV box 13 is
+        a portion of box 12, and this intake takes the same posture its box-13 counterpart
+        states for itself (dictionary/ty2025/dividendReports.xml,
+        /dividendReports/*/writableSpecifiedPrivateActivityBondInterestDividends): the
+        containment relationship is DISCLOSED in prose and not enforced structurally, expressly
+        refusing the Min(portion, line 1b) synthesis that would silently repair a filer's
+        data-entry error.
+
+        UNANSWERED RESOLVES $0, AND THAT IS THE ARGUED CHOICE, not a default fallen into. The
+        population this unit un-refuses is the child with a nonzero, ANSWERED line 1b; leaving
+        this narrower follow-up question unanswered resolves the preference portion at $0
+        through /form8814Children/*/privateActivityBondInterest rather than blocking submission
+        a second time. Three grounds. (1) The retired contract's own retirement sentence is
+        unconditional — "a nonzero 1b then computes instead of refusing" — not "computes only if
+        the sub-question is also answered". (2) The identical posture already ships on the
+        identical printed line for the identical preference item: an unanswered box 13 beside an
+        answered box 12 resolves $0 and the fund holder is not refused. (3) The knockout this
+        replaced never failed closed on unanswered data either — its arm counted
+        /form8814Children/*/hasTaxExemptInterest, which is False while line 1b is unanswered, so
+        it was an ANSWERED-nonzero refusal from the start. The residual is disclosed on
+        /form8814PrivateActivityBondInterest: an unanswered portion UNDER-states AMTI, the
+        World-#1-adverse direction, the same direction and the same accepted posture as the
+        box-13 gap. The application asks this question only when
+        /form8814Children/*/hasTaxExemptInterest is true for the child, which is what keeps the
+        residual small in practice.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildOrdinaryDividends">
+      <Name>Form 8814 line 2a, child's ordinary dividends</Name>
+      <Description>Form 8814 line 2a, the child's ordinary dividends, including any Alaska
+        Permanent Fund dividends. Floored at zero. The entry leaves out ordinary dividends the child
+        received as a nominee for another person (../writableChildNomineeOrdinaryDividends), which the
+        instructions put on the dotted line next to line 2a.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildQualifiedDividends">
+      <Name>Form 8814 line 2b, child's qualified dividends included on line 2a</Name>
+      <Description>Form 8814 line 2b, the part of line 2a that is qualified dividends. It enters line 7
+        (through the complete-safe alias /form8814Children/*/qualifiedDividendsAmount) and so lines 9,
+        11 and 12 for a child whose line 4 exceeds $2,700; in the window where line 4 is at most
+        $2,700 the form skips lines 7 through 10. Floored at zero.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildAlaskaPermanentFundDividends">
+      <Name>Form 8814 line 2a, the part that is Alaska Permanent Fund dividends</Name>
+      <Description>SCREEN. Question: "How much of this child's ordinary dividends were Alaska Permanent Fund dividends?" Help text: Form 8814 line 2a says "Enter your child's ordinary dividends, including any Alaska Permanent Fund dividends", so the Permanent Fund payment is already inside the line 2a figure. This box says how much of it that payment was, because three of the places line 12 goes want it taken back out again: the Instructions for Form 8960 send line 12 to Form 8960 line 7 "excluding Alaska Permanent Fund Dividends", and Publication 550 and Publication 596 make the same reduction for the Form 4952 and earned-income-credit investment-income tests. Leave it blank, or enter $0, if the child received no Permanent Fund dividend. Asked when: the return attaches a Form 8814 for this child. Unanswered posture: DEFAULTED to $0 through /form8814Children/*/alaskaPermanentFundShareOfLine12, which means the WHOLE of line 12 is treated as includible — the taxpayer-adverse direction for the net investment income tax, so the screen should be shown rather than skipped. It is an EXCLUSION intake with no condition of allowance, not a claimed benefit, which is why it defaults rather than refusing. Validation: Dollar, Min $0, ONE amount per child. NO UPPER BOUND AGAINST LINE 2a, deliberately, and the same disclosed-not-repaired posture line 2b takes: an amount above the child's ordinary dividends is ACCEPTED, and the share it produces is capped at that child's line 12 rather than refused. What the answer feeds: the child's share of line 12 → the reduced module total → Form 8960 line 7; and Publication 596 Worksheet 2 line 6 → /form8814Pub596Worksheet2Line10Total → eitc:/eitcInvestmentIncome, where it lowers the earned income credit investment income.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+    <Fact path="/form8814Children/*/writableChildCapitalGainDistributions">
+      <Name>Form 8814 line 3, child's capital gain distributions</Name>
+      <Description>Form 8814 line 3, the child's capital gain distributions (Form 1099-DIV box
+        2a amounts). Floored at zero: a distribution cannot be negative. The entry leaves out capital
+        gain distributions the child received as a nominee for another person
+        (../writableChildNomineeCapitalGainDistributions), which the instructions put on the dotted
+        line next to line 3.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildNomineeInterest">
+      <Name>Form 8814 line 1a dotted line: interest the child received as a nominee (ND)</Name>
+      <Description>Interest the child received as a nominee that actually belongs to another person. The instructions have the filer enter the amount and ND (nominee distribution) on the dotted line next to line 1a and leave it out of the line 1a total. Printed beside line 1a; it does not enter any line (../writableChildTaxableInterest already excludes it). The fillable form has no field for the dotted line, so the annotation is exported for the rendering surface. Optional; unanswered means none.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildAccruedInterestAdjustment">
+      <Name>Form 8814 line 1a dotted line: accrued interest paid to the seller of a bond</Name>
+      <Description>Accrued interest the child paid to the seller of a bond, a nontaxable amount the instructions have the filer enter on the dotted line next to line 1a with the words Accrued interest, and leave out of the line 1a total. Printed beside line 1a; enters no line. Exported for the rendering surface (no form field). Optional; unanswered means none.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildAbpAdjustment">
+      <Name>Form 8814 line 1a dotted line: amortizable bond premium adjustment</Name>
+      <Description>Amortizable bond premium allowed as a reduction to the child's interest income, entered on the dotted line next to line 1a with the words ABP adjustment and left out of the line 1a total. Printed beside line 1a; enters no line. Exported for the rendering surface (no form field). Optional; unanswered means none.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildOidAdjustment">
+      <Name>Form 8814 line 1a dotted line: original issue discount adjustment</Name>
+      <Description>The amount by which the child's original issue discount is less than the amount on the child's Form 1099-OID, entered on the dotted line next to line 1a with the words OID adjustment and left out of the line 1a total. Printed beside line 1a; enters no line. Exported for the rendering surface (no form field). Optional; unanswered means none.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildNomineeOrdinaryDividends">
+      <Name>Form 8814 line 2a dotted line: ordinary dividends the child received as a nominee (ND)</Name>
+      <Description>Ordinary dividends the child received as a nominee that actually belong to another person, entered with ND on the dotted line next to line 2a and left out of the line 2a total. Printed beside line 2a; enters no line (../writableChildOrdinaryDividends already excludes it). Exported for the rendering surface (no form field). Optional; unanswered means none.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildNomineeCapitalGainDistributions">
+      <Name>Form 8814 line 3 dotted line: capital gain distributions the child received as a nominee (ND)</Name>
+      <Description>Capital gain distributions the child received as a nominee that actually belong to another person, entered with ND on the dotted line next to line 3 and left out of the line 3 total. Printed beside line 3; enters no line (../writableChildCapitalGainDistributions already excludes it). Exported for the rendering surface (no form field). Optional; unanswered means none.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line4ChildInterestAndDividends">
+      <Name>Form 8814 line 4, add lines 1a, 2a, and 3</Name>
+      <Description>Form 8814 line 4 for this child: line 1a + line 2a + line 3, the child's
+        gross income under the election (the only-interest-and-dividends condition makes the sum
+        the whole of it). COMPLETE-SAFE: each term resolves $0 while its writable is unanswered,
+        so a created-but-unanswered child item carries line 4 = $0 Complete — which lands in
+        /knockoutForm8814ElectionOutsideStatutoryWindow's refusal, the designed fail-closed
+        posture for half-answered intake.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="../writableChildTaxableInterest" /></IsComplete></When>
+              <Then><GreaterOf><Dependency path="../writableChildTaxableInterest" /><Dollar>0</Dollar></GreaterOf></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="../writableChildOrdinaryDividends" /></IsComplete></When>
+              <Then><GreaterOf><Dependency path="../writableChildOrdinaryDividends" /><Dollar>0</Dollar></GreaterOf></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="../writableChildCapitalGainDistributions" /></IsComplete></When>
+              <Then><GreaterOf><Dependency path="../writableChildCapitalGainDistributions" /><Dollar>0</Dollar></GreaterOf></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line14ExcessOverAmountNotTaxed">
+      <Name>Form 8814 line 14, line 4 minus the $1,350 amount not taxed</Name>
+      <Description>Form 8814 line 14 for this child: line 4 minus the line 13 "Amount not taxed"
+        ($1,350 for 2025), floored at zero by the line's own text.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="../line4ChildInterestAndDividends" /></Minuend>
+            <Subtrahends><Dollar>1350</Dollar></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line15Tax">
+      <Name>Form 8814 line 15, tax</Name>
+      <Description>Form 8814 line 15 for this child, the Part II tax: if line 14 is less than
+        $1,350, 10% of line 14; otherwise $135. The two arms are continuous at line 14 = $1,350
+        (10% of $1,350 = $135), and the No arm is the statutory "10 percent of the lesser of"
+        cap. Rounded here, at the form's own entry line, so the collection total below is a sum
+        of whole-dollar entries (the each-leg-rounds-itself posture of Form 1040 line 25c's
+        legs); a line 14 of $1 rounds to a $0 tax with the election still made and the line 16
+        box still checked.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left><Dependency path="../line14ExcessOverAmountNotTaxed" /></Left>
+                <Right><Dollar>1350</Dollar></Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Round>
+                <Multiply>
+                  <Dependency path="../line14ExcessOverAmountNotTaxed" />
+                  <Rational>1/10</Rational>
+                </Multiply>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>135</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/requiresIncomeInclusion">
+      <Name>This child's Form 8814 line 4 requires the lines 6-12 income inclusion</Name>
+      <Description>True when this child's line 4 is over the $2,700 base amount, so lines 6 through
+        12 run: part of the
+        child's income joins the parent's (Schedule 1 line 8z, Form 1040 lines 3a/3b/7a or
+        Schedule D line 13), with the NIIT, EIC Worksheet 1 line 4, investment-interest and
+        Schedule B consequences the instructions enumerate. This fact is
+        the form's own line 4 skip rule ("If the total is $2,700 or less, skip lines 5 through 12")
+        read as the gate lines 7 and 8 test before dividing by line 4 — true exactly for the child
+        whose lines 6 through 12 run. It carries no $13,500 ceiling, because the line 4 skip rule has
+        none: lines 6, 9, 10 and 12 run on any line 4 over the base amount, and a ceiling here alone
+        would zero lines 7 and 8 while line 6 kept running, moving every dividend and capital gain
+        distribution into line 12. A line 4 of $13,500 or more is a return that must not file this
+        form, and /knockoutForm8814ElectionOutsideStatutoryWindow refuses it.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterThan>
+          <Left><Dependency path="../line4ChildInterestAndDividends" /></Left>
+          <Right><Dollar>2700</Dollar></Right>
+        </GreaterThan>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/qualifiedDividendsAmount">
+      <Name>This child's Form 8814 line 2b, complete-safe</Name>
+      <Description>The child's qualified dividends (line 2b) as a dollar the line 7 division can
+        read: the writable when it is answered, $0 when it is not. The complete-safe DOLLAR alias
+        over an optional writable, in exactly the shape /form8814Children/*/taxExemptInterestAmount
+        states for line 1b: line 2b is optional, so a created child item that leaves it
+        blank has no value for it, and a Divide reading the raw writable would carry that
+        Incompleteness through line 9 into income:/qualifiedDividends and income:/ordinaryDividends,
+        which every return prints. NO CHANGE OF MEANING, only of completeness: a blank line 2b is
+        what the form's line 6 instruction calls "zero or blank" and treats identically.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableChildQualifiedDividends" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../writableChildQualifiedDividends" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/capitalGainDistributionsAmount">
+      <Name>This child's Form 8814 line 3, complete-safe</Name>
+      <Description>The child's capital gain distributions (line 3) as a dollar the line 8 division
+        can read: the writable when it is answered, $0 when it is not. The same complete-safe alias
+        shape as /form8814Children/*/qualifiedDividendsAmount above, for the same reason: line 3 is
+        optional and its raw Incompleteness must not reach Schedule D line 13 or Form 1040 line 7a
+        through line 10. Line 4 reads the same writable through its own inline guard, so the two
+        cannot disagree.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableChildCapitalGainDistributions" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../writableChildCapitalGainDistributions" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line6ExcessOverBaseAmount">
+      <Name>Form 8814 line 6, subtract line 5 from line 4</Name>
+      <Description>Form 8814 line 6 for this child: line 4 minus the $2,700 base amount on line 5 —
+        the whole of what the election puts on the parent's return for this child, before lines 7
+        through 12 split it into its qualified-dividend, capital-gain-distribution and ordinary
+        parts. FLOORED AT ZERO BY THE FORM'S OWN SKIP RULE, not by a printed "if zero or less":
+        line 4 says "If the total is $2,700 or less, skip lines 5 through 12 and go to line 13",
+        and a skipped line contributes nothing, so a child at or under the base amount carries $0
+        here and $0 on every line below it — which is exactly the Part-II-only window this module
+        computed before this unit. The statute says the same thing in its own words: the inclusion
+        is "to the extent the gross income of such child exceeds twice the amount described in
+        paragraph (4)(A)(ii)(I)". Complete-safe because line 4 is.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="../line4ChildInterestAndDividends" /></Minuend>
+            <Subtrahends><Dependency path="/form8814Line5BaseAmount" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line7RatioRoundedAfterCentSnap">
+      <Name>Form 8814 line 7 in thousandths, as the division and rounding nodes first produce it</Name>
+      <Description>1000 times line 2b divided by line 4, rounded to a whole number of thousandths, for a child whose line 4 exceeds the base amount; $0 otherwise. This is an intermediate figure and not the printed line. A Dollar division is reduced to cents (half to even) before the outer Round takes it to whole thousandths (half up), so a true quotient a fraction of a cent below one half of a thousandth is rounded up; the cent reduction moves a value by at most half a cent, so the only possible error here is one thousandth too high. ../line7QualifiedDividendRatioThousandths corrects that step with exact cent arithmetic.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../requiresIncomeInclusion" /></When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Int>1000</Int>
+                      <Dependency path="../qualifiedDividendsAmount" />
+                    </Multiply>
+                  </Dividend>
+                  <Divisors><Dependency path="../line4ChildInterestAndDividends" /></Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line7QualifiedDividendRatioThousandths">
+      <Name>Form 8814 line 7, line 2b divided by line 4, as thousandths</Name>
+      <Description>Form 8814 line 7 for this child: line 2b divided by line 4, "Enter the result as
+        a decimal (rounded to at least three places)". ENCODED AS THOUSANDTHS — the integer 0 to
+        1,000 that the printed three-place decimal is, so a printed 0.782 is carried as 782 —
+        because this engine's Dollar arithmetic keeps two decimal places (a bare Dollar-by-Dollar
+        Divide would round the ratio to two places, one short of the printed minimum), and the
+        same encoding already ships for Form 2555 line 35
+        (form2555Housing:/form2555Line35EmployerProvidedRatioThousandths). THREE PLACES EXACTLY,
+        the form's stated minimum, rounded half up at the third place. GATED ON THE SKIP RULE:
+        lines 7 through 10 exist only for a child whose line 4 exceeds $2,700
+        (/form8814Children/*/requiresIncomeInclusion), and that gate is also what keeps a
+        created-but-unanswered child item (line 4 = $0) from dividing by zero. A child with both
+        lines 2b and 3 zero or blank is what the form's line 6 instruction sends straight to line
+        11 = 0; here that child simply carries 0 thousandths and $0 on line 9, the identical
+        result. The printed decimal is ONE half-up rounding of the true quotient: this fact starts from ../line7RatioRoundedAfterCentSnap and steps it down by one thousandth exactly when 2,000 times line 2b is less than (2 times that figure minus 1) times line 4, the exact cent comparison saying the true quotient is below the lower half-thousandth boundary. Every product in that comparison is a whole number of cents, so no rounding enters the test.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../requiresIncomeInclusion" /></When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><LessThan>
+                    <Left><Multiply><Dollar>2000</Dollar>
+                      <Dependency path="../qualifiedDividendsAmount" /></Multiply></Left>
+                    <Right><Multiply><Subtract><Minuend><Multiply><Dollar>2</Dollar>
+                      <Dependency path="../line7RatioRoundedAfterCentSnap" /></Multiply></Minuend><Subtrahends><Dollar>1</Dollar>
+                      </Subtrahends></Subtract><Dependency path="../line4ChildInterestAndDividends" /></Multiply></Right>
+                  </LessThan></When>
+                  <Then><Subtract><Minuend><Dependency path="../line7RatioRoundedAfterCentSnap" /></Minuend><Subtrahends><Dollar>1</Dollar>
+                    </Subtrahends></Subtract></Then>
+                </Case>
+                <Case><When><True /></When><Then><Dependency path="../line7RatioRoundedAfterCentSnap" /></Then></Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line8RatioRoundedAfterCentSnap">
+      <Name>Form 8814 line 8 in thousandths, as the division and rounding nodes first produce it</Name>
+      <Description>1000 times line 3 divided by line 4, rounded to a whole number of thousandths, for a child whose line 4 exceeds the base amount; $0 otherwise. This is an intermediate figure and not the printed line. A Dollar division is reduced to cents (half to even) before the outer Round takes it to whole thousandths (half up), so a true quotient a fraction of a cent below one half of a thousandth is rounded up; the cent reduction moves a value by at most half a cent, so the only possible error here is one thousandth too high. ../line8CapitalGainDistributionRatioThousandths corrects that step with exact cent arithmetic.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../requiresIncomeInclusion" /></When>
+            <Then>
+              <Round>
+                <Divide>
+                  <Dividend>
+                    <Multiply>
+                      <Int>1000</Int>
+                      <Dependency path="../capitalGainDistributionsAmount" />
+                    </Multiply>
+                  </Dividend>
+                  <Divisors><Dependency path="../line4ChildInterestAndDividends" /></Divisors>
+                </Divide>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line8CapitalGainDistributionRatioThousandths">
+      <Name>Form 8814 line 8, line 3 divided by line 4, as thousandths</Name>
+      <Description>Form 8814 line 8 for this child: line 3 divided by line 4, "Enter the result as
+        a decimal (rounded to at least three places)" — the capital-gain-distribution share of line
+        4, in the same thousandths encoding, with the same three-place half-up rounding and the
+        same skip-rule gate as line 7 (the reasons are stated there and not repeated). The i8814
+        example: $610 / $2,800 = 0.22 as printed, 218 thousandths here, and $100 of line 6 times
+        either is $22. The printed decimal is ONE half-up rounding of the true quotient: this fact starts from ../line8RatioRoundedAfterCentSnap and steps it down by one thousandth exactly when 2,000 times line 3 is less than (2 times that figure minus 1) times line 4, the exact cent comparison saying the true quotient is below the lower half-thousandth boundary. Every product in that comparison is a whole number of cents, so no rounding enters the test.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../requiresIncomeInclusion" /></When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When><LessThan>
+                    <Left><Multiply><Dollar>2000</Dollar>
+                      <Dependency path="../capitalGainDistributionsAmount" /></Multiply></Left>
+                    <Right><Multiply><Subtract><Minuend><Multiply><Dollar>2</Dollar>
+                      <Dependency path="../line8RatioRoundedAfterCentSnap" /></Multiply></Minuend><Subtrahends><Dollar>1</Dollar>
+                      </Subtrahends></Subtract><Dependency path="../line4ChildInterestAndDividends" /></Multiply></Right>
+                  </LessThan></When>
+                  <Then><Subtract><Minuend><Dependency path="../line8RatioRoundedAfterCentSnap" /></Minuend><Subtrahends><Dollar>1</Dollar>
+                    </Subtrahends></Subtract></Then>
+                </Case>
+                <Case><When><True /></When><Then><Dependency path="../line8RatioRoundedAfterCentSnap" /></Then></Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line9QualifiedDividendsIncluded">
+      <Name>Form 8814 line 9, multiply line 6 by line 7 — the child's qualified dividends included on the parent's return</Name>
+      <Description>Form 8814 line 9 for this child: line 6 times the line 7 decimal — the part of
+        the excess over the base amount that keeps its character as qualified dividends. WHERE IT
+        GOES: Form 1040 line 3a AND line 3b, both ("Include this amount on Form 1040, 1040-SR, or
+        1040-NR, lines 3a and 3b"), which is why the module total /form8814TotalLine9QualifiedDividends
+        is an addend of BOTH income:/qualifiedDividends and income:/ordinaryDividends and of nothing
+        else — Schedule B's over-$1,500 test, Form 8960 line 2, EIC Worksheet 1 line 3 and Form
+        4952 line 4b all read those two printed lines and inherit it. Rounded here, at the form's
+        own entry line, so the module total adds whole-dollar entries (the each-leg-rounds-itself
+        posture of line 15). The i8814 example: $100 times 0.78 is $78.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Divide>
+            <Dividend>
+              <Multiply>
+                <Dependency path="../line6ExcessOverBaseAmount" />
+                <Dependency path="../line7QualifiedDividendRatioThousandths" />
+              </Multiply>
+            </Dividend>
+            <Divisors><Int>1000</Int></Divisors>
+          </Divide>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line10CapitalGainDistributionsIncluded">
+      <Name>Form 8814 line 10, multiply line 6 by line 8 — the child's capital gain distributions included on the parent's return</Name>
+      <Description>Form 8814 line 10 for this child: line 6 times the line 8 decimal — the part of
+        the excess over the base amount that keeps its character as a capital gain distribution.
+        WHERE IT GOES: "Include this amount on Schedule D (Form 1040), line 13; or Form 1040,
+        1040-SR, or 1040-NR, line 7a" — the same two-route destination the parent's own Form
+        1099-DIV box 2a already has in this dictionary, so the module total
+        /form8814TotalLine10CapitalGainDistributions rides beside dividendReports:/capitalGainDistributions
+        at both of that fact's consumer sites (scheduleD:/longTermGainOrLossAfterCarryover's line
+        13 term when Schedule D is filed; income:/capitalGainsOrLosses's direct line 7a route when
+        it is not) and at the "Schedule D not required" box that decides between them. Rounded at
+        the entry line, as line 9 is. The i8814 example: $100 times 0.22 is $22. NEVER NEGATIVE:
+        every input is floored at $0, so the Form 1040 line 7b entry space this fills can carry
+        the "or (loss)" of its printed label only for a hand-filed return, not for this one.
+
+        THE SCHEDULE D SPLIT: the child's capital gain distributions may include unrecaptured
+        section 1250 gain, section 1202 gain or collectibles (28% rate) gain, and the instructions
+        send the PROPORTIONATE part of line 10 to the Schedule D worksheets for each (i8814 "Types of
+        capital gain distributions", https://www.irs.gov/pub/irs-pdf/i8814.pdf, page 3). The
+        per-child portions exist (/form8814Children/*/writableChildCollectiblesGainPortionOfLine3,
+        .../writableChildUnrecapturedSection1250GainPortionOfLine3 and
+        .../writableChildSection1202GainPortionOfLine3), each prorated into a share of THIS line, and
+        two of the three module totals reach Schedule D - /form8814TotalCollectiblesGainShareOfLine10
+        into scheduleD:/twentyEightPercentRateGainLines1Through4 and
+        /form8814TotalUnrecapturedSection1250GainShareOfLine10 into
+        scheduleD:/unrecapturedSection1250GainLine13. income:/capitalGainsScheduleDNotRequired carries
+        a Not(/form8814AnyChildHasSubcategoryCapitalGainDistributions) leg, so one elected child with
+        an included box 2b, 2c or 2d amount leaves the box unchecked and Schedule D is filed. THE
+        RESIDUE, named exactly and not larger than it is: /form8814TotalSection1202GainShareOfLine10
+        is computed and no module reads it, so the section 1202 exclusion and the 28% Rate Gain
+        Worksheet line 2 entry the instructions direct never happen. That omission runs BOTH ways:
+        for a parent above the 0% capital-gain bracket the lost 1202(a) exclusion OVER-states the
+        tax, but for a parent inside the 0% bracket that exclusion is worth nothing while the half
+        that would REMAIN after it is 28%-rate gain, so omitting the whole treatment UNDER-states the
+        tax.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Divide>
+            <Dividend>
+              <Multiply>
+                <Dependency path="../line6ExcessOverBaseAmount" />
+                <Dependency path="../line8CapitalGainDistributionRatioThousandths" />
+              </Multiply>
+            </Dividend>
+            <Divisors><Int>1000</Int></Divisors>
+          </Divide>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8814Children/*/writableChildCapitalGainDistributionsIncludeSubcategories">
+      <Name>Any of this child's capital gain distributions reported as box 2b, 2c or 2d</Name>
+      <Description>SCREEN. Question: "Were any of {childName}'s capital gain distributions reported
+        on Form 1099-DIV as unrecaptured section 1250 gain (box 2b), section 1202 gain (box 2c),
+        or collectibles (28% rate) gain (box 2d)?" Help text: the Instructions for Form 8814
+        divide capital gain distributions into three subcategories and say that if any of the
+        child's distributions fall into one of them, part of the amount you carry to Schedule D
+        line 13 has to be carried to a Schedule D worksheet instead of being taxed at the ordinary
+        capital gain rate. Look at boxes 2b, 2c and 2d of the child's Form 1099-DIV: answer Yes if
+        any of the three has an amount in it, No if all three are blank or zero. Asked when: this
+        child's Form 8814 LINE 10 is more than $0 - that is, the child has a capital gain
+        distribution AND the election actually puts part of it on the parent's return. Not asked at
+        all when line 3 is $0 or blank (nothing to characterise) and not asked when the form's own
+        skip rule takes the child out of lines 7 through 12 (line 4 at or under $2,700), because then nothing reaches Schedule D line 13 and there is nothing for a
+        worksheet to receive. Unanswered posture:
+        INCOMPLETE, deliberately, and this is the whole point of the fact. There is no safe
+        default: reading silence as No is the under charge this intake exists to remove (the
+        child's collectibles or unrecaptured section 1250 gain would be taxed at 0/15/20 percent
+        instead of 28/25 percent), and reading it as Yes would refuse a return that has nothing to
+        characterise. So a Form 8814 with a capital gain distribution and no answer here leaves
+        the three share facts and their module totals Incomplete until the question is asked.
+        Validation: Boolean. Yes/No radio, labels "Yes" / "No", no default selection, answer
+        required to leave the screen. What the answer feeds: it is the ANSWERED PREDICATE for the
+        three amount boxes on the next screen, so a blank box there means $0 rather than
+        unanswered; and it feeds
+        /form8814AnyChildHasSubcategoryCapitalGainDistributions, the Form 8814 equivalent of the
+        Form 1040 line 7b "Schedule D not required" Exception 1 condition 2 test.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/hasSubcategoryCapitalGainDistributions">
+      <Name>This child has a box 2b, 2c or 2d capital gain distribution</Name>
+      <Description>The attestation above, read with the one condition that answers it without
+        asking, and THE TEST IS LINE 10, NOT LINE 3. All three fractions the instructions print
+        multiply "the child's capital gain distribution included on Schedule D, line 13", which is
+        Form 8814 line 10, so a child whose line 10 is $0 sends nothing to Schedule D and can have
+        no subcategory share whatever line 3 says. This fact is therefore Complete FALSE without an
+        answer in TWO populations: the child with no capital gain distribution at all (line 3 is
+        $0), and the child the form's own skip rule takes out of lines 7 through 12 because line 4
+        is at or under the $2,700 base amount. That is not a silent default,
+        it is the arithmetic consequence of line 10, and it is what keeps every Form 8814 at or under
+        the base amount complete; a line 4 of $13,500 or more is refused by
+        /knockoutForm8814ElectionOutsideStatutoryWindow. Where line 10 IS above $0 the fact is the attestation and
+        inherits its Incompleteness: no default arm, so an unasked question stays unasked all the
+        way down to the module totals. Feeds the three
+        share facts as their answered predicate and
+        /form8814AnyChildHasSubcategoryCapitalGainDistributions as the per child term.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Not>
+                <GreaterThan>
+                  <Left><Dependency path="../line10CapitalGainDistributionsIncluded" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+              </Not>
+            </When>
+            <Then><False /></Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableChildCapitalGainDistributionsIncludeSubcategories" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableChildCapitalGainDistributionsIncludeSubcategories" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildCollectiblesGainPortionOfLine3">
+      <Name>The collectibles (28% rate) gain part of this child's Form 8814 line 3</Name>
+      <Description>SCREEN, one of three amount boxes on the same screen. Question: "How much of
+        {childName}'s capital gain distributions was collectibles (28% rate) gain?" Help text:
+        this is box 2d of the child's Form 1099-DIV. If the child has more than one Form 1099-DIV,
+        add up all of the box 2d amounts. Leave it blank if box 2d is blank on every form. Asked
+        when: this child's ../writableChildCapitalGainDistributionsIncludeSubcategories is Yes.
+        Unanswered posture: $0, and the answered predicate that makes that safe is the Yes on the
+        screen before it, not this box: a blank box on a screen the filer was shown means the
+        child has no collectibles gain. While that question is unanswered the share below is
+        Incomplete, not $0. Validation: Dollar, Min $0, ONE amount per child. NO UPPER BOUND
+        AGAINST LINE 3, the same disclosed and not repaired posture the module's line 2b and
+        Alaska Permanent Fund intakes take: an amount above the child's total capital gain
+        distribution is ACCEPTED, and the share it produces is capped at this child's line 10
+        rather than refused. What the answer feeds: the numerator of the fraction at
+        ../collectiblesGainShareOfLine10.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildUnrecapturedSection1250GainPortionOfLine3">
+      <Name>The unrecaptured section 1250 gain part of this child's Form 8814 line 3</Name>
+      <Description>SCREEN, the second of the three amount boxes. Question: "How much of
+        {childName}'s capital gain distributions was unrecaptured section 1250 gain?" Help text:
+        this is box 2b of the child's Form 1099-DIV. If the child has more than one Form 1099-DIV,
+        add up all of the box 2b amounts. Leave it blank if box 2b is blank on every form. Asked
+        when, unanswered posture, validation and the no upper bound rule: all exactly as stated on
+        ../writableChildCollectiblesGainPortionOfLine3, one screen, three boxes, one answered
+        predicate. What the answer feeds: the numerator of the fraction at
+        ../unrecapturedSection1250GainShareOfLine10.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/writableChildSection1202GainPortionOfLine3">
+      <Name>The section 1202 gain part of this child's Form 8814 line 3</Name>
+      <Description>SCREEN, the third of the three amount boxes. Question: "How much of
+        {childName}'s capital gain distributions was section 1202 gain (gain on qualified small
+        business stock)?" Help text: this is box 2c of the child's Form 1099-DIV. If the child has
+        more than one Form 1099-DIV, add up all of the box 2c amounts. Leave it blank if box 2c is
+        blank on every form. Asked when, unanswered posture, validation and the no upper bound
+        rule: all exactly as stated on ../writableChildCollectiblesGainPortionOfLine3. What the
+        answer feeds: the numerator of the fraction at ../section1202GainShareOfLine10. NOTE WHAT
+        THIS IS NOT: it is the section 1202 GAIN, not the section 1202 EXCLUSION. The instructions
+        put the exclusion at "generally 50% of the result, but may be subject to a limit" and send
+        the reader to the Instructions for Schedule D for it, so the exclusion is computed where
+        Schedule D computes the parent's own, not here.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8814Children/*/collectiblesGainShareOfLine10">
+      <Name>The collectibles (28% rate) part of this child's line 10, for the 28% Rate Gain Worksheet line 4</Name>
+      <Description>The fraction the Instructions for Form 8814 print for collectibles gain:
+        "Multiply the child's capital gain distribution included on Schedule D, line 13, by a
+        fraction. The numerator is the part of the child's total capital gain distribution that is
+        collectibles (28% rate) gain. The denominator is the child's total capital gain
+        distribution. Enter the result on line 4 of the 28% Rate Gain Worksheet." The child's
+        capital gain distribution included on Schedule D line 13 is Form 8814 line 10
+        (../line10CapitalGainDistributionsIncluded), so this is line 10 times box 2d over line 3.
+
+        MULTIPLY FIRST, THEN DIVIDE, and no three place decimal. The thousandths encoding this
+        module uses on lines 7 and 8 exists because those two lines PRINT "Enter the result as a
+        decimal (rounded to at least three places)"; the fraction here prints no decimal and no
+        rounding of it, so rounding the ratio first would be this dictionary's invention. The
+        product is rounded half up to whole dollars at this entry, the each leg rounds itself
+        posture Form 8814 lines 9, 10 and 15 already take and the 28% Rate Gain Worksheet's own
+        whole dollar line 4 expects.
+
+        CAPPED AT THIS CHILD'S LINE 10. The box 2d intake carries no upper bound against line 3
+        (the module's disclosed and not repaired posture), so an over entry can drive the raw
+        product past line 10. The cap holds the worksheet addend at the whole of line 10 rather
+        than above it, and the over entry is disclosed rather than refused, exactly as the Alaska
+        Permanent Fund share is capped at line 12.
+
+        COMPLETENESS. $0 when ../hasSubcategoryCapitalGainDistributions is Complete false, which
+        covers both the child with no capital gain distribution at all and the child whose filer
+        answered No. INCOMPLETE while that question is unanswered, which is the posture the
+        attestation exists to carry: there is no honest $0 for a Form 8814 the graph never asked.
+        The division cannot see a zero denominator: line 10 above $0 requires line 8 above
+        $0, which requires line 3 above $0, so every child that reaches the fraction has a nonzero
+        line 3.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../hasSubcategoryCapitalGainDistributions" /></IsComplete>
+                <Not><Dependency path="../hasSubcategoryCapitalGainDistributions" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../hasSubcategoryCapitalGainDistributions" /></IsComplete>
+                <Dependency path="../hasSubcategoryCapitalGainDistributions" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Round>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="../line10CapitalGainDistributionsIncluded" />
+                        <Switch>
+                          <Case>
+                            <When>
+                              <IsComplete>
+                                <Dependency path="../writableChildCollectiblesGainPortionOfLine3" />
+                              </IsComplete>
+                            </When>
+                            <Then>
+                              <GreaterOf><Dependency path="../writableChildCollectiblesGainPortionOfLine3" /><Dollar>0</Dollar></GreaterOf>
+                            </Then>
+                          </Case>
+                          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+                        </Switch>
+                      </Multiply>
+                    </Dividend>
+                    <Divisors><Dependency path="../capitalGainDistributionsAmount" /></Divisors>
+                  </Divide>
+                </Round>
+                <Dependency path="../line10CapitalGainDistributionsIncluded" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/unrecapturedSection1250GainShareOfLine10">
+      <Name>The unrecaptured section 1250 part of this child's line 10, for the Unrecaptured Section 1250 Gain Worksheet line 11</Name>
+      <Description>The fraction the Instructions for Form 8814 print for unrecaptured section 1250
+        gain: "Multiply the child's capital gain distribution included on Schedule D, line 13, by a
+        fraction. The numerator is the part of the child's total capital gain distribution that is
+        unrecaptured section 1250 gain. The denominator is the child's total capital gain
+        distribution. Enter the result on the Unrecaptured Section 1250 Gain Worksheet, line 11."
+        Same arithmetic, same rounding, same cap and the same completeness posture as
+        ../collectiblesGainShareOfLine10; the reasons are stated there and not repeated. Only the
+        numerator (box 2b) and the destination worksheet line differ.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../hasSubcategoryCapitalGainDistributions" /></IsComplete>
+                <Not><Dependency path="../hasSubcategoryCapitalGainDistributions" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../hasSubcategoryCapitalGainDistributions" /></IsComplete>
+                <Dependency path="../hasSubcategoryCapitalGainDistributions" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Round>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="../line10CapitalGainDistributionsIncluded" />
+                        <Switch>
+                          <Case>
+                            <When>
+                              <IsComplete>
+                                <Dependency path="../writableChildUnrecapturedSection1250GainPortionOfLine3" />
+                              </IsComplete>
+                            </When>
+                            <Then>
+                              <GreaterOf><Dependency path="../writableChildUnrecapturedSection1250GainPortionOfLine3" /><Dollar>0</Dollar></GreaterOf>
+                            </Then>
+                          </Case>
+                          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+                        </Switch>
+                      </Multiply>
+                    </Dividend>
+                    <Divisors><Dependency path="../capitalGainDistributionsAmount" /></Divisors>
+                  </Divide>
+                </Round>
+                <Dependency path="../line10CapitalGainDistributionsIncluded" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/section1202GainShareOfLine10">
+      <Name>The section 1202 part of this child's line 10, before the exclusion Schedule D figures</Name>
+      <Description>The fraction the Instructions for Form 8814 print for section 1202 gain: "To
+        figure that part, multiply the child's capital gain distribution included on Schedule D,
+        line 13, by a fraction. The numerator is the part of the child's total capital gain
+        distribution that is section 1202 gain. The denominator is the child's total capital gain
+        distribution." Same arithmetic, same rounding, same cap and the same completeness posture
+        as ../collectiblesGainShareOfLine10; the reasons are stated there and not repeated.
+
+        THIS IS THE GAIN, NOT THE EXCLUSION, and that is where this leg stops. The sentence after
+        the fraction reads "Your section 1202 exclusion is generally 50% of the result, but may be
+        subject to a limit. In some cases, the exclusion is more than 50%. See the Instructions for
+        Schedule D for details and information on how to report the exclusion amount." The
+        percentage is a section 1202(a) question of the acquisition date and the issuer, which this
+        module holds nothing about, so the exclusion is computed where the parent's own is
+        computed. DIRECTION of leaving it here: the section 1202 leg is the one omission of the
+        three that OVER states tax rather than under stating it, so stopping at the gain is the
+        conservative stop.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../hasSubcategoryCapitalGainDistributions" /></IsComplete>
+                <Not><Dependency path="../hasSubcategoryCapitalGainDistributions" /></Not>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../hasSubcategoryCapitalGainDistributions" /></IsComplete>
+                <Dependency path="../hasSubcategoryCapitalGainDistributions" />
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Round>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="../line10CapitalGainDistributionsIncluded" />
+                        <Switch>
+                          <Case>
+                            <When>
+                              <IsComplete>
+                                <Dependency path="../writableChildSection1202GainPortionOfLine3" />
+                              </IsComplete>
+                            </When>
+                            <Then>
+                              <GreaterOf><Dependency path="../writableChildSection1202GainPortionOfLine3" /><Dollar>0</Dollar></GreaterOf>
+                            </Then>
+                          </Case>
+                          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+                        </Switch>
+                      </Multiply>
+                    </Dividend>
+                    <Divisors><Dependency path="../capitalGainDistributionsAmount" /></Divisors>
+                  </Divide>
+                </Round>
+                <Dependency path="../line10CapitalGainDistributionsIncluded" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line11QualifiedDividendsAndCapitalGainDistributionsIncluded">
+      <Name>Form 8814 line 11, add lines 9 and 10</Name>
+      <Description>Form 8814 line 11 for this child: line 9 plus line 10, the part of line 6 that
+        goes to the parent's return under its own character rather than as other income. The
+        form's line 6 instruction enters -0- here directly when both lines 2b and 3 are zero or
+        blank; that child carries $0 on both of the lines added, so the sum is the same -0-
+        without a separate arm.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../line9QualifiedDividendsIncluded" />
+          <Dependency path="../line10CapitalGainDistributionsIncluded" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line12OtherIncomeIncluded">
+      <Name>Form 8814 line 12, subtract line 11 from line 6 — the child's other income on Schedule 1 line 8z</Name>
+      <Description>Form 8814 line 12 for this child: line 6 minus line 11, the ORDINARY remainder of
+        the excess over the base amount — the child's interest and non-qualified dividends the
+        election puts on the parent's return — "Include this amount in the total on Schedule 1
+        (Form 1040), line 8z. In the space next to that line, enter 'Form 8814' and show the
+        amount." The module total /form8814TotalLine12OtherIncome carries it there and to the
+        three consumers that name line 12 by number: Form 8960 line 7, Form 4952 line 4a and EIC
+        Worksheet 1 line 4.
+
+        FLOORED AT $0, AND THE FLOOR IS A DECISION. The printed line has no "if zero or less"
+        clause, and on the form's own arithmetic line 11 can exceed line 6 by a dollar: lines 9
+        and 10 each round half up, so a child with $1 of line 6 and a 0.500/0.500 split carries $1
+        + $1 on line 11 against $1 on line 6.
+        A negative line 12 would put a negative "other income" on Schedule 1 for an inclusion the
+        statute defines as an excess, so it floors here; the cost is that such a child's three
+        parts foot to line 6 plus $1, an OVER-inclusion of at most one dollar per child in the
+        taxpayer-adverse direction, disclosed and pinned. The same floor catches the data-entry
+        inconsistency of a line 2b entered above line 2a,
+        whose line 9 then over-states the qualified part while this line stays at $0.
+
+        AN ALASKA PERMANENT FUND DIVIDEND THE CHILD RECEIVED sits inside line 2a and therefore
+        inside this line, and three consumers want it taken back out — Form 8960 line 7 takes line
+        12 "excluding Alaska Permanent Fund Dividends", Pub 550 reduces the Form 4952 line 4a
+        amount by line 6 times the Permanent Fund share of line 4, and Pub 596 Worksheet 2 makes a
+        related reduction for EIC Worksheet 1 line 4 by a ratio of its own. The per-child sub-intake
+        is /form8814Children/*/writableChildAlaskaPermanentFundDividends and the reduced figure is
+        /form8814Children/*/line12OtherIncomeIncludedExcludingAlaskaPermanentFundDividends, whose
+        module total Form 8960 line 7 and form4952:/section163dInvestmentIncome read. THIS line stays
+        the WHOLE of line 12: Schedule 1 line 8z carries it whole, because the Permanent Fund dividend
+        is taxable income on the parent's return like any other ordinary dividend, and only the
+        net-investment-income tests exclude it. The earned income credit takes its own reduction by
+        Pub 596 Worksheet 2, a different arithmetic from Pub 550's: /form8814Children/*/pub596Worksheet2Line10
+        and its total /form8814Pub596Worksheet2Line10Total, which eitc:/eitcInvestmentIncome reads.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="../line6ExcessOverBaseAmount" /></Minuend>
+            <Subtrahends><Dependency path="../line11QualifiedDividendsAndCapitalGainDistributionsIncluded" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8814Children/*/alaskaPermanentFundShareOfLine12">
+      <Name>The Alaska Permanent Fund part of this child's Form 8814 line 12, by Publication 550's method</Name>
+      <Description>The part of this child's Form 8814 line 12 that is attributable to the child's Alaska Permanent Fund dividends. Two instructions state the EXCLUSION and neither states a method: the Instructions for Form 8960 say the parent must include on Form 8960 line 7 "the amount on Form 8814, line 12, excluding Alaska Permanent Fund Dividends", and the Instructions for Form 8814 say "All net investment income included on line 12 (except for Alaska Permanent Fund dividends) is included in the parents' net investment income". The ONE printed method belongs to Publication 550, which figures the same exclusion for the Form 4952 investment-income test: "start with the amount on Form 8814, line 6. Multiply that amount by a percentage that is equal to the Alaska Permanent Fund dividends divided by the total amount on Form 8814, line 4. Subtract the result from the amount on Form 8814, line 12." Its worked example is $3,300 − ($3,300 × ($2,000 ÷ $6,000)) = $2,200. This fact is the middle term of that sentence, and the reduced line 12 below is the whole of it. APPLIED TO FORM 8960 LINE 7 BY ANALOGY: Publication 550 writes the method for Form 4952, and nothing printed says the Form 8960 exclusion is figured the same way — but it is the same exclusion of the same dollars out of the same line 12, and no other method is published.
+
+        MULTIPLY FIRST, THEN DIVIDE, and the departure from the module's own thousandths idiom is deliberate. Form 8814 line 7 prints a three-place decimal and this module encodes it as thousandths for that reason; Publication 550 prints no decimal and states no rounding of the percentage, so rounding the percentage first would put the example off its own answer ($2,000 ÷ $6,000 rounded to three places is 0.333, and $3,300 × 0.333 is $1,098.90, giving $2,201.10 rather than the printed $2,200). Line 6 times the Permanent Fund amount, divided by line 4, reproduces the printed figure exactly: $3,300 × $2,000 ÷ $6,000 = $1,100.00.
+
+        THE RESULT IS ROUNDED TO WHOLE DOLLARS, and it has to be said because the example does not show it. Publication 550's own numbers divide evenly, so the example needs no rounding and cannot demonstrate any; on a return whose figures do not divide evenly the quotient is rounded half up to whole dollars here, at the entry this fact is — the each-leg-rounds-itself posture Form 8814 lines 9, 10 and 15 already take. Worked: line 4 $7,000, line 6 $4,300, a $1,000 Permanent Fund dividend gives $4,300 × $1,000 ÷ $7,000 = $614.2857…, which resolves $614.00 and leaves a reduced line 12 of $3,686.00.
+
+        CAPPED AT THIS CHILD'S LINE 12, which is what makes an out-of-range intake safe. The Permanent Fund amount carries no upper bound against line 2a — the module's disclosed-not-repaired posture — so an entry above the child's ordinary dividends can drive the raw share past line 12. The cap holds the reduced line 12 at $0 instead of turning it negative, and the over-entry is disclosed rather than refused, exactly as line 2b's over-entry is.
+
+        $0 whenever the Permanent Fund amount is unanswered, and $0 for a child the form's own skip rule takes out of lines 7 through 12 (line 4 at or under the base amount), which is also what keeps the division away from a zero line 4.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Dependency path="../requiresIncomeInclusion" /></When>
+            <Then>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="../writableChildAlaskaPermanentFundDividends" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <LesserOf>
+                      <Round>
+                        <Divide>
+                          <Dividend>
+                            <Multiply>
+                              <Dependency path="../line6ExcessOverBaseAmount" />
+                              <GreaterOf>
+                                <Dependency path="../writableChildAlaskaPermanentFundDividends" />
+                                <Dollar>0</Dollar>
+                              </GreaterOf>
+                            </Multiply>
+                          </Dividend>
+                          <Divisors><Dependency path="../line4ChildInterestAndDividends" /></Divisors>
+                        </Divide>
+                      </Round>
+                      <Dependency path="../line12OtherIncomeIncluded" />
+                    </LesserOf>
+                  </Then>
+                </Case>
+                <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+              </Switch>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/line12OtherIncomeIncludedExcludingAlaskaPermanentFundDividends">
+      <Name>This child's Form 8814 line 12 with the Alaska Permanent Fund part taken back out</Name>
+      <Description>This child's Form 8814 line 12 less /form8814Children/*/alaskaPermanentFundShareOfLine12 — the last clause of Publication 550's method, "Subtract the result from the amount on Form 8814, line 12". It is the figure the Instructions for Form 8960 ask for when they send the parent line 12 "excluding Alaska Permanent Fund Dividends", and the Instructions for Form 8814 say the same thing from the other side: "All net investment income included on line 12 (except for Alaska Permanent Fund dividends) is included in the parents' net investment income."
+
+        NEVER NEGATIVE, because the share above is capped at line 12; a Permanent Fund amount entered larger than the child's ordinary dividends takes this to $0 and no further. EQUAL TO LINE 12 whenever the Permanent Fund amount is unanswered or $0, which is every committed return, so nothing on the corpus moves.
+
+        This is NOT the Schedule 1 line 8z figure. Line 12 whole is what Schedule 1 line 8z carries — the Permanent Fund dividend is taxable income on the parent's return like any other ordinary dividend — and the exclusion is a NET-INVESTMENT-INCOME exclusion only. /form8814TotalLine12OtherIncome stays the Schedule 1 leg; this leg's total is the one Form 8960 line 7 reads.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="../line12OtherIncomeIncluded" /></Minuend>
+          <Subtrahends><Dependency path="../alaskaPermanentFundShareOfLine12" /></Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/pub596Worksheet2Line5">
+      <Name>Publication 596 Worksheet 2 line 5 for this child: taxable interest plus nonqualified ordinary dividends</Name>
+      <Description>Publication 596 Worksheet 2 line 5 for this child's Form 8814: line 1a (taxable interest) plus the difference of line 2a (ordinary dividends) and line 2b (qualified dividends). It is the denominator of the Alaska Permanent Fund fraction on Worksheet 2 line 7. Unanswered amounts count as $0 and negative entries as $0. This is not Form 8814 line 4: capital gain distributions and qualified dividends are left out, because they are taxed through lines 9 and 10 rather than line 12.</Description>
+      
+      <Derived>
+        <Add>
+          <Switch>
+            <Case>
+              <When><IsComplete><Dependency path="../writableChildTaxableInterest" /></IsComplete></When>
+              <Then><GreaterOf><Dependency path="../writableChildTaxableInterest" /><Dollar>0</Dollar></GreaterOf></Then>
+            </Case>
+            <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+          </Switch>
+          <Subtract>
+            <Minuend>
+              <Switch>
+                <Case>
+                  <When><IsComplete><Dependency path="../writableChildOrdinaryDividends" /></IsComplete></When>
+                  <Then><GreaterOf><Dependency path="../writableChildOrdinaryDividends" /><Dollar>0</Dollar></GreaterOf></Then>
+                </Case>
+                <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+              </Switch>
+            </Minuend>
+            <Subtrahends><Dependency path="../qualifiedDividendsAmount" /></Subtrahends>
+          </Subtract>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/pub596Worksheet2Line9">
+      <Name>Publication 596 Worksheet 2 line 9 for this child: the Alaska Permanent Fund part of Form 8814 line 12</Name>
+      <Description>Publication 596 Worksheet 2 line 9: Form 8814 line 12 times the fraction on line 7, which is the child's Alaska Permanent Fund dividends (line 6) divided by /form8814Children/*/pub596Worksheet2Line5. The fraction is carried at full precision and the product is rounded once to whole dollars (the worksheet asks for at least three decimal places). Capped at line 12, so an Alaska Permanent Fund amount entered above line 5 takes line 10 to $0 and no lower. $0 when the Alaska Permanent Fund amount is unanswered, when line 5 is not above $0, or when the child's income is not included on the parent's return (line 12 is then $0). This is the Earned Income Credit worksheet's method; the net investment income exclusion uses Publication 550's method in /form8814Children/*/alaskaPermanentFundShareOfLine12, which can differ from it by rounding.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="../writableChildAlaskaPermanentFundDividends" />
+                </IsComplete>
+                <Dependency path="../requiresIncomeInclusion" />
+                <GreaterThan>
+                  <Left><Dependency path="../pub596Worksheet2Line5" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Round>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="../line12OtherIncomeIncluded" />
+                        <GreaterOf>
+                          <Dependency path="../writableChildAlaskaPermanentFundDividends" />
+                          <Dollar>0</Dollar>
+                        </GreaterOf>
+                      </Multiply>
+                    </Dividend>
+                    <Divisors><Dependency path="../pub596Worksheet2Line5" /></Divisors>
+                  </Divide>
+                </Round>
+                <Dependency path="../line12OtherIncomeIncluded" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/pub596Worksheet2Line10">
+      <Name>Publication 596 Worksheet 2 line 10 for this child: Form 8814 line 12 less its Alaska Permanent Fund part</Name>
+      <Description>Publication 596 Worksheet 2 line 10: Form 8814 line 12 less /form8814Children/*/pub596Worksheet2Line9. It is this child's amount for Worksheet 1 line 4, the Form 8814 part of the parent's investment income for the Earned Income Credit. Equal to line 12 when no Alaska Permanent Fund amount is answered. Never negative, because line 9 is capped at line 12.</Description>
+      
+      <Derived>
+        <Subtract>
+          <Minuend><Dependency path="../line12OtherIncomeIncluded" /></Minuend>
+          <Subtrahends><Dependency path="../pub596Worksheet2Line9" /></Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/electionOutsideStatutoryWindow">
+      <Name>This child's Form 8814 line 4 is outside the statutory election window</Name>
+      <Description>True when this child's line 4 is $1,350 or less, or $13,500 or more — the
+        IRC 1(g)(7)(A)(ii) window ("more than the amount described in paragraph (4)(A)(ii)(I)
+        and less than 10 times the amount so described") read against the 2025 indexed base of
+        $1,350. Below the floor the child is not required to file and the election does not
+        exist to be made; at or above the ceiling the form's own line 4 says "do not file this
+        form. Your child must file his or her own return". A created-but-unanswered child item
+        carries line 4 = $0 Complete and lands here — the designed FAIL-CLOSED refusal for
+        half-answered intake, so an election the filer started but did not finish never files as
+        an unelected return.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <LessThanOrEqual>
+            <Left><Dependency path="../line4ChildInterestAndDividends" /></Left>
+            <Right><Dollar>1350</Dollar></Right>
+          </LessThanOrEqual>
+          <GreaterThanOrEqual>
+            <Left><Dependency path="../line4ChildInterestAndDividends" /></Left>
+            <Right><Dollar>13500</Dollar></Right>
+          </GreaterThanOrEqual>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/hasTaxExemptInterest">
+      <Name>This child's Form 8814 line 1b is nonzero</Name>
+      <Description>True when the child's tax-exempt interest (line 1b) is answered and greater
+        than zero; False while unanswered (the amount then contributes nothing anywhere, which
+        is exactly what an unanswered $0-floored disclosure means). It is the
+        application "asked when" gate for the follow-up question
+        /form8814Children/*/writableChildPrivateActivityBondInterest — the PAB-portion split is
+        worth asking only once line 1b is known nonzero, and this is that predicate. The DOLLAR counterpart of this boolean is
+        /form8814Children/*/taxExemptInterestAmount: the same complete-safe guard, carrying the
+        amount instead of the flag.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableChildTaxExemptInterest" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Dependency path="../writableChildTaxExemptInterest" /></Left>
+                <Right><Dollar>0</Dollar></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/taxExemptInterestAmount">
+      <Name>This child's Form 8814 line 1b, complete-safe</Name>
+      <Description>The child's tax-exempt interest (line 1b) as a dollar the collection can sum:
+        the writable when it is answered, $0 when it is not. The DOLLAR twin of
+        /form8814Children/*/hasTaxExemptInterest, which guards the same writable for the boolean
+        case.
+
+        WHY THE ALIAS EXISTS AT ALL, rather than a CollectionSum over the writable directly.
+        /form8814Children/*/writableChildTaxExemptInterest is optional, so a created child item
+        that leaves line 1b unanswered has no value for it, and a CollectionSum reading the raw
+        writable would carry that Incompleteness out of this module and into
+        eitc:/eitcInvestmentIncome — which gates the EIC. This codebase's rule is that a
+        CollectionSum always reads a complete-safe per-item alias and never a raw per-item
+        writable; form6251:/amtLine2gPrivateActivityBondInterest states it for the box-9 leg
+        ("interest:/interestReports/*/specifiedPrivateActivityBondInterest is itself the
+        complete-safe alias over the writable") and this is the same shape.
+
+        NO CHANGE OF MEANING, only of completeness: an unanswered line 1b contributes nothing,
+        which is what an unanswered $0-floored disclosure already meant.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableChildTaxExemptInterest" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../writableChildTaxExemptInterest" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/privateActivityBondInterest">
+      <Name>This child's section 57(a)(5) preference portion of line 1b, complete-safe</Name>
+      <Description>The preference-item portion of this child's Form 8814 line 1b — the amount
+        IRC 1(g)(7)(B)(iii) treats as the PARENT's item of tax preference — as a dollar the
+        collection can sum: the writable when it is answered, $0 when it is not.
+
+        Exactly the shape
+        dividendReports:/dividendReports/*/specifiedPrivateActivityBondInterestDividends
+        carries over its own box-13 writable, for the same reason and with the same
+        $0-when-unanswered result. The choice of $0 rather
+        than a second refusal is argued in full on the writable itself; the residual it leaves
+        is named on /form8814PrivateActivityBondInterest, the aggregate Form 6251 reads.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableChildPrivateActivityBondInterest" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="../writableChildPrivateActivityBondInterest" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Children/*/eligibilityNotAttested">
+      <Name>This child's Form 8814 eligibility attestation is unanswered or No</Name>
+      <Description>True unless /form8814Children/*/writableChildQualifiesForElection is answered
+        Yes — the fail-closed reading: an election whose printed conditions the filer has not
+        affirmed is not an election this graph can carry into the tax. Feeds
+        /knockoutForm8814EligibilityNotAttested.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../writableChildQualifiesForElection" /></IsComplete></When>
+            <Then><Not><Dependency path="../writableChildQualifiesForElection" /></Not></Then>
+          </Case>
+          <Case><When><True /></When><Then><True /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814MoreThanOneAttached">
+      <Name>Form 8814 line C, more than one Form 8814 is attached</Name>
+      <Description>Form 8814 line C's checkbox: True when the parent elects for more than one
+        child (each child is its own Form 8814, so the box is a property of the collection's
+        size, checked on every attached copy). Complete-safe False while the collection is
+        unopened.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><CollectionSize><Dependency path="/form8814Children" /></CollectionSize></Left>
+                <Right><Int>1</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalTax">
+      <Name>Total Form 8814 line 15 tax carried to Form 1040 line 16</Name>
+      <Description>The sum of Form 8814 line 15 over every elected child — the i8814 Line 15
+        aggregation rule ("If you checked the box on line C, add the amounts from line 15 of
+        all your Forms 8814. Include the total on Form 1040, 1040-SR, or 1040-NR, line 16"),
+        which for a single form reduces to that form's own Note. Read by
+        taxCalculations:/tentativeTaxFromTaxableIncome (the printed line 16 amount) and, as
+        CollectionSize through the same collection, by taxCalculations:/form8814Included (box
+        1). COMPLETE-SAFE AND BYTE-IDENTICAL ON THE COMMITTED CORPUS: the CollectionSum sits
+        inside an IsComplete Switch on /form8814Children defaulting to $0 and each item's
+        line 15 is complete-safe through line 4's own wrappers, so a return that never opens
+        the election resolves Complete $0 and line 16 keeps its exact prior value (the
+        /otherFormWithholding pattern). Each term is rounded at its own line 15, so this sum
+        adds whole-dollar entries and carries no Round of its own.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/line15Tax" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalTaxExemptInterest">
+      <Name>Total Form 8814 line 1b tax-exempt interest across elected children</Name>
+      <Description>The sum of Form 8814 line 1b over every elected child — the WHOLE printed
+        figure, not a portion of it. This is the addend Pub 596 (2025) Worksheet 1 line 2 names:
+        "Enter any amount from Form 1040 or 1040-SR, line 2a, plus any amount on Form 8814, line
+        1b" (https://www.irs.gov/pub/irs-pdf/p596.pdf, page 7). Read cross-module by
+        eitc:/eitcInvestmentIncome, which combines it with interest:/taxExemptInterest (the Form
+        1040 line 2a half of that same worksheet line) inside one nested Add. It is what retires the WS-1 line 2 half of the Form 8814
+        tax-exempt-interest contract.
+
+        THE WHOLE OF LINE 1b, WITH NO SPLIT, AND THAT IS THE POINT OF KEEPING IT SEPARATE FROM
+        /form8814PrivateActivityBondInterest. The two facts read the same printed line for two
+        different consumers and they are NOT interchangeable: Worksheet 1 line 2 takes "any
+        amount on Form 8814, line 1b" unconditionally, while Form 6251 line 2g takes only the
+        part "that is a preference item". Reading the preference portion here would UNDER-state
+        EIC investment income and over-allow the credit; reading the whole of line 1b onto line
+        2g would OVER-state AMTI for every child holding ordinary municipal bonds.
+
+        THE SUM-ACROSS-CHILDREN SHAPE IS THIS MODULE'S IDIOM, matching /form8814TotalTax: the
+        worksheet line says "any amount on Form 8814, line 1b" and a parent may attach one Form
+        8814 per child, so the figure a single worksheet line takes is the total across them.
+
+        UNROUNDED, because the worksheet line it joins is: eitc:/eitcInvestmentIncome is
+        compared against $11,950 without an intervening round.
+
+        COMPLETE-SAFE AND BYTE-IDENTICAL ON THE COMMITTED CORPUS: the CollectionSum sits inside
+        an IsComplete Switch on /form8814Children defaulting to $0, and each item's term is the
+        complete-safe alias /form8814Children/*/taxExemptInterestAmount rather than the raw
+        writable, so a return that never opens the election resolves Complete $0 and every
+        pre-existing EIC computation keeps its exact prior value. No committed scenario
+        references /form8814Children at all.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/taxExemptInterestAmount" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814PrivateActivityBondInterest">
+      <Name>Total section 57(a)(5) preference portion of Form 8814 line 1b, all elected children</Name>
+      <Description>The sum, over every elected child, of the part of Form 8814 line 1b that is
+        interest on specified private activity bonds — the amount IRC 1(g)(7)(B)(iii) makes the
+        PARENT's item of tax preference "(and not of such child)". This is the THIRD leg of Form
+        6251 line 2g, read cross-module by form6251:/amtLine2gPrivateActivityBondInterest
+        alongside the Form 1099-INT box-9 leg (bonds held directly) and the Form 1099-DIV box-13
+        leg (bonds held through a fund). It is
+        what retires the line-2g half of the Form 8814 tax-exempt-interest contract.
+
+        A PORTION OF LINE 1b, NEVER THE WHOLE OF IT. The 2025 Instructions for Form 6251 qualify
+        the Form 8814 clause: include "any tax-exempt interest income from line 1b of that form
+        that is a preference item" (https://www.irs.gov/pub/irs-pdf/i6251.pdf, page 4). Line 1b as
+        filed mixes ordinary municipal interest with private-activity interest, so the portion
+        is a separate intake (/form8814Children/*/writableChildPrivateActivityBondInterest) and
+        NOT a read of line 1b. The whole of line 1b has its own fact for its own consumer,
+        /form8814TotalTaxExemptInterest (EIC Worksheet 1 line 2), and confusing the two moves
+        real tax in opposite directions.
+
+        A FOURTH DISJOINT POPULATION ON ONE PRINTED LINE, which is why it ADDS rather than
+        displaces: the box-9 filer holds the bond, the box-13 filer holds a fund, and this filer
+        holds NEITHER — the bond is the CHILD's, and the preference reaches the parent only
+        because 1(g)(7)(B)(iii) reassigns it. A parent can be in all three populations at once
+        and the printed line is their sum.
+
+        THE DISCLOSED RESIDUAL, named here because this is the fact the consumer reads. The
+        per-child portion is an OPTIONAL writable and an unanswered one resolves $0, so a filer
+        whose child does hold specified private activity bonds but who does not answer the
+        follow-up question has that preference absent from line 2g. That UNDER-states AMTI: the
+        World-#1-adverse direction, disclosed and not hidden, and the same posture this
+        dictionary already accepts for the box-13 fund leg. It is bounded by the application asking the
+        question whenever /form8814Children/*/hasTaxExemptInterest is true, and the choice
+        against a second refusal is argued in full on the writable.
+
+        UNROUNDED, because the leg it joins is: form6251:/amtLine2gPrivateActivityBondInterest
+        is a line-2 summand and Form 6251 rounds once at line 4.
+
+        COMPLETE-SAFE AND BYTE-IDENTICAL ON THE COMMITTED CORPUS, by the same construction as
+        /form8814TotalTaxExemptInterest above: an IsComplete Switch on /form8814Children over a
+        CollectionSum of complete-safe per-item aliases, defaulting to $0. A return with no Form
+        8814 adds exactly $0 to line 2g, so no pre-existing Form 6251 result moves.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/privateActivityBondInterest" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form8814Line5BaseAmount">
+      <Name>Form 8814 line 5, base amount</Name>
+      <Description>Form 8814 line 5, the printed "Base amount" of $2,700 for 2025 — twice the IRC
+        1(g)(4)(A)(ii)(I) amount ($1,350), which is the figure IRC 1(g)(7)(B)(i) subtracts from the
+        child's gross income before the excess joins the parent's ("to the extent the gross income
+        of such child exceeds twice the amount described in paragraph (4)(A)(ii)(I)"). One printed
+        constant on every attached Form 8814, so it is a module-level fact rather than a per-child
+        one; each child's /form8814Children/*/line6ExcessOverBaseAmount reads it. The same $2,700
+        is the line 4 skip threshold /form8814Children/*/requiresIncomeInclusion tests, under the
+        same param key.</Description>
+      
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dollar>2700</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalLine9QualifiedDividends">
+      <Name>Total Form 8814 line 9 across elected children, carried to Form 1040 lines 3a and 3b</Name>
+      <Description>The sum of Form 8814 line 9 over every elected child — the child qualified
+        dividends the election puts on the parent's Form 1040, which the instructions send to
+        lines 3a AND 3b ("Include this amount on Form 1040, 1040-SR, or 1040-NR, lines 3a and 3b").
+        Read cross-module by income:/qualifiedDividends and income:/ordinaryDividends, one addend
+        each, and by income:/childDividendsIncludedInLine3a, the line 3c box that discloses it.
+        NOTHING ELSE READS IT, on purpose: every other consumer of a child's qualified dividends
+        (Schedule B's over-$1,500 dividends test in interest:/requiresScheduleB, Form 8960 line 2,
+        EIC Worksheet 1 line 3, Form 4952 line 4b) reads the printed line 3a or 3b and inherits
+        this addend through it, so a second wiring anywhere would count it twice. The
+        sum-across-children shape is the module's idiom (/form8814TotalTax): one printed line 3a
+        takes the figure from every attached Form 8814. Whole dollars, each line 9 having rounded
+        itself. COMPLETE-SAFE AND BYTE-IDENTICAL ON THE COMMITTED CORPUS: an IsComplete Switch on
+        /form8814Children defaulting to $0 over a CollectionSum of per-item facts that are
+        complete-safe by construction, and no committed scenario references /form8814Children.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/line9QualifiedDividendsIncluded" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalLine10CapitalGainDistributions">
+      <Name>Total Form 8814 line 10 across elected children, carried to Schedule D line 13 or Form 1040 line 7a</Name>
+      <Description>The sum of Form 8814 line 10 over every elected child — the child capital gain
+        distributions the election puts on the parent's return, "on Schedule D (Form 1040), line
+        13; or Form 1040, 1040-SR, or 1040-NR, line 7a". Read cross-module at exactly the sites
+        the parent's own Form 1099-DIV box 2a total (dividendReports:/capitalGainDistributions) is
+        read, one addend beside it at each: scheduleD:/longTermGainOrLossAfterCarryover (the line
+        13 term of line 15, when Schedule D is filed), income:/capitalGainsOrLosses (the direct
+        line 7a route when it is not), income:/capitalGainsScheduleDNotRequired (the "Schedule D
+        not required" box, whose Exception 1 this figure satisfies exactly as box 2a does) and
+        income:/childCapitalGainIncludedInLine7a with its line 7b box. The two routes are
+        exclusive by the same gate box 2a uses, so the figure reaches line 7a exactly once.
+        Whole dollars, complete-safe and byte-identical on the committed corpus by the same
+        construction as /form8814TotalLine9QualifiedDividends.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/line10CapitalGainDistributionsIncluded" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8814TotalCollectiblesGainShareOfLine10">
+      <Name>Total Form 8814 collectibles (28% rate) share across elected children, for the 28% Rate Gain Worksheet line 4</Name>
+      <Description>The sum of /form8814Children/*/collectiblesGainShareOfLine10 over every elected
+        child: the Form 8814 addend of the 28% Rate Gain Worksheet line 4, which today already
+        totals the parent's own box 2d (dividendReports:/collectiblesGainFromDividends), Form 2439
+        box 1d and the Schedule K-1 leg. It rides beside those exactly as
+        /form8814TotalLine10CapitalGainDistributions rides beside the parent's box 2a total on
+        Schedule D line 13, because it is the same dollars seen one rate bracket further on.
+
+        WIRED: scheduleD
+        /twentyEightPercentRateGainLines1Through4 consumes this exported amount beside the
+        parent's own box-2d, Form 2439 box-1d and Schedule K-1 legs. The character survives the
+        Form 8814 election, so this is not merely a reporting subtotal.
+
+        Complete-safe $0 while the election collection is unopened, by the same construction as
+        /form8814TotalLine10CapitalGainDistributions. INCOMPLETE, deliberately, when any elected
+        child's subcategory question is unanswered: the per child term is Incomplete there, and a
+        CollectionSum over it carries that up rather than inventing a total.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/collectiblesGainShareOfLine10" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalUnrecapturedSection1250GainShareOfLine10">
+      <Name>Total Form 8814 unrecaptured section 1250 share across elected children, for the Unrecaptured Section 1250 Gain Worksheet line 11</Name>
+      <Description>The sum of
+        /form8814Children/*/unrecapturedSection1250GainShareOfLine10 over every elected child: the
+        Form 8814 addend of the Unrecaptured Section 1250 Gain Worksheet line 11, which today
+        totals the Schedule K-1, Form 1099-DIV box 2b, Form 2439 and Form 1099-R legs. Same shape,
+        same completeness posture and the same WIRED status as
+        /form8814TotalCollectiblesGainShareOfLine10; the reasons are stated there and not
+        repeated. WIRED: scheduleD
+        /unrecapturedSection1250GainLine13 consumes this exported amount beside its other
+        worksheet-line-11 addends.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/unrecapturedSection1250GainShareOfLine10" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalSection1202GainShareOfLine10">
+      <Name>Total Form 8814 section 1202 share across elected children, before the exclusion Schedule D figures</Name>
+      <Description>The sum of /form8814Children/*/section1202GainShareOfLine10 over every elected
+        child. Same shape and same completeness posture as
+        /form8814TotalCollectiblesGainShareOfLine10, but NOT the same wiring status: that total
+        reaches scheduleD:/twentyEightPercentRateGainLines1Through4 and this one is read by no
+        module at all, so the child's box 2c share never reaches a section 1202 exclusion or the
+        28% Rate Gain Worksheet line 2 entry the instructions direct. That is an open defect, not a
+        posture. THE GAIN, NOT THE EXCLUSION: the consumer
+        that eventually reads it has to apply the section 1202(a) percentage, which is why it
+        cannot simply be added to scheduleD:/section1202ExclusionFromDividends, an EXCLUSION
+        aggregate. The successor names that asymmetry.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/section1202GainShareOfLine10" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814AnyChildHasSubcategoryCapitalGainDistributions">
+      <Name>Some elected child's capital gain distributions include a box 2b, 2c or 2d amount</Name>
+      <Description>The Form 8814 equivalent of Form 1040 line 7a Exception 1 CONDITION 2. The
+        printed condition is "None of the Form(s) 1099-DIV (or substitute statements) have an
+        amount in box 2b (unrecaptured section 1250 gain), box 2c (section 1202 gain), or box 2d
+        (collectibles (28%) gain)", and income:/capitalGainsScheduleDNotRequired tests it today on
+        the PARENT'S Forms 1099-DIV only, through three module aggregates. A Form 8814 child's
+        capital gain distributions are Form 1099-DIV box 2a distributions in the child's hands and
+        reach the parent's line 7a by the same route as the parent's own, so condition 2 has to be
+        tested on the child's forms too; without this term a Form 8814 child with a box 2b, 2c or
+        2d amount satisfies the "Schedule D not required" gate and the return skips the schedule
+        the characterisation requires. IT READS THE PER CHILD FLAG, so it is false for a child the
+        skip rule keeps off the parent's Schedule D entirely: a child who contributes nothing to
+        line 13 cannot make the parent's line 7b box wrong.
+
+        ANY, NOT EVERY, over the collection: one child with one such amount disqualifies the whole
+        return, the same any-not-every reading the parent's three aggregates take, and the same
+        Count greater than zero idiom the module's two knockouts use.
+
+        WIRED to income:/capitalGainsScheduleDNotRequired as its seventh conjunct, Not(this flag);
+        income/s387-line7b fixtures cover one-of-two children, answered No, unanswered classification
+        and unopened collection.
+
+        Complete-safe FALSE while the election collection is unopened. Incomplete when any elected
+        child's subcategory question is unanswered, for the same reason the three totals
+        are.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Count><Dependency path="/form8814Children/*/hasSubcategoryCapitalGainDistributions" /></Count></Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814TotalLine12OtherIncome">
+      <Name>Total Form 8814 line 12 across elected children, carried to Schedule 1 line 8z</Name>
+      <Description>The sum of Form 8814 line 12 over every elected child — the i8814 Line 12
+        aggregation rule ("If you checked the box on line C, add the amounts from line 12 of all
+        your Forms 8814. Include the result on Schedule 1 (Form 1040), line 8z. Enter 'Form 8814'
+        and the total of the line 12 amounts in the space on that line"), which for a single form
+        reduces to the form's own line 12 instruction. CONSUMERS, each named by the source that sends line 12
+        there: income:/schedule1TotalOtherIncome (Schedule 1 line 9, the 8z leg) reads THIS fact.
+        eitc:/eitcInvestmentIncome (Pub 596 Worksheet 1 line 4: "Enter the amount from Schedule 1
+        (Form 1040), line 8z, that is from Form 8814") reads /form8814Pub596Worksheet2Line10Total,
+        which equals this fact unless a child's Alaska Permanent Fund dividend is answered. Form 8960 line 7 (i8960:
+        "must include on Form 8960, line 7, the amount on Form 8814, line 12") and Form 4952 (Pub
+        550: "Your investment income also includes the amount on Form 8814, line 12") read the
+        Alaska-Permanent-Fund-reduced total /form8814TotalLine12OtherIncomeExcludingAlaskaPermanentFundDividends
+        instead (form8960:/niitLine7OtherModifications, form4952:/section163dInvestmentIncome).
+        The printed 8z write-in text is "Form 8814" with the amount; the amount cell of line 8z is
+        hsa:/schedule1Line8zOtherIncome. Whole dollars, complete-safe and byte-identical on the
+        committed corpus by the same construction as /form8814TotalLine9QualifiedDividends. THIS
+        TOTAL IS THE WHOLE OF LINE 12 AND STAYS SO: Schedule 1 line 8z keeps it, because the
+        Permanent Fund dividend is taxable income on the parent's return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/line12OtherIncomeIncluded" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8814TotalLine12OtherIncomeExcludingAlaskaPermanentFundDividends">
+      <Name>Total Form 8814 line 12 across elected children, with the Alaska Permanent Fund part taken back out</Name>
+      <Description>The sum of /form8814Children/*/line12OtherIncomeIncludedExcludingAlaskaPermanentFundDividends over every elected child — the same aggregation the Instructions for Form 8814 state for line 12 itself ("If you checked the box on line C, add the amounts from line 12 of all your Forms 8814"), applied to the reduced per-child figure. CONSUMERS: form8960:/niitLine7OtherModifications, which the Instructions for Form 8960 send "the amount on Form 8814, line 12, excluding Alaska Permanent Fund Dividends".
+
+        WHY THE OTHER LINE 12 CONSUMERS DO OR DO NOT READ IT, and each reason is different. income:/schedule1TotalOtherIncome must NOT: Schedule 1 line 8z carries the whole of line 12, because the Permanent Fund dividend is taxable income on the parent's return like any other ordinary dividend and only the NET-INVESTMENT-INCOME tests exclude it. form4952:/section163dInvestmentIncome READS THIS REDUCED TOTAL. eitc:/eitcInvestmentIncome does NOT: Publication 596 Worksheet 2 states its own reduction for the earned income credit, with a different denominator (Form 8814 line 1a plus line 2a less line 2b) applied to line 12, and that consumer reads /form8814Pub596Worksheet2Line10Total.
+
+        Complete-safe and byte-identical on the committed corpus by the same construction as /form8814TotalLine12OtherIncome: with no Permanent Fund amount answered anywhere, every per-child term equals that child's line 12 and this total equals /form8814TotalLine12OtherIncome exactly.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/line12OtherIncomeIncludedExcludingAlaskaPermanentFundDividends" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8814Pub596Worksheet2Line10Total">
+      <Name>Publication 596 Worksheet 1 line 4: Form 8814 line 12 less the Alaska Permanent Fund part, all children</Name>
+      <Description>The total of /form8814Children/*/pub596Worksheet2Line10 over every attached Form 8814: the amount Publication 596 Worksheet 1 line 4 takes when a child received an Alaska Permanent Fund dividend, and Form 8814 line 12 otherwise (line 10 equals line 12 when no Alaska Permanent Fund amount is answered). The Earned Income Credit investment income reads this total. $0 when no Form 8814 is attached.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form8814Children/*/pub596Worksheet2Line10" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+
+    <Fact path="/knockoutForm8814ElectionOutsideStatutoryWindow">
+      <Name>Knockout: a Form 8814 child's income is outside the statutory election window</Name>
+      <Description>True when any elected child's line 4 is $1,350 or less (the election does not
+        exist below the floor — the child is not required to file) or $13,500 or more (the form
+        itself says do not file it; the child must file their own return). This is the
+        PERMANENT data-completeness and intake-consistency refusal: it keeps standing when the
+        income-inclusion successor retires /knockoutForm8814ChildIncomeRequiresInclusion,
+        because a created-but-unanswered child item resolves line 4 = $0 Complete and must fail
+        closed here rather than file as a no-op election. Complete-safe False while the
+        collection is unopened.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Count><Dependency path="/form8814Children/*/electionOutsideStatutoryWindow" /></Count></Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/knockoutForm8814EligibilityNotAttested">
+      <Name>Knockout: a Form 8814 child's election eligibility is not attested</Name>
+      <Description>True when any elected child's
+        /form8814Children/*/writableChildQualifiesForElection is unanswered or No — the
+        fail-closed half of the attestation intake: the graph cannot verify the child's age,
+        income composition, withholding history or the parent's qualification, so an election
+        without the affirmed condition list is refused rather than filed. PERMANENT in the same
+        sense as the window knockout: this is the data-completeness residue the contract names.
+        Complete-safe False while the collection is unopened.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form8814Children" /></IsComplete></When>
+            <Then>
+              <GreaterThan>
+                <Left><Count><Dependency path="/form8814Children/*/eligibilityNotAttested" /></Count></Left>
+                <Right><Int>0</Int></Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+  </Facts>
+</FactDictionaryModule>

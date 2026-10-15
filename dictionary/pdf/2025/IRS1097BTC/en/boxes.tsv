@@ -1,0 +1,63 @@
+# IRS1097BTC — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1097BTC/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 2fdd68726b24b4692b7af98800bc3f1ceee643f2010e45303452604e5e722284
+# boxes: 29   acroform fields: 55   boxes with a fact: 29
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:514193fd9e6a	For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].f1_01[0]|topmostSubform[0].CopyB[0].CopyHeader[0].f1_01[0]	/form1097Btcs/*/writableCalendarYear	String		
+—	caption:90251d5ff401	VOID	void	topmostSubform[0].CopyA[0].c1_1[0]	/form1097Btcs/*/writableVoid	Bool		
+—	caption:9ba6c34da4e6	CORRECTED	corrected	topmostSubform[0].CopyA[0].c1_1[1]|topmostSubform[0].CopyB[0].c1_1[0]	/form1097Btcs/*/writableCorrected	Bool		
+—	caption:2115c542af26	FORM 1097-B T C ISSUER'S name, street address, city or town, state or province, country, Z I P or foreign postal code, and telephone no	form 1097-b t c issuer's name, street address, city or town, state or province, country, z i p or foreign postal code, and telephone no	topmostSubform[0].CopyA[0].LeftCol[0].f1_02[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_02[0]	/form1097Btcs/*/writableIssuerNameAddressAndTelephoneNumber	String		
+—	caption:eb947bcea65f	FORM 1097-B T C ISSUER'S T I N	form 1097-b t c issuer's t i n	topmostSubform[0].CopyA[0].LeftCol[0].f1_03[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_03[0]	/form1097Btcs/*/writableIssuerTin	TIN		
+recipient-tin		RECIPIENT'S TIN; the per-item Derived TIN resolved from this document's own ../filer, never asked	recipient's tin; the per-item derived tin resolved from this document's own ../filer, never asked	topmostSubform[0].CopyA[0].LeftCol[0].f1_04[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_04[0]	/form1097Btcs/*/recipientTin	TIN		
+—	caption:934d058b3542	RECIPIENT'S name	recipient's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_05[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_05[0]	/form1097Btcs/*/writableRecipientName	String		
+—	caption:f2e269305549	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol[0].f1_06[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_06[0]	/form1097Btcs/*/writableStreetAddress	String		
+—	caption:e5278dd672c6	City or town, state or province, country, and Z I P or foreign postal code	city or town, state or province, country, and z i p or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_07[0]|topmostSubform[0].CopyB[0].LeftCol[0].f1_07[0]	/form1097Btcs/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode	String		
+—	caption:505fd3a43c61	Form 1097-B T C issuer is (check one): Issuer of bond or its agent filing current year Form 1097-B T C for credit being reported	form 1097-b t c issuer is (check one): issuer of bond or its agent filing current year form 1097-b t c for credit being reported	topmostSubform[0].CopyA[0].LeftCol[0].c1_2[0]	/form1097Btcs/*/writableIssuerOfBondOrItsAgentFilingCurrentYearForm1097BtcForCreditBeingReported	Bool		
+—	caption:c1be5ffd0aa2	An entity or a person that received or should have received a current year Form 1097-B T C and is distributing part or all of that credit to others	an entity or a person that received or should have received a current year form 1097-b t c and is distributing part or all of that credit to others	topmostSubform[0].CopyA[0].LeftCol[0].c1_2[1]|topmostSubform[0].CopyB[0].LeftCol[0].c1_2[1]	/form1097Btcs/*/writableEntityOrPersonDistributingPartOrAllOfCreditToOthers	Bool		
+1		Total	total	topmostSubform[0].CopyA[0].RightCol[0].f1_08[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_08[0]	/form1097Btcs/*/writableTotal	Dollar		
+2a		Code	code	topmostSubform[0].CopyA[0].RightCol[0].f1_09[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_09[0]	/form1097Btcs/*/writableCode	String		
+2b		Unique identifier	unique identifier	topmostSubform[0].CopyA[0].RightCol[0].f1_10[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_10[0]	/form1097Btcs/*/writableUniqueIdentifier	String		
+3		Bond type	bond type	topmostSubform[0].CopyA[0].RightCol[0].Box3_ReadOrder[0].f1_11[0]|topmostSubform[0].CopyB[0].RightCol[0].Box3_ReadOrder[0].f1_11[0]	/form1097Btcs/*/writableBondType	String		
+5a		January	january	topmostSubform[0].CopyA[0].RightCol[0].Box5a_ReadOrder[0].f1_12[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5a_ReadOrder[0].f1_12[0]	/form1097Btcs/*/writableJanuary	Dollar		
+5b		February	february	topmostSubform[0].CopyA[0].RightCol[0].f1_13[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_13[0]	/form1097Btcs/*/writableFebruary	Dollar		
+5c		March	march	topmostSubform[0].CopyA[0].RightCol[0].Box5c_ReadOrder[0].f1_14[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5c_ReadOrder[0].f1_14[0]	/form1097Btcs/*/writableMarch	Dollar		
+5d		April	april	topmostSubform[0].CopyA[0].RightCol[0].f1_15[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_15[0]	/form1097Btcs/*/writableApril	Dollar		
+5e		May	may	topmostSubform[0].CopyA[0].RightCol[0].Box5e_ReadOrder[0].f1_16[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5e_ReadOrder[0].f1_16[0]	/form1097Btcs/*/writableMay	Dollar		
+5f		June	june	topmostSubform[0].CopyA[0].RightCol[0].f1_17[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_17[0]	/form1097Btcs/*/writableJune	Dollar		
+5g		July	july	topmostSubform[0].CopyA[0].RightCol[0].Box5g_ReadOrder[0].f1_18[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5g_ReadOrder[0].f1_18[0]	/form1097Btcs/*/writableJuly	Dollar		
+5h		August	august	topmostSubform[0].CopyA[0].RightCol[0].f1_19[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_19[0]	/form1097Btcs/*/writableAugust	Dollar		
+5i		September	september	topmostSubform[0].CopyA[0].RightCol[0].Box5i_ReadOrder[0].f1_20[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5i_ReadOrder[0].f1_20[0]	/form1097Btcs/*/writableSeptember	Dollar		
+5j		October	october	topmostSubform[0].CopyA[0].RightCol[0].f1_21[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_21[0]	/form1097Btcs/*/writableOctober	Dollar		
+5k		November	november	topmostSubform[0].CopyA[0].RightCol[0].Box5k_ReadOrder[0].f1_22[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5k_ReadOrder[0].f1_22[0]	/form1097Btcs/*/writableNovember	Dollar		
+5l		December	december	topmostSubform[0].CopyA[0].RightCol[0].f1_23[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_23[0]	/form1097Btcs/*/writableDecember	Dollar		
+6		Comments	comments	topmostSubform[0].CopyA[0].RightCol[0].f1_24[0]|topmostSubform[0].CopyB[0].RightCol[0].f1_24[0]	/form1097Btcs/*/writableComments	String		
+—	caption:0c401628564e	Form 1097-B T C issuer is: Issuer of bond or its agent filing current year Form 1097-B T C for credit being reported	form 1097-b t c issuer is: issuer of bond or its agent filing current year form 1097-b t c for credit being reported	topmostSubform[0].CopyB[0].LeftCol[0].c1_2[0]	/form1097Btcs/*/writableIssuerOfBondOrItsAgentFilingCurrentYearForm1097BtcForCreditBeingReported	Bool		

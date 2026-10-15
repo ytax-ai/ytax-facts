@@ -1,0 +1,56 @@
+# IRS1098 — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1098/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 908d4bf44b6ebea4610a40f093de704586482c775302599aa6326cfa99603a2a
+# boxes: 22   acroform fields: 41   boxes with a fact: 22
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+calendar-year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/form1098s/*/writableCalendarYear	String		
+void		VOID; Copy A only	void; copy a only	topmostSubform[0].CopyA[0].c1_1[0]	/form1098s/*/writableVoid	Bool		
+corrected	1	CORRECTED	corrected	topmostSubform[0].CopyA[0].c1_1[1]	/form1098s/*/writableCorrected	Bool		
+lender-name		RECIPIENT'S/LENDER'S name and address block	recipient's/lender's name and address block	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]	/form1098s/*/writableRecipientLenderNameAndAddress	String		
+lender-tin		RECIPIENT'S/LENDER'S TIN	recipient's/lender's tin	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]	/form1098s/*/writableRecipientLenderTin	EIN		
+borrower-tin		PAYER'S/BORROWER'S TIN; derived from the item's filer	payer's/borrower's tin; derived from the item's filer	topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]	/form1098s/*/borrowerTin	TIN		
+borrower-name		PAYER'S/BORROWER'S name	payer's/borrower's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]	/form1098s/*/writablePayerBorrowerName	String		
+borrower-address	1	Street address (including apt. no.)	street address	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]	/form1098s/*/writableStreetAddress	String		
+borrower-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]	/form1098s/*/writableCityOrTownStateCountryAndZip	String		
+account		Account number	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_10[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_10[0]	/form1098s/*/writableAccountNumber	String		
+1		Mortgage interest received from payer(s)/borrower(s)	mortgage interest received from payer(s)/borrower	topmostSubform[0].CopyA[0].RightCol[0].f1_11[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_11[0]	/form1098s/*/writableMortgageInterestReceived	Dollar		
+2		Outstanding mortgage principal	outstanding mortgage principal	topmostSubform[0].CopyA[0].RightCol[0].f1_12[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_12[0]	/form1098s/*/writableOutstandingMortgagePrincipal	Dollar		
+3		Mortgage origination date	mortgage origination date	topmostSubform[0].CopyA[0].RightCol[0].f1_13[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_13[0]	/form1098s/*/writableMortgageOriginationDate	Day		
+4		Refund of overpaid interest	refund of overpaid interest	topmostSubform[0].CopyA[0].RightCol[0].f1_14[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_14[0]	/form1098s/*/writableRefundOfOverpaidInterest	Dollar		
+5		Mortgage insurance premiums	mortgage insurance premiums	topmostSubform[0].CopyA[0].RightCol[0].f1_15[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_15[0]	/form1098s/*/writableMortgageInsurancePremiums	Dollar		
+6		Points paid on purchase of principal residence	points paid on purchase of principal residence	topmostSubform[0].CopyA[0].RightCol[0].f1_16[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_16[0]	/form1098s/*/writablePointsPaidOnPurchaseOfPrincipalResidence	Dollar		
+7		property address same as borrower's checkbox	property address same as borrower's checkbox	topmostSubform[0].CopyA[0].RightCol[0].c1_3[0]|topmostSubform[0].CopyB[0].RightCol[0].c2_3[0]	/form1098s/*/writablePropertyAddressSameAsBorrowerAddress	Bool		
+8		Address or description of property securing mortgage	address or description of property securing mortgage	topmostSubform[0].CopyA[0].RightCol[0].f1_17[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_17[0]	/form1098s/*/writableAddressOrDescriptionOfProperty	String		
+11		Mortgage acquisition date	mortgage acquisition date	topmostSubform[0].CopyA[0].RightCol[0].f1_18[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_18[0]	/form1098s/*/writableMortgageAcquisitionDate	Day		
+9		Number of properties securing the mortgage	number of properties securing the mortgage	topmostSubform[0].CopyA[0].RightCol[0].TagCorrectingSubform[0].f1_8[0]|topmostSubform[0].CopyB[0].RightCol[0].TagCorrectingSubform[0].f2_8[0]	/form1098s/*/writableNumberOfPropertiesSecuringMortgage	Int		
+10		Other	other	topmostSubform[0].CopyA[0].RightCol[0].TagCorrectingSubform[0].f1_9[0]|topmostSubform[0].CopyB[0].RightCol[0].TagCorrectingSubform[0].f2_9[0]	/form1098s/*/writableOther	String		
+corrected	2	CORRECTED (if checked), Copy B	corrected (if checked), copy b	topmostSubform[0].CopyB[0].c2_1[0]	/form1098s/*/writableCorrected	Bool		

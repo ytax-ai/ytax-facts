@@ -1,0 +1,119 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form1099Sbs">
+      <Name>Received Forms 1099-SB</Name>
+      <Description>Forms 1099-SB received for the 2025 return, one item per issuer notice.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableCalendarYear">
+      <Name>Form 1099-SB calendar year</Name>
+      <Description>The calendar year shown in the header of this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{4}</String></Limit></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableVoid">
+      <Name>Form 1099-SB VOID checkbox</Name>
+      <Description>The VOID box of Copy A, the issuer's copy filed with the IRS. The seller's Copy B has no VOID box (its header prints only CORRECTED (if checked)), so a seller leaves this unanswered. Read by nothing: a notice is reviewed whether or not this box is answered, and no answer here removes a reportable policy sale from the return.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableCorrected">
+      <Name>Form 1099-SB CORRECTED checkbox</Name>
+      <Description>Whether the issuer marked this Form 1099-SB CORRECTED.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableIssuerNameAddressAndTelephoneNumber">
+      <Name>Form 1099-SB issuer name, address, and phone</Name>
+      <Description>The issuer's name, mailing address, and telephone number from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableIssuerTin">
+      <Name>Form 1099-SB issuer TIN</Name>
+      <Description>The issuer's taxpayer identification number (TIN) from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><TIN /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableSellerTin">
+      <Name>Form 1099-SB seller TIN</Name>
+      <Description>The seller's taxpayer identification number (TIN) from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><TIN /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableSellerName">
+      <Name>Form 1099-SB seller name</Name>
+      <Description>The seller's name from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableStreetAddress">
+      <Name>Form 1099-SB seller street address</Name>
+      <Description>The seller's street address from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode">
+      <Name>Form 1099-SB seller city, region, country, and postal code</Name>
+      <Description>The seller's city, state or province, country, and postal code from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writablePolicyNumber">
+      <Name>Form 1099-SB life insurance policy number</Name>
+      <Description>The life insurance policy number for the transferred contract on this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableInvestmentInContract">
+      <Name>Form 1099-SB box 1 investment in contract</Name>
+      <Description>Box 1 investment in the life insurance contract for this seller on Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableSurrenderAmount">
+      <Name>Form 1099-SB box 2 surrender amount</Name>
+      <Description>Box 2 surrender amount for the life insurance contract on this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form1099Sbs/*/writableIssuerInformationContactNameAddressAndTelephoneNumber">
+      <Name>Form 1099-SB issuer information contact</Name>
+      <Description>The issuer's information contact name, address, and telephone number from this Form 1099-SB.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><String /></Writable>
+    </Fact>
+    <Fact path="/knockoutForm1099SbTaxTreatmentUnbuilt">
+      <Name>Form 1099-SB tax treatment unavailable</Name>
+      <Description>A Form 1099-SB is present whose policy-transfer tax treatment cannot yet be determined for the 2025 return. Every entered notice counts: the seller copy has no VOID box, so no answer removes a notice from this review.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived><All><IsComplete><Dependency path="/form1099Sbs" /></IsComplete><GreaterThan><Left><CollectionSize><Dependency path="/form1099Sbs" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan></All></Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

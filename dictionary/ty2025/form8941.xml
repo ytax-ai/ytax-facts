@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableForm8941LineAShopCoverage">
+      <Name>Form 8941 line A: premiums paid for employee coverage through a SHOP Marketplace (or an exception applies)</Name>
+      <Description>Form 8941 line A. QUESTION: "Did you pay premiums during 2025 for health insurance coverage for your employees through a Small Business Health Options Program (SHOP) Marketplace, or do you qualify for an exception to that requirement?" HELP: Answer Yes if you paid premiums for employee coverage bought through a SHOP Marketplace (or through a direct enrollment process where your state offers one), or if your principal business address is in a county whose SHOP Marketplace had no qualified health plan for 2025 and you properly claimed this credit for all or part of 2024 (Notice 2018-27). Employers in Hawaii cannot claim this credit and answer No. A sole proprietor with two businesses answers once for both: they are one employer for this credit. ASKED WHEN: the filer reports that they paid health insurance premiums for employees (a Schedule C, Schedule F or household employer). UNANSWERED: the credit is not figured (lines 2 to 12 stay unresolved) and nothing is claimed; no refusal, and no amount reaches any other form. VALIDATION: Yes or No. FEEDS: /form8941Line12 (No means no credit: the form says Stop, do not file Form 8941).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8941LineCCreditClaimedBefore2024">
+      <Name>Form 8941 line C: a Form 8941 credit was claimed on a return for a tax year beginning after 2013 and before 2024</Name>
+      <Description>Form 8941 line C. QUESTION: "Did a tax return you (or a predecessor business) filed for a tax year beginning in 2014 through 2023 include a Form 8941 with line A checked Yes and a positive credit on line 12?" HELP: The credit is available only for two consecutive tax years, starting with the first year you filed Form 8941 claiming it. If that first year was 2024, 2025 is your second year and you answer No. If it was 2023 or earlier, your two years have ended and you answer Yes. ASKED WHEN: line A is answered Yes. UNANSWERED: the credit is not figured (line 12 stays unresolved) and nothing is claimed; no refusal. VALIDATION: Yes or No. FEEDS: /form8941Line12 (Yes means no credit: the form says Stop, do not file Form 8941).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/writableForm8941Worksheet1TotalHoursOfService">
+      <Name>Form 8941 Worksheet 1 column (b) total: employee hours of service for the tax year</Name>
+      <Description>Form 8941 Worksheet 1, column (b), Totals. QUESTION: "What is the total number of hours of service for 2025 of the individuals you count as employees for this credit?" HELP: Count every employee, business and household, except: yourself (the owner), a partner, a more-than-2% S corporation shareholder, a more-than-5% owner, and a family member or dependent of any of them. Count no more than 2,080 hours for any one employee. Enter 0 for a seasonal worker who worked 120 or fewer days. Hours include paid vacation, holiday and sick leave (no more than 160 hours for one continuous leave). You may count actual hours, 8 hours per day worked, or 40 hours per week worked. ASKED WHEN: line A is Yes and line C is No. UNANSWERED: line 2 and the credit stay unresolved; no refusal, nothing is claimed. VALIDATION: a whole number, 0 or more. FEEDS: /form8941Line2FullTimeEquivalentEmployees (Worksheet 2).</Description>
+      <Writable>
+        <Int />
+        <Limit type="Min">
+          <Int>0</Int>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8941Worksheet1TotalWagesPaid">
+      <Name>Form 8941 Worksheet 1 column (c) total: employee wages paid for the tax year</Name>
+      <Description>Form 8941 Worksheet 1, column (c), Totals. QUESTION: "What is the total of the wages you paid in 2025 to the employees counted in the hours question?" HELP: Wages are the wages subject to social security and Medicare tax withholding, figured without the social security wage base limit. Enter 0 for a seasonal worker who worked 120 or fewer days. Leave this blank if your full-time equivalent employees are 25 or more: the credit is then zero and this total is not needed. ASKED WHEN: line A is Yes, line C is No, and /form8941Line2FullTimeEquivalentEmployees is less than 25. UNANSWERED: line 3 and the credit stay unresolved; no refusal, nothing is claimed. VALIDATION: a dollar amount, $0 or more. FEEDS: /form8941Line3AverageAnnualWages (Worksheet 3).</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8941Line2FullTimeEquivalentEmployees">
+      <Name>Form 8941 line 2: full-time equivalent employees (Worksheet 2 line 3)</Name>
+      <Description>Line 2: Worksheet 1 total hours of service (a negative entry read as 0) divided by 2,080, rounded down to a whole number, and 1 when the result is less than one. Unresolved while the hours total is unanswered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <RoundToInt>
+            <Divide>
+              <Dividend>
+                <Subtract>
+                  <Minuend>
+                    <GreaterOf>
+                      <Dependency path="/writableForm8941Worksheet1TotalHoursOfService" />
+                      <Int>0</Int>
+                    </GreaterOf>
+                  </Minuend>
+                  <Subtrahends>
+                    <Modulo>
+                      <GreaterOf>
+                        <Dependency path="/writableForm8941Worksheet1TotalHoursOfService" />
+                        <Int>0</Int>
+                      </GreaterOf>
+                      <Int>2080</Int>
+                    </Modulo>
+                  </Subtrahends>
+                </Subtract>
+              </Dividend>
+              <Divisors>
+                <Dollar>2080</Dollar>
+              </Divisors>
+            </Divide>
+          </RoundToInt>
+          <Int>1</Int>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line3AverageAnnualWages">
+      <Name>Form 8941 line 3: average annual wages (Worksheet 3 line 3)</Name>
+      <Description>Line 3: Worksheet 1 total wages (a negative entry read as $0) divided by line 2, rounded down to a multiple of $1,000. The cents of the wage total never move the result: the quotient is floored to whole thousands in one step. Unresolved while the wage total or line 2 is unresolved.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <StepwiseMultiply>
+            <Multiplicand>
+              <GreaterOf>
+                <Dependency path="/writableForm8941Worksheet1TotalWagesPaid" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Multiplicand>
+            <Rate>
+              <Divide>
+                <Dividend>
+                  <Int>1</Int>
+                </Dividend>
+                <Divisors>
+                  <Multiply>
+                    <Int>1000</Int>
+                    <Dependency path="/form8941Line2FullTimeEquivalentEmployees" />
+                  </Multiply>
+                </Divisors>
+              </Divide>
+            </Rate>
+          </StepwiseMultiply>
+          <Int>1000</Int>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8941Line4EmployerPremiumsPaid">
+      <Name>Form 8941 line 4: premiums paid for employees under a qualifying arrangement (Worksheet 4 column (b) total)</Name>
+      <Description>Form 8941 line 4, the total of Worksheet 4 column (b). QUESTION: "How much did you pay in 2025 in premiums for your employees' health insurance coverage under a qualifying arrangement?" HELP: Count only the part you paid (not amounts employees paid, and not salary reductions under a cafeteria plan), only for the employees counted in the hours question who enrolled in coverage bought through the SHOP Marketplace, and only under an arrangement in which you pay a uniform percentage (not less than 50%) of the premium for each enrolled employee. Include a state premium subsidy paid directly to the insurer, and do not reduce your payments by a state tax credit or a subsidy paid to you (those go in the state subsidies question). Do not include tobacco surcharges. Include premiums for seasonal workers. ASKED WHEN: line A is Yes, line C is No, line 2 is less than 25, and line 3 is less than $67,000. UNANSWERED: line 6 and the credit stay unresolved; no refusal, nothing is claimed. VALIDATION: a dollar amount, $0 or more. FEEDS: /form8941Line4EmployerPremiumsPaid, which feeds lines 6 and 11.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm8941Line5AverageMarketPremiums">
+      <Name>Form 8941 line 5: premiums at the small group market average premium (Worksheet 4 column (c) total)</Name>
+      <Description>Form 8941 line 5, the total of Worksheet 4 column (c). QUESTION: "How much would you have paid in 2025 for the same employees if each one's total premium had equaled the average premium for the small group market in the rating area where the employee enrolls?" HELP: For each enrolled employee, take the 2025 average premium for the county of your business from the tables at the end of the Instructions for Form 8941 (employee-only, or the dependent and family column for any other coverage), apply the same percentage you pay toward that employee's actual premium, and count the same pay periods. Add the results. ASKED WHEN: the line 4 question is asked. UNANSWERED: line 6 and the credit stay unresolved; no refusal, nothing is claimed. VALIDATION: a dollar amount, $0 or more. FEEDS: /form8941Line5AverageMarketPremiums, which feeds line 6.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8941Line4EmployerPremiumsPaid">
+      <Name>Form 8941 line 4, as the form carries it</Name>
+      <Description>Line 4: /writableForm8941Line4EmployerPremiumsPaid, a negative entry read as $0. Unresolved while the intake is unanswered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableForm8941Line4EmployerPremiumsPaid" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line5AverageMarketPremiums">
+      <Name>Form 8941 line 5, as the form carries it</Name>
+      <Description>Line 5: /writableForm8941Line5AverageMarketPremiums, a negative entry read as $0. Unresolved while the intake is unanswered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableForm8941Line5AverageMarketPremiums" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line6">
+      <Name>Form 8941 line 6: the smaller of line 4 or line 5</Name>
+      <Description>Line 6, "Enter the smaller of line 4 or line 5": the premiums the credit is figured on, capped at the small group market average premium.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form8941Line4EmployerPremiumsPaid" />
+          <Dependency path="/form8941Line5AverageMarketPremiums" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line7">
+      <Name>Form 8941 line 7: line 6 multiplied by the applicable percentage (50%)</Name>
+      <Description>Line 7: line 6 multiplied by 50%, the percentage for all small employers other than tax-exempt ones, rounded to the cent. A Form 1040 filer is never a tax-exempt eligible small employer (an organization described in section 501(c) and exempt under section 501(a)), so the 35% rate does not apply here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/form8941Line6" />
+          <Rational>1/2</Rational>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8941Line8">
+      <Name>Form 8941 line 8: line 7 after the full-time equivalent employee reduction (Worksheet 5)</Name>
+      <Description>Line 8, Worksheet 5: line 7 less line 7 multiplied by the fraction (line 2 minus 10) over 15, not below $0. When line 2 is 10 or less the fraction is zero and line 8 is line 7. The fraction is applied exactly and the product is rounded once, to the cent (the worksheet allows a decimal of at least three places; the statute states the exact fraction). Unresolved while line 2 or line 7 is unresolved.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/form8941Line7" /></Minuend>
+            <Subtrahends>
+              <Multiply>
+                <Dependency path="/form8941Line7" />
+                <Divide>
+                  <Dividend>
+                    <GreaterOf>
+                      <Subtract>
+                        <Minuend><Dependency path="/form8941Line2FullTimeEquivalentEmployees" /></Minuend>
+                        <Subtrahends>
+                          <Int>10</Int>
+                        </Subtrahends>
+                      </Subtract>
+                      <Int>0</Int>
+                    </GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <Int>15</Int>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line9">
+      <Name>Form 8941 line 9: line 8 after the average annual wage reduction (Worksheet 6)</Name>
+      <Description>Line 9, Worksheet 6: line 8 less line 7 multiplied by the fraction (line 3 minus $33,300) over $33,300, not below $0, where $33,300 is the 2025 dollar amount of section 45R(d)(3)(B). When line 3 is not more than $33,300 (line 3 is a multiple of $1,000, so this is the printed "$33,000 or less") the fraction is zero and line 9 is line 8. Both reductions are taken from line 7, as the statute sums them; the product is rounded once, to the cent. The $0 floor is the statute's "but not below zero": Worksheet 6 line 7 prints no floor, and when the two reductions together exceed line 7 the printed subtraction would go negative. Unresolved while line 3, line 7 or line 8 is unresolved.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/form8941Line8" /></Minuend>
+            <Subtrahends>
+              <Multiply>
+                <Dependency path="/form8941Line7" />
+                <Divide>
+                  <Dividend>
+                    <GreaterOf>
+                      <Subtract>
+                        <Minuend><RoundToInt><Dependency path="/form8941Line3AverageAnnualWages" /></RoundToInt></Minuend>
+                        <Subtrahends>
+                          <Int>33300</Int>
+                        </Subtrahends>
+                      </Subtract>
+                      <Int>0</Int>
+                    </GreaterOf>
+                  </Dividend>
+                  <Divisors>
+                    <Int>33300</Int>
+                  </Divisors>
+                </Divide>
+              </Multiply>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8941Line10StateSubsidiesAndCredits">
+      <Name>Form 8941 line 10: state premium subsidies paid and state tax credits available for the line 4 premiums</Name>
+      <Description>Form 8941 line 10. QUESTION: "What is the total of the state premium subsidies paid and the state tax credits available to you for the premiums you reported as paid? Enter 0 if none." HELP: Include a state subsidy paid to you, a state subsidy paid directly to your insurer (which you counted in the premiums you paid), and any state tax credit you received or will receive for these premiums, refundable or not. The credit cannot be more than the premiums you paid less these amounts. ASKED WHEN: the line 4 question is asked. UNANSWERED: the credit stays unresolved and nothing is claimed; it is NOT read as 0, because reading it as 0 could overstate the credit when a subsidy exists. VALIDATION: a dollar amount, $0 or more; 0 is a real answer. FEEDS: /form8941Line10StateSubsidiesAndCredits, which feeds line 11.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8941Line10StateSubsidiesAndCredits">
+      <Name>Form 8941 line 10, as the form carries it</Name>
+      <Description>Line 10: /writableForm8941Line10StateSubsidiesAndCredits, a negative entry read as $0. Unresolved while the intake is unanswered, on purpose: an unanswered subsidy is not assumed to be $0.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/writableForm8941Line10StateSubsidiesAndCredits" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line11">
+      <Name>Form 8941 line 11: line 4 less line 10, not below zero</Name>
+      <Description>Line 11, "Subtract line 10 from line 4. If zero or less, enter -0-": the net premium payments, the most the credit can be.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/form8941Line4EmployerPremiumsPaid" /></Minuend>
+            <Subtrahends><Dependency path="/form8941Line10StateSubsidiesAndCredits" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8941Line12">
+      <Name>Form 8941 line 12: the credit figured on this form</Name>
+      <Description>Line 12. $0 when line A is No (no SHOP coverage: do not file Form 8941), when line C is Yes (the two-year credit period has ended), when line 2 is 25 or more, or when line 3 is more than twice $33,300 (the printed "$67,000 or more", since line 3 is a multiple of $1,000). Otherwise the smaller of line 9 or line 11. Each $0 case is decided before the lines it skips are read, so a filer with 25 or more full-time equivalent employees need not enter wages or premiums. Unresolved when the answers that decide which case applies, or the lines the credit is figured from, are unanswered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8941LineAShopCoverage" /></IsComplete>
+                <Not><Dependency path="/writableForm8941LineAShopCoverage" /></Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8941LineCCreditClaimedBefore2024" /></IsComplete>
+                <Dependency path="/writableForm8941LineCCreditClaimedBefore2024" />
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8941Line2FullTimeEquivalentEmployees" /></IsComplete>
+                <GreaterThanOrEqual>
+                  <Left><Dependency path="/form8941Line2FullTimeEquivalentEmployees" /></Left>
+                  <Right>
+                    <Int>25</Int>
+                  </Right>
+                </GreaterThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/form8941Line3AverageAnnualWages" /></IsComplete>
+                <GreaterThan>
+                  <Left><RoundToInt><Dependency path="/form8941Line3AverageAnnualWages" /></RoundToInt></Left>
+                  <Right>
+                    <Multiply>
+                      <Int>2</Int>
+                      <Int>33300</Int>
+                    </Multiply>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm8941LineAShopCoverage" /></IsComplete>
+                <Dependency path="/writableForm8941LineAShopCoverage" />
+                <IsComplete><Dependency path="/writableForm8941LineCCreditClaimedBefore2024" /></IsComplete>
+                <Not><Dependency path="/writableForm8941LineCCreditClaimedBefore2024" /></Not>
+                <IsComplete><Dependency path="/form8941Line2FullTimeEquivalentEmployees" /></IsComplete>
+                <LessThan>
+                  <Left><Dependency path="/form8941Line2FullTimeEquivalentEmployees" /></Left>
+                  <Right>
+                    <Int>25</Int>
+                  </Right>
+                </LessThan>
+                <IsComplete><Dependency path="/form8941Line3AverageAnnualWages" /></IsComplete>
+                <LessThanOrEqual>
+                  <Left><RoundToInt><Dependency path="/form8941Line3AverageAnnualWages" /></RoundToInt></Left>
+                  <Right>
+                    <Multiply>
+                      <Int>2</Int>
+                      <Int>33300</Int>
+                    </Multiply>
+                  </Right>
+                </LessThanOrEqual>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form8941Line9" />
+                <Dependency path="/form8941Line11" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8941Line15PassThroughCredit">
+      <Name>Form 8941 line 15: credit for small employer health insurance premiums from partnerships, S corporations, cooperatives, estates and trusts</Name>
+      <Description>Form 8941 line 15. QUESTION: "Did you receive a credit for small employer health insurance premiums from a partnership, S corporation, cooperative, estate or trust? If so, enter the total." HELP: This is Schedule K-1 (Form 1065) box 15 code BA, Schedule K-1 (Form 1120-S) box 13 code BA, Schedule K-1 (Form 1041) box 13 code G, and Form 1099-PATR box 12 (or another notice of credit allocation) when it is this credit. ASKED WHEN: any return that reports a Schedule K-1 or a Form 1099-PATR. UNANSWERED: read as $0 (no pass-through credit), which can only understate a credit. VALIDATION: a dollar amount, $0 or more. FEEDS: /form8941Line15PassThroughCredit and so line 16 and Form 3800 Part III line 4h; a filer who figures no credit of their own on lines A through 12 does not file Form 8941, and form3800 /form3800PartIiiLine4hCredit then takes this amount directly.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form8941Line15PassThroughCredit">
+      <Name>Form 8941 line 15, as the form carries it</Name>
+      <Description>Line 15: /writableForm8941Line15PassThroughCredit when answered, a negative entry read as $0; $0 when unanswered (complete-safe: the default can only understate the credit).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm8941Line15PassThroughCredit" /></IsComplete></When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForm8941Line15PassThroughCredit" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/writableForm8941Line15PassThroughCredit" /></IsComplete></Not></When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm8941Line15PassThroughEntityEin">
+      <Name>EIN of the partnership, S corporation, cooperative, estate or trust that passed through the Form 8941 line 15 credit (Form 3800 Part III line 4h column (c))</Name>
+      <Description>Question: "What is the employer identification number (EIN) of the partnership, S corporation, cooperative, estate or trust that passed this small employer health insurance premiums credit through to you? If more than one did, enter the EIN of the one that allocated you the largest amount." Help text: the EIN is on the Schedule K-1 (or Form 1099-PATR) that reports the credit. Asked when /writableForm8941Line15PassThroughCredit is more than $0. Unanswered: Form 3800 Part III line 4h column (c) prints blank; no amount reads it. Validation: a nine-digit EIN. Feeds form3800 /form3800PartIiiLine4hColumnCPassThroughEntityEin. BOUNDARY: the Form 3800 instructions list each pass-through entity separately in Part V when more than one allocated the same credit; this dictionary holds one pass-through total per credit, so that breakdown is not printed.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form8941Line16">
+      <Name>Form 8941 line 16: the credit for Form 3800, Part III, line 4h</Name>
+      <Description>Line 16, "Add lines 12 and 15". For an individual this is the amount reported on Form 3800, Part III, line 4h (a specified credit, allowed against the tentative minimum tax, reaching Schedule 3 line 6a through Form 3800 Part II Section C). form3800 /form3800PartIiiLine4hCredit reads it. Unresolved while line 12 is unresolved; line 4h then carries line 15 alone, because a filer whose only source of the credit is a pass-through entity reports it directly on Form 3800 and files no Form 8941.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form8941Line12" />
+          <Dependency path="/form8941Line15PassThroughCredit" />
+        </Add>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableForm8941PremiumDeductionReducedByCredit">
+      <Name>The deduction for the premiums on Form 8941 line 4 is reduced by the line 12 credit</Name>
+      <Description>QUESTION: "Did you reduce the deduction you took for these employee health insurance premiums by the amount of this credit (Form 8941 line 12)? Answer Yes if you did not deduct the premiums at all." HELP: The law allows no deduction for the part of the premiums equal to this credit. Where you deducted the premiums (Schedule C line 14 or Schedule F line 15, for a business), enter the deduction already reduced by the credit; premiums for a household employee are not deductible, so answer Yes. ASKED WHEN: /form8941Line12 is more than $0. UNANSWERED: the return is refused by /knockoutForm8941PremiumDeductionNotReduced until it is answered Yes. VALIDATION: Yes or No. FEEDS: /knockoutForm8941PremiumDeductionNotReduced (No or unanswered refuses).</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutForm8941PremiumDeductionNotReduced">
+      <Name>Knockout: the premium deduction is not reduced by the Form 8941 credit</Name>
+      <Description>You have a credit for small employer health insurance premiums (Form 8941 line 12), and the law allows no deduction for the part of those premiums equal to the credit. You have not told us that you reduced your deduction for the premiums (for example Schedule C line 14 or Schedule F line 15) by the credit. Reduce that deduction by the Form 8941 line 12 amount and answer Yes, or this return cannot be filed here. True when line 12 is more than $0 and /writableForm8941PremiumDeductionReducedByCredit is not answered Yes. Every read is IsComplete-fenced, so an untouched form is false.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form8941Line12" /></IsComplete>
+          <GreaterThan>
+            <Left><Dependency path="/form8941Line12" /></Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/writableForm8941PremiumDeductionReducedByCredit" /></IsComplete>
+              <Dependency path="/writableForm8941PremiumDeductionReducedByCredit" />
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

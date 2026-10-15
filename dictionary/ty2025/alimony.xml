@@ -1,0 +1,841 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/writableAlimonyReceivedAmount">
+      <Name>Alimony received (interview amount)</Name>
+      <Description>OPTIONAL: the RAW INTERVIEW ANSWER — total amounts received as alimony or
+        separate maintenance during the year, as reported by the taxpayer, BEFORE the pre-2019
+        test is applied. Absent -> unknown (no alimony income). This is NOT Schedule 1 line 2a:
+        line 2a is /taxableAlimonyReceived (the MeF-exported fact), which is this amount only when
+        /alimonyReceivedPre2019Agreement is answered true. This fact is not line 2a: line 2a is definitionally the INCLUDIBLE
+        amount, so a fact collected before the gate cannot be it. Child support is never alimony: leave out any part of a payment the instrument fixes as child support (or that is set to drop on a child-related event), and when less than the total the instrument calls for was paid, count the payments as child support first and only the rest as alimony (a decree for $2,400 of child support and $1,800 of alimony, paid $3,600, is $1,200 of alimony). An agreement executed before 1985 and not modified after 1984 to adopt the later rules follows the older requirements for what counts as alimony (for example, installments of a fixed sum count as alimony only up to 10% of that sum a year); count only the payments that qualify under those rules. Once a payment qualifies, it is treated the same way as under any other agreement made before 2019.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerShareOfAlimonyReceived">
+      <Name>The secondary filer's part of the alimony received (joint return)</Name>
+      <Description>Screen: asked on a joint return when alimony received is answered above $0. Question: "How much of the alimony received was received by your spouse?" The rest is the primary filer's. Validation: $0 or more, not more than the alimony received. Why: alimony that counts as IRA compensation is compensation of the spouse who received it, and section 219(f)(2) computes each spouse separately (26 U.S.C. 219, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section219&amp;num=0&amp;edition=2024; TAX-INTERPRETATIONS IN-303). Schedule 1 line 2a stays the return total (/taxableAlimonyReceived). Read by /secondaryFilerTaxableAlimonyReceived. A genuine taxpayer input: a writable.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/alimonyInstrumentKindOptions">
+      <Name>Kinds of divorce or separation instrument (former IRC 71(b)(2))</Name>
+      <Description>The three kinds of instrument former section 71(b)(2) names (26 U.S.C. 71, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section71&amp;num=0&amp;edition=2016): decreeOrIncidentInstrument, "(A) a decree of divorce or separate maintenance or a written instrument incident to such a decree"; writtenSeparationAgreement, "(B) a written separation agreement"; supportDecree, "(C) a decree (not described in subparagraph (A)) requiring a spouse to make payments for the support or maintenance of the other spouse". Only (A) alimony was compensation under the struck section 219(f)(1) sentence (TAX-INTERPRETATIONS IN-303).</Description>
+      <Export downstreamFacts="true" />
+      <Derived><EnumOptions><String>decreeOrIncidentInstrument</String><String>writtenSeparationAgreement</String><String>supportDecree</String></EnumOptions></Derived>
+    </Fact>
+
+    <Fact path="/writablePrimaryFilerAlimonyInstrumentKind">
+      <Name>Kind of instrument under which the primary filer received alimony</Name>
+      <Description>Screen: asked when the primary filer received alimony under an instrument executed before 2019 and not modified to adopt the post-2018 rules, and a traditional IRA contribution is answered. Question: "Was the alimony received under (A) a decree of divorce or separate maintenance, or a written instrument incident to such a decree; (B) a written separation agreement; or (C) another court decree requiring support payments?" Options: /alimonyInstrumentKindOptions. Why: the struck section 219(f)(1) sentence, which still governs pre-2019 unmodified instruments, made alimony IRA compensation only "with respect to a divorce or separation instrument described in subparagraph (A) of section 71(b)(2)" (26 U.S.C. 219, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section219&amp;num=0&amp;edition=2024; 26 U.S.C. 71, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section71&amp;num=0&amp;edition=2016; TAX-INTERPRETATIONS IN-303). Read by /primaryFilerAlimonyIraCompensation and /secondaryFilerAlimonyIraCompensation. A genuine taxpayer input: a writable.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/alimonyInstrumentKindOptions" /></Writable>
+    </Fact>
+
+    <Fact path="/writableSecondaryFilerAlimonyInstrumentKind">
+      <Name>Kind of instrument under which the secondary filer (MFJ spouse) received alimony</Name>
+      <Description>Screen: asked when the secondary filer (MFJ spouse) received alimony under an instrument executed before 2019 and not modified to adopt the post-2018 rules, and a traditional IRA contribution is answered. Question: "Was the alimony received under (A) a decree of divorce or separate maintenance, or a written instrument incident to such a decree; (B) a written separation agreement; or (C) another court decree requiring support payments?" Options: /alimonyInstrumentKindOptions. Why: the struck section 219(f)(1) sentence, which still governs pre-2019 unmodified instruments, made alimony IRA compensation only "with respect to a divorce or separation instrument described in subparagraph (A) of section 71(b)(2)" (26 U.S.C. 219, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section219&amp;num=0&amp;edition=2024; 26 U.S.C. 71, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section71&amp;num=0&amp;edition=2016; TAX-INTERPRETATIONS IN-303). Read by /primaryFilerAlimonyIraCompensation and /secondaryFilerAlimonyIraCompensation. A genuine taxpayer input: a writable.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Enum optionsPath="/alimonyInstrumentKindOptions" /></Writable>
+    </Fact>
+
+    <Fact path="/secondaryFilerTaxableAlimonyReceived">
+      <Name>The secondary filer's part of the taxable alimony received (joint return)</Name>
+      <Description>On a joint return, the spouse's part of /taxableAlimonyReceived: /writableSecondaryFilerShareOfAlimonyReceived when answered, floored at $0 and capped at the return total; $0 on any other filing status. When unanswered on a joint return with taxable alimony above $0 and either spouse's traditional IRA contribution answered, it HOLDS (Incomplete) and is never defaulted to either spouse (TAX-INTERPRETATIONS IN-303 amendment); before any contribution is answered the question is not asked and the spouse's part is $0 (all of it the primary filer's, the earlier treatment). Alimony that is IRA compensation is the recipient's own (IRC 219(f)(2), 26 U.S.C. 219, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section219&amp;num=0&amp;edition=2024; TAX-INTERPRETATIONS IN-303). Schedule 1 line 2a stays the return total.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><All><IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></All><IsComplete><Dependency path="/writableSecondaryFilerShareOfAlimonyReceived" /></IsComplete></All></When>
+            <Then><LesserOf><GreaterOf><Dependency path="/writableSecondaryFilerShareOfAlimonyReceived" /><Dollar>0</Dollar></GreaterOf><Dependency path="/taxableAlimonyReceived" /></LesserOf></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete><Not><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/taxableAlimonyReceived" /></IsComplete><Not><GreaterThan><Left><Dependency path="/taxableAlimonyReceived" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Not><Any><IsComplete><Dependency module="iraDeduction" path="/primaryFilerTraditionalIraContributions" /></IsComplete><IsComplete><Dependency module="iraDeduction" path="/secondaryFilerTraditionalIraContributions" /></IsComplete></Any></Not></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerTaxableAlimonyReceived">
+      <Name>The primary filer's part of the taxable alimony received</Name>
+      <Description>/taxableAlimonyReceived less the spouse's part (/secondaryFilerTaxableAlimonyReceived), floored at $0. On any return but a joint one with the spouse's part answered, it is the whole return total (IRC 219(f)(2); TAX-INTERPRETATIONS IN-303). On a joint return with the spouse's share blank once reached it holds with that share (IN-303 amendment).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/taxableAlimonyReceived" /></Minuend>
+            <Subtrahends><Dependency path="/secondaryFilerTaxableAlimonyReceived" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerAlimonyIraCompensation">
+      <Name>The primary filer's alimony that is IRA compensation</Name>
+      <Description>The primary filer's taxable alimony that counts as IRA compensation. Under the section 219(f)(1) sentence the 2017 act struck, which still governs instruments executed before 2019 and not modified to adopt the repeal, compensation included alimony "with respect to a divorce or separation instrument described in subparagraph (A) of section 71(b)(2)" (26 U.S.C. 219, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section219&amp;num=0&amp;edition=2024): a decree of divorce or separate maintenance or a written instrument incident to one (26 U.S.C. 71, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section71&amp;num=0&amp;edition=2016; TAX-INTERPRETATIONS IN-303). So when the instrument kind is answered, it is the primary filer's part of taxable alimony (/primaryFilerTaxableAlimonyReceived) for an (A) instrument and $0 for (B) or (C). /taxableAlimonyReceived is already limited to pre-2019, unmodified instruments. With the kind unanswered it is held (Incomplete) once the question is reached, that is when the primary filer's part of taxable alimony is above $0 and a traditional IRA contribution is answered (on a joint return, either spouse's, because this alimony is compensation for the other spouse's section 219(c) limit too; TAX-INTERPRETATIONS IN-303 second amendment): a reached question left blank holds, and the kind is never assumed to be (A) (lead decision GEN-01). Before any such contribution is answered the kind is not asked and the earlier treatment stands: the whole taxable amount on a return that is not married filing jointly (Form 1040 instructions, IRA Deduction Worksheet line 8, https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 98), $0 on a joint return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="/writablePrimaryFilerAlimonyInstrumentKind" /></IsComplete><Equal><Left><Dependency path="/writablePrimaryFilerAlimonyInstrumentKind" /></Left><Right><Enum optionsPath="/alimonyInstrumentKindOptions">decreeOrIncidentInstrument</Enum></Right></Equal></All></When>
+            <Then><Dependency path="/primaryFilerTaxableAlimonyReceived" /></Then>
+          </Case>
+          <Case>
+            <When><IsComplete><Dependency path="/writablePrimaryFilerAlimonyInstrumentKind" /></IsComplete></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/primaryFilerTaxableAlimonyReceived" /></IsComplete><Not><GreaterThan><Left><Dependency path="/primaryFilerTaxableAlimonyReceived" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><All><Not><IsComplete><Dependency module="iraDeduction" path="/primaryFilerTraditionalIraContributions" /></IsComplete></Not><All><IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete><Not><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></Not></All></All></When>
+            <Then><Dependency path="/taxableAlimonyReceived" /></Then>
+          </Case>
+          <Case>
+            <When><All><Not><IsComplete><Dependency module="iraDeduction" path="/primaryFilerTraditionalIraContributions" /></IsComplete></Not><Not><IsComplete><Dependency module="iraDeduction" path="/secondaryFilerTraditionalIraContributions" /></IsComplete></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerAlimonyIraCompensation">
+      <Name>The secondary filer's alimony that is IRA compensation (joint return)</Name>
+      <Description>On a joint return, the spouse's part of taxable alimony (/secondaryFilerTaxableAlimonyReceived) when the spouse's instrument kind is answered as a former section 71(b)(2)(A) decree or instrument incident to one; $0 for (B) or (C) and on any other filing status. With the kind unanswered it is held (Incomplete) once reached, that is when the spouse's part of taxable alimony is above $0 and either spouse's traditional IRA contribution is answered, because the spouse's alimony is compensation for the primary filer's section 219(c) limit too (TAX-INTERPRETATIONS IN-303 second amendment; lead decision GEN-01; card 2736), and $0 before then. Same rule as /primaryFilerAlimonyIraCompensation (26 U.S.C. 219, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section219&amp;num=0&amp;edition=2024; 26 U.S.C. 71, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section71&amp;num=0&amp;edition=2016; TAX-INTERPRETATIONS IN-303).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><All><IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></All><All><IsComplete><Dependency path="/writableSecondaryFilerAlimonyInstrumentKind" /></IsComplete><Equal><Left><Dependency path="/writableSecondaryFilerAlimonyInstrumentKind" /></Left><Right><Enum optionsPath="/alimonyInstrumentKindOptions">decreeOrIncidentInstrument</Enum></Right></Equal></All></All></When>
+            <Then><Dependency path="/secondaryFilerTaxableAlimonyReceived" /></Then>
+          </Case>
+          <Case>
+            <When><Any><IsComplete><Dependency path="/writableSecondaryFilerAlimonyInstrumentKind" /></IsComplete><All><IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete><Not><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></Not></All></Any></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><All><IsComplete><Dependency path="/secondaryFilerTaxableAlimonyReceived" /></IsComplete><Not><GreaterThan><Left><Dependency path="/secondaryFilerTaxableAlimonyReceived" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+          <Case>
+            <When><All><Not><IsComplete><Dependency module="iraDeduction" path="/secondaryFilerTraditionalIraContributions" /></IsComplete></Not><Not><IsComplete><Dependency module="iraDeduction" path="/primaryFilerTraditionalIraContributions" /></IsComplete></Not></All></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/claimsAlimonyReceived">
+      <Name>Claims alimony received</Name>
+      <Description>Complete-safe presence gate for the Schedule 1 line 2a alimony interview, read by the
+        Schedule 1 attachment test: true when a positive alimony-received amount was entered and
+        either the pre-2019 agreement question is unanswered (taxability still open) or the amount
+        reaches line 2a. False when the question was not entered, when an explicit $0 was entered,
+        and when the agreement question is answered No and nothing reaches line 2a (alimony under
+        a post-2018 agreement is not reported on Schedule 1).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableAlimonyReceivedAmount" />
+              </IsComplete>
+            </When>
+            <Then>
+              <All>
+                <GreaterThan>
+                  <Left><Dependency path="/writableAlimonyReceivedAmount" /></Left>
+                  <Right><Dollar>0</Dollar></Right>
+                </GreaterThan>
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency path="/alimonyReceivedPre2019Agreement" />
+                    </IsComplete>
+                    <Not>
+                      <Dependency path="/alimonyReceivedPre2019Agreement" />
+                    </Not>
+                    <Not>
+                      <GreaterThan>
+                        <Left><Dependency path="/taxableAlimonyReceived" /></Left>
+                        <Right><Dollar>0</Dollar></Right>
+                      </GreaterThan>
+                    </Not>
+                  </All>
+                </Not>
+              </All>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><False /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/alimonyReceivedPre2019Agreement">
+      <Name>Alimony received under a pre-2019 agreement</Name>
+      <Description>The pre-2019 GATE for taxability: true only when the divorce or separation
+        instrument under which the alimony was received was executed on or before December 31, 2018
+        AND was NOT modified after 2018 to expressly provide that the alimony is not included in
+        income. When false (post-2018 agreement, or a post-2018 TCJA-adopting modification) the
+        alimony received is NOT taxable. Modeled as a single boolean attestation rather than a raw
+        agreement date (Schedule 1 line 2b), because the operative test is not a date alone: the
+        "modified after 2018 to adopt TCJA treatment" carve-out cannot be derived from an execution
+        date. UNANSWERED, when an alimony amount HAS been entered -> /taxableAlimonyReceived resolves
+        INCOMPLETE, not $0. Treating the cell as "not taxable" by default is not conservative, it is an
+        UNDER-statement — a $0 on an income fact silently deletes the income (measured: $12,000).
+        Nothing is conservative about guessing on income; the interview must ask.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableAlimonyReceivedBeforeModificationAdoptingPost2018Rules">
+      <Name>Alimony received before a 2025 modification adopting the post-2018 rules</Name>
+      <Description>Screen: shown only when the pre-2019 agreement question for alimony received is answered No. Question: "Was your divorce or separation agreement made before 2019 and then changed during 2025 to say that the new rules apply (alimony not taxable to you)? If so, how much of the alimony received in 2025 was received before that change took effect?" Help text: payments made before a 2025 change that adopts the post-2018 rules still follow the old rules, and payments after it do not; enter $0 or leave blank if the agreement was not changed during 2025 or was made after 2018. Unanswered: treated as no such change during the year, so none of the alimony received counts (the treatment before this question existed). The counted amount is never more than the total alimony received. Feeds /taxableAlimonyReceived (Schedule 1 line 2a).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/taxableAlimonyReceived">
+      <Name>Taxable alimony received (Schedule 1 line 2a)</Name>
+      <Description>Schedule 1 line 2a — THE line-2a amount (MeF-exported), wired into
+        /totalIncome. $0 when no alimony amount is entered (no alimony income: the overwhelmingly
+        common case, and unchanged). The entered amount when the pre-2019-agreement gate is
+        answered TRUE. $0 when the gate is answered FALSE (post-2018 agreement: not includible
+        under TCJA sec. 11051). INCOMPLETE when an amount IS entered but the gate is UNANSWERED —
+        the includibility of that income is genuinely unknown, and this fact refuses rather than
+        asserting a number.</Description>
+      
+      <!-- interpretation:provisional — WHAT AN ENTERED AMOUNT WITH AN UNANSWERED PRE-2019 GATE MEANS.
+           CHOSEN: Incomplete. The taxpayer told us they received alimony; nobody has established whether the
+           instrument is pre-2019. Includibility is unknown, so the fact does not resolve and /totalIncome
+           refuses with it — the interview must ask.
+           MEASURED WRONG: on a return that entered $12,000 of alimony and left the pre-2019 question
+           unanswered, this fact resolved Complete 0.00, silently excluding $12,000 from /totalIncome.
+           "Complete $0" is an ASSERTION that the income is
+           definitively zero, not an admission that it is unknown. On an INCOME fact that default UNDER-taxes.
+           REJECTED (2): default to the entered amount (include unless disclaimed). That would over-tax the
+           post-2018 recipient, for whom i1040gi (2025) Line 2a is explicit: "Alimony received is not included
+           in your income if you entered into a divorce or separation agreement after December 31, 2018"
+           (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 89). Guessing the other way is not conservatism,
+           it is the same error mirrored.
+           WHY THE GATE IS A REAL QUESTION AND NOT REDUNDANT: i1040gi Line 2a defines line 2a as amounts
+           received "pursuant to a divorce or separation agreement entered into on or before December 31, 2018"
+           (lines 6488-6500) — line 2a is POST-gate by definition. If /writableAlimonyReceivedAmount were
+           itself line 2a, entering it would BE the attestation and this gate would be dead weight. It is not:
+           the writable is the raw interview answer (it carries no <Export>), this fact is line 2a (it does).
+           That distinction is what makes Incomplete the honest answer rather than a missing default.
+           PINNED BY: js/test/factDictionaryTests/alimony.test.ts (the entered-amount + unanswered-gate case
+           asserts NOT complete, and the positive/negative controls assert the gate still resolves both ways). -->
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableAlimonyReceivedAmount" />
+                  </IsComplete>
+                </Not>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyReceivedPre2019Agreement" />
+                  </IsComplete>
+                  <Dependency path="/alimonyReceivedPre2019Agreement" />
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableAlimonyReceivedAmount" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyReceivedPre2019Agreement" />
+                  </IsComplete>
+                  <Not>
+                    <Dependency path="/alimonyReceivedPre2019Agreement" />
+                  </Not>
+                  <IsComplete>
+                    <Dependency path="/writableAlimonyReceivedBeforeModificationAdoptingPost2018Rules" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <LesserOf>
+                  <GreaterOf>
+                    <Dependency path="/writableAlimonyReceivedAmount" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                  <GreaterOf>
+                    <Dependency path="/writableAlimonyReceivedBeforeModificationAdoptingPost2018Rules" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </LesserOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyReceivedPre2019Agreement" />
+                  </IsComplete>
+                  <Not>
+                    <Dependency path="/alimonyReceivedPre2019Agreement" />
+                  </Not>
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableAlimonyPaidAmount">
+      <Name>Alimony paid (interview amount)</Name>
+      <Description>OPTIONAL: the RAW INTERVIEW ANSWER — total amounts paid to or for a spouse or
+        former spouse as alimony or separate maintenance during the year, as reported by the
+        taxpayer, BEFORE the pre-2019 test is applied. Absent -> unknown (no alimony paid). This
+        is NOT Schedule 1 line 19a: line 19a is /deductibleAlimonyPaid (the MeF-exported fact),
+        which is this amount only when /alimonyPaidPre2019Agreement is answered true. Same
+        line-identity correction as the received side. Child support is never alimony: leave out any part of a payment the instrument fixes as child support (or that is set to drop on a child-related event), and when less than the total the instrument calls for was paid, count the payments as child support first and only the rest as alimony (a decree for $2,400 of child support and $1,800 of alimony, paid $3,600, is $1,200 of alimony). An agreement executed before 1985 and not modified after 1984 to adopt the later rules follows the older requirements for what counts as alimony (for example, installments of a fixed sum count as alimony only up to 10% of that sum a year); count only the payments that qualify under those rules. Once a payment qualifies, it is treated the same way as under any other agreement made before 2019.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/alimonyPaidPre2019Agreement">
+      <Name>Alimony paid under a pre-2019 agreement</Name>
+      <Description>The pre-2019 GATE for deductibility: true only when the divorce or separation
+        instrument under which the alimony was paid was executed on or before December 31, 2018 AND
+        was not modified after 2018 to expressly adopt the post-TCJA treatment. When false (post-2018
+        agreement, or a post-2018 TCJA-adopting modification) the alimony paid is NOT deductible.
+        Same boolean-attestation modeling as the received side (Schedule 1 line 19c agreement date).
+        UNANSWERED, when an alimony-paid amount HAS been entered -> /deductibleAlimonyPaid resolves
+        INCOMPLETE, not $0. Treating the cell as "not deductible" by default errs toward OVER-taxing, but a
+        wrong number that favours the government is still a wrong number.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableAlimonyPaidBeforeModificationAdoptingPost2018Rules">
+      <Name>Alimony paid before a 2025 modification adopting the post-2018 rules</Name>
+      <Description>Screen: shown only when the pre-2019 agreement question for alimony paid is answered No. Question: "Was your divorce or separation agreement made before 2019 and then changed during 2025 to say that the new rules apply (alimony not deductible by you)? If so, how much of the alimony paid in 2025 was paid before that change took effect?" Help text: payments made before a 2025 change that adopts the post-2018 rules still follow the old rules, and payments after it do not; enter $0 or leave blank if the agreement was not changed during 2025 or was made after 2018. Unanswered: treated as no such change during the year, so none of the alimony paid counts (the treatment before this question existed). The counted amount is never more than the total alimony paid. Feeds /alimonyPaidBeforeModificationAdoptingPost2018RulesApplies and /deductibleAlimonyPaid (Schedule 1 line 19a).</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/alimonyPaidBeforeModificationAdoptingPost2018RulesApplies">
+      <Name>A pre-modification portion of alimony paid counts this year</Name>
+      <Description>TRUE when the pre-2019 gate for alimony paid (/alimonyPaidPre2019AgreementApplies) is answered FALSE, a positive amount paid before a 2025 modification adopting the post-2018 rules is entered, and the Schedule 1 line 19c agreement date, if entered, is not after 2018 (an instrument executed after 2018 has no pre-modification period under the old rules). FALSE otherwise, including when any of those is unanswered. Always complete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+          </IsComplete>
+          <Not>
+            <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+          </Not>
+          <IsComplete>
+            <Dependency path="/writableAlimonyPaidBeforeModificationAdoptingPost2018Rules" />
+          </IsComplete>
+          <GreaterThan>
+            <Left><Dependency path="/writableAlimonyPaidBeforeModificationAdoptingPost2018Rules" /></Left>
+            <Right><Dollar>0</Dollar></Right>
+          </GreaterThan>
+          <Not>
+            <All>
+              <IsComplete>
+                <Dependency path="/writableSchedule1Line19cAlimonyAgreementDate" />
+              </IsComplete>
+              <Not>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/writableSchedule1Line19cAlimonyAgreementDate" /></Left>
+                  <Right><Day>2018-12-31</Day></Right>
+                </LessThanOrEqual>
+              </Not>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/alimonyPaidPre2019AgreementApplies">
+      <Name>The pre 2019 agreement gate for alimony paid, after the line 19c date is read</Name>
+      <Description>The pre 2019 execution gate that /deductibleAlimonyPaid actually spends. FALSE whenever the filer wrote a Schedule 1 line 19c agreement date of 2019 01 01 or later, and otherwise the filer's own attestation /alimonyPaidPre2019Agreement, unchanged and including its Incomplete.
+
+        THE DATE REFUTES THE BOOLEAN; IT DOES NOT CONFIRM IT, and that asymmetry is the whole design. The auditor's recommendation was a plain computed else attested Switch, "the date is before 2019 01 01" in the computed arm. THAT WOULD HAVE BEEN WRONG, and /alimonyPaidPre2019Agreement's own Description says why: the operative test is not a date alone, because an instrument executed on or before December 31, 2018 that was MODIFIED after 2018 to expressly adopt the post TCJA treatment is NOT a pre 2019 agreement for this purpose. A pre 2019 date is therefore consistent with either answer and cannot compute one. The converse is airtight: an instrument EXECUTED in 2019 or later cannot be a pre 2019 agreement under any carve out, because the modification rule only ever moves a pre 2019 instrument to false and never a later one to true. So the date is admitted in one direction only.
+
+        WHAT IT FIXES: before this fact, a return could print an agreement date of 2021 on line 19c beside alimony the return deducted as pre 2019, and nothing in the graph objected. The intake was print only. Now the printed date and the deduction cannot contradict each other, and the direction of the correction is taxpayer adverse in exactly the case where the printed form already contradicts the claim.
+
+        NO COMMITTED FIGURE MOVES: line 19c is a new intake and no committed scenario answers it, so IsComplete is false corpus wide and this fact is the attestation term for term. Note what it deliberately does NOT do: it does not make an unanswered attestation Complete. The fall through arm passes the attestation's Incomplete straight through, so /deductibleAlimonyPaid still resolves Incomplete on an entered amount with an unanswered gate, which is the posture and the reason there is no trailing $0 case there.
+
+        THE RECEIVED SIDE HAS NO SUCH FACT, and it is not an omission. /writableSchedule1Line2bAlimonyAgreementDate is typed String, not Day, so it cannot be compared to a date at all. See the note on that fact.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1Line19cAlimonyAgreementDate" />
+                </IsComplete>
+                <Not>
+                  <LessThanOrEqual>
+                    <Left><Dependency path="/writableSchedule1Line19cAlimonyAgreementDate" /></Left>
+                    <Right><Day>2018-12-31</Day></Right>
+                  </LessThanOrEqual>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/alimonyPaidPre2019Agreement" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/alimonyRecipientTin">
+      <Name>Alimony recipient's SSN (Schedule 1 line 19b)</Name>
+      <Description>The SSN of the alimony recipient, Schedule 1 line 19b (synthetic only). The
+        payer is asked to furnish it, and Pub 504 warns that without it "you may have to pay a $50
+        penalty and your deduction may be disallowed". It is DOCUMENTARY: it does NOT gate
+        /deductibleAlimonyPaid.
+        Absent -> unknown; the deduction is still computed, and the missing SSN is a compliance
+        exposure the IRS may act on, not a number this return zeroes out for itself. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+
+      <Writable>
+        <TIN />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableAlimonyPaidIsSection682TrustIncome">
+      <Name>Alimony paid through an alimony trust (IRC section 682)</Name>
+      <Description>REQUIRED on a claiming pre-2019 return: whether the alimony you paid was
+        distributed to your former spouse through a trust described in IRC section 682 --
+        meaning the payment was already included in your former spouse's gross income as the
+        income of that trust, rather than paid to them directly out of your own funds under a
+        divorce or separation instrument. Rare: answer this only if a decree, separation
+        agreement, or trust instrument directs a trust to pay your former spouse from its own
+        income. Asked whenever an alimony-paid amount is entered. UNANSWERED on a return that
+        otherwise CLAIMS the deduction (an amount entered and the pre-2019-agreement gate not
+        already resolved FALSE) leaves /alimonyPaidIsSection682TrustIncome, and so
+        /deductibleAlimonyPaid, INCOMPLETE -- section 215(d) is a condition of allowance on a
+        deduction the filer is claiming, the same shape as F8863's TIN condition
+        and PTC's SLCSP attestation; an unasked filer is not silently granted the
+        deduction. UNANSWERED where the question is MOOT (no amount entered, or the
+        pre-2019-agreement gate is already resolved FALSE) stays complete-safe False and changes
+        nothing, because section 215(a) already fails or never applies for a different reason.
+        When Yes, IRC section 215(d) bars the section 215(a) deduction for that payment entirely,
+        because it was never a direct payment from your own income to begin with: the trust made
+        it, and section 682 already taxes it to your former spouse instead of to you. Feeds
+        /alimonyPaidIsSection682TrustIncome, which /deductibleAlimonyPaid checks ahead of its
+        pre-2019-agreement gate -- the section 215(d) bar applies regardless of whether the
+        underlying agreement predates 2019.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/alimonyPaidIsSection682TrustIncome">
+      <Name>Resolved: alimony paid is section 682 alimony-trust income (moot-first; Incomplete on an unanswered claiming return)</Name>
+      <Description>The filer's own attestation on /writableAlimonyPaidIsSection682TrustIncome
+        when answered. MOOT-FIRST: when the question cannot change the answer -- no
+        alimony-paid amount is entered, or the pre-2019-agreement gate
+        (/alimonyPaidPre2019AgreementApplies) is already resolved FALSE (post-2018 instrument:
+        section 215(a) already fails outright, so whether section 682 also applies changes
+        nothing) -- this fact resolves complete-safe False regardless of whether the writable was
+        ever answered, so a non-claiming or already-$0 return is never forced through an
+        inapplicable question. Otherwise (the question is LIVE: a real, pending pre-2019 claim)
+        this fact reads the writable directly: answered, its answer; UNANSWERED, INCOMPLETE,
+        propagating through to /deductibleAlimonyPaid. Unlike the pre-2019-agreement gate this
+        module also carries (a real, central ambiguity where either answer is plausible), this
+        narrow structuring detail is absent for the overwhelming majority of filers who genuinely
+        do claim the deduction -- but section 215(d) is still a condition of allowance on the
+        deduction the filer is affirmatively claiming, and this module's own header doctrine
+        ("a return that cannot be computed refuses; it does not quietly pick a side") applies here
+        exactly as it does to the pre-2019 gate itself.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/alimonyPaidBeforeModificationAdoptingPost2018RulesApplies" />
+            </When>
+            <Then>
+              <Dependency path="/writableAlimonyPaidIsSection682TrustIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableAlimonyPaidAmount" />
+                  </IsComplete>
+                </Not>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+                  </IsComplete>
+                  <Not>
+                    <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+                  </Not>
+                </All>
+              </Any>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableAlimonyPaidIsSection682TrustIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/writableAlimonyPaidIsSection682TrustIncome" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/writableAlimonyPaidIsSection682TrustIncome" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/alimonyPaidSection682QuestionSettledCondition">
+      <Name>The section 682 question is settled (condition on the pre-modification portion)</Name>
+      <Description>$0 when /alimonyPaidIsSection682TrustIncome resolves, Incomplete when it does not. Added to the pre-modification portion of alimony paid so that portion is not allowed while the section 682 question is open.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/alimonyPaidIsSection682TrustIncome" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/deductibleAlimonyPaid">
+      <Name>Deductible alimony paid (Schedule 1 line 19a)</Name>
+      <Description>Schedule 1 line 19a — THE line-19a amount (MeF-exported), wired into the
+        Schedule 1 lines 11-19a adjustments subtotal (/adjustmentsExcludingStudentLoanAndIra).
+        $0 when no alimony amount is entered (no alimony paid: unchanged). $0 when the payment is
+        alimony-trust income under IRC sec. 682 (sec. 215(d) bars the deduction entirely; checked
+        ahead of and independent of the pre-2019-agreement gate). Otherwise the entered amount
+        when the pre-2019-agreement gate is answered TRUE and the sec. 682 trust question is
+        answered (or moot) — the recipient's SSN does NOT gate this. $0 when the gate is
+        answered FALSE (post-2018 agreement: not deductible under TCJA sec. 11051, and the sec.
+        682 question is moot regardless of its own answer). INCOMPLETE when an amount IS entered
+        and either condition of allowance is genuinely unknown: the pre-2019-agreement gate is
+        UNANSWERED, OR the gate is TRUE (or unanswered) and the sec. 682 trust question is itself
+        UNANSWERED on this live, claiming return — deductibility is genuinely unknown either way,
+        and this fact refuses rather than asserting a number. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      
+      <!-- interpretation:delegated-ratified — ratified under the project owner's Gate D
+           delegation; authority: an answer-blind verification, independently re-confirmed. THE RECIPIENT'S SSN DOES NOT GATE THIS DEDUCTION.
+           CHOSEN (Reading A): line 19b is documentary. The deduction is computed whether or not
+           /alimonyRecipientTin is furnished. A missing SSN is a compliance exposure the IRS may act on; it is
+           not a number the return deletes for itself.
+           GROUNDED ON THE STATUTE (former IRC sec. 215, 2016 GPO edition — the last full-text edition before
+           TCJA sec. 11051 repealed it for post-2018 instruments; 26 U.S.C. 215, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section215&amp;num=0&amp;edition=2016):
+             - sec. 215(a) is an UNCONDITIONAL grant — "there shall be allowed as a deduction an amount equal to
+               the alimony ... paid during such individual's taxable year" (26 U.S.C. 215, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section215&amp;num=0&amp;edition=2016).
+               It conditions the deduction on nothing but payment; there is no SSN precondition in it.
+             - sec. 215(c) is a REGULATIONS-AUTHORIZATION, not a deduction gate — "The Secretary MAY prescribe
+               regulations under which" the recipient furnishes a TIN and the payer includes it on the return
+               (26 U.S.C. 215, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section215&amp;num=0&amp;edition=2016). It is a reporting duty the Secretary may impose; it
+               does not, by its own terms, disallow the sec. 215(a) deduction when the TIN is absent.
+             - sec. 215(d) is the SOLE "No deduction shall be allowed" clause in sec. 215, and it is unrelated to
+               the TIN — it coordinates with sec. 682 (alimony-trust income; 26 U.S.C. 215, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section215&amp;num=0&amp;edition=2016).
+               The one disallowance Congress wrote into this section is not the SSN.
+           So the missing-TIN sanction lives in the INFORMATION-REPORTING PENALTY regime, not in the deduction
+           grant: IRC sec. 6723 imposes "$50 for each ... failure" to comply with a specified information-
+           reporting requirement (26 U.S.C. 6723, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2023-title26-section6723&amp;num=0&amp;edition=2023), the class IRC sec. 6724(d)(3) defines
+           (26 U.S.C. 6724, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2023-title26-section6724&amp;num=0&amp;edition=2023). ⚠ LIMIT OF THE VENDORED CHAIN: the 6724(d)(3) excerpt scopes that
+           class via sec. 6050K(c)(1) and sec. 6109 regulations, not sec. 215(c) by name — the sec. 215(c)-
+           specific hook runs through sec. 6109 regs NOT vendored here, so this 6723/6724 chain is CORROBORATING,
+           not a self-contained proof. The reading does not rest on it: it rests on sec. 215(a)/(d), and Pub 504
+           states the SSN sanction as a "$50 penalty ... may be disallowed" outright. A penalty for failing to
+           report a number is not a deletion of the deduction the number would report.
+           CORROBORATING (Pub 504 (2025) + i1040gi, first-party) — consistent with the statute, not the load-
+           bearing basis for it:
+             (a) MODALITY. Pub 504 says the deduction "may be disallowed" and the taxpayer "may have to pay a $50
+                 penalty" for a missing SSN (https://www.irs.gov/pub/irs-pdf/p504.pdf, page 12) — contingent
+                 enforcement language, not a return-computation instruction. The IRS writes a hard bar as an
+                 imperative when it means one, in this very section: "You can't take a deduction for alimony
+                 payments" for the TCJA gate (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 95). It pointedly
+                 did not do so for the SSN.
+             (b) NO LINE 19b INSTRUCTION AT ALL. i1040gi gives sub-instructions for 19a and 19c and none for 19b
+                 (only the header "Lines 19a, 19b, and 19c", line 6934). A rule that deletes a deduction is not
+                 left unwritten.
+             (c) MULTI-RECIPIENT rule. Pub 504: "If you paid alimony to more than one person, enter the SSN or
+                 ITIN of ONE of the recipients... Enter your total payments on line 19a"
+                 (https://www.irs.gov/pub/irs-pdf/p504.pdf, page 12). Line 19a totals payments to N recipients whose SSNs are NOT on 19b,
+                 so a hard 19b -> 19a computational gate contradicts the IRS's own instruction. ⚠ NOTE THE LIMIT:
+                 this rule cuts AGAINST a hard gate but is not itself an affirmative basis for
+                 surviving with NO TIN — it requires one recipient's TIN, not zero. It corroborates that the
+                 sanction is penalty-not-disallowance; the sec. 215(a)/(d) statutory scheme is what carries the
+                 reading.
+             Also corroborating: the SSN regime's stated sanction is uniformly the penalty — the recipient's
+             mirror duty carries "$50 penalty" and nothing else (https://www.irs.gov/pub/irs-pdf/p504.pdf, page 12).
+           BURDEN. The affirmative rule that DELETES a taxpayer's deduction is the claim needing authority, and
+           sec. 215 grants the deduction while placing the SSN in a permissive reporting duty (215(c)) and a
+           penalty regime (6723/6724), never in a disallowance. Removing an ungrounded gate does not require a
+           statute; keeping it would — and the statute does not supply one.
+           MEASURED WRONG: a return with $4,000 paid under a TRUE pre-2019 gate
+           and no SSN resolved this fact Complete 0.00, deleting the whole deduction and OVER-taxing.
+           REJECTED (2): THE KNOCKOUT (refuse to file). A prior analysis
+           retracted the drop-the-gate remedy and argued for refusing the return, reasoning that Pub 504 attaches
+           real consequences to a missing SSN. DEFENSIBLE at the time, but REFUTED by the statute: a knockout
+           asserts the return is UNFILABLE, a claim sec. 215 does not support — the deduction is granted (215(a)),
+           the SSN sits in a permissive reporting duty (215(c)) and a $50 penalty (6723), and the sole
+           disallowance (215(d)) is elsewhere. Knockouts are for what we genuinely CANNOT
+           compute; this we can. The parallel is a substantiation failure (a charitable gift without a receipt):
+           the deduction is computed and the exposure disclosed, not deleted and not made unfilable.
+           ADJUDICATION (THE CONTESTED READING). The fork — does the pre-2019 sec. 215/sec. 62(a)(10)
+           deduction survive when the recipient SSN is absent — needed independent verification because
+           a single pass does not settle its own shipped reading. READING A was independently re-derived
+           answer-blind and TRIPLE-WITNESSED (a blind derivation, an adversarial refuter pass, and a second
+           independent blind derivation), on the same sec. 215(a)/(d) + 6723
+           chain grounded above, with NO divergence from the shipped outcome. That is the recorded delegate authority this tag cites. The LAW is settled.
+           PINNED BY: js/test/factDictionaryTests/alimony.test.ts (the pre-2019 + no-SSN case asserts the full
+           deduction survives). -->
+      <!-- interpretation:provisional — sec. 215(d) coordination with sec. 682, on the same
+           statutory authority as the note above: sec. 215(d) bars this deduction when, by reason
+           of sec. 682, the payment is trust income taxed to the recipient rather than a sec.
+           215(a) payment the payor ever made out of its own funds (26 U.S.C. 215, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section215&amp;num=0&amp;edition=2016; 26 U.S.C. 682, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2016-title26-section682&amp;num=0&amp;edition=2016). Sec. 682 was repealed by the
+           same TCJA sec. 11051 package and the same effective-date grandfather as secs. 71/215,
+           so it is live law for the same pre-2019 instrument population.
+           /alimonyPaidIsSection682TrustIncome is moot-first, not complete-safe unconditionally: an unanswered sec. 682 attestation on a LIVE claiming return (amount entered, pre-2019 gate TRUE or itself unanswered) leaves that fact, and so this one, INCOMPLETE, not a silent $0 default. Only when the question is genuinely moot (no amount
+           entered, or the gate already resolved FALSE) does it stay complete-safe False.
+           PINNED BY: tests/nodes/ty2025/alimony/sec682-trust-income-disallows-deduction-despite-
+           pre2019-gate, -false-deduction-unmoved, -unanswered-claiming-return-incomplete, and
+           -disallows-deduction-even-when-pre2019-gate-unanswered. -->
+      <Export downstreamFacts="true" mef="true" stateSystems="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableAlimonyPaidAmount" />
+                  </IsComplete>
+                </Not>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyPaidIsSection682TrustIncome" />
+                  </IsComplete>
+                  <Dependency path="/alimonyPaidIsSection682TrustIncome" />
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+                  </IsComplete>
+                  <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+                  <IsComplete>
+                    <Dependency path="/alimonyPaidIsSection682TrustIncome" />
+                  </IsComplete>
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableAlimonyPaidAmount" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <Dependency path="/alimonyPaidBeforeModificationAdoptingPost2018RulesApplies" />
+              </When>
+              <Then>
+                <Add>
+                <Dependency path="/alimonyPaidSection682QuestionSettledCondition" />
+                <LesserOf>
+                  <GreaterOf>
+                    <Dependency path="/writableAlimonyPaidAmount" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                  <GreaterOf>
+                    <Dependency path="/writableAlimonyPaidBeforeModificationAdoptingPost2018Rules" />
+                    <Dollar>0</Dollar>
+                  </GreaterOf>
+                </LesserOf>
+                </Add>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+                  </IsComplete>
+                  <Not>
+                    <Dependency path="/alimonyPaidPre2019AgreementApplies" />
+                  </Not>
+                </All>
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/writableSchedule1Line2bAlimonyAgreementDate">
+      <Name>Schedule 1 line 2b, date of the original divorce or separation agreement for alimony received</Name>
+      <Description>User response: the date of the original divorce or separation agreement behind the alimony received on Schedule 1 line 2a, written on line 2b exactly as the filer states it. The alimony module already carries the pre-2019 execution test as a boolean attestation on /alimonyReceivedPre2019Agreement, which answers whether the agreement predates 2019 but does not carry the literal date the printed line asks for. This fact carries only that printed date. It is a String rather than a date type because the eight staging templates offer no date writable, and the printed line is a free entry space. It is the alimony RECEIVED date on page 1 and is deliberately separate from the alimony PAID date on line 19c of page 2.
+
+        LEFT PRINT ONLY, ON PURPOSE. The paid side now reads its line 19c date to REFUTE a pre 2019 claim (/alimonyPaidPre2019AgreementApplies), and the same correction is owed here for /alimonyReceivedPre2019Agreement. It cannot be written against THIS fact, because this one is typed String while its line 19c twin is typed Day, and a String cannot be compared to 2018-12-31. Retyping it to Day is an INTAKE RENEGOTIATION, not a wiring edit: the printed line is a free entry space, the eight staging templates that produced this fact offer no date writable, and any existing answer is an unparsed string. That decision belongs to whoever owns the intake surface. Until it is taken, a filer can still print a 2021 agreement date on line 2b beside alimony the return taxes as pre 2019 and nothing objects. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/writableSchedule1Line19cAlimonyAgreementDate">
+      <Name>Schedule 1 line 19c, date of the original divorce or separation agreement for alimony paid</Name>
+      <Description>User response: the date of the original divorce or separation agreement behind the alimony paid on Schedule 1 line 19a, written on line 19c. The alimony module carries the pre 2019 execution test as a boolean attestation on /alimonyPaidPre2019Agreement, which answers whether the agreement predates 2019 but does not carry the literal date the printed line asks for. It is a Day, the dictionary's date type. It is the alimony PAID date on page 2 and is deliberately separate from the alimony RECEIVED date on line 2b of page 1, which is /writableSchedule1Line2bAlimonyAgreementDate. 
+
+        CONSUMED, AND REVIEW LEAVES IT STANDING. /alimonyPaidPre2019AgreementApplies, the pre 2019 execution gate /deductibleAlimonyPaid actually spends, reads this date and resolves FALSE whenever it is 2019 01 01 or later. The retirement candidate against this fact assumed the date was a print only twin of the boolean attestation; it is not, it is the one thing on the printed return that can contradict the attestation, and it is admitted in that one direction only. It is NOT retired and it is NOT promoted to a two way computation: an instrument executed on or before December 31 2018 but modified after 2018 to expressly adopt the post TCJA treatment is not a pre 2019 agreement, so a pre 2019 date is consistent with either answer and cannot compute one. The asymmetry and the rejected symmetric design are argued in full on /alimonyPaidPre2019AgreementApplies. DISPOSITION: keep. A live question, not a superseded one. California TY2025 reads this fact through its stateSystems export (Schedule CA (540), Schedule CA (540NR)).</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

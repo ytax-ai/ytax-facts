@@ -1,0 +1,97 @@
+# IRS1099K — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099K/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 3bb0e18c0e716a495b1d13f9fcca39576894009dc650e251a02fe0725099020d
+# boxes: 39   acroform fields: 151   boxes with a fact: 39
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (24): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box void-corrected row 1 `VOID / CORRECTED checkboxes`: shared spelling `void / corrected checkboxes` names 2 readings
+# unspelled: box void-corrected row 2 `VOID / CORRECTED checkboxes`: shared spelling `void / corrected checkboxes` names 2 readings
+# unspelled: box transaction-type row 1 `Check to indicate transactions reported are: Payment card / Third party network`: shared spelling `check to indicate transactions reported are: payment card / third party network` names 2 readings
+# unspelled: box transaction-type row 2 `Check to indicate transactions reported are: Payment card / Third party network`: shared spelling `check to indicate transactions reported are: payment card / third party network` names 2 readings
+# unspelled: box payee-address row 1 `Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code`: shared spelling `street address (including apt. no.); city or town, state or province, country, and zip or foreign postal code` names 2 readings
+# unspelled: box payee-address row 2 `Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code`: shared spelling `street address (including apt. no.); city or town, state or province, country, and zip or foreign postal code` names 2 readings
+# unspelled: box 5a-5l row 1 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 2 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 3 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 4 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 5 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 6 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 7 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 8 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 9 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 10 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 11 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 5a-5l row 12 `Monthly gross amount, January-December`: shared spelling `monthly gross amount, january-december` names 12 readings
+# unspelled: box 6 row 1 `State`: shared spelling `state` names 2 readings
+# unspelled: box 6 row 2 `State`: shared spelling `state` names 2 readings
+# unspelled: box 7 row 1 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 7 row 2 `State identification no.`: shared spelling `state identification no` names 2 readings
+# unspelled: box 8 row 1 `State income tax withheld`: shared spelling `state income tax withheld` names 2 readings
+# unspelled: box 8 row 2 `State income tax withheld`: shared spelling `state income tax withheld` names 2 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+year		For calendar year	for calendar year	topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].CalendarYear[0].f2_1[0]	/form1099Ks/*/writableCalendarYear	String		
+void-corrected	1	VOID / CORRECTED checkboxes		topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]	/form1099Ks/*/writableVoid	Bool		
+void-corrected	2	VOID / CORRECTED checkboxes		topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]|topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]|topmostSubform[0].CopyB[0].CopyHeader[0].c2_1[0]|topmostSubform[0].Copy2[0].CopyHeader[0].c2_1[0]	/form1099Ks/*/writableCorrected	Bool		
+filer-name		FILER'S name, street address, city or town, state or province, country, ZIP or foreign postal code, and telephone number	filer's name, street address, city or town, state or province, country, zip or foreign postal code, and telephone number	topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_2[0]	/form1099Ks/*/writableFilerNameAddressAndTelephoneNumber	String		
+—	caption:6bfeba7f73c5	Check to indicate if FILER is a (an): Payment settlement entity (P S E)	check to indicate if filer is a (an): payment settlement entity	topmostSubform[0].CopyA[0].LeftCol[0].FILERCheckboxes_ReadOrder[0].c1_2[0]|topmostSubform[0].Copy1[0].LeftCol[0].FILERCheckbox_ReadOrder[0].c2_2[0]|topmostSubform[0].CopyB[0].LeftCol[0].FILERCheckbox_ReadOrder[0].c2_2[0]|topmostSubform[0].Copy2[0].LeftCol[0].FILERCheckbox_ReadOrder[0].c2_2[0]	/form1099Ks/*/writablePaymentSettlementEntity	Bool		
+—	caption:fdeed916a4c7	Electronic Payment Facilitator (E P F)/Other third party	electronic payment facilitator (e p f)/other third party	topmostSubform[0].CopyA[0].LeftCol[0].FILERCheckboxes_ReadOrder[0].c1_3[0]|topmostSubform[0].Copy1[0].LeftCol[0].FILERCheckbox_ReadOrder[0].c2_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].FILERCheckbox_ReadOrder[0].c2_3[0]|topmostSubform[0].Copy2[0].LeftCol[0].FILERCheckbox_ReadOrder[0].c2_3[0]	/form1099Ks/*/writableElectronicPaymentFacilitatorOrOtherThirdParty	Bool		
+transaction-type	1	Check to indicate transactions reported are: Payment card / Third party network		topmostSubform[0].CopyA[0].LeftCol[0].c1_4[0]|topmostSubform[0].Copy1[0].LeftCol[0].c2_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].c2_4[0]|topmostSubform[0].Copy2[0].LeftCol[0].c2_4[0]	/form1099Ks/*/writablePaymentCard	Bool		
+transaction-type	2	Check to indicate transactions reported are: Payment card / Third party network		topmostSubform[0].CopyA[0].LeftCol[0].c1_5[0]|topmostSubform[0].Copy1[0].LeftCol[0].c2_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].c2_5[0]|topmostSubform[0].Copy2[0].LeftCol[0].c2_5[0]	/form1099Ks/*/writableThirdPartyNetwork	Bool		
+payee-name		PAYEE'S name	payee's name	topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_3[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_3[0]	/form1099Ks/*/writablePayeeName	String		
+payee-address	1	Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code		topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_4[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_4[0]	/form1099Ks/*/writableStreetAddress	String		
+payee-address	2	Street address (including apt. no.); City or town, state or province, country, and ZIP or foreign postal code		topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_5[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_5[0]	/form1099Ks/*/writableCityOrTownStateOrProvinceCountryAndZipOrForeignPostalCode	String		
+pse-name		PSE'S name and telephone number	pse's name and telephone number	topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_6[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_6[0]	/form1099Ks/*/writablePseNameAndTelephoneNumber	String		
+account		Account number (see instructions)	account number	topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]|topmostSubform[0].Copy1[0].LeftCol[0].f2_7[0]|topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]|topmostSubform[0].Copy2[0].LeftCol[0].f2_7[0]	/form1099Ks/*/writableAccountNumber	String		
+2nd-tin-not		2nd TIN not. checkbox	2nd tin not. checkbox	topmostSubform[0].CopyA[0].LeftCol[0].c1_6[0]	/form1099Ks/*/writableSecondTinNotice	Bool		
+filer-tin		FILER'S TIN	filer's tin	topmostSubform[0].CopyA[0].RghtCol[0].f1_8[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_8[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_8[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_8[0]	/form1099Ks/*/writableFilerTin	TIN		
+payee-tin		PAYEE'S TIN; the per-item Derived TIN resolved from this document's own ../filer, never asked	payee's tin; the per-item derived tin resolved from this document's own ../filer, never asked	topmostSubform[0].CopyA[0].RghtCol[0].f1_9[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_9[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_9[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_9[0]	/form1099Ks/*/payeeTin	TIN		
+1a		Gross amount of payment card/third party network transactions	gross amount of payment card/third party network transactions	topmostSubform[0].CopyA[0].RghtCol[0].f1_10[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_10[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_10[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_10[0]	/form1099Ks/*/writableGrossAmountOfPaymentCardOrThirdPartyNetworkTransactions	Dollar		
+1b		Card Not Present transactions	card not present transactions	topmostSubform[0].CopyA[0].RghtCol[0].Box1b_ReadOrder[0].f1_11[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box1b_ReadOrder[0].f2_11[0]|topmostSubform[0].CopyB[0].RightCol[0].Box1b_ReadOrder[0].f2_11[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box1b_ReadOrder[0].f2_11[0]	/form1099Ks/*/writableCardNotPresentTransactions	Dollar		
+2		Merchant category code	merchant category code	topmostSubform[0].CopyA[0].RghtCol[0].f1_12[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_12[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_12[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_12[0]	/form1099Ks/*/writableMerchantCategoryCode	String		
+3		Number of payment transactions	number of payment transactions	topmostSubform[0].CopyA[0].RghtCol[0].f1_13[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_13[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_13[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_13[0]	/form1099Ks/*/writableNumberOfPaymentTransactions	Int		
+4		Federal income tax withheld	federal income tax withheld	topmostSubform[0].CopyA[0].RghtCol[0].f1_14[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_14[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_14[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_14[0]	/form1099Ks/*/writableFederalIncomeTaxWithheld	Dollar		
+5a-5l	1	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].Box5a_ReadOrder[0].f1_15[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5a_ReadOrder[0].f2_15[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5a_ReadOrder[0].f2_15[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5a_ReadOrder[0].f2_15[0]	/form1099Ks/*/writableJanuary	Dollar		
+5a-5l	2	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].f1_16[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_16[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_16[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_16[0]	/form1099Ks/*/writableFebruary	Dollar		
+5a-5l	3	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].Box5c_ReadOrder[0].f1_17[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5c_ReadOrder[0].f2_17[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5c_ReadOrder[0].f2_17[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5c_ReadOrder[0].f2_17[0]	/form1099Ks/*/writableMarch	Dollar		
+5a-5l	4	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].f1_18[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_18[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_18[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_18[0]	/form1099Ks/*/writableApril	Dollar		
+5a-5l	5	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].Box5e_ReadOrder[0].f1_19[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5e_ReadOrder[0].f2_19[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5e_ReadOrder[0].f2_19[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5e_ReadOrder[0].f2_19[0]	/form1099Ks/*/writableMay	Dollar		
+5a-5l	6	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].f1_20[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_20[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_20[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_20[0]	/form1099Ks/*/writableJune	Dollar		
+5a-5l	7	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].Box5g_ReadOrder[0].f1_21[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5g_ReadOrder[0].f2_21[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5g_ReadOrder[0].f2_21[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5g_ReadOrder[0].f2_21[0]	/form1099Ks/*/writableJuly	Dollar		
+5a-5l	8	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].f1_22[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_22[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_22[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_22[0]	/form1099Ks/*/writableAugust	Dollar		
+5a-5l	9	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].Box5i_ReadOrder[0].f1_23[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5i_ReadOrder[0].f2_23[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5i_ReadOrder[0].f2_23[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5i_ReadOrder[0].f2_23[0]	/form1099Ks/*/writableSeptember	Dollar		
+5a-5l	10	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].f1_24[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_24[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_24[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_24[0]	/form1099Ks/*/writableOctober	Dollar		
+5a-5l	11	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].Box5k_ReadOrder[0].f1_25[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box5k_ReadOrder[0].f2_25[0]|topmostSubform[0].CopyB[0].RightCol[0].Box5k_ReadOrder[0].f2_25[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box5k_ReadOrder[0].f2_25[0]	/form1099Ks/*/writableNovember	Dollar		
+5a-5l	12	Monthly gross amount, January-December		topmostSubform[0].CopyA[0].RghtCol[0].f1_26[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_26[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_26[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_26[0]	/form1099Ks/*/writableDecember	Dollar		
+6	1	State		topmostSubform[0].CopyA[0].RghtCol[0].Box6_ReadOrder[0].f1_27[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box6_ReadOrder[0].f2_27[0]|topmostSubform[0].CopyB[0].RightCol[0].Box6_ReadOrder[0].f2_27[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box6_ReadOrder[0].f2_27[0]	/form1099Ks/*/writableState	String		
+6	2	State		topmostSubform[0].CopyA[0].RghtCol[0].Box6_ReadOrder[0].f1_28[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box6_ReadOrder[0].f2_28[0]|topmostSubform[0].CopyB[0].RightCol[0].Box6_ReadOrder[0].f2_28[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box6_ReadOrder[0].f2_28[0]	/form1099Ks/*/writableState2	String		
+7	1	State identification no.		topmostSubform[0].CopyA[0].RghtCol[0].Box7_ReadOrder[0].f1_29[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box7_ReadOrder[0].f2_29[0]|topmostSubform[0].CopyB[0].RightCol[0].Box7_ReadOrder[0].f2_29[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box7_ReadOrder[0].f2_29[0]	/form1099Ks/*/writableStateIdentificationNumber	String		
+7	2	State identification no.		topmostSubform[0].CopyA[0].RghtCol[0].Box7_ReadOrder[0].f1_30[0]|topmostSubform[0].Copy1[0].RghtCol[0].Box7_ReadOrder[0].f2_30[0]|topmostSubform[0].CopyB[0].RightCol[0].Box7_ReadOrder[0].f2_30[0]|topmostSubform[0].Copy2[0].RghtCol[0].Box7_ReadOrder[0].f2_30[0]	/form1099Ks/*/writableStateIdentificationNumber2	String		
+8	1	State income tax withheld		topmostSubform[0].CopyA[0].RghtCol[0].f1_31[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_31[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_31[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_31[0]	/form1099Ks/*/writableStateIncomeTaxWithheld	Dollar		
+8	2	State income tax withheld		topmostSubform[0].CopyA[0].RghtCol[0].f1_32[0]|topmostSubform[0].Copy1[0].RghtCol[0].f2_32[0]|topmostSubform[0].CopyB[0].RightCol[0].f2_32[0]|topmostSubform[0].Copy2[0].RghtCol[0].f2_32[0]	/form1099Ks/*/writableStateIncomeTaxWithheld2	Dollar		

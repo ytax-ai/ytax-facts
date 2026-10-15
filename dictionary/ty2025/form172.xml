@@ -1,0 +1,1882 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/form172CalendarYear">
+      <Name>Form 172 header calendar year</Name>
+      <Description>The calendar year printed in the Form 172 header. It is the tax year of the return this form is filed with, so it aliases constants:/taxYear rather than coining a second year constant. A fiscal year filer uses the two boxes beside it instead, and Direct File files calendar year individual returns only.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="constants" path="/taxYear" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears">
+      <Name>Form 172 Part II carryback and carryover years</Name>
+      <Description>The preceding tax years to which the current year loss is carried, one item per printed Part II column. The printed table has two columns, the second preceding tax year first and the first preceding tax year second, and the instructions say to complete one column before going to the next and to start with the earliest carryback year, so item 0 is the second preceding year and item 1 the first. A new collection: this dictionary carries no prior year state at all and income:/writableNetOperatingLossDeduction records the carryforward pool as unmodelled, so Part II is a filer supplied worksheet.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/casualtyAndTheftLossDeductionAdjustment">
+      <Name>Form 172 Part II row 32 adjustment to the casualty and theft loss deduction</Name>
+      <Description>Row 32: row 28 minus row 31, the amount by which the higher modified AGI shrinks the casualty and theft loss deduction of the carryback year. NOT floored at zero: the printed row is a plain subtraction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableCasualtyAndTheftLossDeduction" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../refiguredCasualtyLossDeduction" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/casualtyLossAgiFloor">
+      <Name>Form 172 Part II row 30 casualty loss floor of 10 percent of modified AGI</Name>
+      <Description>Row 30: 10 percent of the row 22 modified AGI, which is the row 13 amount, the floor a personal casualty and theft loss must clear under section 165(h)(2) once the carryback year AGI is raised.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>10/100</Rational>
+            <Dependency path="../modifiedAgi" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/charitableContributionsAdjustment">
+      <Name>Form 172 Part II row 27 adjustment to the charitable contribution deduction</Name>
+      <Description>Row 27: row 25 minus row 26, the change in the charitable contribution deduction of the carryback year. NOT floored at zero: a higher AGI usually raises the percentage limits, so the refigured deduction can exceed the one originally allowed and this row can be negative.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableCharitableContributions" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="../writableRefiguredCharitableContributions" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/itemizedDeductionsAdjustment">
+      <Name>Form 172 Part II row 7, computed from row 33 when the Part II itemized rows were answered</Name>
+      <Description>Part II row 7 as the printed form defines it. Row 33 says "Combine lines 18, 21,
+        27, and 32" and then tells the filer to enter the result on row 7, so the two cells hold ONE
+        quantity; before this fact, row 7 was a second, independent intake that could contradict the row 33 the same column computes.
+
+        COMPUTED ARM: ../line33AdjustmentToItemizedDeductions, taken whenever that fact is Complete.
+        Row 33 is a plain combine of four subtractions of Part II row 14 through row 32 intakes and
+        carries no complete safe wrapper of its own, so IsComplete on it is a REAL "were the sources
+        answered" predicate - it is true exactly when the filer worked the Part II itemized
+        deduction rows - and not the always true IsComplete of a complete safe fact that brief
+        rule 3 forbids as a gate.
+
+        FALLBACK ARM: ../writableItemizedDeductionsAdjustment, the row 7 intake, kept for the filer
+        who carries the row 7 figure from a prior year worksheet without reworking rows 14 through
+        32. Then $0, so /form172CarryoverYears/*/modifiedTaxableIncomeBeforeFloor - the row 9 sum
+        that reads this fact in the intake's place - stays Complete on a carryover column that
+        answers neither.
+
+        EITHER SIGN, no floor: row 33 combines four adjustments that each take either sign, which is
+        why the row 7 intake carries no Min 0 either.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../line33AdjustmentToItemizedDeductions" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../line33AdjustmentToItemizedDeductions" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableItemizedDeductionsAdjustment" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="../writableItemizedDeductionsAdjustment" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/line33AdjustmentToItemizedDeductions">
+      <Name>Form 172 Part II row 33 adjustment to itemized deductions</Name>
+      <Description>Row 33: rows 18, 21, 27 and 32 combined, the total change in the itemized deductions of the carryback year caused by the modified AGI. OBLIGATION CLOSED: /form172CarryoverYears/*/itemizedDeductionsAdjustment takes this fact whenever it is Complete and falls back to the row 7 intake /form172CarryoverYears/*/writableItemizedDeductionsAdjustment otherwise, and row 9 (/form172CarryoverYears/*/modifiedTaxableIncomeBeforeFloor) now reads that fact in the intake's place; the sentence this replaces said the alias "should later" be made. Combine, not add with a floor: each of the four rows takes either sign.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../medicalDeductionAdjustment" />
+          <Dependency path="../mortgageInsurancePremiumsAdjustment" />
+          <Dependency path="../charitableContributionsAdjustment" />
+          <Dependency path="../casualtyAndTheftLossDeductionAdjustment" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/medicalDeductionAdjustment">
+      <Name>Form 172 Part II row 18 adjustment to the medical and dental expense deduction</Name>
+      <Description>Row 18: row 14 minus row 17, the amount by which the higher modified AGI shrinks the medical and dental expense deduction of the carryback year. NOT floored at zero: the printed row is a plain subtraction, and row 33 combines it with the other three adjustments, so a refigured deduction larger than the one originally allowed carries its own sign.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableMedicalExpensesAfterAgiLimit" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../refiguredMedicalDeduction" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/medicalExpenseAgiFloor">
+      <Name>Form 172 Part II row 16 medical expense floor of 7.5 percent of modified AGI</Name>
+      <Description>Row 16: 7.5 percent of the row 13 modified AGI, the floor the medical and dental deduction must clear once the carryback year AGI is raised by the rows 3 through 6 add backs. The rate is the section 213(a) percentage the printed row states.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Multiply>
+            <Rational>75/1000</Rational>
+            <Dependency path="../modifiedAgi" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/modifiedAgi">
+      <Name>Form 172 Part II row 13 modified AGI</Name>
+      <Description>Row 13: row 11 plus row 12, the modified adjusted gross income of the carryback year. Row 22 prints this same quantity again on page 3 and reads it rather than recomputing it, and rows 16 and 30 take their percentage floors from it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../writableAgiBeforeCarryback" />
+          <Dependency path="../modifiedAgiAdditions" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/modifiedAgiAdditions">
+      <Name>Form 172 Part II row 12 total of rows 3 through 6</Name>
+      <Description>Row 12: rows 3 through 6 added, which is the net capital loss deduction, the section 1202 exclusion, the qualified business income deduction and the adjustment to adjusted gross income. The instructions call this total the amount added to the AGI previously used, so it is the bridge from the reported AGI of the carryback year to the modified AGI on row 13.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <GreaterOf><Dependency path="../writableNetCapitalLossDeduction" /><Dollar>0</Dollar></GreaterOf>
+          <GreaterOf><Dependency path="../writableSection1202Exclusion" /><Dollar>0</Dollar></GreaterOf>
+          <GreaterOf><Dependency path="../writableQbiDeduction" /><Dollar>0</Dollar></GreaterOf>
+          <Dependency path="../writableAgiAdjustment" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/modifiedAgiForCharitableContributions">
+      <Name>Form 172 Part II row 24 modified AGI for refiguring charitable contributions</Name>
+      <Description>Row 24: row 22 plus row 23, that is the row 13 modified AGI increased by any earlier NOL carryback that reduced it. The instructions say to refigure the charitable contributions using this amount as AGI.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="../modifiedAgi" />
+          <GreaterOf><Dependency path="../writablePriorYearNolCarrybackInAgi" /><Dollar>0</Dollar></GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/modifiedTaxableIncome">
+      <Name>Form 172 Part II row 9 modified taxable income</Name>
+      <Description>Part II row 9: rows 2 through 8 added, or zero. It is the amount of the carried loss that this preceding year absorbs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../modifiedTaxableIncomeBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/modifiedTaxableIncomeBeforeFloor">
+      <Name>Form 172 Part II row 9 modified taxable income before the floor</Name>
+      <Description>Rows 2 through 8 added, less the section 172(b)(2)(C) reduction for this carryback year. This signed total is the amount the printed row 9 floors at zero. The reduction is 20 percent of the 80%-limited excess computed under section 172(a)(2)(B)(ii), and is supplied from the prior-year limitation computation because this module has neither that year's NOL-vintage pool nor a complete prior-year taxable-income base.
+
+        CORRECTION: the reduction is read IsComplete-first and its ABSENT ARM is the plain rows-2-through-8 sum — the value this row carried before the reduction intake existed. As first shipped the subtraction was unconditional, so a pre-existing Part II column that had never been asked the new question stopped resolving at all: row 9, the row 10 carryover and every downstream column went Incomplete on returns that computed them before. A writable introduced here may not do that. An ANSWERED reduction, including an answered $0, still subtracts; only silence takes the base arm. Witnesses: form172-part-ii-carryover-columns-with-172b2c-reduction (16,000 - 3,200 = 12,800 in column one, 8,750 - 1,600 = 7,150 in column two) and form172-part-ii-80pct-adjustment-unanswered-keeps-the-base (10,000 unreduced while the question is unanswered).
+
+        CORRECTION: two things above are now wrong. (i) "The reduction is 20 percent of the 80%-limited excess" reads the statute one noun too far. IRC 172(b)(2)(C) reduces the year by "20 percent of the excess (if any) described in subsection (a)(2)(B)(ii)", and the excess described in that clause is the excess of its clause (I) over its clause (II); the 80 percent is the multiplier the clause applies to that excess, not part of it. Twenty percent of the 80 percent product is 16 percent of the excess, which would leave 84 percent of the year absorbable and defeat the 80 percent limit it exists to enforce. (ii) The reduction is no longer only "supplied from the prior-year limitation computation". A filer who can state this column's own beginning date, its own no-section-172/no-section-199A/no-section-250 taxable income and its own pre-2018 pool gets the reduction COMPUTED from them, in ../section172b2cReductionApplied. The three arms of that fact are what this row now subtracts, and every one of them resolves, so the subtraction here is unconditional again: the unanswered column subtracts $0 and keeps the rows-2-through-8 sum exactly as it did before, and its two witnesses are unchanged. What DID move: an ANSWERED NEGATIVE attested reduction was being subtracted as a negative and RAISING this row (measured 12,000.00 on a 10,000.00 base), because the intake's Min-0 Limit is not enforced on resolution; it is now floored at zero in the body. Witness form172-part-ii-negative-manual-172b2c-reduction-floored.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Add>
+              <Dependency path="../writableTaxableIncomeBeforeCarryback" />
+              <GreaterOf><Dependency path="../writableNetCapitalLossDeduction" /><Dollar>0</Dollar></GreaterOf>
+              <GreaterOf><Dependency path="../writableSection1202Exclusion" /><Dollar>0</Dollar></GreaterOf>
+              <GreaterOf><Dependency path="../writableQbiDeduction" /><Dollar>0</Dollar></GreaterOf>
+              <Dependency path="../writableAgiAdjustment" />
+              <Dependency path="../itemizedDeductionsAdjustment" />
+              <GreaterOf><Dependency path="../writableEstateTrustExemption" /><Dollar>0</Dollar></GreaterOf>
+            </Add>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../section172b2cReductionApplied" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/mortgageInsurancePremiumsAdjustment">
+      <Name>Form 172 Part II row 21 adjustment to the mortgage insurance premiums deduction</Name>
+      <Description>Row 21: row 19 minus row 20, the amount by which the higher modified AGI shrinks the mortgage insurance premiums deduction of the carryback year. NOT floored at zero: the printed row is a plain subtraction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableMortgageInsurancePremiums" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="../writableRefiguredMortgageInsurancePremiums" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/nolCarryoverToSubsequentYear">
+      <Name>Form 172 Part II row 10 NOL carryover to the subsequent year</Name>
+      <Description>Part II row 10: the part of the loss carried to this preceding year that the year does not absorb, or zero. The first preceding year column is the figure the printed row tells the filer to enter on the net operating loss line of Schedule 1 (Form 1040). Print only until the income module consumes it: today Schedule 1 line 8a is the unrelated intake income:/writableNetOperatingLossDeduction, so the two can disagree.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../nolCarryoverToSubsequentYearBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/nolCarryoverToSubsequentYearBeforeFloor">
+      <Name>Form 172 Part II row 10 carryover before the floor</Name>
+      <Description>Row 1 minus row 9, the signed difference the printed row 10 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableNolDeduction" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../modifiedTaxableIncome" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/refiguredCasualtyLossDeduction">
+      <Name>Form 172 Part II row 31 refigured casualty and theft loss deduction</Name>
+      <Description>Row 31: the casualty and theft losses that exceed the 10 percent floor figured on the modified AGI, or zero. It is the deduction the carryback year would have allowed at the higher AGI.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../refiguredCasualtyLossDeductionBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/refiguredCasualtyLossDeductionBeforeFloor">
+      <Name>Form 172 Part II row 31 refigured casualty loss deduction before the floor</Name>
+      <Description>Row 29 minus row 30, the signed difference the printed row 31 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableCasualtyAndTheftLossBeforeAgiLimit" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../casualtyLossAgiFloor" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/refiguredMedicalDeduction">
+      <Name>Form 172 Part II row 17 refigured medical and dental expense deduction</Name>
+      <Description>Row 17: the medical and dental expenses that exceed the 7.5 percent floor figured on the modified AGI, or zero. It is the deduction the carryback year would have allowed at the higher AGI.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../refiguredMedicalDeductionBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/refiguredMedicalDeductionBeforeFloor">
+      <Name>Form 172 Part II row 17 refigured medical deduction before the floor</Name>
+      <Description>Row 15 minus row 16, the signed difference the printed row 17 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="../writableMedicalExpensesBeforeAgiLimit" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="../medicalExpenseAgiFloor" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableAgiAdjustment">
+      <Name>Form 172 Part II row 6 adjustment to adjusted gross income</Name>
+      <Description>Part II row 6 intake: the total of the adjustments to the AGI sensitive items the instructions list, refigured because rows 3 and 4 increase AGI. NO MINIMUM OF ZERO: the instructions say to enter the total adjustments made to the listed items, which can increase or decrease each item, so the total takes either sign. Filer supplied, and the printed line also requires an attached computation.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableAgiBeforeCarryback">
+      <Name>Form 172 Part II row 11 AGI before the current year NOL carryback</Name>
+      <Description>Part II rows 11 through 33 refigure the itemized deductions of a carryback year whose AGI the rows 3 through 6 add backs raise, and row 33 carries the total change to row 7. The printed heading says to complete these rows for a carryback year in which the filer itemized, and only if row 3, 4, or 5 is more than zero. Row 11 intake: the adjusted gross income of that preceding tax year figured without the current year carryback. NO MINIMUM OF ZERO: an AGI can be negative, and this row is the AGI the year actually reported, not a floored figure. Filer supplied, because the graph holds no prior year return.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableCarrybackYearHasSection965Inclusion">
+      <Name>Form 172 Part II: did this carryback year have a section 965(a) inclusion?</Name>
+      <Description>SCREEN SPEC. Question text: "Did [the tax year ended in this column] include an
+        amount you had to report under Internal Revenue Code section 965(a) (a one-time
+        transition tax on certain foreign earnings)?" Help text: the Instructions for Form 172
+        say, of a "965 year": "Individuals, estates, and trusts that carry NOLs back to years in
+        which they have a section 965(a) inclusion ('965 year') may not use this form. You must
+        use an amended return to carry back to such years." (i172 Reminders, quoted verbatim).
+        Asked when: this Part II column's writableTaxYearEnded is answered, i.e. the filer has
+        started a carryback into this preceding tax year. FOR A TY2025 RETURN THE STRUCTURALLY
+        CORRECT ANSWER IS "NO" ON BOTH REAL COLUMNS: section 965(a) reaches only the last taxable
+        year of a deferred foreign income corporation beginning before January 1, 2018 — a 2017 (or,
+        for a fiscal DFIC, early 2018) event — while a TY2025 farming-loss carryback under section
+        172(b)(1)(B)(i) reaches only the two years immediately preceding, 2023 and 2024. Neither
+        carryback year this dictionary can produce can carry a fresh 965(a) inclusion. The question
+        is kept anyway, unremoved, because (i) this dictionary reads subsection (a) only — it does
+        not read 965(h)/(i)/(n), so an inclusion event reaching a later year via one of those is not
+        ruled out here — and (ii) the printed CAUTION is a real instruction a preparer should still
+        see answered rather than silently assumed. Unanswered posture: this fact is a DISCLOSURE
+        LEAF WITH NO CONSUMER — nothing else in this graph reads it, so leaving it unanswered leaves
+        only this one fact Incomplete; there is no per-column completeness aggregator that an
+        unanswered column poisons. Validation: Boolean, no default. What the answer feeds: an
+        answer of true is a disclosed red flag for a return this Form 172 could not lawfully carry
+        back into, not an automatic block; a preparer or filer who answers true here should not use
+        this column and should instead amend the carryback year's return, per the printed
+        CAUTION.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableCasualtyAndTheftLossBeforeAgiLimit">
+      <Name>Form 172 Part II row 29 casualty and theft losses before the AGI limitation</Name>
+      <Description>Row 29 intake: the casualty and theft losses of the carryback year from Form 4684 before the 10 percent of AGI floor. Row 31 reapplies the floor to it using the modified AGI.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableCasualtyAndTheftLossDeduction">
+      <Name>Form 172 Part II row 28 casualty and theft loss deduction from Form 4684</Name>
+      <Description>Row 28 intake: the casualty and theft loss deduction the carryback year allowed on Form 4684 after the 10 percent of AGI floor, or as previously adjusted. Filer supplied: prior year Form 4684 figures are not in this graph. Row 32 subtracts the refigured loss from it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableCharitableContributions">
+      <Name>Form 172 Part II row 25 total charitable contributions deducted in the carryback year</Name>
+      <Description>Row 25 intake: the total gifts to charity reported on Schedule A for the carryback year, or as previously adjusted. Filer supplied: prior year Schedule A figures are not in this graph.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableEstateTrustExemption">
+      <Name>Form 172 Part II row 8 estate or trust exemption amount</Name>
+      <Description>Part II row 8 intake: the exemption amount of an estate or trust for that preceding year. It prints blank on an individual return, which is every return this dictionary files, so it exists to keep the printed row addressable and the row 9 total faithful to the form.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableItemizedDeductionsAdjustment">
+      <Name>Form 172 Part II row 7 adjustment to itemized deductions</Name>
+      <Description>Part II row 7 intake: the adjustment to that year's itemized deductions, which the printed row takes from Part II line 33. NO MINIMUM OF ZERO: line 33 combines lines 18, 21, 27 and 32 and takes either sign. CONSUMED, as the FALLBACK arm of /form172CarryoverYears/*/itemizedDeductionsAdjustment: row 9 reads that fact, which prefers the computed row 33 and reads this intake only when the Part II row 14 through row 32 cells were not worked. THE PRINTED ROW 7 CELL (IRS172 configuration.yml f2_15, f2_16) STILL MAPS TO THIS INTAKE and should be repointed to the derived fact, which is a register edit outside the dictionary author's boundary.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableMedicalExpensesAfterAgiLimit">
+      <Name>Form 172 Part II row 14 medical and dental expenses after the AGI limitation</Name>
+      <Description>Row 14 intake: the medical and dental expense deduction the carryback year actually allowed on Schedule A after the percentage of AGI limitation, or as previously adjusted. Filer supplied: prior year Schedule A figures are not in this graph. Row 18 subtracts the refigured deduction from it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableMedicalExpensesBeforeAgiLimit">
+      <Name>Form 172 Part II row 15 medical and dental expenses before the AGI limitation</Name>
+      <Description>Row 15 intake: the total medical and dental expenses of the carryback year before the percentage of AGI limitation, or as previously adjusted. Row 17 reapplies the limitation to it using the modified AGI.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableMortgageInsurancePremiums">
+      <Name>Form 172 Part II row 19 mortgage insurance premiums deducted in the carryback year</Name>
+      <Description>Row 19 intake: the mortgage insurance premiums deducted on Schedule A for a carryback year before 2022, or as previously adjusted. The deduction lapsed for premiums paid after 2021, so the row is blank for any recent carryback year; it exists so the printed row is addressable and row 33 foots. Filer supplied.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableNetCapitalLossDeduction">
+      <Name>Form 172 Part II row 3 net capital loss deduction</Name>
+      <Description>Part II row 3 intake: the net long-term capital loss shown on that preceding year's Schedule D, as a positive number, added back in figuring modified taxable income. Filer supplied: prior year Schedule D figures are not in this graph.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableNolDeduction">
+      <Name>Form 172 Part II row 1 NOL deduction carried to this year</Name>
+      <Description>Part II row 1 intake: the net operating loss carried to this preceding tax year, as a positive number. For the second preceding year it is the current year farming loss carried back; for the first preceding year it is row 10 of the second preceding year column. Filer supplied because the graph holds no prior year state and no current year NOL pool. ELIGIBILITY, disclosed rather than enforced: a post-2017 loss (every loss this dictionary's one tax year can produce) may only be carried back at all under the farming-loss exception, and only up to the farming-loss amount — see /form172FarmingLossCarrybackEligible for the precondition and ../nolDeductionExceedsCurrentYearLoss for a sound partial check on this entry.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/nolDeductionExceedsCurrentYearLoss">
+      <Name>Form 172 Part II row 1: does this column's entry exceed the whole current-year NOL?</Name>
+      <Description>A SOUND PARTIAL CHECK, disclosed as partial. Section 172(b)(1)(B)(ii) defines
+        "farming loss" as the LESSER of (I) the NOL computed with only farming income and
+        deductions, or (II) the whole-year NOL — so the farming-loss amount eligible for the
+        Part II carryback can never exceed the whole-year NOL magnitude. This fact flags row 1
+        entries that are CERTAINLY too large (they exceed even the (II) ceiling) without computing
+        the smaller, exact (I) figure, which would require re-deriving Form 172 Part I restricted
+        to farming-only income and deductions — not built (named gap; see the module header). True
+        when this column's writableNolDeduction is answered and exceeds
+        /form172CurrentYearNolMagnitude; false when the entry is within that ceiling, when the
+        current year's Part I has not resolved to a definite loss, or when this column has not
+        been answered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/form172Line24NetOperatingLoss" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="../writableNolDeduction" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="../writableNolDeduction" />
+                </Left>
+                <Right>
+                  <Dependency path="/form172CurrentYearNolMagnitude" />
+                </Right>
+              </GreaterThan>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writablePriorYearNolCarrybackInAgi">
+      <Name>Form 172 Part II row 23 prior year NOL carryback deducted in figuring row 11</Name>
+      <Description>Row 23 intake: any NOL carryback from a year before the current one that was deducted in arriving at the row 11 AGI, entered as a positive number. Row 24 adds it back so the charitable contribution limits are refigured on an AGI that no earlier carryback has reduced. Filer supplied: the graph holds no prior year carryback history.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableQbiDeduction">
+      <Name>Form 172 Part II row 5 qualified business income deduction</Name>
+      <Description>Part II row 5 intake: the section 199A qualified business income deduction claimed for that preceding year, as a positive number, added back in figuring modified taxable income. Filer supplied: prior year figures are not in this graph.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableRefiguredCharitableContributions">
+      <Name>Form 172 Part II row 26 refigured charitable contributions</Name>
+      <Description>Row 26 intake: the charitable contribution deduction refigured with the row 24 amount as AGI, which changes the section 170(b) percentage limits. The refiguring needs the contribution detail of the carryback year and, when row 23 is not zero, a fresh computation of every AGI sensitive item, none of which is in this graph, so the result is filer supplied.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableRefiguredMortgageInsurancePremiums">
+      <Name>Form 172 Part II row 20 refigured mortgage insurance premiums</Name>
+      <Description>Row 20 intake: the mortgage insurance premiums deduction refigured at the modified AGI. The instructions phase the deduction out over the $100,000 of modified AGI threshold ($50,000 if married filing separately) through the Mortgage Insurance Premiums Deduction Worksheet, whose first line is the premiums paid in the carryback year and is not in this graph, so the worksheet result is filer supplied.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableSection1202Exclusion">
+      <Name>Form 172 Part II row 4 section 1202 exclusion</Name>
+      <Description>Part II row 4 intake: the gain excluded under section 1202 in that preceding year, as a positive number, added back in figuring modified taxable income. Filer supplied: prior year figures are not in this graph.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableTaxYearEnded">
+      <Name>Form 172 Part II column heading: the date the carryback year ended</Name>
+      <Description>The date the preceding tax year in this column ended, printed in the column heading. The instructions say to enter the date the carryback year ends in the spaces provided in the column headings at the top of each page.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableTaxableIncomeBeforeCarryback">
+      <Name>Form 172 Part II row 2 taxable income before the current year NOL carryback</Name>
+      <Description>Part II row 2 intake: the taxable income of that preceding year figured without the current year carryback. NO MINIMUM OF ZERO, deliberately: the instructions say that if taxable income is shown as zero for a carryback year it must be refigured without limiting the result to zero and entered here as a negative number, so a floor would refuse the only sign that entry can take. Filer supplied: prior year returns are not in this graph.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableSection172b2cReduction">
+      <Name>Form 172 Part II row 9 section 172(b)(2)(C) reduction</Name>
+      <Description>SCREEN SPEC. Question text: "What is the section 172(b)(2)(C) reduction for this carryback year?" Help text: for a taxable year beginning after December 31, 2020, section 172(b)(2)(C) reduces the carryback year's modified taxable income by 20 percent of the amount described in section 172(a)(2)(B)(ii): 80 percent of the positive excess of taxable income computed without the section 172, 199A, or 250 deductions over the pre-2018 NOL amount. Enter the reduction shown by the carryback year's 80% limitation computation statement; enter $0 when the carryback year began before 2021 or the excess is zero. The prior-year NOL-vintage pool and complete limitation base are outside this module, so this amount is filer supplied rather than reconstructed from the current-year return. An unanswered amount leaves Part II row 9 incomplete; it is never assumed to be zero. The IRS instructions require the 80% limitation computation statement when applicable.
+
+        CORRECTION: the sentence "An unanswered amount leaves Part II row 9 incomplete" no longer describes the graph and was the wrong posture for an intake this campaign introduced. Row 9 now reads this amount IsComplete-first and takes the plain rows-2-through-8 sum when it is unanswered — the value the row carried before this question existed — so a pre-existing carryback column keeps resolving. This is NOT "assumed to be zero" on the filer's behalf: nothing is written into this writable, it stays Incomplete and unanswered, and the row it feeds simply reverts to its pre-intake definition until the question is answered. An answered amount, $0 included, is always subtracted.
+
+        CORRECTION: the help text above defines the amount as "20 percent of the amount described in section 172(a)(2)(B)(ii): 80 percent of the positive excess", which is 16 percent of the excess. The statute says "20 percent of the EXCESS (if any) described in subsection (a)(2)(B)(ii)": the noun it points at is the excess of clause (I) over clause (II), and the 80 percent is what that clause multiplies the excess by. The figure to enter is 20 percent of the excess itself. Also new: a filer who can state this column's own beginning date, taxable-income base and pre-2018 pool no longer has to attest anything — ../section172b2cComputedReduction figures the reduction and ../section172b2cReductionApplied prefers it. Once any of those three is answered this attested amount is ignored, including when the computed route is still missing an input, so a half-finished computation cannot silently fall back to it. A negative answer here is floored at zero where it is used, because this Min-0 Limit is not enforced on resolution.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CurrentYearNolMagnitude">
+      <Name>Form 172 Part I line 24 loss, as a positive magnitude</Name>
+      <Description>Zero minus /form172Line24NetOperatingLoss, which is always zero or negative by
+        construction, so this magnitude is always zero or positive: zero on a return with no
+        current-year NOL, and the loss amount otherwise. Exists because the Part II eligibility
+        and cap facts below compare a Part II row against a magnitude, and GreaterThan takes fact
+        paths rather than an inline subtraction of a signed line.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dollar>0</Dollar>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line24NetOperatingLoss" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172FarmingLossCarrybackEligible">
+      <Name>Form 172 Part II: is a carryback to a preceding year even eligible?</Name>
+      <Description>DISCLOSURE, not an enforced block: true only when this year's Part I resolves
+        to a definite NOL (line 24 negative) AND at least part of it is attributable to a farming
+        business (Schedule F or Form 4835 shows a loss this year). Section 172(b)(1)(A)(ii)(II)
+        eliminated the general carryback for losses arising after 2020, with the sole exception in
+        section 172(b)(1)(B)(i) for the farming-loss portion of the loss. Since every loss this
+        dictionary's one tax year can produce arises after 2020, a Part II carryback is eligible
+        at all only when a farming loss is present. This fact does not gate or block Part II row 1
+        (Part II remains a filer-supplied worksheet with no consumer of its own that could
+        enforce a block); it names the precondition so a future consumer, or a preparer reading the
+        printed form, can see when Part II should not be used at all. Complete-safe on the two
+        underlying facts it reads (both default false/zero on a return that resolves no loss or
+        claims no farm), so this fact itself resolves false rather than Incomplete when Part I has
+        not been fully worked.
+
+        RESIDUE: ELIGIBLE IS NOT MANDATORY. Section 172(b)(3) lets any taxpayer entitled to this
+        carryback "elect to relinquish the entire carryback period with respect to a net operating
+        loss for any taxable year", irrevocably once made; i172 Reminders prints the same election in
+        one line. This fact answers only "is a carryback eligible", not "did the filer waive it" — no
+        election intake exists in this dictionary, so a true here should not be read as "Part II must
+        be used."</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <IsComplete>
+            <Dependency path="/form172Line24NetOperatingLoss" />
+          </IsComplete>
+          <LessThan>
+            <Left>
+              <Dependency path="/form172Line24NetOperatingLoss" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThan>
+          <Dependency path="/form172FarmingLossPresentThisYear" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172FarmingLossPresentThisYear">
+      <Name>Does this year's return show a farming loss (Schedule F or Form 4835)?</Name>
+      <Description>True when this year's Schedule F net profit or loss, or Form 4835 farm rental
+        net income routed through Schedule E, is negative. Both dependencies are complete-safe
+        (each resolves $0 on a return that claims no farm activity or no farm rental, per their own
+        Descriptions), so this fact resolves Complete false rather than Incomplete when neither
+        activity is claimed. Feeds /form172FarmingLossCarrybackEligible; it is not itself the
+        section 172(b)(1)(B)(ii) "farming loss" AMOUNT, only whether one exists this year.
+
+        THE FORM 4835 LEG IS A PERMISSIVE PROXY, HONESTLY: section 172(b)(1)(B)(ii) defines a
+        farming loss by reference to a "farming business" under section 263A(e)(4), but the
+        scheduleE:/farmRentalNetIncome population is instead defined by the filer NOT materially
+        participating (that fact's own Description says so) — a weak fit for carrying on a trade or
+        business of farming. This dependency can therefore be true on a farm-rental return that is
+        not itself a 263A(e)(4) farming business, and the two-leg Any also misses a farming loss
+        arriving through a Schedule K-1 or Form 4797. Both directions are disclosed
+        verified:ai-only and nothing in this graph consumes this fact yet, so this is a note for
+        whoever gives Part II a real consumer, not a fix owed here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <LessThan>
+            <Left>
+              <Dependency module="scheduleF" path="/scheduleFNetProfitOrLoss" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThan>
+          <LessThan>
+            <Left>
+              <Dependency module="scheduleE" path="/farmRentalNetIncome" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </LessThan>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172EblWorksheetNolCarriedBackAndUsed">
+      <Name>NOL Carryover with an Excess Business Loss Worksheet, line 2: the portion of this year's loss carried back and used</Name>
+      <Description>i172's "NOL Carryover with an Excess Business Loss Worksheet" line 2: "Portion
+        of line 1 above that is a loss that was carried back and used. Enter as a positive number."
+        Line 1 is /form172Line24NetOperatingLoss — the worksheet's printed "Form 172, line 33" cite
+        is read as line 24, a printed typo: Part I ends at line 24 and line 33 is a Part II row.
+
+        THE "USED" PORTION IS THE SUM, ACROSS EVERY PART II CARRYBACK-YEAR COLUMN THE FILER HAS
+        WORKED, of that column's own row 9 "modified taxable income"
+        (/form172CarryoverYears/*/modifiedTaxableIncome) — which that fact's own Description already
+        calls "the amount of the carried loss that this preceding year absorbs", and which is
+        already floored at zero by its own GreaterOf, so no further floor or sign flip is needed
+        here. An empty Part II collection sums to zero, which is the correct answer for a filer who
+        has not (yet) carried this year's loss back into any preceding year at all — the common case,
+        since a post-2020 loss with no farming component has no Part II carryback to begin with
+        (/form172FarmingLossCarrybackEligible).
+
+        NOT COMPLETE-SAFE, matching the rest of Part II: a carryback-year column the filer
+        started but did not finish leaves that column's own row 9 Incomplete, and this sum inherits
+        it, exactly as /form172CarryoverYears/*/nolCarryoverToSubsequentYearBeforeFloor already does
+        for the analogous per-column figure — Part II remains a filer-supplied worksheet with no
+        consumer of its own that could enforce a block.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form172CarryoverYears" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form172CarryoverYears/*/modifiedTaxableIncome" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form172CarryoverYears" /></IsComplete></Not></When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172EblWorksheetNolCarryoverToNextYear">
+      <Name>NOL Carryover with an Excess Business Loss Worksheet, line 4: the combine</Name>
+      <Description>i172's "NOL Carryover with an Excess Business Loss Worksheet" line 4: "Combine
+        lines 1 through 3. This is your NOL to carry over to the next tax year." Line 1 is
+        /form172Line24NetOperatingLoss (negative, or zero when there is no current-year loss); line
+        2 is /form172EblWorksheetNolCarriedBackAndUsed above (positive, the amount already used by a
+        Part II carryback); line 3 is "the total excess business loss from Form 461[,] [e]nter as a
+        negative number" — this dictionary has no second attestation of that Form 461 figure to
+        enter here, because income:/writableSchedule1Line8pExcessBusinessLossAdjustment already
+        records the identical quantity (the section 461(l) excess business loss add-back reported on
+        Schedule 1 line 8p) as a POSITIVE amount, so line 3 is that writable negated inline (0 minus
+        the writable) rather than a second intake of one quantity (one quantity, one fact).
+
+        RESULT IS NEGATIVE (more loss still to carry forward) OR ZERO; the worksheet prints no floor
+        on this combine, so none is added here. NOT COMPLETE-SAFE, for the same reason line 2
+        above is not: an Incomplete Part I, an unworked Part II column, or an unanswered Form 461
+        excess-business-loss intake each leave this combine Incomplete rather than silently wrong,
+        and nothing in this graph consumes it (Part II has no consumer that could enforce a block).
+        A LEAD WHO WANTS THIS COMPLETE-SAFE INSTEAD can wrap it the way income:/pdfIncludeForm172
+        wraps its own two arms: `Switch(When: All(IsComplete(line 24), IsComplete(the line 8p
+        writable)) Then: this Add, Else: $0)` — the fixture row below would then read `Complete
+        0.00` in place of `Incomplete -`. Not built that way here because every other Part II
+        arithmetic fact in this module (row 9, row 10, etc.) is left genuinely Incomplete rather
+        than defaulted, and this worksheet is the same class of fact.
+
+        LINE 1 IS NOT INDEPENDENT OF LINE 3, WITNESSED: the section 461(l) add-back on Schedule 1
+        line 8p is also part of THIS YEAR's total income, so it already raises
+        /form172Line1AgiLessDeductions (through AGI) before line 24 is struck. A filer with a $3,000
+        excess business loss add-back and an otherwise-$15,750 Part I loss sees line 24 at
+        -$12,750, not -$15,750 — the add-back is not double-counted by adding it again at line 3
+        here, it simply means line 1 already reflects one leg of the same Form 461 result that line 3
+        reflects a second time for a different purpose (folding the disallowed loss into the
+        carryover rather than into this year's taxable income). </Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form172Line24NetOperatingLoss" />
+          <Dependency path="/form172EblWorksheetNolCarriedBackAndUsed" />
+            <Subtract>
+              <Minuend>
+                <Dollar>0</Dollar>
+              </Minuend>
+              <Subtrahends>
+                <Dependency module="income" path="/schedule1Line8pIncomeOrZero" />
+              </Subtrahends>
+            </Subtract>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line10NonbusinessIncomeExcess">
+      <Name>Form 172 line 10 nonbusiness income excess allowed against business capital losses</Name>
+      <Description>Form 172 Part I line 10: the nonbusiness income that exceeds nonbusiness deductions, floored at zero and capped at line 5. It is the nonbusiness capital gain left over after the nonbusiness deductions have been absorbed, which line 13 lets business capital losses use.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form172Line10NonbusinessIncomeExcessBeforeCap" />
+          <Dependency path="/form172Line5NonbusinessCapitalGainExcess" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line10NonbusinessIncomeExcessBeforeCap">
+      <Name>Form 172 line 10 nonbusiness income excess before the line 5 cap</Name>
+      <Description>The line 10 difference floored at zero, before the printed instruction not to enter more than line 5 is applied. Split out because the cap is a second comparison.</Description>
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line10NonbusinessIncomeExcessBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line10NonbusinessIncomeExcessBeforeFloor">
+      <Name>Form 172 line 10 nonbusiness income excess before the floor</Name>
+      <Description>Line 8 minus line 6, the signed difference the printed line 10 floors at zero before its line 5 cap.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form172Line8NonbusinessGainAndIncome" />
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line6NonbusinessDeductions" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line13BusinessCapitalLossAllowance">
+      <Name>Form 172 line 13 total allowance for business capital losses</Name>
+      <Description>Form 172 Part I line 13: line 10 plus line 12, the total of nonbusiness capital gain left over and business capital gains, which is all that business capital losses may be deducted against.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form172Line10NonbusinessIncomeExcess" />
+          <GreaterOf>
+            <Dependency path="/writableForm172Line12BusinessCapitalGains" />
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line14BusinessCapitalLossExcess">
+      <Name>Form 172 line 14 business capital loss excess</Name>
+      <Description>Form 172 Part I line 14: the business capital losses that exceed the line 13 allowance, or zero. IRC 172(d)(2) disallows them in figuring the loss.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line14BusinessCapitalLossExcessBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line14BusinessCapitalLossExcessBeforeFloor">
+      <Name>Form 172 line 14 business capital loss excess before the floor</Name>
+      <Description>Line 11 minus line 13, the signed difference the printed line 14 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line11BusinessCapitalLosses" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line13BusinessCapitalLossAllowance" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line15NondeductibleCapitalLossTotal">
+      <Name>Form 172 line 15 total nondeductible capital losses</Name>
+      <Description>Form 172 Part I line 15: line 4 plus line 14, the nonbusiness and business capital losses that the IRC 172(d)(2) modification disallows before the capital loss limitation on lines 16 through 22 is taken into account.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form172Line4NonbusinessCapitalLossExcess" />
+          <Dependency path="/form172Line14BusinessCapitalLossExcess" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line16ScheduleDCapitalLoss">
+      <Name>Form 172 line 16 combined net capital loss from Schedule D</Name>
+      <Description>Form 172 Part I line 16: the combined net short-term and long-term capital loss shown on Schedule D (Form 1040), entered as a positive number, or zero when Schedule D shows no loss. It reads scheduleD:/netCapitalGainOrLoss, which is Schedule D line 16 itself and is complete-safe at zero on a return with no capital transactions. The Schedule D (Form 1041) arm of the printed line is not modelled: this dictionary files individual returns only.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line16ScheduleDCapitalLossBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line16ScheduleDCapitalLossBeforeFloor">
+      <Name>Form 172 line 16 Schedule D combined net capital loss before the floor</Name>
+      <Description>Zero minus scheduleD:/netCapitalGainOrLoss, which turns the signed Schedule D line 16 net into the positive number Form 172 line 16 asks for. Positive when Schedule D shows a combined net loss, negative when it shows a gain; the fact above floors it at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form172ZeroFloor" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency module="scheduleD" path="/netCapitalGainOrLoss" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line17Section1202Exclusion">
+      <Name>Form 172 line 17 section 1202 exclusion</Name>
+      <Description>Form 172 Part I line 17: the gain excluded under section 1202 on a sale or exchange of qualified small business stock, as a positive number. IRC 172(d)(2)(B) disallows the exclusion in figuring the loss, so line 24 adds it back. It is the sum of the two independent legs the graph already carries, the direct Form 8949 code Q sale (scheduleD:/section1202ExclusionFromForm8949) and the Form 1099-DIV box 2c leg (dividendReports:/section1202ExclusionFromDividends), each complete-safe at zero. Rounded once: both legs arrive unrounded and the printed line rounds their sum ("include cents when adding the amounts and round off only the total", https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 23).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency module="scheduleD" path="/section1202ExclusionFromForm8949" />
+            <Dependency module="dividendReports" path="/section1202ExclusionFromDividends" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line18CapitalLossAfterExclusion">
+      <Name>Form 172 line 18 capital loss after the section 1202 exclusion</Name>
+      <Description>Form 172 Part I line 18: the Schedule D combined net capital loss reduced by the section 1202 exclusion, or zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line18CapitalLossAfterExclusionBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line18CapitalLossAfterExclusionBeforeFloor">
+      <Name>Form 172 line 18 capital loss after the section 1202 exclusion, before the floor</Name>
+      <Description>Line 16 minus line 17, the signed difference the printed line 18 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form172Line16ScheduleDCapitalLoss" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line17Section1202Exclusion" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line19DeductibleCapitalLossLimit">
+      <Name>Form 172 line 19 deductible capital loss limit</Name>
+      <Description>Form 172 Part I line 19: the smaller of the line 16 loss or the IRC 1211(b) limit, which is $3,000 and $1,500 for a married filer filing separately. It reads scheduleD:/capitalLossLimit for the statutory amount rather than restating it, so the married filing separately halving lives in one place. Zero when line 16 is zero, which is the printed line's own outcome when Schedule D shows no loss.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form172Line16ScheduleDCapitalLoss" />
+          <Dependency module="scheduleD" path="/capitalLossLimit" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line1AgiLessDeductions">
+      <Name>Form 172 line 1 AGI less the standard or itemized deductions</Name>
+      <Description>Form 172 Part I line 1 for an individual: adjusted gross income minus the standard deduction or itemized deductions, minus the Schedule 1-A qualified tips, qualified overtime and qualified passenger vehicle loan interest deductions. NOT taxable income: taxCalculations:/taxableIncome also subtracts the qualified business income deduction, and it is floored at zero, which line 1 is not. The Schedule 1-A senior deduction is deliberately NOT subtracted here: it is enacted under section 151, and section 172(d)(3) bars any deduction under section 151 in figuring the loss. The qualified tips, overtime and car loan interest deductions carry no comparable section 172(d) modification — enacted under sections 224, 225 and 163 respectively, none reached by section 172(d)'s closed list of modifications — so they remain allowed chapter 1 deductions at this starting line, the same as every other above-the-line or itemized deduction section 172(d) does not name. This line is the starting point of the loss computation and is negative on the returns that have an NOL. The estate and trust arm of the printed line is not modelled: this dictionary files individual returns only.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency module="taxCalculations" path="/agi" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency module="taxCalculations" path="/standardOrItemizedDeductions" />
+            <Dependency module="schedule1A" path="/qualifiedTipsDeduction" />
+            <Dependency module="schedule1A" path="/qualifiedOvertimeDeduction" />
+            <Dependency module="schedule1A" path="/allowableQualifiedCarLoanInterestDeduction" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line20LossOverLimit">
+      <Name>Form 172 line 20 capital loss over the deductible limit</Name>
+      <Description>Form 172 Part I line 20: the amount by which the line 18 loss exceeds the line 19 deductible limit, or zero. Line 22 removes it from the line 15 total so the same nondeductible capital loss is not added back twice.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line20LossOverLimitBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line20LossOverLimitBeforeFloor">
+      <Name>Form 172 line 20 loss over the limit before the floor</Name>
+      <Description>Line 18 minus line 19, the signed difference the printed line 20 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form172Line18CapitalLossAfterExclusion" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line19DeductibleCapitalLossLimit" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line21LimitOverLoss">
+      <Name>Form 172 line 21 deductible limit over the loss after the exclusion</Name>
+      <Description>Form 172 Part I line 21: the amount by which the line 19 deductible limit exceeds the line 18 loss, or zero. It arises when the section 1202 exclusion on line 17 has already absorbed part of the loss, and line 24 adds it back.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line21LimitOverLossBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line21LimitOverLossBeforeFloor">
+      <Name>Form 172 line 21 limit over the loss before the floor</Name>
+      <Description>Line 19 minus line 18, the signed difference the printed line 21 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form172Line19DeductibleCapitalLossLimit" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line18CapitalLossAfterExclusion" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line22NondeductibleCapitalLossAfterLimit">
+      <Name>Form 172 line 22 nondeductible capital loss after the limitation</Name>
+      <Description>Form 172 Part I line 22: the line 15 total of disallowed capital losses reduced by the line 20 loss that the capital loss limitation has already disallowed, or zero. This is the capital loss add-back line 24 uses.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line22NondeductibleCapitalLossAfterLimitBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line22NondeductibleCapitalLossAfterLimitBeforeFloor">
+      <Name>Form 172 line 22 nondeductible capital loss after the limit, before the floor</Name>
+      <Description>Line 15 minus line 20, the signed difference the printed line 22 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/form172Line15NondeductibleCapitalLossTotal" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line20LossOverLimit" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line23NolDeductionFromOtherYears">
+      <Name>Form 172 line 23 NOL deduction for losses from other years</Name>
+      <Description>Form 172 Part I line 23: the deduction for net operating losses from other years, as a positive number. IRC 172(d)(1) disallows it in figuring this year's loss, so line 24 adds it back. THE QUANTITY ALREADY SHIPS AND IS NOT RE-DERIVED HERE: the filer answers it at income:/writableNetOperatingLossDeduction as a positive amount, and the only complete-safe wrapper of that intake in the dictionary today is form6251:/amtLine2eNolDeductionAddback, which is the same positive Schedule 1 line 8a figure with a $0 default. This is a rename of that fact for the Form 172 line it also prints, not a second computation of it: a complete_safe_alias of the intake would be byte-identical to the form6251 fact and the one quantity one fact rule refuses it.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Dependency module="form6251" path="/amtLine2eNolDeductionAddback" />
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line24NetOperatingLoss">
+      <Name>Form 172 line 24 net operating loss</Name>
+      <Description>Form 172 Part I line 24, the printed NOL: the line 24 combine when it is less than zero, and zero when it is not, because the printed line says a result of zero or more means there is no NOL. The lesser of the combine and zero is how that is expressed with the supported templates.
+
+        WHERE IT GOES, named rather than left implicit. This figure is by construction NOT a number this return deducts: IRC 172 carries the loss to another taxable year, so line 24 is the input to a DIFFERENT year's return. Its two out-of-dictionary destinations are (a) the carryback or carryforward year's Form 172 Part II row 1 ("NOL deduction", /form172CarryoverYears/*/writableNolDeduction on that year's return) and (b) that year's Schedule 1 (Form 1040) line 8a, income:/writableNetOperatingLossDeduction. NEITHER IS REACHABLE FROM THIS DICTIONARY and that is a deliberate limit, not an omission: the graph holds no prior year or next year state, and income:/writableNetOperatingLossDeduction records the carryforward pool as an unmodelled filer intake for exactly that reason.
+
+        WITHIN THIS DICTIONARY it has four consumers, none of which treats it as a deduction: income:/pdfIncludeForm172 reads it (gated on its own IsComplete) to decide whether a loss-year return prints Form 172 at all; form172:/form172CurrentYearNolMagnitude turns it into the positive magnitude the Part II eligibility and cap checks below compare against; form172:/form172FarmingLossCarrybackEligible reads it (again IsComplete-gated) to test whether this year's Part I resolved to a definite loss; and form172:/form172CarryoverYears/*/nolDeductionExceedsCurrentYearLoss reads it, both directly for its own IsComplete gate and through the magnitude above, to flag a Part II row 1 entry that certainly exceeds the whole-year ceiling. All four are disclosure or print-routing reads of THIS year's own computation, not the deduction wiring the paragraph above forbids. The Export above is what carries the figure out of the graph to whatever holds the cross-year pool. Do not wire it to income:/schedule1Line8aNetOperatingLossDeduction: that line is THIS year's deduction of an EARLIER year's loss, and this is this year's loss.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/form172Line24NetOperatingLossCombined" />
+          <Dependency path="/form172ZeroFloor" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line24NetOperatingLossCombined">
+      <Name>Form 172 line 24 combine of lines 1, 9, 17 and 21 through 23</Name>
+      <Description>The signed combine the printed line 24 asks for: line 1 plus lines 9, 17, 21, 22 and 23, which is the line 1 starting figure with every IRC 172(d) modification added back. Negative when the return has an NOL, zero or more when it does not.</Description>
+      <Derived>
+        <Add>
+          <Dependency path="/form172Line1AgiLessDeductions" />
+          <Dependency path="/form172Line9NonbusinessDeductionExcess" />
+          <Dependency path="/form172Line17Section1202Exclusion" />
+          <Dependency path="/form172Line21LimitOverLoss" />
+          <Dependency path="/form172Line22NondeductibleCapitalLossAfterLimit" />
+          <Dependency path="/form172Line23NolDeductionFromOtherYears" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line4NonbusinessCapitalLossExcess">
+      <Name>Form 172 line 4 nonbusiness capital loss excess</Name>
+      <Description>Form 172 Part I line 4: the amount by which nonbusiness capital losses exceed nonbusiness capital gains, or zero. This is the nondeductible nonbusiness capital loss that line 15 adds back into the loss computation.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line4NonbusinessCapitalLossExcessBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line4NonbusinessCapitalLossExcessBeforeFloor">
+      <Name>Form 172 line 4 nonbusiness capital loss excess before the floor</Name>
+      <Description>Line 2 minus line 3, the signed difference the printed line 4 floors at zero. Split from the floored fact because a GreaterOf takes fact paths, not an inline subtraction.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line2NonbusinessCapitalLosses" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line3NonbusinessCapitalGains" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line5NonbusinessCapitalGainExcess">
+      <Name>Form 172 line 5 nonbusiness capital gain excess</Name>
+      <Description>Form 172 Part I line 5: the amount by which nonbusiness capital gains exceed nonbusiness capital losses, or zero. It is the nonbusiness capital gain available to absorb nonbusiness deductions on line 8 and it caps line 10.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line5NonbusinessCapitalGainExcessBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line5NonbusinessCapitalGainExcessBeforeFloor">
+      <Name>Form 172 line 5 nonbusiness capital gain excess before the floor</Name>
+      <Description>Line 3 minus line 2, the signed difference the printed line 5 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line3NonbusinessCapitalGains" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line2NonbusinessCapitalLosses" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line8NonbusinessGainAndIncome">
+      <Name>Form 172 line 8 nonbusiness capital gain excess plus nonbusiness income</Name>
+      <Description>Form 172 Part I line 8: line 5 plus line 7, the nonbusiness income against which the nonbusiness deductions on line 6 are allowed.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form172Line5NonbusinessCapitalGainExcess" />
+          <GreaterOf>
+            <Dependency path="/writableForm172Line7NonbusinessIncome" />
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line9NonbusinessDeductionExcess">
+      <Name>Form 172 line 9 nonbusiness deduction excess</Name>
+      <Description>Form 172 Part I line 9: the nonbusiness deductions that exceed nonbusiness income, or zero. IRC 172(d)(4) disallows them in figuring the loss, so line 24 adds this amount back.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/form172Line9NonbusinessDeductionExcessBeforeFloor" />
+          <Dependency path="/form172ZeroFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Line9NonbusinessDeductionExcessBeforeFloor">
+      <Name>Form 172 line 9 nonbusiness deduction excess before the floor</Name>
+      <Description>Line 6 minus line 8, the signed difference the printed line 9 floors at zero.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="/writableForm172Line6NonbusinessDeductions" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172Line8NonbusinessGainAndIncome" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172ZeroFloor">
+      <Name>Form 172 zero floor</Name>
+      <Description>The zero that the Form 172 Part I and Part II lines floor at when the subtraction above them is zero or less. A named constant because the GreaterOf that applies the floor takes fact paths, not literals; the same shape as form8606:/form8606ZeroDollarFloor and scheduleE:/scheduleEZeroDollarFloor.</Description>
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm172Line11BusinessCapitalLosses">
+      <Name>Form 172 line 11 business capital losses before limitation</Name>
+      <Description>Form 172 Part I line 11 intake: capital losses attributable to a trade or business, before the capital loss limitation, entered as a positive number. Filer supplied for the same reason as line 2.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm172Line12BusinessCapitalGains">
+      <Name>Form 172 line 12 business capital gains</Name>
+      <Description>Form 172 Part I line 12 intake: capital gains attributable to a trade or business, figured without regard to any section 1202 exclusion. Filer supplied for the same reason as line 3.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm172Line2NonbusinessCapitalLosses">
+      <Name>Form 172 line 2 nonbusiness capital losses before limitation</Name>
+      <Description>Form 172 Part I line 2 intake: capital losses that are not attributable to a trade or business, before the capital loss limitation, entered as a positive number. Filer supplied: the graph records capital transactions on Schedule D without a business or nonbusiness attribution, so nothing in it can split the netting the way IRC 172(d)(2) requires. The section 1202 exclusion is excluded from this line by the instructions.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm172Line3NonbusinessCapitalGains">
+      <Name>Form 172 line 3 nonbusiness capital gains</Name>
+      <Description>Form 172 Part I line 3 intake: capital gains that are not attributable to a trade or business, figured without regard to any section 1202 exclusion. Filer supplied for the same reason as line 2: Schedule D carries no business or nonbusiness attribution.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm172Line6NonbusinessDeductions">
+      <Name>Form 172 line 6 nonbusiness deductions</Name>
+      <Description>Form 172 Part I line 6 intake: deductions that are not connected with a trade or business, entered as a positive number. The instructions list the standard deduction, most itemized deductions, the IRA and HSA deductions and alimony paid among them. Filer supplied: the graph totals deductions without a business or nonbusiness attribution, so no existing total answers this line.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm172Line7NonbusinessIncome">
+      <Name>Form 172 line 7 nonbusiness income other than capital gains</Name>
+      <Description>Form 172 Part I line 7 intake: income that is not from a trade or business and is not a capital gain, such as ordinary dividends, interest on investments, annuities, pensions and social security benefits. Filer supplied: the graph's income facts are not tagged business or nonbusiness.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172NolCarryIns">
+      <Name>Net operating losses available to carry into this deduction year</Name>
+      <Description>One item for each net operating loss carried to this year, after earlier absorption, expiry and carryback eligibility have already been settled on the loss statements. The inventory exists to separate losses arising in tax years that BEGAN before January 1, 2018 from later ones, because IRC 172(a)(2) gives the two vintages different treatment: the earlier pool is deducted in full, the later pool only up to 80 percent of what is left of taxable income. It is neither the current year's loss (Part I) nor the Part II carryback columns, which are a different collection. This dictionary carries no prior-year state, so the inventory is filer supplied. An absent or answered-empty inventory adds no deduction.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Collection />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172NolCarryIns/*/writableLossYearBegan">
+      <Name>Beginning date of the tax year in which this loss arose</Name>
+      <Description>The date the loss year BEGAN, not the year it ended and not the year printed on a fiscal-year return's heading. IRC 172(a)(2) splits the pools on "taxable years beginning before January 1, 2018", so a fiscal year that began on December 31, 2017 and ended during 2018 is in the earlier pool and a year that began on January 1, 2018 is not. A nonzero available amount cannot be classified without it.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172NolCarryIns/*/writableAvailableNol">
+      <Name>Amount of this loss still available to carry into this deduction year</Name>
+      <Description>The part of this loss still available after the earlier years it was carried to have absorbed what they could, and after the carryback and carryforward eligibility rules have been applied. It is not the original loss, not a lifetime cumulative figure, and not a deduction already limited by the 80 percent rule. A negative answer is floored in ../availableNol rather than here, because a Limit Min is not enforced on resolution; an unanswered amount on an item the filer committed leaves the deduction incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172NolCarryIns/*/availableNol">
+      <Name>Amount of this loss available, floored at zero</Name>
+      <Description>The available amount of this loss, floored at zero in the body because the Min-0 Limit the intake declares is not enforced when the graph resolves. A negative carry-in would otherwise enlarge the taxable-income excess the 80 percent limit is measured against and raise the deduction. An unanswered amount stays incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="../writableAvailableNol" />
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172NolCarryIns/*/pre2018PoolAmount">
+      <Name>This loss's contribution to the pre-2018 pool</Name>
+      <Description>The floored available amount when this loss arose in a tax year that began before January 1, 2018, and zero otherwise. A zero amount contributes zero to either pool and needs no beginning date; a nonzero amount with no beginning date cannot be classified and stays incomplete in the pool it belongs to.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../availableNol" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="../writableLossYearBegan" />
+                </Left>
+                <Right>
+                  <Day>2018-01-01</Day>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Dependency path="../availableNol" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <LessThan>
+                  <Left>
+                    <Dependency path="../writableLossYearBegan" />
+                  </Left>
+                  <Right>
+                    <Day>2018-01-01</Day>
+                  </Right>
+                </LessThan>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172NolCarryIns/*/post2017PoolAmount">
+      <Name>This loss's contribution to the post-2017 pool</Name>
+      <Description>The floored available amount when this loss arose in a tax year that began after December 31, 2017, and zero otherwise. A zero amount contributes zero to either pool and needs no beginning date; a nonzero amount with no beginning date cannot be classified and stays incomplete in the pool it belongs to. This pool, and only this pool, is the one the 80 percent limit measures.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="../availableNol" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="../writableLossYearBegan" />
+                </Left>
+                <Right>
+                  <Day>2018-01-01</Day>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="../availableNol" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Not>
+                <GreaterThanOrEqual>
+                  <Left>
+                    <Dependency path="../writableLossYearBegan" />
+                  </Left>
+                  <Right>
+                    <Day>2018-01-01</Day>
+                  </Right>
+                </GreaterThanOrEqual>
+              </Not>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Pre2018NolPool">
+      <Name>Pre-2018 net operating losses carried to this deduction year</Name>
+      <Description>The sum of the available losses from tax years that began before January 1, 2018. An absent inventory is $0, guarded IsComplete-first, because a bare CollectionSum over an unanswered collection does not resolve; an answered-empty inventory sums to $0 on its own. This whole pool is deductible: IRC 172(a)(2)(A) is added before the 80 percent limit is applied, and the limit is never applied to it. It is also the amount subtracted from the taxable-income base to produce the excess the limit is a percentage of.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form172NolCarryIns" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form172NolCarryIns/*/pre2018PoolAmount" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form172NolCarryIns" /></IsComplete></Not></When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Post2017NolPool">
+      <Name>Post-2017 net operating losses carried to this deduction year</Name>
+      <Description>The sum of the available losses from tax years that began after December 31, 2017. An absent inventory is $0, guarded IsComplete-first, because a bare CollectionSum over an unanswered collection does not resolve; an answered-empty inventory sums to $0 on its own. A positive pool is deductible only up to 80 percent of the taxable-income excess left after the earlier pool.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form172NolCarryIns" /></IsComplete></When>
+            <Then>
+              <CollectionSum>
+                <Dependency path="/form172NolCarryIns/*/post2017PoolAmount" />
+              </CollectionSum>
+            </Then>
+          </Case>
+          <Case>
+            <When><Not><IsComplete><Dependency path="/form172NolCarryIns" /></IsComplete></Not></When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm172TaxableIncomeWithoutNolQbiAndSection250">
+      <Name>Taxable income for this year figured without the NOL, QBI and section 250 deductions</Name>
+      <Description>Taxable income for the current deduction year recomputed without the deductions under IRC 172, 199A and 250, including the knock-on refiguring of every item that depends on the income those deductions change. It is NOT taxable income as this return computes it with an add-back bolted on. Filer supplied, and deliberately so: taxCalculations:/taxableIncome is downstream of the NOL deduction this base feeds, so reading it back here would close a resolution cycle. May be negative. A return with no post-2017 pool never needs it.
+
+        VALUE NOT VALIDATED BY THIS DICTIONARY. Nothing here can check the attested figure against the return, so an understated base understates the limit and overstates nothing, while an overstated base allows a larger post-2017 deduction than the statute does. The IRS asks for the arithmetic: Instructions for Form 172 (Rev. December 2024) say to attach a statement showing how the 80 percent limitation was figured.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172Section172aExcess">
+      <Name>Taxable-income excess the 80 percent limit is measured against</Name>
+      <Description>The excess of the no-NOL, no-QBI, no-section-250 taxable-income base over the pre-2018 pool, floored at zero because IRC 172(a)(2)(B)(ii) says "the excess (if any)". This is the quantity the statutory 80 percent applies to. It is not taxable income after an NOL has been deducted, and it is not itself a deduction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/writableForm172TaxableIncomeWithoutNolQbiAndSection250" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form172Pre2018NolPool" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Post2017NolLimit">
+      <Name>Eighty percent of the taxable-income excess</Name>
+      <Description>80 percent of the taxable-income excess left after the pre-2018 pool. The percentage is applied to the EXCESS, never to the pool of losses itself: a return whose post-2017 losses exceed this figure deducts this figure, and the rest stays a carryover. The Part II carryback columns each measure their own year and never use this one.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Multiply>
+          <Dependency path="/form172Section172aExcess" />
+          <Rational>4/5</Rational>
+        </Multiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172AllowedPost2017Nol">
+      <Name>Post-2017 net operating loss deduction allowed this year</Name>
+      <Description>The lesser of the post-2017 pool and 80 percent of the taxable-income excess, which is IRC 172(a)(2)(B). A pool of exactly $0 is $0 without asking for the taxable-income base at all, so a return whose losses all predate 2018 never has to attest a base. A positive pool with no base does not fall back to zero: it stays incomplete, because a silent zero there would suppress a deduction the filer is entitled to.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Equal>
+                <Left>
+                  <Dependency path="/form172Post2017NolPool" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </Equal>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThan>
+                <Left>
+                  <Dependency path="/form172Post2017NolPool" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </GreaterThan>
+            </When>
+            <Then>
+              <LesserOf>
+                <Dependency path="/form172Post2017NolPool" />
+                <Dependency path="/form172Post2017NolLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172AllowedNolDeduction">
+      <Name>Net operating loss deduction allowed this year</Name>
+      <Description>The whole pre-2018 pool plus the limited post-2017 amount, which is the sum IRC 172(a)(2) allows for a tax year beginning after December 31, 2020. Positive. An absent or answered-empty carry-in inventory gives $0. The earlier pool is not itself capped by the 80 percent rule and is not truncated to taxable income here; how much of it a year actually absorbs, and what remains to carry on, is the Part II calculation and a separate question.
+
+        ON THE MONEY PATH THROUGH SCHEDULE 1 LINE 8a. income:/schedule1Line8aNetOperatingLossDeduction reads the negated figure, /form172Schedule1NolDeductionAdjustment, whenever the carry-in inventory holds at least one loss year, and it then REPLACES the older filer-entered income:/writableNetOperatingLossDeduction rather than adding beside it. An absent or answered-empty inventory never lets a positive older amount through: that amount has no vintage and no taxable-income base, so the 80 percent limit cannot be applied to it, and line 8a stays Incomplete until the inventory is answered. An answered $0 there is still no deduction.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/form172Pre2018NolPool" />
+          <Dependency path="/form172AllowedPost2017Nol" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172Schedule1NolDeductionAdjustment">
+      <Name>Net operating loss deduction as Schedule 1 line 8a prints it</Name>
+      <Description>The allowed deduction with its sign flipped. Schedule 1 line 8a is one of the schedule's preprinted-parentheses fields and is entered as a negative number, so the figure that prints there is the negative of the positive deduction. $0 on an absent or answered-empty inventory.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dollar>0</Dollar>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/form172AllowedNolDeduction" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableSection172TaxYearBegan">
+      <Name>Beginning date of this Part II carryback or carryover year</Name>
+      <Description>The date this historical tax year BEGAN. IRC 172(b)(2)(C) reduces a prior year's modified taxable income only "for taxable years beginning after December 31, 2020", and the printed column heading records the year that ENDED, which cannot settle the question for a fiscal year. Answering this starts the computed route for this column.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Day />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableSection172TaxableIncomeWithoutNolQbiAndSection250">
+      <Name>This carryback year's taxable income figured without the NOL, QBI and section 250 deductions</Name>
+      <Description>THIS historical year's taxable income recomputed without the deductions under IRC 172, 199A and 250. Each Part II column measures its own year: do not enter the current deduction year's base, and do not reuse row 2, which is that year's taxable income before the current carryback and can still contain other net operating loss deductions. May be negative. Filer supplied from that year's own records; this dictionary holds no prior-year state.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/writableSection172Pre2018NolPool">
+      <Name>Pre-2018 net operating losses carried to this Part II year</Name>
+      <Description>The aggregate pre-2018 losses carried to THIS historical year, which is the amount IRC 172(a)(2)(B)(ii)(II) subtracts from that year's base to leave the excess. It is that year's pool, not the current deduction year's. A negative answer is floored where it is used, because a Limit Min is not enforced on resolution.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/section172b2cComputationStarted">
+      <Name>Has this column's section 172(b)(2)(C) reduction been computed rather than attested</Name>
+      <Description>True once any one of the three inputs of the computed route has been answered for this column. It exists so that a column the filer has never been asked the new questions about keeps resolving exactly as it did before they existed, and so that a column the filer HAS started cannot quietly fall back to the older attested amount when a required input is still missing. Complete on every column, false when all three are unanswered.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <IsComplete>
+            <Dependency path="../writableSection172TaxYearBegan" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableSection172TaxableIncomeWithoutNolQbiAndSection250" />
+          </IsComplete>
+          <IsComplete>
+            <Dependency path="../writableSection172Pre2018NolPool" />
+          </IsComplete>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/section172aHistoricalExcess">
+      <Name>This Part II year's own taxable-income excess</Name>
+      <Description>This historical year's no-NOL, no-QBI, no-section-250 taxable income less its own pre-2018 pool, floored at zero, and floored again on the subtrahend so a negative attested pool cannot enlarge it. Neither operand comes from the current deduction year: each column has its own 80%-excess rather than one shared between both sites, because 172(b)(2)(C) says "for such taxable year". Missing inputs stay incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="../writableSection172TaxableIncomeWithoutNolQbiAndSection250" />
+            </Minuend>
+            <Subtrahends>
+              <GreaterOf>
+                <Dependency path="../writableSection172Pre2018NolPool" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/section172b2cComputedReduction">
+      <Name>Computed section 172(b)(2)(C) reduction for this Part II year</Name>
+      <Description>$0 for a year that began before 2021, and otherwise 20 percent of that year's own taxable-income excess. TWENTY PERCENT OF THE EXCESS, not 20 percent of the 80 percent product: IRC 172(b)(2)(C) reduces the year by "20 percent of the excess (if any) described in subsection (a)(2)(B)(ii)", and the excess described there is the excess of clause (I) over clause (II) — the 80 percent is the multiplier that clause applies to that excess, not part of the noun. Taking 20 percent of 80 percent would leave 84 percent of the year absorbable, which is not what the 80 percent limit does. A year that began before 2021 needs no base and no pool answered; a later year with either missing stays incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="../writableSection172TaxYearBegan" />
+                </Left>
+                <Right>
+                  <Day>2021-01-01</Day>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="../writableSection172TaxYearBegan" />
+                </Left>
+                <Right>
+                  <Day>2021-01-01</Day>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Multiply>
+                <Dependency path="../section172aHistoricalExcess" />
+                <Rational>1/5</Rational>
+              </Multiply>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form172CarryoverYears/*/section172b2cReductionApplied">
+      <Name>Section 172(b)(2)(C) reduction this Part II column actually subtracts</Name>
+      <Description>The computed reduction once this column's computed route has been started, and otherwise the attested amount, floored at zero, or $0 while that too is unanswered. The $0 arm is what keeps a carryback column that predates either question resolving exactly as it did before: row 9 reverts to the plain rows-2-through-8 sum, nothing is written into any intake, and no amount is assumed on the filer's behalf. The floor matters because the attested intake's Min-0 Limit is not enforced on resolution, so a negative answer would otherwise be subtracted as a negative and RAISE row 9.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="../section172b2cComputationStarted" />
+            </When>
+            <Then>
+              <Dependency path="../section172b2cComputedReduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="../writableSection172b2cReduction" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="../writableSection172b2cReduction" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

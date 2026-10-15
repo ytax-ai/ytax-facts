@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/w2g.schema.json",
+  "title": "Form W-2G",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "person",
+    "winnings_cents"
+  ],
+  "properties": {
+    "person": {
+      "description": "Index into persons[]. Validated, but /formW2Gs has no per-item filer fact in ty2025, so nothing on the federal return turns on which filer holds the W-2G.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "winnings_cents": {
+      "description": "W-2G box 1, reportable winnings. Required: the form is issued because a reportable win crossed a threshold, so a blank box 1 is an unread box, not a win of nothing. Reaches Schedule 1 line 8b and Form 1040 line 9. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    },
+    "federal_withholding_cents": {
+      "description": "W-2G box 4, federal income tax withheld. Optional \u2014 blank is an ordinary state of the box; absent is computed as zero and stated in the response. Reaches Form 1040 line 25c, inside line 25d. Never negative.",
+      "$ref": "cents.schema.json",
+      "minimum": 0
+    }
+  }
+}

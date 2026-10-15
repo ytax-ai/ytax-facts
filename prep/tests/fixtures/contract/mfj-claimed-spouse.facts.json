@@ -1,0 +1,71 @@
+{
+  "facts": {
+    "filing_status": "mfj",
+    "residence_state": "il",
+    "received_alaska_pfd": false,
+    "spouse_received_alaska_pfd": false,
+    "received_digital_assets": false,
+    "disposed_digital_assets": false,
+    "foreign_financial_account": false,
+    "foreign_trust_grantor": false,
+    "foreign_trust_transactions": false,
+    "eitc_reduced_or_disallowed": false,
+    "ctc_odc_reduced_or_disallowed": false,
+    "qualifying_child_of_another": false,
+    "paid_estimated_taxes": false,
+    "paid_student_loan_interest": false,
+    "persons": [
+      {
+        "role": "primary",
+        "birth_year": 1980,
+        "tin_type": "ssn_valid_for_employment",
+        "is_blind": false,
+        "k12_educator": false,
+        "made_ira_contributions": false,
+        "someone_can_claim_you": false,
+        "made_hsa_contributions": false
+      },
+      {
+        "role": "spouse",
+        "birth_year": 1982,
+        "tin_type": "ssn_valid_for_employment",
+        "is_blind": false,
+        "k12_educator": false,
+        "made_ira_contributions": false,
+        "someone_can_claim_you": true,
+        "expect_to_be_claimed": true,
+        "made_hsa_contributions": false
+      }
+    ],
+    "w2s": [
+      {
+        "person": 0,
+        "wages_cents": 800000,
+        "withholding_cents": 30000,
+        "social_security_wages_cents": 4825000,
+        "medicare_wages_cents": 4825000,
+        "social_security_withheld_cents": 299150,
+        "statutory_employee": false,
+        "retirement_plan": false,
+        "third_party_sick_pay": false,
+        "has_rrta_codes": false
+      },
+      {
+        "person": 1,
+        "wages_cents": 800000,
+        "withholding_cents": 30000,
+        "social_security_wages_cents": 3000000,
+        "medicare_wages_cents": 3000000,
+        "social_security_withheld_cents": 186000,
+        "statutory_employee": false,
+        "retirement_plan": false,
+        "third_party_sick_pay": false,
+        "has_rrta_codes": false
+      }
+    ],
+    "lived_with_spouse_all_year": true,
+    "couple_required_to_file": false,
+    "couple_files_only_for_refund": true
+  },
+  "comment": "a joint return (mfj-two-w2s's household, both W-2s at 8,000) whose spouse can be and expects to be claimed as someone's dependent, the couple not required to file and filing only for a refund of withholding. The dictionary claims the spouse: the standard deduction is earned income + 450 (16,450 against 31,500) and the earned income credit is not allowed (649 -> 0). Earlier, a spouse's yes was refused outright, and the couple's requirement was never asked."
+}

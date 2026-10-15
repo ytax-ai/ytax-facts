@@ -1,0 +1,51 @@
+# IRS1099SA — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1099SA/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 62684c5ae6a6a68b075234169ff5330cabc92c3777913e9c4e8f53236ba6a3ff
+# boxes: 17   acroform fields: 33   boxes with a fact: 17
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (0): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+box	row	caption	aliases	fields	fact	type	legend	reason
+—	caption:90251d5ff401	VOID	void	Form1099-SA[0].CopyA[0].copyAheader[0].c1_1[0]	/form1099Sas/*/writableVoid	Bool		
+—	caption:9ba6c34da4e6	CORRECTED	corrected	Form1099-SA[0].CopyA[0].copyAheader[0].c1_1[1]|Form1099-SA[0].CopyB[0].CopyBHeader[0].c1_1[0]	/form1099Sas/*/writableCorrected	Bool		
+payer-name		TRUSTEE'S/PAYER'S name	trustee's/payer's name	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_2[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_2[0]	/form1099Sas/*/writableTrusteeName	String		
+payer-tin		PAYER'S TIN	payer's tin	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_3[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_3[0]	/form1099Sas/*/writablePayerTin	EIN		
+recipient-tin		RECIPIENT'S TIN	recipient's tin	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_4[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_4[0]	/form1099Sas/*/recipientTin	TIN		
+recipient-name		RECIPIENT'S name	recipient's name	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_5[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_5[0]	/form1099Sas/*/writableRecipientName	String		
+recipient-address	1	Street address (including apt. no.)	street address	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_6[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_6[0]	/form1099Sas/*/writableRecipientStreetAddress	String		
+recipient-address	2	City or town, state or province, country, and ZIP or foreign postal code	city or town, state or province, country, and zip or foreign postal code	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_7[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_7[0]	/form1099Sas/*/writableRecipientCityStateZip	String		
+account		Account number (see instructions)	account number	Form1099-SA[0].CopyA[0].LeftColumn[0].f1_8[0]|Form1099-SA[0].CopyB[0].LeftCol[0].f1_8[0]	/form1099Sas/*/writableAccountNumber	String		
+1		Gross distribution	1 gross distribution	Form1099-SA[0].CopyA[0].rightColumn[0].f1_9[0]|Form1099-SA[0].CopyB[0].RightCol[0].f1_9[0]	/form1099Sas/*/writableGrossDistribution	Dollar		
+2		Earnings on excess cont.	earnings on excess cont	Form1099-SA[0].CopyA[0].rightColumn[0].f1_10[0]|Form1099-SA[0].CopyB[0].RightCol[0].f1_10[0]	/form1099Sas/*/writableEarningsOnExcessContributions	Dollar		
+3		Distribution code	3 distribution code	Form1099-SA[0].CopyA[0].rightColumn[0].f1_11[0]|Form1099-SA[0].CopyB[0].RightCol[0].f1_11[0]	/form1099Sas/*/writableDistributionCode	Enum	1;2;3;4;5;6	
+4		FMV on date of death	fmv on date of death	Form1099-SA[0].CopyA[0].rightColumn[0].f1_12[0]|Form1099-SA[0].CopyB[0].RightCol[0].f1_12[0]	/form1099Sas/*/writableFmvOnDateOfDeath	Dollar		
+5	1	H S A	h s a	Form1099-SA[0].CopyA[0].rightColumn[0].c1_2[0]|Form1099-SA[0].CopyB[0].RightCol[0].c1_2[0]	/form1099Sas/*/writableAccountIsHsa	Bool		
+5	2	Archer M S A	archer m s a	Form1099-SA[0].CopyA[0].rightColumn[0].c1_2[1]|Form1099-SA[0].CopyB[0].RightCol[0].c1_2[1]	/form1099Sas/*/writableAccountIsArcherMsa	Bool		
+5	3	M A M S A	m a m s a	Form1099-SA[0].CopyA[0].rightColumn[0].c1_2[2]|Form1099-SA[0].CopyB[0].RightCol[0].c1_2[2]	/form1099Sas/*/writableAccountIsMedicareAdvantageMsa	Bool		
+calendar-year		For calendar year	for calendar year	Form1099-SA[0].CopyA[0].rightColumn[0].f1_1[0]|Form1099-SA[0].CopyB[0].CopyBHeader[0].f1_1[0]	/form1099Sas/*/writableCalendarYear	String		

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/citation.schema.json",
+  "title": "IRS source citation",
+  "description": "Every computed line and every refusal carries a citation to its IRS source. Provenance language only — never an accuracy claim.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_doc", "locator"],
+  "properties": {
+    "source_doc": {
+      "description": "The vendored IRS document (form instruction / publication / code section).",
+      "type": "string"
+    },
+    "locator": {
+      "description": "Where in the source (e.g. page + line, worksheet step).",
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "facts": {
+    "filing_status": "single",
+    "residence_state": "il",
+    "received_alaska_pfd": false,
+    "received_digital_assets": false,
+    "disposed_digital_assets": false,
+    "foreign_financial_account": false,
+    "foreign_trust_grantor": false,
+    "foreign_trust_transactions": false,
+    "eitc_reduced_or_disallowed": false,
+    "ctc_odc_reduced_or_disallowed": false,
+    "qualifying_child_of_another": false,
+    "paid_estimated_taxes": false,
+    "paid_student_loan_interest": false,
+    "persons": [
+      {
+        "role": "primary",
+        "birth_year": 1980,
+        "birth_month": 6,
+        "tin_type": "ssn_valid_for_employment",
+        "is_blind": false,
+        "k12_educator": false,
+        "made_ira_contributions": false,
+        "someone_can_claim_you": false,
+        "made_hsa_contributions": false
+      },
+      {
+        "role": "dependent",
+        "birth_year": 2007,
+        "birth_month": 6,
+        "is_permanently_disabled": false,
+        "tin_type": "ssn_valid_for_employment",
+        "relationship": "biological_child",
+        "months_in_home": 12,
+        "is_married": false,
+        "provided_own_support": false,
+        "gross_income_under_limit": true,
+        "filer_provided_over_half_support": true,
+        "could_be_qualifying_child_of_another": false,
+        "child_residence_state": "il",
+        "child_emancipated": false,
+        "has_other_biological_or_adoptive_parent": false,
+        "filer_paid_most_of_home_upkeep": true,
+        "unable_to_care_for_self": false
+      }
+    ],
+    "w2s": [
+      {
+        "person": 0,
+        "wages_cents": 4825000,
+        "withholding_cents": 600000,
+        "statutory_employee": false,
+        "retirement_plan": false,
+        "third_party_sick_pay": false,
+        "has_rrta_codes": false
+      }
+    ]
+  },
+  "comment": "wages-and-child-single's household with the child born June 2007 - 18 on July 2 of the tax year, so the engine excludes the child from the benefit split (childMayQualifyForBenefitSplit false) and the other-parent question is neither asked nor read. The child is claimed under the ordinary rules: still a qualifying child at 18 (under 19 at year end), the $500 credit for other dependents in place of the $2,000 child tax credit (line 24 3,165 against 1,465; line 16 the same 3,665), the EITC kept (line 33 unchanged)."
+}

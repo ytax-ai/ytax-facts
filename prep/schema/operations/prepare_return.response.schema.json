@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/operations/prepare_return.response.schema.json",
+  "title": "prepare_return response",
+  "description": "One round of the preparation loop. Every field is REQUIRED and may be empty: an optional field is one a caller forgets to read, and this service has already been bitten by exactly that.",
+  "allOf": [
+    {
+      "$ref": "../common/response-envelope.schema.json"
+    }
+  ],
+  "properties": {
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "versions",
+        "gaps",
+        "assumptions",
+        "unasked_boundary",
+        "forms"
+      ],
+      "properties": {
+        "outcome": {
+          "description": "What this round concluded. `error` is deliberately NOT a value here: a transient failure is reported as an ENGINE_UNAVAILABLE error envelope, never as a result, and putting a value in this enum that the service never emits would freeze a promise nothing keeps.",
+          "type": "string",
+          "enum": [
+            "complete",
+            "incomplete",
+            "knocked_out",
+            "refused"
+          ]
+        },
+        "versions": {
+          "description": "What this answer was computed against. The client checks the tax year echoes its request before accepting the result -- a return computed for another year is wrong in a way no field-level check catches.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tax_year"
+          ],
+          "properties": {
+            "tax_year": {
+              "type": "integer"
+            }
+          }
+        },
+        "gaps": {
+          "description": "Required inputs not supplied, each naming the lines it would have built. Reported ALL AT ONCE: a preparer told one missing figure per round trip pays a full resolve for each.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gap"
+          }
+        },
+        "assumptions": {
+          "description": "What the service decided about this taxpayer without asking -- claims nobody supplied and no field lets them contradict -- plus any optional input that was absent and still moved a number. The client presents these at submit time before rendering.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unasked_boundary": {
+          "description": "Income and facts this service CANNOT ask for and cannot compute. The sharpest hazard in the design: the cloud only asks for what it supports, so a taxpayer with interest income yields a wages-only fact set, nothing refuses, and `complete` is a wrong number. A complete return silent about this is worse than a refusal.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/unasked"
+          }
+        },
+        "forms": {
+          "description": "The resolved return. EMPTY unless the outcome is `complete`: a half-answered return must not be mistakable for a draft.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "form_id",
+              "lines"
+            ],
+            "properties": {
+              "form_id": {
+                "type": "string"
+              },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/line"
+                }
+              }
+            }
+          }
+        },
+        "assumption_details": {
+          "description": "Every assumption as a structured pair: `statement` is the sentence also served in `assumptions` (the two views are one derivation); `fact` is the service field the statement is about \u2014 the cell a client may paint or ask in \u2014 or null for an assumption resting on no field a caller could set.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "fact",
+              "statement"
+            ],
+            "properties": {
+              "fact": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "statement": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fact",
+        "consumed_by",
+        "required",
+        "why"
+      ],
+      "properties": {
+        "fact": {
+          "description": "The fact path to supply, in the shape the client can write back. A gap the caller cannot answer is a question nobody can act on.",
+          "type": "string"
+        },
+        "consumed_by": {
+          "description": "The [form, line] pairs this input would have built, transitively.",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "why": {
+          "type": "string"
+        }
+      }
+    },
+    "unasked": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fact_class",
+        "why_not_supported"
+      ],
+      "properties": {
+        "fact_class": {
+          "type": "string"
+        },
+        "why_not_supported": {
+          "type": "string"
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line_id",
+        "label",
+        "citation"
+      ],
+      "properties": {
+        "line_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value_cents": {
+          "type": "integer"
+        },
+        "enum_value": {
+          "type": "string"
+        },
+        "citation": {
+          "$ref": "../common/citation.schema.json"
+        },
+        "derived_from": {
+          "description": "Fact paths this line was derived from.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

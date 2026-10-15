@@ -1,0 +1,152 @@
+# IRS1041SK1 — TY2025 PRINTED-BOX register (the reading contract), generated beside
+# dictionary/pdf/2025/IRS1041SK1/en/configuration.yml by `scripts/gen_pdf_configuration.py --boxes`.
+#
+# GENERATED, NEVER HAND-EDITED. `--check` refuses a missing or stale sidecar.
+# register sha256: 529b81eed1a05105626fcad86acc74c106356c291dfbcfc966d0adbfbaf9cb88
+# boxes: 74   acroform fields: 74   boxes with a fact: 73
+#
+# ONE ROW IS ONE PRINTED BOX, copies collapsed: `fields` lists every AcroForm id that IS
+# this box on the IRS template, as the FULL dotted key configuration.yml spells it
+# (`topmostSubform[0].…`). A reader has a box number and a caption, not a field id.
+#   box      the printed box number or letter; — for an unnumbered box
+#   row      the row's 1-based position within a numbered box, empty when that box has one
+#            row; an unnumbered (—) box uses a caption-derived stable key (duplicate captions
+#            add an ordinal among that caption). box + row identifies the row
+#   caption  the printed words only (no synthetic `row N` / `line N`), from the register's own evidence comment where it has
+#            one, else the template's XFA caption, else `pdftotext -layout` on the
+#            vendored template. A box no source captions is left EMPTY and reported by
+#            --boxes; it is never guessed.
+#   aliases  accepted spellings, `|`-separated, PRINTED or IMPORTED only: dictionary/pdf/2025/
+#            box-aliases.tsv where it has a row AND the box has one row, else the caption's
+#            mechanical abbreviated form (derive_alias). A spelling names ONE reading within the
+#            form: one shared by rows naming different readings goes on NONE of them and each
+#            such row is listed below under `# unspelled:` (assign_aliases).
+#   fact     the bound writable, or empty for a declared gap
+#   type     the fact's dictionary type, from dictionary/manifest/facts-manifest.json
+#   legend   the accepted values of an enumerated box, from the module's own <EnumOptions>;
+#            empty when no vendored file states them (a partial legend would be a false
+#            contract, so none is written)
+#   reason   for a gap, one of STRUCTURAL / IDENTITY / RESERVED / BLOCKED / UNDECLARED — a token, never prose; the
+#            configuration.yml keeps the prose
+#
+# UNSPELLED ROWS (44): a captioned row whose `aliases` cell is empty, and why. --check
+# refuses a captioned row with no spelling that is not named here.
+# unspelled: box 9 row 1 `code`: shared spelling `code` names 22 readings
+# unspelled: box 9 row 2 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 9 row 3 `code`: shared spelling `code` names 22 readings
+# unspelled: box 9 row 4 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 9 row 5 `code`: shared spelling `code` names 22 readings
+# unspelled: box 9 row 6 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 11 row 1 `code`: shared spelling `code` names 22 readings
+# unspelled: box 11 row 2 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 11 row 3 `code`: shared spelling `code` names 22 readings
+# unspelled: box 11 row 4 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 11 row 5 `code`: shared spelling `code` names 22 readings
+# unspelled: box 11 row 6 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 11 row 7 `code`: shared spelling `code` names 22 readings
+# unspelled: box 11 row 8 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 11 row 9 `code`: shared spelling `code` names 22 readings
+# unspelled: box 11 row 10 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 12 row 1 `code`: shared spelling `code` names 22 readings
+# unspelled: box 12 row 2 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 12 row 3 `code`: shared spelling `code` names 22 readings
+# unspelled: box 12 row 4 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 12 row 5 `code`: shared spelling `code` names 22 readings
+# unspelled: box 12 row 6 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 12 row 7 `code`: shared spelling `code` names 22 readings
+# unspelled: box 12 row 8 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 12 row 9 `code`: shared spelling `code` names 22 readings
+# unspelled: box 12 row 10 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 13 row 1 `code`: shared spelling `code` names 22 readings
+# unspelled: box 13 row 2 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 13 row 3 `code`: shared spelling `code` names 22 readings
+# unspelled: box 13 row 4 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 13 row 5 `code`: shared spelling `code` names 22 readings
+# unspelled: box 13 row 6 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 14 row 1 `code`: shared spelling `code` names 22 readings
+# unspelled: box 14 row 2 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 14 row 3 `code`: shared spelling `code` names 22 readings
+# unspelled: box 14 row 4 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 14 row 5 `code`: shared spelling `code` names 22 readings
+# unspelled: box 14 row 6 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 14 row 7 `code`: shared spelling `code` names 22 readings
+# unspelled: box 14 row 8 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 14 row 9 `code`: shared spelling `code` names 22 readings
+# unspelled: box 14 row 10 `amount`: shared spelling `amount` names 22 readings
+# unspelled: box 14 row 11 `code`: shared spelling `code` names 22 readings
+# unspelled: box 14 row 12 `amount`: shared spelling `amount` names 22 readings
+box	row	caption	aliases	fields	fact	type	legend	reason
+header	1	Final K-1	final k-1	topmostSubform[0].Page1[0].PageHeader[0].c1_1[0]	/form1041K1s/*/writableFinalK1	Bool		
+header	2	Amended K-1	amended k-1	topmostSubform[0].Page1[0].PageHeader[0].c1_1[1]	/form1041K1s/*/writableAmendedK1	Bool		
+header	3	For calendar year 2025, or tax year beginning. 2-digit month	for calendar year 2025, or tax year beginning. 2-digit month	topmostSubform[0].Page1[0].PageHeader[0].f1_1[0]	/form1041K1s/*/writableTaxYearBeginning	String		
+header	4	tax year beginning, day cell of the same printed date f1_1[0] binds	tax year beginning, day cell of the same printed date f1_1[0] binds	topmostSubform[0].Page1[0].PageHeader[0].f1_2[0]	/form1041K1s/*/writableTaxYearBeginning	String		
+—		Beginning. 2025	beginning. 2025	topmostSubform[0].Page1[0].PageHeader[0].SlashDate[0]				STRUCTURAL
+header	5	tax year ending, month cell; one printed date, one leaf	tax year ending, month cell; one printed date, one leaf	topmostSubform[0].Page1[0].PageHeader[0].f1_3[0]	/form1041K1s/*/writableTaxYearEnding	String		
+header	6	tax year ending, day cell	tax year ending, day cell	topmostSubform[0].Page1[0].PageHeader[0].f1_4[0]	/form1041K1s/*/writableTaxYearEnding	String		
+header	7	tax year ending, year cell	tax year ending, year cell	topmostSubform[0].Page1[0].PageHeader[0].f1_5[0]	/form1041K1s/*/writableTaxYearEnding	String		
+A		Estate's or trust's employer identification number	estate's or trust's employer identification number	topmostSubform[0].Page1[0].LeftCol[0].f1_6[0]	/form1041K1s/*/writableEstateOrTrustEin	EIN		
+B		Estate's or trust's name	estate's or trust's name	topmostSubform[0].Page1[0].LeftCol[0].f1_7[0]	/form1041K1s/*/writableEstateOrTrustName	String		
+C		Fiduciary’s name, address, city, state, and Z I P code	fiduciary’s name, address, city, state, and z i p code	topmostSubform[0].Page1[0].LeftCol[0].f1_8[0]	/form1041K1s/*/writableFiduciaryNameAndAddress	String		
+D	1	Check if Form 1041-T was filed	check if form 1041-t was filed	topmostSubform[0].Page1[0].LeftCol[0].c1_2[0]	/form1041K1s/*/writableForm1041TWasFiled	Bool		
+D	2	and enter the date it was filed	and enter the date it was filed	topmostSubform[0].Page1[0].LeftCol[0].f1_9[0]	/form1041K1s/*/writableForm1041TFiledDate	String		
+E		Check if this is the final Form 1041 for the estate or trust	check if this is the final form 1041 for the estate or trust	topmostSubform[0].Page1[0].LeftCol[0].c1_3[0]	/form1041K1s/*/writableFinalForm1041	Bool		
+F		Beneficiary's identifying number	beneficiary's identifying number	topmostSubform[0].Page1[0].LeftCol[0].f1_10[0]	/form1041K1s/*/writableBeneficiaryTin	TIN		
+G		Beneficiary's name, address, city, state, and Z I P code	beneficiary's name, address, city, state, and z i p code	topmostSubform[0].Page1[0].LeftCol[0].f1_11[0]	/form1041K1s/*/writableBeneficiaryNameAndAddress	String		
+H	1	Domestic beneficiary	domestic beneficiary	topmostSubform[0].Page1[0].LeftCol[0].c1_4[0]	/form1041K1s/*/writableDomesticBeneficiary	Bool		
+H	2	Foreign beneficiary	foreign beneficiary	topmostSubform[0].Page1[0].LeftCol[0].c1_4[1]	/form1041K1s/*/writableForeignBeneficiary	Bool		
+1		Interest income	1 interest income	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_12[0]	/form1041K1s/*/writableBox1InterestIncome	Dollar		
+2a		Ordinary dividends	2a ordinary dividends	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_13[0]	/form1041K1s/*/writableBox2aOrdinaryDividends	Dollar		
+2b		Qualified dividends	2b qualified dividends	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_14[0]	/form1041K1s/*/writableBox2bQualifiedDividends	Dollar		
+3		Net short-term capital gain	net short-term capital gain	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_15[0]	/form1041K1s/*/writableBox3NetShortTermCapitalGain	Dollar		
+4a		Net long-term capital gain	net long-term capital gain	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_16[0]	/form1041K1s/*/writableBox4aNetLongTermCapitalGain	Dollar		
+4b		28% rate gain	28% rate gain	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_17[0]	/form1041K1s/*/writableBox4b28PercentRateGain	Dollar		
+4c		Unrecaptured section 1250 gain	unrecaptured section 1250 gain	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_18[0]	/form1041K1s/*/writableBox4cUnrecapturedSection1250Gain	Dollar		
+5		Other portfolio and nonbusiness income	other portfolio and nonbusiness income	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_19[0]	/form1041K1s/*/writableBox5OtherPortfolioAndNonbusinessIncome	Dollar		
+6		Ordinary business income	6 ordinary business income	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_20[0]	/form1041K1s/*/writableBox6OrdinaryBusinessIncome	Dollar		
+7		Net rental real estate income	net rental real estate income	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_21[0]	/form1041K1s/*/writableBox7NetRentalRealEstateIncome	Dollar		
+8		Other rental income	other rental income	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_22[0]	/form1041K1s/*/writableBox8OtherRentalIncome	Dollar		
+9	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_23[0]	/form1041K1s/*/directlyApportionedDeductionEntries/[0]/writableCode	String		
+9	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_24[0]	/form1041K1s/*/directlyApportionedDeductionEntries/[0]/writableAmount	Dollar		
+9	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_25[0]	/form1041K1s/*/directlyApportionedDeductionEntries/[1]/writableCode	String		
+9	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_26[0]	/form1041K1s/*/directlyApportionedDeductionEntries/[1]/writableAmount	Dollar		
+9	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_27[0]	/form1041K1s/*/directlyApportionedDeductionEntries/[2]/writableCode	String		
+9	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_28[0]	/form1041K1s/*/directlyApportionedDeductionEntries/[2]/writableAmount	Dollar		
+10		Estate tax deduction	estate tax deduction	topmostSubform[0].Page1[0].RightCol[0].Lines1-10[0].f1_29[0]	/form1041K1s/*/writableBox10EstateTaxDeduction	Dollar		
+11	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_30[0]	/form1041K1s/*/finalYearDeductionEntries/[0]/writableCode	String		
+11	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_31[0]	/form1041K1s/*/finalYearDeductionEntries/[0]/writableAmount	Dollar		
+11	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_32[0]	/form1041K1s/*/finalYearDeductionEntries/[1]/writableCode	String		
+11	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_33[0]	/form1041K1s/*/finalYearDeductionEntries/[1]/writableAmount	Dollar		
+11	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_34[0]	/form1041K1s/*/finalYearDeductionEntries/[2]/writableCode	String		
+11	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_35[0]	/form1041K1s/*/finalYearDeductionEntries/[2]/writableAmount	Dollar		
+11	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_36[0]	/form1041K1s/*/finalYearDeductionEntries/[3]/writableCode	String		
+11	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_37[0]	/form1041K1s/*/finalYearDeductionEntries/[3]/writableAmount	Dollar		
+11	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_38[0]	/form1041K1s/*/finalYearDeductionEntries/[4]/writableCode	String		
+11	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_39[0]	/form1041K1s/*/finalYearDeductionEntries/[4]/writableAmount	Dollar		
+12	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_40[0]	/form1041K1s/*/amtAdjustmentEntries/[0]/writableCode	String		
+12	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_41[0]	/form1041K1s/*/amtAdjustmentEntries/[0]/writableAmount	Dollar		
+12	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_42[0]	/form1041K1s/*/amtAdjustmentEntries/[1]/writableCode	String		
+12	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_43[0]	/form1041K1s/*/amtAdjustmentEntries/[1]/writableAmount	Dollar		
+12	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_44[0]	/form1041K1s/*/amtAdjustmentEntries/[2]/writableCode	String		
+12	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_45[0]	/form1041K1s/*/amtAdjustmentEntries/[2]/writableAmount	Dollar		
+12	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_46[0]	/form1041K1s/*/amtAdjustmentEntries/[3]/writableCode	String		
+12	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_47[0]	/form1041K1s/*/amtAdjustmentEntries/[3]/writableAmount	Dollar		
+12	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_48[0]	/form1041K1s/*/amtAdjustmentEntries/[4]/writableCode	String		
+12	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_49[0]	/form1041K1s/*/amtAdjustmentEntries/[4]/writableAmount	Dollar		
+13	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_50[0]	/form1041K1s/*/creditEntries/[0]/writableCode	String		
+13	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_51[0]	/form1041K1s/*/creditEntries/[0]/writableAmount	Dollar		
+13	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_52[0]	/form1041K1s/*/creditEntries/[1]/writableCode	String		
+13	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_53[0]	/form1041K1s/*/creditEntries/[1]/writableAmount	Dollar		
+13	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_54[0]	/form1041K1s/*/creditEntries/[2]/writableCode	String		
+13	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_55[0]	/form1041K1s/*/creditEntries/[2]/writableAmount	Dollar		
+14	1	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_56[0]	/form1041K1s/*/otherInformationEntries/[0]/writableCode	String		
+14	2	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_57[0]	/form1041K1s/*/otherInformationEntries/[0]/writableAmount	Dollar		
+14	3	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_58[0]	/form1041K1s/*/otherInformationEntries/[1]/writableCode	String		
+14	4	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_59[0]	/form1041K1s/*/otherInformationEntries/[1]/writableAmount	Dollar		
+14	5	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_60[0]	/form1041K1s/*/otherInformationEntries/[2]/writableCode	String		
+14	6	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_61[0]	/form1041K1s/*/otherInformationEntries/[2]/writableAmount	Dollar		
+14	7	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_62[0]	/form1041K1s/*/otherInformationEntries/[3]/writableCode	String		
+14	8	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_63[0]	/form1041K1s/*/otherInformationEntries/[3]/writableAmount	Dollar		
+14	9	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_64[0]	/form1041K1s/*/otherInformationEntries/[4]/writableCode	String		
+14	10	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_65[0]	/form1041K1s/*/otherInformationEntries/[4]/writableAmount	Dollar		
+14	11	code		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_66[0]	/form1041K1s/*/otherInformationEntries/[5]/writableCode	String		
+14	12	amount		topmostSubform[0].Page1[0].RightCol[0].Lines11-14[0].f1_67[0]	/form1041K1s/*/otherInformationEntries/[5]/writableAmount	Dollar		

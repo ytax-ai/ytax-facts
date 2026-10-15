@@ -1,0 +1,648 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form1042Ss">
+      <Name>Forms 1042-S</Name>
+      <Description>Forms 1042-S, Foreign Person's U.S. Source Income Subject to Withholding, received for the 2025 return: one item per document the withholding agent issued. A Form 1040 filer who receives one is typically a resident alien who was treated as a foreign person when paid. Unanswered or answered empty, the collection asserts no document and refuses nothing.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><Collection /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/filer">
+      <Name>Form 1042-S document owner</Name>
+      <Description>The person on this return who received this Form 1042-S as its RECIPIENT (box 13). An unanswered owner is Incomplete; no primary-filer default is assumed, and the document's withholding credit stays Incomplete until it is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Writable><CollectionItem collection="/filers" /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/belongsToPrimaryFiler">
+      <Name>Form 1042-S belongs to primary filer</Name>
+      <Description>Whether this Form 1042-S belongs to the primary filer. Completeness-first: an unanswered ../filer resolves complete-safe FALSE rather than inheriting a primary-filer default, because a document whose recipient is unassigned belongs to neither filer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="../filer/isPrimaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Dependency module="filers" path="../filer/isPrimaryFiler" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/belongsToSecondaryFiler">
+      <Name>Form 1042-S belongs to secondary filer</Name>
+      <Description>The secondary twin of ../belongsToPrimaryFiler, read from the owner's own isSecondaryFiler: same completeness-first shape, and complete-safe FALSE on an unanswered ../filer.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <IsComplete><Dependency module="filers" path="../filer/isSecondaryFiler" /></IsComplete>
+              </All>
+            </When>
+            <Then><Dependency module="filers" path="../filer/isSecondaryFiler" /></Then>
+          </Case>
+          <Case><When><True /></When><Then><False /></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/recipientUsTin">
+      <Name>Form 1042-S box 13e recipient's U.S. TIN</Name>
+      <Description>Box 13e, the recipient's U.S. TIN, derived from this document's own recipient: the TIN of the person ../filer names, so the primary filer's TIN on the primary filer's Form 1042-S and the spouse's on the spouse's. Nothing to ask; the ../filer answer decides it. Incomplete while ../filer is unanswered.</Description>
+      <Export stateSystems="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="../filer" /></IsComplete></When>
+            <Then><Dependency module="filers" path="../filer/tin" /></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableUniqueFormIdentifier">
+      <Name>Form 1042-S unique form identifier</Name>
+      <Description>The UNIQUE FORM IDENTIFIER the withholding agent printed in the header, copied as printed. It tells this document apart from an amended one for the same payment. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableAmended">
+      <Name>Form 1042-S AMENDED box</Name>
+      <Description>The AMENDED checkbox in the header. A withholding agent that corrects a form it already issued sends a new one with this box checked; copy the amended amounts, not the original ones. An unchecked box is an explicit false. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableAmendmentNumber">
+      <Name>Form 1042-S amendment number</Name>
+      <Description>The AMENDMENT NO. cell in the header, copied as printed; blank on an original form. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIncomeCode">
+      <Name>Form 1042-S box 1 income code</Name>
+      <Description>Box 1, Income code: the two-digit code the withholding agent printed from the form's own Explanation of Codes table (for example 16, scholarship or fellowship grants; 29, deposit interest). Transcribed, not classified. For a Form 1040 filer the income code decides which line of the return the box 2 amount belongs on; that routing is not built, which is what form1042S:/knockoutForm1042SIncomeRoutingUnbuilt refuses. Unanswered it is complete-safe.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableGrossIncome">
+      <Name>Form 1042-S box 2 gross income</Name>
+      <Description>Box 2, Gross income, as printed. For a resident alien filing Form 1040 this is income to report on the line its income code and any treaty position direct; that routing is not built, so an entered Form 1042-S is refused by form1042S:/knockoutForm1042SIncomeRoutingUnbuilt rather than the amount being dropped. Unanswered it is complete-safe.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableChapterIndicator">
+      <Name>Form 1042-S box 3 chapter indicator</Name>
+      <Description>Box 3, Chapter indicator: the single digit 3 or 4 the withholding agent entered, naming the withholding regime (chapter 3 or chapter 4) the payment was reported under. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[34]</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableBox3aExemptionCode">
+      <Name>Form 1042-S box 3a exemption code</Name>
+      <Description>Box 3a, Exemption code, the two-digit code from the form's Boxes 3a and 4a legend; the form prints it when the box 3b tax rate is 00.00. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableBox3bTaxRateBeforeDecimal">
+      <Name>Form 1042-S box 3b tax rate, digits before the decimal point</Name>
+      <Description>Box 3b, Tax rate: the two digits the form prints BEFORE its fixed decimal point (the 14 of 14.00). The printed box is two cells split by a printed decimal point, and each cell is its own writable. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableBox3bTaxRateAfterDecimal">
+      <Name>Form 1042-S box 3b tax rate, digits after the decimal point</Name>
+      <Description>Box 3b, Tax rate: the two digits the form prints AFTER its fixed decimal point (the 00 of 14.00). The companion cell is ../writableBox3bTaxRateBeforeDecimal. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableBox4aExemptionCode">
+      <Name>Form 1042-S box 4a exemption code</Name>
+      <Description>Box 4a, Exemption code, the two-digit code from the form's Boxes 3a and 4a legend; the form prints it when the box 4b tax rate is 00.00. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableBox4bTaxRateBeforeDecimal">
+      <Name>Form 1042-S box 4b tax rate, digits before the decimal point</Name>
+      <Description>Box 4b, Tax rate: the two digits the form prints BEFORE its fixed decimal point. The companion cell is ../writableBox4bTaxRateAfterDecimal. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableBox4bTaxRateAfterDecimal">
+      <Name>Form 1042-S box 4b tax rate, digits after the decimal point</Name>
+      <Description>Box 4b, Tax rate: the two digits the form prints AFTER its fixed decimal point. The companion cell is ../writableBox4bTaxRateBeforeDecimal. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAllowance">
+      <Name>Form 1042-S box 5 withholding allowance</Name>
+      <Description>Box 5, Withholding allowance, as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableNetIncome">
+      <Name>Form 1042-S box 6 net income</Name>
+      <Description>Box 6, Net income, as printed. It is a withholding-base figure on the payer's side, not a figure this return computes from. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableFederalTaxWithheld">
+      <Name>Form 1042-S box 7a federal tax withheld</Name>
+      <Description>Box 7a, Federal tax withheld, as printed. It is one of the three boxes the form combines into box 10; the Form 1040 line 25c credit reads box 10 (../writableTotalWithholdingCredit), never this box, so the other-agent and repayment adjustments are not lost. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableEscrowProceduresApplied">
+      <Name>Form 1042-S box 7b escrow procedures checkbox</Name>
+      <Description>Box 7b, checked when the federal tax withheld was not deposited with the IRS because escrow procedures were applied. The form sends the reader to its instructions (vendored, https://www.irs.gov/pub/irs-prior/i1042s%2D-2025.pdf); this dictionary has not yet built the recipient-side credit treatment those instructions describe, so a checked box refuses the return through form1042S:/knockoutForm1042SWithholdingCreditUnbuilt instead of crediting or dropping the box 10 amount. An unchecked box is an explicit false. Unanswered it is complete-safe.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingOccurredInSubsequentYear">
+      <Name>Form 1042-S box 7c subsequent-year withholding checkbox</Name>
+      <Description>Box 7c, checked when the withholding occurred in a subsequent year with respect to a partnership interest. Which year's return claims that withholding is an instruction question this dictionary has not yet built the answer to (the instructions are vendored, https://www.irs.gov/pub/irs-prior/i1042s%2D-2025.pdf), so a checked box refuses the return through form1042S:/knockoutForm1042SWithholdingCreditUnbuilt. An unchecked box is an explicit false. Unanswered it is complete-safe.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryRevisingReportingToSpecificRecipient">
+      <Name>Form 1042-S box 7d intermediary revised-reporting checkbox</Name>
+      <Description>Box 7d, checked by a qualified intermediary, withholding foreign partnership or withholding foreign trust that is revising its reporting to report to a specific recipient. The Copy D field's own caption omits the article before 'specific recipient'; it is the same box and binds here. An unchecked box is an explicit false. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableTaxWithheldByOtherAgents">
+      <Name>Form 1042-S box 8 tax withheld by other agents</Name>
+      <Description>Box 8, Tax withheld by other agents, as printed. One of the three boxes the form combines into box 10, which is what the return credits. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableOverwithheldTaxRepaid">
+      <Name>Form 1042-S box 9 overwithheld tax repaid</Name>
+      <Description>Box 9, Overwithheld tax repaid to the recipient under the adjustment procedures. The form prints this entry inside parentheses because it REDUCES the box 10 total; enter the amount shown inside the parentheses as a positive number. It is never re-combined here: box 10 is read as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableTotalWithholdingCredit">
+      <Name>Form 1042-S box 10 total withholding credit</Name>
+      <Description>Box 10, Total withholding credit, as printed (the form's own combination of boxes 7a, 8 and 9). This is the amount a Form 1040 filer claims: it feeds ../withholdingCreditOnThisReturn and through /form1042SWithholding the Form 1040 line 25c total, taxCalculations:/otherFormWithholding. Required when a Form 1042-S is entered: unanswered, the document's credit is Incomplete, never zero.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableTaxPaidByWithholdingAgent">
+      <Name>Form 1042-S box 11 tax paid by withholding agent</Name>
+      <Description>Box 11, Tax paid by the withholding agent on amounts it did not withhold. The form sends the reader to its instructions (vendored, https://www.irs.gov/pub/irs-prior/i1042s%2D-2025.pdf); this dictionary has not yet built the recipient-side treatment those instructions describe, so an amount above zero refuses the return through form1042S:/knockoutForm1042SWithholdingCreditUnbuilt instead of being credited or dropped. Unanswered it is complete-safe.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentEin">
+      <Name>Form 1042-S box 12a withholding agent's EIN</Name>
+      <Description>Box 12a, the withholding agent's EIN, as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentChapter3StatusCode">
+      <Name>Form 1042-S box 12b withholding agent's chapter 3 status code</Name>
+      <Description>Box 12b, the withholding agent's chapter 3 status code, from the form's status-code legend. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentChapter4StatusCode">
+      <Name>Form 1042-S box 12c withholding agent's chapter 4 status code</Name>
+      <Description>Box 12c, the withholding agent's chapter 4 status code, from the form's status-code legend. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentName">
+      <Name>Form 1042-S box 12d withholding agent's name</Name>
+      <Description>Box 12d, the withholding agent's name, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentGiin">
+      <Name>Form 1042-S box 12e withholding agent's GIIN</Name>
+      <Description>Box 12e, the withholding agent's global intermediary identification number (GIIN), copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentCountryCode">
+      <Name>Form 1042-S box 12f withholding agent's country code</Name>
+      <Description>Box 12f, the withholding agent's country code, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentForeignTaxIdentificationNumber">
+      <Name>Form 1042-S box 12g withholding agent's foreign tax identification number</Name>
+      <Description>Box 12g, the withholding agent's foreign tax identification number, if any, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentAddress">
+      <Name>Form 1042-S box 12h withholding agent's street address</Name>
+      <Description>Box 12h, the withholding agent's address (number and street), copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableWithholdingAgentCityStateCountryAndPostalCode">
+      <Name>Form 1042-S box 12i withholding agent's city, state or province, country and postal code</Name>
+      <Description>Box 12i, the withholding agent's city or town, state or province, country, ZIP or foreign postal code, as the one printed cell. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientName">
+      <Name>Form 1042-S box 13a recipient's name</Name>
+      <Description>Box 13a, the recipient's name, copied as printed even where it differs from the name on this return. Which person on this return received the document is ../filer, not this box. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientCountryCode">
+      <Name>Form 1042-S box 13b recipient's country code</Name>
+      <Description>Box 13b, the recipient's country code, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientAddress">
+      <Name>Form 1042-S box 13c recipient's street address</Name>
+      <Description>Box 13c, the recipient's address (number and street), copied as printed even where it is an old address. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientCityStateCountryAndPostalCode">
+      <Name>Form 1042-S box 13d recipient's city, state or province, country and postal code</Name>
+      <Description>Box 13d, the recipient's city or town, state or province, country, ZIP or foreign postal code, as the one printed cell. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientChapter3StatusCode">
+      <Name>Form 1042-S box 13f recipient's chapter 3 status code</Name>
+      <Description>Box 13f, the recipient's chapter 3 status code, from the form's status-code legend. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientChapter4StatusCode">
+      <Name>Form 1042-S box 13g recipient's chapter 4 status code</Name>
+      <Description>Box 13g, the recipient's chapter 4 status code, from the form's status-code legend. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientGiin">
+      <Name>Form 1042-S box 13h recipient's GIIN</Name>
+      <Description>Box 13h, the recipient's GIIN, copied as printed; blank for an individual recipient. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientForeignTaxIdentificationNumber">
+      <Name>Form 1042-S box 13i recipient's foreign tax identification number</Name>
+      <Description>Box 13i, the recipient's foreign tax identification number, if any. A writable, not derived from the filer: the dictionary holds no foreign identifying number for a filer. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientLobCode">
+      <Name>Form 1042-S box 13j recipient's LOB code</Name>
+      <Description>Box 13j, the limitation on benefits (LOB) code, from the form's Box 13j legend. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientAccountNumber">
+      <Name>Form 1042-S box 13k recipient's account number</Name>
+      <Description>Box 13k, the recipient's account number, copied as printed; it tells two documents from one withholding agent apart. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableRecipientDateOfBirth">
+      <Name>Form 1042-S box 13l recipient's date of birth</Name>
+      <Description>Box 13l, the recipient's date of birth, printed as YYYYMMDD and recorded as a date. Copied as printed; it is not the filer's date of birth on this return. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Day /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePrimaryWithholdingAgentName">
+      <Name>Form 1042-S box 14a primary withholding agent's name</Name>
+      <Description>Box 14a, the primary withholding agent's name (if applicable), copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePrimaryWithholdingAgentEin">
+      <Name>Form 1042-S box 14b primary withholding agent's EIN</Name>
+      <Description>Box 14b, the primary withholding agent's EIN, as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableProRataBasisReporting">
+      <Name>Form 1042-S box 15 pro-rata basis reporting checkbox</Name>
+      <Description>Box 15, checked when the form reports on a pro-rata basis. An unchecked box is an explicit false. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Boolean /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryEin">
+      <Name>Form 1042-S box 15a intermediary or flow-through entity's EIN</Name>
+      <Description>Box 15a, the intermediary or flow-through entity's EIN, if any, as printed. The Copy D field's own caption doubles the comma; it is the same box and binds here. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><EIN /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryChapter3StatusCode">
+      <Name>Form 1042-S box 15b intermediary's chapter 3 status code</Name>
+      <Description>Box 15b, the intermediary or flow-through entity's chapter 3 status code. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryChapter4StatusCode">
+      <Name>Form 1042-S box 15c intermediary's chapter 4 status code</Name>
+      <Description>Box 15c, the intermediary or flow-through entity's chapter 4 status code. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryName">
+      <Name>Form 1042-S box 15d intermediary or flow-through entity's name</Name>
+      <Description>Box 15d, the intermediary or flow-through entity's name, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryGiin">
+      <Name>Form 1042-S box 15e intermediary's GIIN</Name>
+      <Description>Box 15e, the intermediary or flow-through entity's GIIN, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryCountryCode">
+      <Name>Form 1042-S box 15f intermediary's country code</Name>
+      <Description>Box 15f, the intermediary or flow-through entity's country code, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryForeignTaxIdentificationNumber">
+      <Name>Form 1042-S box 15g intermediary's foreign tax identification number</Name>
+      <Description>Box 15g, the intermediary or flow-through entity's foreign tax identification number, if any. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryAddress">
+      <Name>Form 1042-S box 15h intermediary's street address</Name>
+      <Description>Box 15h, the intermediary or flow-through entity's address (number and street), copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableIntermediaryCityStateCountryAndPostalCode">
+      <Name>Form 1042-S box 15i intermediary's city, state or province, country and postal code</Name>
+      <Description>Box 15i, the intermediary or flow-through entity's city or town, state or province, country, ZIP or foreign postal code, as the one printed cell. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePayerName">
+      <Name>Form 1042-S box 16a payer's name</Name>
+      <Description>Box 16a, the payer's name, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePayerTin">
+      <Name>Form 1042-S box 16b payer's TIN</Name>
+      <Description>Box 16b, the payer's TIN. The caption prints TIN, not EIN, so the fact type is TIN. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><TIN /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePayerGiin">
+      <Name>Form 1042-S box 16c payer's GIIN</Name>
+      <Description>Box 16c, the payer's GIIN, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePayerChapter3StatusCode">
+      <Name>Form 1042-S box 16d payer's chapter 3 status code</Name>
+      <Description>Box 16d, the payer's chapter 3 status code. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePayerChapter4StatusCode">
+      <Name>Form 1042-S box 16e payer's chapter 4 status code</Name>
+      <Description>Box 16e, the payer's chapter 4 status code. Transcribed, not classified. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /><Limit type="Match"><String>[0-9]{2}</String></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableStateIncomeTaxWithheld">
+      <Name>Form 1042-S box 17a state income tax withheld</Name>
+      <Description>Box 17a, State income tax withheld, as printed. It is a state withholding credit for the state return that reads it. It is not summed into the Schedule A state and local tax line, which is a return-level entry the filer totals. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writablePayerStateTaxNumber">
+      <Name>Form 1042-S box 17b payer's state tax number</Name>
+      <Description>Box 17b, the payer's state tax number, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/writableNameOfState">
+      <Name>Form 1042-S box 17c name of state</Name>
+      <Description>Box 17c, the name of the state, copied as printed. Unanswered it is complete-safe. Feeds no federal line; stored for the state and local returns, which read it by this module-qualified path, and bound in the Form 1042-S register.</Description>
+      <Export downstreamFacts="true" stateSystems="true" />
+      <Writable><String /></Writable>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/withholdingCreditOnThisReturn">
+      <Name>Form 1042-S withholding credit claimed on this return</Name>
+      <Description>This document's box 10 total withholding credit, as it reaches this return's Form 1040 line 25c: the box 10 amount (floored at zero) on the primary filer's document, and on the spouse's document when the return is married filing jointly; zero on a spouse's document on any other return, which is the spouse's own credit. Incomplete while the owner, the filing status or box 10 is unanswered, never a silent zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><All><IsComplete><Dependency path="../filer" /></IsComplete><Dependency path="../belongsToPrimaryFiler" /></All></When>
+            <Then><GreaterOf><Dependency path="../writableTotalWithholdingCredit" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <Dependency path="../belongsToSecondaryFiler" />
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              </All>
+            </When>
+            <Then><GreaterOf><Dependency path="../writableTotalWithholdingCredit" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="../filer" /></IsComplete>
+                <Dependency path="../belongsToSecondaryFiler" />
+                <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+              </All>
+            </When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1042SWithholding">
+      <Name>Total Form 1042-S federal tax withheld (Form 1040 line 25c)</Name>
+      <Description>The sum of ../withholdingCreditOnThisReturn over every Form 1042-S, rounded to whole dollars: the Form 1042-S leg of Form 1040 line 25c, read by taxCalculations:/otherFormWithholding. Complete-safe zero when the collection was never answered or was answered empty; Incomplete when any entered document's credit is.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/form1042Ss" /></IsComplete></When>
+            <Then>
+              <Round>
+                <CollectionSum>
+                  <Dependency path="/form1042Ss/*/withholdingCreditOnThisReturn" />
+                </CollectionSum>
+              </Round>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form1042Ss/*/withholdingCreditNeedsInstructions">
+      <Name>Form 1042-S withholding credit depends on instructions not yet built</Name>
+      <Description>True when this document checks box 7b (tax not deposited, escrow procedures), checks box 7c (withholding in a subsequent year on a partnership interest), or shows box 11 tax paid by the withholding agent above zero. Each of those boxes prints "see instructions" or asks which year's credit the amount is; the Form 1042-S instructions are vendored (https://www.irs.gov/pub/irs-prior/i1042s%2D-2025.pdf) but the recipient-side credit treatment they describe is not yet built, so the box 10 credit cannot be claimed exactly. Complete-safe false on an unanswered box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <All>
+            <IsComplete><Dependency path="../writableEscrowProceduresApplied" /></IsComplete>
+            <Dependency path="../writableEscrowProceduresApplied" />
+          </All>
+          <All>
+            <IsComplete><Dependency path="../writableWithholdingOccurredInSubsequentYear" /></IsComplete>
+            <Dependency path="../writableWithholdingOccurredInSubsequentYear" />
+          </All>
+          <All>
+            <IsComplete><Dependency path="../writableTaxPaidByWithholdingAgent" /></IsComplete>
+            <GreaterThan>
+              <Left><Dependency path="../writableTaxPaidByWithholdingAgent" /></Left>
+              <Right><Dollar>0</Dollar></Right>
+            </GreaterThan>
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm1042SIncomeRoutingUnbuilt">
+      <Name>Form 1042-S income cannot yet be placed on the return</Name>
+      <Description>You entered a Form 1042-S. Income reported on it has to go on the line of Form 1040 that its income code and any treaty position direct (wages, interest, dividends, a scholarship or other income, with any treaty-exempt amount backed out on Schedule 1). On a separate return in a community property state, the income and the tax withheld on it may also have to be split with your spouse. This return cannot place that income yet, so it cannot be filed here.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form1042Ss" /></IsComplete>
+          <GreaterThan>
+            <Left><CollectionSize><Dependency path="/form1042Ss" /></CollectionSize></Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/knockoutForm1042SWithholdingCreditUnbuilt">
+      <Name>Form 1042-S withholding cannot yet be credited exactly</Name>
+      <Description>A Form 1042-S you entered has box 7b or box 7c checked, or shows an amount in box 11. How much of that withholding this return may claim depends on a Form 1042-S instructions rule this dictionary has not yet built, so it cannot be filed here.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <IsComplete><Dependency path="/form1042Ss" /></IsComplete>
+          <GreaterThan>
+            <Left>
+              <CollectionSize>
+                <Filter path="/form1042Ss">
+                  <Dependency path="withholdingCreditNeedsInstructions" />
+                </Filter>
+              </CollectionSize>
+            </Left>
+            <Right><Int>0</Int></Right>
+          </GreaterThan>
+        </All>
+      </Derived>
+    </Fact>
+  </Facts>
+</FactDictionaryModule>

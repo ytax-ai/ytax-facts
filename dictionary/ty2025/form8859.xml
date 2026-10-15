@@ -1,0 +1,402 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/writableDcFirstTimeHomebuyerCreditCarryforwardFromPriorTaxYear">
+      <Name>DC first-time homebuyer credit carryforward from 2024 (Form 8859 line 1)</Name>
+      <Description>Form 8859 line 1: "Credit carryforward from 2024. Enter the amount from line 4 of
+        your 2024 Form 8859." Integer cents; Min 0. Optional — absent means no Form 8859 and no
+        Schedule 3 line 6h, which is every return this dictionary has ever resolved.
+
+        THERE IS NO CURRENT-YEAR ORIGINATION AND THAT IS THE FORM'S OWN CAUTION, not a scope
+        choice: "You may claim only a carryforward of any unused credit (which is shown on your
+        prior year Form 8859, line 4)." The original credit — the smaller of $5,000 ($2,500 MFS)
+        and the purchase price, phased out from $70,000 of modified AGI ($110,000 MFJ) — is
+        printed on the form as HISTORY, for a purchase that had to happen before 2012. So this
+        writable is a prior-year figure the single-year fact graph cannot derive, exactly like
+        form8396:/writablePriorYearMortgageCreditCarryforward, and it is the only input the form
+        has. Line 4 is computed by /form8859CreditCarryforwardTo2026; it is not an unmodeled
+        part of this form.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/dcFirstTimeHomebuyerCreditIsActive">
+      <Name>Return has a Form 8859 input</Name>
+      <Description>True when the Form 8859 carryforward is answered. Gates
+        /dcFirstTimeHomebuyerCredit so a return with no Form 8859 takes the else-0 branch WITHOUT
+        evaluating the Tax Liability Limit Worksheet chain — the branch-gate pattern, which is
+        what keeps Schedule 3 line 6h, /line8OfSchedule3 and total tax byte-identical on scenarios
+        whose credit facts are Placeholder or Incomplete.
+
+        It is ALSO the fourth limb of ctcOdc:/isCompletingCreditLimitWorksheetB, which is half of
+        what this fill closes: Credit Limit Worksheet A line 3's trigger names "the District of
+        Columbia first-time homebuyer credit, Form 8859" among the four credits that send a filer to
+        Worksheet B, and that limb could not be evaluated before this module existed. This fact is
+        the module's INPUT gate, never its credit value — the same shape as
+        form8396:/mortgageInterestCreditIsActive, form8839:/adoptionCreditIsActive and
+        form5695:/residentialCleanEnergyPartIIsActive, and for the same reason: the trigger asks
+        whether the filer is CLAIMING the credit, which is answered before any limit is
+        applied.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <IsComplete>
+          <Dependency path="/writableDcFirstTimeHomebuyerCreditCarryforwardFromPriorTaxYear" />
+        </IsComplete>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8859TaxLiabilityLimitWorksheetLine2">
+      <Name>Form 8859 Tax Liability Limit Worksheet line 2 (credits ordered before this credit)</Name>
+      <Description>Tax Liability Limit Worksheet—Line 2, worksheet line 2: the total of the credits
+        taken on the 2025 return that are applied against tax BEFORE the DC first-time homebuyer
+        credit carryforward. The printed list, in the printed order: Schedule 3 line 6l; the foreign
+        tax credit (line 1); the credit for child and dependent care expenses (line 2); the credit
+        for the elderly or the disabled (line 6d); nonrefundable education credits (line 3); the
+        retirement savings contributions credit (line 4); the energy efficient home improvement
+        credit (line 5b); the credit for previously owned clean vehicles (line 6m); the clean
+        vehicle credit (line 6f); the child tax credit or credit for other dependents (Form 1040
+        line 19, asterisked); the mortgage interest credit (line 6g); and the adoption credit
+        (line 6c).
+
+        WHAT IS NOT ON THE LIST IS AS LOAD-BEARING AS WHAT IS: Schedule 3 line 5a, the residential
+        clean energy credit, is absent — 6h is ordered BEFORE 5a, and Form 5695's own Part I limit
+        worksheet confirms it from the other side by carrying a 6h term this one does not carry a 5a
+        term for. Line 6h itself is absent too, as every self-referential worksheet's list is.
+        Non-circular by the same argument the three sibling worksheets make: none of these twelve
+        terms depends on /sched3Line6h.
+
+        THE CTC/ODC TERM CARRIES THE "only if allowed and taken" IsComplete GATE the worksheet's own
+        Note directs, the same wrapper the Form 5695, Form 8396 and Form 8839 worksheets use, so a
+        return whose dependent-credit facts are Incomplete enters 0 rather than propagating
+        Incompleteness into Schedule 3 line 6h and total tax.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/sched3Line6l" />
+          <Dependency module="schedule3" path="/sched3Line1" />
+          <Dependency module="cdcc" path="/cdccTotalCredit" />
+          <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+          <Dependency module="schedule3" path="/sched3Line3" />
+          <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+          <Dependency module="schedule3" path="/sched3Line5b" />
+          <Dependency module="schedule3" path="/sched3Line6m" />
+          <Dependency module="schedule3" path="/sched3Line6f" />
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency module="ctcOdc" path="/totalCtcAndOdc" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency module="ctcOdc" path="/totalCtcAndOdc" />
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Dependency module="schedule3" path="/sched3Line6g" />
+          <Dependency module="schedule3" path="/sched3Line6c" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8859TaxLiabilityLimitWorksheetLine2Wsb">
+      <Name>Form 8859 Tax Liability Limit Worksheet line 2 — the Credit Limit Worksheet B twin</Name>
+      <Description>/form8859TaxLiabilityLimitWorksheetLine2 with THREE substitutions, all of them
+        forced by the fact that this form is ordered LAST of the four Worksheet-B credits:
+
+        (1) the Form 1040 line 19 (CTC/ODC) term becomes
+        ctcOdc:/sched8812CreditLimitWorksheetBLine14 — that is the asterisk footnote printed at the
+        foot of Form 8859's own page, in the same words as on Forms 8396, 8839 and 5695;
+        (2) the Schedule 3 line 6g term becomes form8396:/mortgageInterestCreditWsb;
+        (3) the Schedule 3 line 6c term becomes form8839:/nonrefundableAdoptionCreditWsb.
+
+        SUBSTITUTIONS (2) AND (3) ARE THE PART THAT IS EASY TO GET WRONG, and form8839's own
+        Worksheet-B twin is the precedent: a Worksheet-B filer's Form 8396 and Form 8839 are
+        themselves figured under the same footnote, so reading the PUBLIC /sched3Line6g and
+        /sched3Line6c here would (a) be tax-wrong, because those selectors would hand back the
+        Worksheet-B values anyway on a trigger-true return and the plain values on a trigger-false
+        one — the wrong number in the one case this arm exists for — and (b) be mechanically a
+        cycle, because the public selectors read ctcOdc:/isCompletingCreditLimitWorksheetB, which
+        this arm is upstream of through worksheet line 15. The twins are pure "what would the credit
+        be under the Worksheet B ordering" facts and are downstream of nothing here.
+
+        Every other term is the same fact in the same order as the plain arm.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency module="schedule3" path="/sched3Line6l" />
+          <Dependency module="schedule3" path="/sched3Line1" />
+          <Dependency module="cdcc" path="/cdccTotalCredit" />
+          <Dependency module="elderlyAndDisabled" path="/totalEdc" />
+          <Dependency module="schedule3" path="/sched3Line3" />
+          <Dependency module="saversCredits" path="/qualifiedSaverCreditAmount" />
+          <Dependency module="schedule3" path="/sched3Line5b" />
+          <Dependency module="schedule3" path="/sched3Line6m" />
+          <Dependency module="schedule3" path="/sched3Line6f" />
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency module="ctcOdc" path="/sched8812CreditLimitWorksheetBLine14" />
+                </IsComplete>
+              </When>
+              <Then>
+                <Dependency module="ctcOdc" path="/sched8812CreditLimitWorksheetBLine14" />
+              </Then>
+            </Case>
+            <Case>
+              <When><True /></When>
+              <Then><Dollar>0</Dollar></Then>
+            </Case>
+          </Switch>
+          <Dependency module="form8396" path="/mortgageInterestCreditWsb" />
+          <Dependency module="form8839" path="/nonrefundableAdoptionCreditWsb" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8859TaxLiabilityLimit">
+      <Name>Limitation based on tax liability (Form 8859 line 2)</Name>
+      <Description>Form 8859 line 2, from the Tax Liability Limit Worksheet: worksheet line 1 (the
+        tax liability before the application of credits, Form 1040 line 18, taxCalculations
+        /totalTentativeTax) minus worksheet line 2 (/form8859TaxLiabilityLimitWorksheetLine2),
+        floored at 0 — "If zero or less, enter -0- here and on Form 8859, lines 2 and 3".</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8859TaxLiabilityLimitWorksheetLine2" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8859TaxLiabilityLimitWsb">
+      <Name>Limitation based on tax liability (Form 8859 line 2) — the Credit Limit Worksheet B twin</Name>
+      <Description>/form8859TaxLiabilityLimit computed from
+        /form8859TaxLiabilityLimitWorksheetLine2Wsb: Form 1040 line 18 minus the worksheet's line 2
+        with the three Worksheet-B substitutions, floored at 0. Identical shape to the plain arm;
+        only the subtrahend differs.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="taxCalculations" path="/totalTentativeTax" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/form8859TaxLiabilityLimitWorksheetLine2Wsb" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dcFirstTimeHomebuyerCreditWsb">
+      <Name>DC first-time homebuyer credit — the Credit Limit Worksheet B twin (Form 8859 line 3)</Name>
+      <Description>Form 8859 line 3 computed on the Worksheet B arm: the smaller of line 1 (the
+        carryforward) and the twin line-2 limit. This is the value Credit Limit Worksheet B line 15
+        takes for Schedule 3 line 6h, and it is the value the public /dcFirstTimeHomebuyerCredit
+        selects when the filer is completing Worksheet B.
+
+        IT IS NOT ITSELF GATED ON THE TRIGGER, deliberately, exactly as
+        form8396:/mortgageInterestCreditWsb is not: the selector below owns that choice, so this
+        fact stays a pure "what would the credit be under the Worksheet B ordering" and can be read
+        by ctcOdc's worksheet line 15 without the selector — and therefore without the trigger, and
+        therefore without a cycle — appearing anywhere in its cone. It IS gated on the input, so a
+        return with no Form 8859 resolves 0 without evaluating the limit chain.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/dcFirstTimeHomebuyerCreditIsActive" />
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="/writableDcFirstTimeHomebuyerCreditCarryforwardFromPriorTaxYear" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Dependency path="/form8859TaxLiabilityLimitWsb" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/dcFirstTimeHomebuyerCredit">
+      <Name>DC first-time homebuyer credit carryforward (Form 8859 line 3 → Schedule 3 line 6h)</Name>
+      <Description>Form 8859 line 3 = the smaller of line 1 (the carryforward) and line 2 (the tax
+        liability limit), "Include this amount on Schedule 3 (Form 1040), line 6h". Nonrefundable.
+
+        A SELECTOR OVER TWO ARMS, and the arm order is the whole point — the shape all three sibling
+        bridge credits already have. The FIRST Case asks ctcOdc:/isCompletingCreditLimitWorksheetB —
+        Credit Limit Worksheet A line 3's trigger — and returns /dcFirstTimeHomebuyerCreditWsb, the
+        twin whose line-2 limit subtracts Credit Limit Worksheet B line 14 in place of Form 1040
+        line 19 (and the 6g/6c twins in place of the public lines). The remaining Cases are the
+        plain arm. So this fact is strictly DOWNSTREAM of both arms and neither arm is downstream of
+        it; ctcOdc's worksheet line 15 reads the TWIN, never this path, which is what keeps
+        /sched8812CreditLimit acyclic.
+
+        COMPLETE-SAFE: with no Form 8859 input the else branch yields 0 WITHOUT evaluating either
+        limit chain, so every prior scenario keeps /sched3Line6h (new, and 0 everywhere),
+        /line8OfSchedule3 and total tax byte-identical.
+
+        THE REGRESSION NET CANNOT VALIDATE EITHER ARM and that is stated rather than discovered: no
+        committed scenario answers the carryforward, and the Worksheet-B population across the
+        baseline corpus is empty. tests/nodes/ty2025/form8859/*
+        are the entire evidence surface.</Description>
+      <Export mef="true" downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="ctcOdc" path="/isCompletingCreditLimitWorksheetB" />
+            </When>
+            <Then>
+              <Dependency path="/dcFirstTimeHomebuyerCreditWsb" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Dependency path="/dcFirstTimeHomebuyerCreditIsActive" />
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="/writableDcFirstTimeHomebuyerCreditCarryforwardFromPriorTaxYear" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Dependency path="/form8859TaxLiabilityLimit" />
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>0</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/form8859CreditCarryforwardTo2026">
+      <Name>DC first-time homebuyer credit carryforward to 2026 (Form 8859 line 4)</Name>
+      <Description>Form 8859 line 4 = line 1 minus line 3: the part of the 2024 carryforward that this year's tax liability limit left unused, which the filer carries to 2026. No floor is needed because line 3 is a LesserOf against line 1, so the difference can never be negative. It is the figure next year's Form 8859 line 1 transcribes, and the only Part of this form the graph did not yet compute.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <GreaterOf>
+              <Dependency path="/writableDcFirstTimeHomebuyerCreditCarryforwardFromPriorTaxYear" />
+              <Dollar>0</Dollar>
+            </GreaterOf>
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/dcFirstTimeHomebuyerCredit" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8859Line2Printed">
+      <Name>Form 8859 line 2 as printed: the limitation based on tax liability on whichever arm applies</Name>
+      <Description>Form 8859 line 2, which is also line 3 of the Tax Liability Limit Worksheet printed below the form: the tax liability limit on the District of Columbia first time homebuyer credit carryforward. The dictionary computes it twice, /form8859TaxLiabilityLimit on the plain Form 1040 line 19 path and /form8859TaxLiabilityLimitWsb on the Credit Limit Worksheet B path. This fact is the printed value, selected by ctcOdc:/isCompletingCreditLimitWorksheetB, the same selector /dcFirstTimeHomebuyerCredit already applies one line below.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="ctcOdc" path="/isCompletingCreditLimitWorksheetB" />
+            </When>
+            <Then>
+              <Dependency path="/form8859TaxLiabilityLimitWsb" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8859TaxLiabilityLimit" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/form8859TaxLiabilityLimitWorksheetLine2Printed">
+      <Name>Form 8859 Tax Liability Limit Worksheet line 2 as printed</Name>
+      <Description>The Form 8859 Tax Liability Limit Worksheet line 2 total of the credits and adjustments ordered ahead of the District of Columbia first time homebuyer credit. The dictionary computes it twice: the plain arm reads Form 1040 line 19 (/form8859TaxLiabilityLimitWorksheetLine2) and the Worksheet B arm reads Credit Limit Worksheet B line 14 in its place (/form8859TaxLiabilityLimitWorksheetLine2Wsb), which is what the asterisk footnote printed under the worksheet directs. This fact is the printed value, selected by ctcOdc:/isCompletingCreditLimitWorksheetB.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="ctcOdc" path="/isCompletingCreditLimitWorksheetB" />
+            </When>
+            <Then>
+              <Dependency path="/form8859TaxLiabilityLimitWorksheetLine2Wsb" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/form8859TaxLiabilityLimitWorksheetLine2" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

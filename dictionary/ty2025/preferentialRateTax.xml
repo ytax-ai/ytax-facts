@@ -1,0 +1,2299 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+    <Fact path="/qualDivCapGain0RateMax">
+      <Name>Maximum zero-rate amount (QDCG worksheet line 6)</Name>
+      <Description>The top of the 0% capital-gains/qualified-dividends bracket by filing status
+        (worksheet line 6).</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Any>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+            </Any></When>
+            <Then><Dollar>96700</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusHOH" /></When>
+            <Then><Dollar>64750</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>48350</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualDivCapGain15RateMax">
+      <Name>Maximum 15-percent-rate amount (QDCG worksheet line 13)</Name>
+      <Description>The top of the 15% capital-gains/qualified-dividends bracket by filing status
+        (worksheet line 13); above it the rate is 20%.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When><Any>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+              <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+            </Any></When>
+            <Then><Dollar>600050</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusHOH" /></When>
+            <Then><Dollar>566700</Dollar></Then>
+          </Case>
+          <Case>
+            <When><Dependency module="filingStatus" path="/isFilingStatusMFS" /></When>
+            <Then><Dollar>300000</Dollar></Then>
+          </Case>
+          <Case>
+            <When><True /></When>
+            <Then><Dollar>533400</Dollar></Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/qdcgLine1">
+      <Name>QDCG worksheet line 1 (taxable income)</Name>
+      <Description>Form 1040 line 15 (taxable income).</Description>
+      <Derived><Dependency module="taxCalculations" path="/taxableIncome" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine2">
+      <Name>QDCG worksheet line 2 (qualified dividends)</Name>
+      <Description>Form 1040 line 3a (qualified dividends).</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency module="income" path="/qualifiedDividends" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine3">
+      <Name>QDCG worksheet line 3 (net capital gain)</Name>
+      <Description>Smaller of Schedule D line 15 or 16, 0 if either is blank or a loss — i.e. the
+        net capital gain. Modeled as /scheduleD/netCapitalGain.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Dependency module="scheduleD" path="/netCapitalGain" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine4">
+      <Name>QDCG worksheet line 4</Name>
+      <Description>Add lines 2 and 3 (the preferential-rate income).</Description>
+      <Export downstreamFacts="true" />
+      <Derived><Add>
+        <Dependency path="/qdcgLine2" />
+        <Dependency path="/qdcgLine3" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine5">
+      <Name>QDCG worksheet line 5 (ordinary-income slice)</Name>
+      <Description>Subtract line 4 from line 1; if zero or less, enter 0. The portion of taxable
+        income taxed at ordinary rates.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><GreaterOf>
+        <Subtract>
+          <Minuend><Dependency path="/qdcgLine1" /></Minuend>
+          <Subtrahends><Dependency path="/qdcgLine4" /></Subtrahends>
+        </Subtract>
+        <Dollar>0</Dollar>
+      </GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine6">
+      <Name>QDCG worksheet line 6 (0% breakpoint)</Name>
+      <Description>Maximum zero-rate amount for the filing status.</Description>
+      <Derived><Dependency path="/qualDivCapGain0RateMax" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine7">
+      <Name>QDCG worksheet line 7</Name>
+      <Description>Smaller of line 1 or line 6.</Description>
+      <Derived><LesserOf>
+        <Dependency path="/qdcgLine1" />
+        <Dependency path="/qdcgLine6" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine8">
+      <Name>QDCG worksheet line 8</Name>
+      <Description>Smaller of line 5 or line 7.</Description>
+      <Derived><LesserOf>
+        <Dependency path="/qdcgLine5" />
+        <Dependency path="/qdcgLine7" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine9">
+      <Name>QDCG worksheet line 9 (amount taxed at 0%)</Name>
+      <Description>Subtract line 8 from line 7. This amount is taxed at 0%.</Description>
+      <Derived><Subtract>
+        <Minuend><Dependency path="/qdcgLine7" /></Minuend>
+        <Subtrahends><Dependency path="/qdcgLine8" /></Subtrahends>
+      </Subtract></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine10">
+      <Name>QDCG worksheet line 10</Name>
+      <Description>Smaller of line 1 or line 4.</Description>
+      <Derived><LesserOf>
+        <Dependency path="/qdcgLine1" />
+        <Dependency path="/qdcgLine4" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine11">
+      <Name>QDCG worksheet line 11</Name>
+      <Description>Amount from line 9.</Description>
+      <Derived><Dependency path="/qdcgLine9" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine12">
+      <Name>QDCG worksheet line 12</Name>
+      <Description>Subtract line 11 from line 10.</Description>
+      <Derived><Subtract>
+        <Minuend><Dependency path="/qdcgLine10" /></Minuend>
+        <Subtrahends><Dependency path="/qdcgLine11" /></Subtrahends>
+      </Subtract></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine13">
+      <Name>QDCG worksheet line 13 (15% breakpoint)</Name>
+      <Description>Maximum 15%-rate amount for the filing status.</Description>
+      <Derived><Dependency path="/qualDivCapGain15RateMax" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine14">
+      <Name>QDCG worksheet line 14</Name>
+      <Description>Smaller of line 1 or line 13.</Description>
+      <Derived><LesserOf>
+        <Dependency path="/qdcgLine1" />
+        <Dependency path="/qdcgLine13" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine15">
+      <Name>QDCG worksheet line 15</Name>
+      <Description>Add lines 5 and 9.</Description>
+      <Derived><Add>
+        <Dependency path="/qdcgLine5" />
+        <Dependency path="/qdcgLine9" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine16">
+      <Name>QDCG worksheet line 16</Name>
+      <Description>Subtract line 15 from line 14; if zero or less, enter 0.</Description>
+      <Derived><GreaterOf>
+        <Subtract>
+          <Minuend><Dependency path="/qdcgLine14" /></Minuend>
+          <Subtrahends><Dependency path="/qdcgLine15" /></Subtrahends>
+        </Subtract>
+        <Dollar>0</Dollar>
+      </GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine17">
+      <Name>QDCG worksheet line 17 (amount taxed at 15%)</Name>
+      <Description>Smaller of line 12 or line 16.</Description>
+      <Derived><LesserOf>
+        <Dependency path="/qdcgLine12" />
+        <Dependency path="/qdcgLine16" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine18">
+      <Name>QDCG worksheet line 18 (tax at 15%)</Name>
+      <Description>Multiply line 17 by 15% (0.15).</Description>
+      <Derived><Multiply>
+        <Rational>15/100</Rational>
+        <Dependency path="/qdcgLine17" />
+      </Multiply></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine19">
+      <Name>QDCG worksheet line 19</Name>
+      <Description>Add lines 9 and 17.</Description>
+      <Derived><Add>
+        <Dependency path="/qdcgLine9" />
+        <Dependency path="/qdcgLine17" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine20">
+      <Name>QDCG worksheet line 20 (amount taxed at 20%)</Name>
+      <Description>Subtract line 19 from line 10.</Description>
+      <Derived><Subtract>
+        <Minuend><Dependency path="/qdcgLine10" /></Minuend>
+        <Subtrahends><Dependency path="/qdcgLine19" /></Subtrahends>
+      </Subtract></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine21">
+      <Name>QDCG worksheet line 21 (tax at 20%)</Name>
+      <Description>Multiply line 20 by 20% (0.20).</Description>
+      <Derived><Multiply>
+        <Rational>20/100</Rational>
+        <Dependency path="/qdcgLine20" />
+      </Multiply></Derived>
+    </Fact>
+
+    <Fact path="/worksheetOrdinaryIncomeRounded">
+      <Name>Rounded ordinary income (QDCG worksheet line 5)</Name>
+      <Description>The tax-table midpoint of /qdcgLine5 (the worksheet's ordinary-income slice), exactly as /roundedTaxableIncome does for /taxableIncome. Drives line 22 (tax on line 5). STRUCTURAL TWIN of /roundedTaxableIncome (no taxOnAmount primitive); keep in sync.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>5</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>2.50</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>15</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>10</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>25</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>3000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/qdcgLine5" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>25/25</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>12.50</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/qdcgLine5" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>50/50</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>25</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="/qdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/qdcgLine5" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ordinaryTaxOnWorksheetOrdinaryIncome">
+      <Name>Ordinary tax on the QDCG worksheet ordinary slice (line 22)</Name>
+      <Description>QDCG worksheet line 22: the tax-rate-schedule tax on the ordinary-income slice (line 5), figured with the Tax Table / Tax Computation Worksheet exactly as line 16 is. STRUCTURAL TWIN of /ordinaryTaxOnTaxableIncome (the frozen engine has no taxOnAmount(x) primitive, so the bracket Switch is duplicated with its input swapped to the line-5 slice). The two Switches MUST stay in sync; they are pinned together by bracket test cases and by the non-preferential identity (line 5 == line 1 ⇒ this == line 24).</Description>
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>10/100</Rational>
+                  <Dependency path="/worksheetOrdinaryIncomeRounded" />
+                </Multiply>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase12Pct" />
+                  <Multiply>
+                    <Rational>12/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/worksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase22Pct" />
+                  <Multiply>
+                    <Rational>22/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/worksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase24Pct" />
+                  <Multiply>
+                    <Rational>24/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/worksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase32Pct" />
+                  <Multiply>
+                    <Rational>32/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/worksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase35Pct" />
+                  <Multiply>
+                    <Rational>35/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/worksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left><Dependency path="/worksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase37Pct" />
+                  <Multiply>
+                    <Rational>37/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/worksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine22">
+      <Name>QDCG worksheet line 22 (tax on line 5)</Name>
+      <Description>Figure the tax on the amount on line 5 (Tax Table if &lt; $100,000, else Tax
+        Computation Worksheet) — i.e. /ordinaryTaxOnWorksheetOrdinaryIncome.</Description>
+      <Derived><Dependency path="/ordinaryTaxOnWorksheetOrdinaryIncome" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine23">
+      <Name>QDCG worksheet line 23 (worksheet tax)</Name>
+      <Description>Add lines 18, 21, and 22.</Description>
+      <Derived><Add>
+        <Dependency path="/qdcgLine18" />
+        <Dependency path="/qdcgLine21" />
+        <Dependency path="/qdcgLine22" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine24">
+      <Name>QDCG worksheet line 24 (tax on line 1)</Name>
+      <Description>Figure the tax on the amount on line 1 (full taxable income) — reuses
+        /ordinaryTaxOnTaxableIncome.</Description>
+      <Derived><Dependency module="taxCalculations" path="/ordinaryTaxOnTaxableIncome" /></Derived>
+    </Fact>
+
+    <Fact path="/qdcgLine25">
+      <Name>QDCG worksheet line 25 (tax on all taxable income)</Name>
+      <Description>The smaller of line 23 or line 24; this is Form 1040 line 16 when the
+        worksheet applies. Wired into /tentativeTaxFromTaxableIncome.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived><LesserOf>
+        <Dependency path="/qdcgLine23" />
+        <Dependency path="/qdcgLine24" />
+      </LesserOf></Derived>
+    </Fact>
+
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine1">
+      <Name>Foreign Earned Income Tax Worksheet line 1 (Form 1040 line 15)</Name>
+      <Description>Worksheet line 1: "Enter the amount from Form 1040 or 1040-SR, line 15"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37), i.e. taxable income.
+
+        THIS IS THE POST-EXCLUSION FIGURE AND THAT IS THE WHOLE POINT.
+        form2555 /schedule1Line8dForeignEarnedIncomeExclusion and
+        /schedule1Line24jHousingDeduction carry Form 2555 lines 45 and 50 into
+        income:/schedule1TotalOtherIncome and taxCalculations:/adjustmentsExcludingStudentLoanAndIra,
+        so on a gate-true return /taxableIncome is ALREADY reduced by the exclusion. A reader who
+        assumes line 15 is gross of the exclusion will build this line wrong and the worksheet
+        will subtract the exclusion twice.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (/taxableIncome is floored at
+        zero and rounded at its own line).</Description>
+      <Derived><Dependency module="taxCalculations" path="/taxableIncome" /></Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine2a">
+      <Name>Foreign Earned Income Tax Worksheet line 2a (Form 2555 lines 45 and 50)</Name>
+      <Description>Worksheet line 2a: "Enter the amount from your (and your spouse's if filing
+        jointly) Form 2555, lines 45 and 50" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37).
+
+        A ONE-TERM READ, ON PURPOSE. form2555
+        /form2555Lines45And50ForeignEarnedIncomeTaxWorksheetLine2a is a fact whose entire job is
+        to be this line: line 45 (the housing exclusion plus the foreign earned income exclusion,
+        NET of the line-44 deductions allocable to excluded income) plus line 50 (the housing
+        DEDUCTION). It is NOT form2555 /foreignEarnedIncomeExclusion911, which is section
+        911(a)(1) alone (Form 2555 line 42, for Form 8960 line 13), and it is NOT
+        /form2555Line43Section911TotalExclusions, which is Form 2441's figure and is GROSS of
+        line 44. Either substitution would silently drop a term.
+
+        THE NETTING TRAP: this figure ARRIVES already net of Form 2555 line 44, so line 2c below
+        subtracts ONLY line 2b. Line 2b is a DIFFERENT quantity — line 44 is above-the-line
+        deductions ALLOWED in figuring AGI, line 2b is deductions and exclusions DISALLOWED.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, SIGNED — Form 2555 line 45 prints no "if zero
+        or less, enter -0-" and can go negative when the allocable deductions exceed the
+        exclusions. The floor in this chain lives on line 2c, where the worksheet prints
+        it.</Description>
+      <Derived><Dependency module="form2555" path="/form2555Lines45And50ForeignEarnedIncomeTaxWorksheetLine2a" /></Derived>
+    </Fact>
+
+    <Fact path="/entersForeignEarnedIncomeTaxWorksheet">
+      <Name>Whether this return completes the Foreign Earned Income Tax Worksheet</Name>
+      <Description>The worksheet's own entry test, and the switch taxCalculations
+        /tentativeTaxFromTaxableIncome reads to route Form 1040 line 16 here. THREE conjuncts,
+        each printed:
+
+        1. THE POPULATION GATE — form2555 /filesForm2555ForeignEarnedIncomeExclusion. The
+        worksheet is reached only from Form 2555. Gating on it is also the safety property
+        form2555's own AGI-leg banner asks every consumer of the Form 2555 figures to supply or
+        justify: the three section-911 FIGURES are bare compositions of the complete-safe entry
+        aliases and are NOT gated, so a return that answers the amounts but leaves the
+        attestation unanswered would otherwise reach this worksheet with an /agi that never moved
+        — the exclusion subtracted nowhere, the rate stacking applied anyway. This conjunct is
+        why that cannot happen.
+
+        2. THE CAUTION — "If Form 1040 or 1040-SR, line 15, is zero, don't complete this
+        worksheet" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37). /taxableIncome is floored at
+        zero, so "is zero" and "is zero or less" are the same test here and GreaterThan 0 is it.
+
+        3. THE AMOUNT — Form 2555 line 45 and line 50 each end "Complete the Foreign Earned
+        Income Tax Worksheet in the Instructions for Form 1040 if you enter an amount on this
+        line" (https://www.irs.gov/pub/irs-pdf/f2555.pdf, page 3). So the worksheet
+        opens on an AMOUNT, not on the gate: a filer who files Form 2555 and excludes nothing
+        stays on the ordinary Form 1040 line-16 path.
+
+        THE ONE CORNER THIS CONJUNCT DOES NOT DISTINGUISH, disclosed rather than hidden: the
+        printed trigger is per-line (an amount on line 45 OR on line 50), and this fact tests
+        their SUM, because the sum is the only one of the three that form2555 exports. A return
+        with line 45 exactly equal to the negative of line 50 would print as "enter the amount"
+        on both lines and read as $0 here, so the worksheet would not be entered. It costs
+        nothing: with line 2a at $0 the worksheet's line 2c is $0, line 3 equals line 1, line 5
+        is the tax on $0, and line 6 reduces to the ordinary tax on taxable income — the exact
+        value the un-entered path already produces.
+
+        COMPLETE-SAFE FALSE ON AN UNANSWERED RETURN, and taxCalculations
+        /tentativeTaxFromTaxableIncome's byte-identity depends on it: the gate is itself an
+        IsComplete/Switch alias resolving Complete-false, /taxableIncome is Complete on every
+        return that has one, and line 2a is a composition of four complete-safe $0 aliases. All
+        three conjuncts are therefore Complete, so this fact is Complete false rather than
+        Incomplete, and adding it as the first Case of that Switch moves no committed
+        row.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <All>
+          <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+          <GreaterThan>
+            <Left>
+              <Dependency path="/foreignEarnedIncomeTaxWorksheetLine1" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </GreaterThan>
+          <NotEqual>
+            <Left>
+              <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2a" />
+            </Left>
+            <Right>
+              <Dollar>0</Dollar>
+            </Right>
+          </NotEqual>
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForeignEarnedIncomeTaxWorksheetLine2b">
+      <Name>Itemized deductions or exclusions the filer could not claim because they relate to excluded income (worksheet line 2b)</Name>
+      <Description>The taxpayer's worksheet line 2b entry: "Enter the total amount of any
+        itemized deductions or exclusions you couldn't claim because they are related to excluded
+        income" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37).
+
+        A WRITABLE RATHER THAN A COMPUTATION, AND RATHER THAN A HARD $0. The printed line asks
+        the filer for a total the return does not otherwise carry: it is the DISALLOWED half of
+        the allocation between excluded and non-excluded income, where Form 2555 line 44 is the
+        ALLOWED half (above-the-line deductions actually taken in figuring AGI). Nothing in this
+        dictionary computes it — no itemized-deduction allocation, no section 265 disallowance
+        trace — and the worksheet itself asks for it as an entry, exactly as it asks for line 2a.
+        A hard $0 would have been a silent claim that no such deductions exist, which is false
+        for the itemizing member of this population; an entry says the number is the filer's and
+        leaves the question askable (the application owes it, invariant #7).
+
+        NO CAP, NO CROSS-CHECK, and that matches the sibling Form 2555 entries in
+        dictionary/ty2025/form2555.xml: this is a faithful taxpayer entry, floored at zero
+        because the printed field is a "total amount" of deductions and a negative disallowance
+        is not a thing the line can hold. It is deliberately NOT reconciled against Form 2555
+        line 44 or against scheduleA — that reconciliation is a future addition, and the knockout
+        that refuses this whole population is what makes leaving it out a gap rather than a wrong
+        number.
+
+        Optional — unanswered gives /foreignEarnedIncomeTaxWorksheetLine2b $0.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine2b">
+      <Name>Foreign Earned Income Tax Worksheet line 2b, complete-safe</Name>
+      <Description>= /writableForeignEarnedIncomeTaxWorksheetLine2b when answered, else $0. The
+        IsComplete/Switch guard idiom; the writable is never read directly.
+
+        DIRECTION OF THE $0 TAIL: taxpayer-ADVERSE, i.e. the conservative direction. A short line
+        2b leaves line 2c HIGH, so line 3 is HIGH and line 4 is HIGH; line 5 rises too, but by
+        less, because the bracket schedule is convex — line 6 is
+        tax(line 1 + line 2c) minus tax(line 2c), whose increments over line 2c are differences
+        of marginal rates at line 1 + line 2c versus at line 2c, and those are non-negative. So
+        an unanswered line 2b OVER-states the rate-stacked tax rather than under-stating it, and
+        it keeps every committed scenario byte-identical, since no scenario answers it.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (the writable declares Min
+        0).</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableForeignEarnedIncomeTaxWorksheetLine2b" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableForeignEarnedIncomeTaxWorksheetLine2b" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine2c">
+      <Name>Foreign Earned Income Tax Worksheet line 2c (line 2a less line 2b, floored at zero)</Name>
+      <Description>Worksheet line 2c: "Subtract line 2b from line 2a. If zero or less, enter -0-"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37).
+
+        ONE SUBTRAHEND, AND ONLY ONE. Line 2a arrives ALREADY net of Form 2555 line 44, so
+        nothing derived from line 44 may be subtracted again here; the netting trap is named on
+        /foreignEarnedIncomeTaxWorksheetLine2a and on form2555
+        /form2555Lines45And50ForeignEarnedIncomeTaxWorksheetLine2a.
+
+        THIS IS WHERE THE CHAIN'S ONLY FLOOR LIVES, and it is printed here rather than on Form
+        2555 line 45 — line 45 deliberately carries no floor (see the fact), so a negative line
+        2a reaches this line and is floored to $0 exactly as the worksheet says.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2a" /></Minuend>
+            <Subtrahends><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2b" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine3">
+      <Name>Foreign Earned Income Tax Worksheet line 3 (line 1 plus line 2c)</Name>
+      <Description>Worksheet line 3: "Add lines 1 and 2c"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37). Taxable income with the excluded income
+        put back — the amount whose tax line 4 figures, and the amount the QDCGT and the Schedule
+        D Tax Worksheet substitute for their own line 1 when they are the route line 4 takes.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (both addends are).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Add>
+          <Dependency path="/foreignEarnedIncomeTaxWorksheetLine1" />
+          <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+        </Add>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine3Rounded">
+      <Name>Tax-table midpoint of Foreign Earned Income Tax Worksheet line 3</Name>
+      <Description>The tax-table midpoint of /foreignEarnedIncomeTaxWorksheetLine3, exactly as
+        /roundedTaxableIncome does for /taxableIncome and /worksheetOrdinaryIncomeRounded does
+        for /qdcgLine5. Drives worksheet line 4 (the tax on line 3).
+
+        STRUCTURAL TWIN of /worksheetOrdinaryIncomeRounded (the engine has no
+        taxOnAmount(x) primitive, so the row-width Switch is duplicated with its input swapped).
+        The three Switches MUST stay in sync. Pinned to its siblings by the degenerate identity
+        the node tests assert: when worksheet line 2c is $0, line 3 == line 1 == /taxableIncome,
+        so this fact == /roundedTaxableIncome and worksheet line 4 == /ordinaryTaxOnTaxableIncome.</Description>
+      
+
+<Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>5</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>2.50</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>15</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>10</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>25</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>3000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>25/25</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>12.50</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>50/50</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>25</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine4OrdinaryRoute">
+      <Name>Foreign Earned Income Tax Worksheet line 4 by the Tax Table / Tax Computation Worksheet (the unstarred route)</Name>
+      <Description>The tax-rate-schedule tax on worksheet line 3. /foreignEarnedIncomeTaxWorksheetLine4 is a selector over this fact.
+
+        IT HAS TWO CONSUMERS AND THAT IS WHY IT EXISTS SEPARATELY:
+        * /foreignEarnedIncomeTaxWorksheetLine4's Tax Table / Tax Computation Worksheet arm —
+          the unstarred routes of "Use the Tax Table, Tax Computation Worksheet, Qualified
+          Dividends and Capital Gain Tax Worksheet*, Schedule D Tax Worksheet*, or Form 8615,
+          whichever applies" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37);
+        * /feiQdcgLine24, the STARRED Qualified Dividends and Capital Gain Tax Worksheet's own
+          line 24 ("Figure the tax on the amount on line 1"), because that worksheet's line 1 is
+          the substituted Foreign Earned Income Tax Worksheet line 3 — the same amount this fact
+          already taxes. Reading line 24 off the selector instead would be a dependency cycle.
+
+        STRUCTURAL TWIN of /ordinaryTaxOnWorksheetOrdinaryIncome, which is itself the
+        twin of taxCalculations /ordinaryTaxOnTaxableIncome; /foreignEarnedIncomeTaxWorksheetLine5
+        and /ordinaryTaxOnFeiWorksheetOrdinaryIncome are the other two in this module. THE FOUR
+        SWITCHES IN THIS FILE MUST STAY IN SYNC.
+
+        ROUNDING: rounds at its own line, as the separately-figured tax it is; worksheet line 6
+        rounds again, idempotently.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>10/100</Rational>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" />
+                </Multiply>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase12Pct" />
+                  <Multiply>
+                    <Rational>12/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase22Pct" />
+                  <Multiply>
+                    <Rational>22/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase24Pct" />
+                  <Multiply>
+                    <Rational>24/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase32Pct" />
+                  <Multiply>
+                    <Rational>32/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase35Pct" />
+                  <Multiply>
+                    <Rational>35/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase37Pct" />
+                  <Multiply>
+                    <Rational>37/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3Rounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/feiCapitalGainExcess">
+      <Name>Capital gain excess (Foreign Earned Income Tax Worksheet starred footnote)</Name>
+      <Description>The starred footnote's capital gain excess: "To find out if you have a
+        capital gain excess, subtract Form 1040 or 1040-SR, line 15, from line 4 of your
+        Qualified Dividends and Capital Gain Tax Worksheet (line 10 of your Schedule D Tax
+        Worksheet). If the result is more than zero, that amount is your capital gain excess"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37).
+
+        WHAT IT MEASURES, in one sentence, because the name does not say it: the amount by which
+        the return's preferential-rate income exceeds its POST-exclusion taxable income. The
+        substituted line 1 is larger than Form 1040 line 15 by the excluded income, so without
+        this clawback the exclusion would shelter capital gain — the second worksheet would tax
+        preferential income that the return's actual taxable income cannot hold.
+
+        THE MINUEND IS PASS-1 LINE 4. /qdcgLine4 is the shipping worksheet's line 2 + line 3,
+        neither of which depends on line 1, so it is unchanged by the substitution and IS the
+        "line 4 of your Qualified Dividends and Capital Gain Tax Worksheet" the footnote means
+        after "complete the rest of that worksheet through line 4". Reading it off the MODIFIED
+        line 4 would be a cycle.
+
+        THE SUBTRAHEND IS FORM 1040 LINE 15 ITSELF, not worksheet line 3. /qdcgLine1 is the
+        module's own name for Form 1040 line 15 (= taxCalculations /taxableIncome); worksheet
+        line 3 is line 15 PLUS the excluded income and would make this quantity structurally
+        negative.
+
+        THE FLOOR IS THE FOOTNOTE'S "more than zero", and it is what lets the no-excess branch
+        share these facts: at zero excess the two modified lines below equal the unmodified
+        ones.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (floored here). Not rounded —
+        it is an intermediate of the worksheet's line 2 and line 3, which are themselves
+        unrounded amounts.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/qdcgLine4" /></Minuend>
+            <Subtrahends><Dependency path="/qdcgLine1" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/feiCapitalGainExcessNotUsedAgainstLine3">
+      <Name>Capital gain excess left over after modification (1)</Name>
+      <Description>Modification (2)'s "any of your capital gain excess not used in (1) above"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37). Modification (1) reduces QDCGT
+        line 3 by the excess but not below zero, so the amount it actually USES is the smaller
+        of the excess and line 3, and what is left over is excess minus line 3, floored at zero.
+
+        WHY THE ORDER IS LOAD-BEARING: the excess is absorbed against the net capital gain
+        FIRST and only the remainder touches qualified dividends. The footnote numbers the
+        modifications and (2) names (1); reversing them would move income between the 15%/20%
+        stack and the 0% stack in the wrong order on any return where both are present.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/feiCapitalGainExcess" /></Minuend>
+            <Subtrahends><Dependency path="/qdcgLine3" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine1">
+      <Name>Starred QDCGT line 1 (Foreign Earned Income Tax Worksheet line 3, substituted)</Name>
+      <Description>QDCGT line 1 on the second run: "However, if you are filing Form 2555
+        (relating to foreign earned income), enter the amount from line 3 of the Foreign Earned
+        Income Tax Worksheet" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 38). THIS
+        SUBSTITUTION IS THE WHOLE POINT OF THE SECOND LINEAGE — it is the only line that differs
+        from the shipping /qdcgLine1, and everything downstream differs only because of
+        it.</Description>
+      
+      <Derived><Dependency path="/foreignEarnedIncomeTaxWorksheetLine3" /></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine2">
+      <Name>Starred QDCGT line 2 (qualified dividends, reduced by modification (2))</Name>
+      <Description>QDCGT line 2, "Enter the amount from Form 1040 or 1040-SR, line 3a"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 38), as modified by the starred
+        footnote's modification (2): "Reduce (but not below zero) the amount you would otherwise
+        enter on line 2 of your Qualified Dividends and Capital Gain Tax Worksheet ... by any of
+        your capital gain excess not used in (1) above" (lines 2446-2447).
+
+        The printed line carries the footnote marker itself — "line 3a*" with "* If you are
+        filing Form 2555, see the footnote in the Foreign Earned Income Tax Worksheet before
+        completing this line" (line 2509) — so the modification is not an inference.
+
+        Collapses to the unmodified /qdcgLine2 when there is no excess.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/qdcgLine2" /></Minuend>
+            <Subtrahends><Dependency path="/feiCapitalGainExcessNotUsedAgainstLine3" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine3">
+      <Name>Starred QDCGT line 3 (net capital gain, reduced by modification (1))</Name>
+      <Description>QDCGT line 3, the net capital gain — "Enter the smaller of line 15 or line 16
+        of Schedule D. If either line 15 or line 16 is blank or a loss, enter -0-"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 38) — as modified by the starred
+        footnote's modification (1): "Reduce (but not below zero) the amount you would otherwise
+        enter on line 3 of your Qualified Dividends and Capital Gain Tax Worksheet ... by your
+        capital gain excess" (lines 2444-2445).
+
+        THE ONLY SCHEDULE D READ IN THIS WHOLE LINEAGE, and it is a READ: /qdcgLine3 is
+        scheduleD /netCapitalGain, i.e. Schedule D lines 15 and 16. Modifications (3) and (4)
+        touch Schedule D line 18 and the Unrecaptured Section 1250 Gain Worksheet, which are
+        inputs to the SCHEDULE D TAX WORKSHEET and to nothing here — see the block banner.
+
+        Collapses to the unmodified /qdcgLine3 when there is no excess.</Description>
+      
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend><Dependency path="/qdcgLine3" /></Minuend>
+            <Subtrahends><Dependency path="/feiCapitalGainExcess" /></Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine4">
+      <Name>Starred QDCGT line 4</Name>
+      <Description>Add lines 2 and 3 (the preferential-rate income, after the modifications).
+        NOT the pass-1 line 4 the excess is measured against — that is the shipping /qdcgLine4;
+        see /feiCapitalGainExcess.</Description>
+      
+      <Derived><Add>
+        <Dependency path="/feiQdcgLine2" />
+        <Dependency path="/feiQdcgLine3" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine5">
+      <Name>Starred QDCGT line 5 (ordinary-income slice)</Name>
+      <Description>Subtract line 4 from line 1; if zero or less, enter 0.</Description>
+      
+      <Derived><GreaterOf>
+        <Subtract>
+          <Minuend><Dependency path="/feiQdcgLine1" /></Minuend>
+          <Subtrahends><Dependency path="/feiQdcgLine4" /></Subtrahends>
+        </Subtract>
+        <Dollar>0</Dollar>
+      </GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine6">
+      <Name>Starred QDCGT line 6 (0% breakpoint)</Name>
+      <Description>Maximum zero-rate amount for the filing status. The breakpoints are
+        properties of the return, not of the worksheet's line 1, so this line is the same
+        constant the shipping /qdcgLine6 reads.</Description>
+      
+      <Derived><Dependency path="/qualDivCapGain0RateMax" /></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine7">
+      <Name>Starred QDCGT line 7</Name>
+      <Description>Smaller of line 1 or line 6.</Description>
+      
+      <Derived><LesserOf>
+        <Dependency path="/feiQdcgLine1" />
+        <Dependency path="/feiQdcgLine6" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine8">
+      <Name>Starred QDCGT line 8</Name>
+      <Description>Smaller of line 5 or line 7.</Description>
+      
+      <Derived><LesserOf>
+        <Dependency path="/feiQdcgLine5" />
+        <Dependency path="/feiQdcgLine7" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine9">
+      <Name>Starred QDCGT line 9 (amount taxed at 0%)</Name>
+      <Description>Subtract line 8 from line 7. This amount is taxed at 0%.</Description>
+      
+      <Derived><Subtract>
+        <Minuend><Dependency path="/feiQdcgLine7" /></Minuend>
+        <Subtrahends><Dependency path="/feiQdcgLine8" /></Subtrahends>
+      </Subtract></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine10">
+      <Name>Starred QDCGT line 10</Name>
+      <Description>Smaller of line 1 or line 4.</Description>
+      
+      <Derived><LesserOf>
+        <Dependency path="/feiQdcgLine1" />
+        <Dependency path="/feiQdcgLine4" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine11">
+      <Name>Starred QDCGT line 11</Name>
+      <Description>Amount from line 9.</Description>
+      
+      <Derived><Dependency path="/feiQdcgLine9" /></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine12">
+      <Name>Starred QDCGT line 12</Name>
+      <Description>Subtract line 11 from line 10.</Description>
+      
+      <Derived><Subtract>
+        <Minuend><Dependency path="/feiQdcgLine10" /></Minuend>
+        <Subtrahends><Dependency path="/feiQdcgLine11" /></Subtrahends>
+      </Subtract></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine13">
+      <Name>Starred QDCGT line 13 (15% breakpoint)</Name>
+      <Description>Maximum 15%-rate amount for the filing status.</Description>
+      
+      <Derived><Dependency path="/qualDivCapGain15RateMax" /></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine14">
+      <Name>Starred QDCGT line 14</Name>
+      <Description>Smaller of line 1 or line 13.</Description>
+      
+      <Derived><LesserOf>
+        <Dependency path="/feiQdcgLine1" />
+        <Dependency path="/feiQdcgLine13" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine15">
+      <Name>Starred QDCGT line 15</Name>
+      <Description>Add lines 5 and 9.</Description>
+      
+      <Derived><Add>
+        <Dependency path="/feiQdcgLine5" />
+        <Dependency path="/feiQdcgLine9" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine16">
+      <Name>Starred QDCGT line 16</Name>
+      <Description>Subtract line 15 from line 14; if zero or less, enter 0.</Description>
+      
+      <Derived><GreaterOf>
+        <Subtract>
+          <Minuend><Dependency path="/feiQdcgLine14" /></Minuend>
+          <Subtrahends><Dependency path="/feiQdcgLine15" /></Subtrahends>
+        </Subtract>
+        <Dollar>0</Dollar>
+      </GreaterOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine17">
+      <Name>Starred QDCGT line 17 (amount taxed at 15%)</Name>
+      <Description>Smaller of line 12 or line 16.</Description>
+      
+      <Derived><LesserOf>
+        <Dependency path="/feiQdcgLine12" />
+        <Dependency path="/feiQdcgLine16" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine18">
+      <Name>Starred QDCGT line 18 (tax at 15%)</Name>
+      <Description>Multiply line 17 by 15% (0.15).</Description>
+      
+      <Derived><Multiply>
+        <Rational>15/100</Rational>
+        <Dependency path="/feiQdcgLine17" />
+      </Multiply></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine19">
+      <Name>Starred QDCGT line 19</Name>
+      <Description>Add lines 9 and 17.</Description>
+      
+      <Derived><Add>
+        <Dependency path="/feiQdcgLine9" />
+        <Dependency path="/feiQdcgLine17" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine20">
+      <Name>Starred QDCGT line 20 (amount taxed at 20%)</Name>
+      <Description>Subtract line 19 from line 10.</Description>
+      
+      <Derived><Subtract>
+        <Minuend><Dependency path="/feiQdcgLine10" /></Minuend>
+        <Subtrahends><Dependency path="/feiQdcgLine19" /></Subtrahends>
+      </Subtract></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine21">
+      <Name>Starred QDCGT line 21 (tax at 20%)</Name>
+      <Description>Multiply line 20 by 20% (0.20).</Description>
+      
+      <Derived><Multiply>
+        <Rational>20/100</Rational>
+        <Dependency path="/feiQdcgLine20" />
+      </Multiply></Derived>
+    </Fact>
+
+    <Fact path="/feiWorksheetOrdinaryIncomeRounded">
+      <Name>Rounded ordinary income (starred QDCGT line 5)</Name>
+      <Description>The tax-table midpoint of /feiQdcgLine5 (the starred worksheet's
+        ordinary-income slice), exactly as /worksheetOrdinaryIncomeRounded does for /qdcgLine5.
+        Drives the starred line 22 (tax on line 5). STRUCTURAL TWIN of
+        /worksheetOrdinaryIncomeRounded (no taxOnAmount primitive); keep in
+        sync.</Description>
+      
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>5</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>2.50</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>15</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>10</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>25</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>3000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/feiQdcgLine5" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>25/25</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>12.50</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/feiQdcgLine5" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>50/50</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>25</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="/feiQdcgLine5" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/feiQdcgLine5" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/ordinaryTaxOnFeiWorksheetOrdinaryIncome">
+      <Name>Ordinary-rate tax on the starred QDCGT's line 5</Name>
+      <Description>The tax-rate-schedule tax on /feiWorksheetOrdinaryIncomeRounded, i.e. the
+        starred worksheet's line 22. STRUCTURAL TWIN of /ordinaryTaxOnWorksheetOrdinaryIncome, which is itself the twin of taxCalculations /ordinaryTaxOnTaxableIncome and of
+        /foreignEarnedIncomeTaxWorksheetLine4OrdinaryRoute and
+        /foreignEarnedIncomeTaxWorksheetLine5 in this module. THE FOUR SWITCHES IN THIS FILE
+        MUST STAY IN SYNC, and the bracket schedule below is
+        character for character the one on /ordinaryTaxOnWorksheetOrdinaryIncome with the input
+        re-pointed.</Description>
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>10/100</Rational>
+                  <Dependency path="/feiWorksheetOrdinaryIncomeRounded" />
+                </Multiply>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase12Pct" />
+                  <Multiply>
+                    <Rational>12/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase22Pct" />
+                  <Multiply>
+                    <Rational>22/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase24Pct" />
+                  <Multiply>
+                    <Rational>24/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase32Pct" />
+                  <Multiply>
+                    <Rational>32/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase35Pct" />
+                  <Multiply>
+                    <Rational>35/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase37Pct" />
+                  <Multiply>
+                    <Rational>37/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/feiWorksheetOrdinaryIncomeRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine22">
+      <Name>Starred QDCGT line 22 (tax on line 5)</Name>
+      <Description>Figure the tax on the amount on line 5 (Tax Table if &lt; $100,000, else Tax
+        Computation Worksheet) — i.e. /ordinaryTaxOnFeiWorksheetOrdinaryIncome.</Description>
+      
+      <Derived><Dependency path="/ordinaryTaxOnFeiWorksheetOrdinaryIncome" /></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine23">
+      <Name>Starred QDCGT line 23 (worksheet tax)</Name>
+      <Description>Add lines 18, 21, and 22.</Description>
+      
+      <Derived><Add>
+        <Dependency path="/feiQdcgLine18" />
+        <Dependency path="/feiQdcgLine21" />
+        <Dependency path="/feiQdcgLine22" />
+      </Add></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine24">
+      <Name>Starred QDCGT line 24 (tax on line 1)</Name>
+      <Description>Figure the tax on the amount on line 1. Line 1 here is the SUBSTITUTED line
+        1 — Foreign Earned Income Tax Worksheet line 3 — so this line is exactly
+        /foreignEarnedIncomeTaxWorksheetLine4OrdinaryRoute, the unstarred route's own answer,
+        and no fifth copy of the bracket schedule is needed.
+
+        THIS IS WHY THE UNSTARRED ROUTE HAD TO BE EXTRACTED FROM
+        /foreignEarnedIncomeTaxWorksheetLine4 rather than read off it: that fact is now the
+        SELECTOR between the two routes, and a starred line 24 pointing at the selector would
+        be a cycle.</Description>
+      
+      <Derived><Dependency path="/foreignEarnedIncomeTaxWorksheetLine4OrdinaryRoute" /></Derived>
+    </Fact>
+
+    <Fact path="/feiQdcgLine25">
+      <Name>Starred QDCGT line 25 — the tax the Foreign Earned Income Tax Worksheet puts on its line 4</Name>
+      <Description>The smaller of line 23 or line 24. The printed line names this worksheet's
+        destination explicitly: "If you are filing Form 2555, don't enter this amount on the
+        entry space on Form 1040 or 1040-SR, line 16. Instead, enter it on line 4 of the Foreign
+        Earned Income Tax Worksheet" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 38).
+
+        THE COLLAPSE THAT MAKES THIS SAFE AS THE DEFAULT ARM of
+        /foreignEarnedIncomeTaxWorksheetLine4: with lines 2 and 3 both zero, line 4 is zero,
+        line 5 equals line 1, line 8 equals line 7 so line 9 is zero, line 10 is zero and lines
+        11, 12, 17, 18, 19, 20, 21 follow it to zero — leaving line 23 = line 22 = the tax on
+        line 1 = line 24, so line 25 IS line 24. A return with no qualified dividends and no net
+        capital gain therefore gets the unstarred route's exact number through this arm, which
+        is the same argument taxCalculations /tentativeTaxFromTaxableIncome makes for its own
+        default arm.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE. UNROUNDED — line 18 and line 21
+        are rate products and the worksheet rounds at its destination, which for this run is
+        Foreign Earned Income Tax Worksheet line 4.</Description>
+      
+      <Derived><LesserOf>
+        <Dependency path="/feiQdcgLine23" />
+        <Dependency path="/feiQdcgLine24" />
+      </LesserOf></Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine4">
+      <Name>Foreign Earned Income Tax Worksheet line 4 (the tax on line 3)</Name>
+      <Description>Worksheet line 4: "Figure the tax on the amount on line 3. Use the Tax Table,
+        Tax Computation Worksheet, Qualified Dividends and Capital Gain Tax Worksheet*, Schedule
+        D Tax Worksheet*, or Form 8615, whichever applies. See the instructions for Form 1040 or
+        1040-SR, line 16, to see which tax computation method applies"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37). This fact is the SELECTOR among
+        those routes; each route's arithmetic lives in its own fact.
+
+        THE SWITCH, ARM BY ARM, and the shape is deliberately the same one taxCalculations
+        /tentativeTaxFromTaxableIncome uses for Form 1040 line 16, because line 4 is asking the
+        same question about the same return. BOTH ARMS COMPUTE; neither is an upper bound
+        and no route of this line is refused:
+        * ARM 1 fires on scheduleD /useScheduleDTaxWorksheet — the Schedule D Tax Worksheet's own
+          printed entry test — and takes scheduleD /feiScheduleDTaxWorksheetTax, the STARRED
+          SCHEDULE D TAX WORKSHEET run on the substituted line 1 with all four of the footnote's
+          modifications. The lineage and its block banner live in
+          dictionary/ty2025/scheduleD.xml, where the worksheet it copies lives, because
+          modifications (3) and (4) rewrite Schedule D's own lines 18 and 19.
+        * ARM 2, the default, takes /feiQdcgLine25 — the STARRED Qualified Dividends and Capital
+          Gain Tax Worksheet, run on the substituted line 1 with the footnote's modifications
+          (1) and (2). See the block banner above /feiCapitalGainExcess.
+
+        WHY THE DEFAULT ARM DOES NOT NEED A "has preferential income" TEST, which is the one
+        thing a reader will want to add: with /qdcgLine2 and /qdcgLine3 both zero the starred
+        QDCGT collapses term by term to the tax on its own line 1, i.e. to
+        /foreignEarnedIncomeTaxWorksheetLine4OrdinaryRoute (the argument is written out on
+        /feiQdcgLine25). So a return with neither qualified dividends nor a net capital gain
+        gets the unstarred route's exact number through arm 2, and adding a gate would only
+        re-derive it. Form 8615's GATE ships as form8615:/mustFileForm8615 (a knockout: the child's
+        return is refused, not computed here); the computation itself — the child's tax at the parent's
+        rate — is not built, so no route of this line ever selects it.
+
+        ROUNDING: the Round wraps the Switch, so it lands on whichever arm fires, and
+        it is the real rounding point on BOTH arms. /feiQdcgLine25 and scheduleD
+        /feiScheduleDTaxWorksheetTax are each deliberately unrounded, because each one's PRINTED
+        destination is this line — "don't enter this amount on the entry space on Form 1040 or
+        1040-SR, line 16. Instead, enter it on line 4 of the Foreign Earned Income Tax
+        Worksheet" appears at the foot of both worksheets
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 38 and
+        https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 16) — exactly as the shipping
+        /qdcgLine25 and scheduleD /scheduleDTaxWorksheetTax send theirs to Form 1040 line 16 and
+        are rounded there. Anyone who adds a Round to either of those two facts double-rounds a
+        Form 2555 return's tax.</Description>
+      
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency module="scheduleD" path="/useScheduleDTaxWorksheet" />
+              </When>
+              <Then>
+                <Dependency module="scheduleD" path="/feiScheduleDTaxWorksheetTax" />
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dependency path="/feiQdcgLine25" />
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine2cRounded">
+      <Name>Tax-table midpoint of Foreign Earned Income Tax Worksheet line 2c</Name>
+      <Description>The tax-table midpoint of /foreignEarnedIncomeTaxWorksheetLine2c. Drives worksheet
+        line 5 (the tax on line 2c).
+
+        THE $100,000 SPLIT THIS FACT ENCODES IS PRINTED ON WORKSHEET LINE 5 ITSELF, which is the
+        one place the worksheet states the Tax Table / Tax Computation Worksheet boundary in its
+        own words: "If the amount on line 2c is less than $100,000, use the Tax Table to figure
+        this tax. If the amount on line 2c is $100,000 or more, use the Tax Computation Worksheet"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37). The generic twin already had that
+        boundary; line 5 is the printed authority for it.
+
+        STRUCTURAL TWIN of /worksheetOrdinaryIncomeRounded. The three Switches MUST stay in
+        sync.</Description>
+      
+
+<Derived>
+        <Switch>
+          <Case>
+            <When>
+              <LessThanOrEqual>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  <Dollar>0</Dollar>
+                </Right>
+              </LessThanOrEqual>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>5</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>2.50</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>15</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>10</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>25</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              
+              <Dollar>20</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>3000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>25/25</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>12.50</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <LessThan>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </LessThan>
+            </When>
+            <Then>
+              <Add>
+                <StepwiseMultiply>
+                  <Multiplicand>
+                    <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                  </Multiplicand>
+                  <Rate>
+                    <Rational>50/50</Rational>
+                  </Rate>
+                </StepwiseMultiply>
+                
+                <Dollar>25</Dollar>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <GreaterThanOrEqual>
+                <Left>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+                </Left>
+                <Right>
+                  
+                  <Dollar>100000</Dollar>
+                </Right>
+              </GreaterThanOrEqual>
+            </When>
+            <Then>
+              <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2c" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetLine5">
+      <Name>Foreign Earned Income Tax Worksheet line 5 (the tax on line 2c)</Name>
+      <Description>Worksheet line 5: "Figure the tax on the amount on line 2c. If the amount on line 2c
+        is less than $100,000, use the Tax Table to figure this tax. If the amount on line 2c is
+        $100,000 or more, use the Tax Computation Worksheet"
+        (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37).
+
+        LINE 5 HAS NO STARRED ROUTES AND THAT IS WHY IT NEEDS NO SCOPE CARVE-OUT. Unlike line 4,
+        which offers the Qualified Dividends and Capital Gain Tax Worksheet, the Schedule D Tax
+        Worksheet and Form 8615, line 5 names ONLY the Tax Table and the Tax Computation
+        Worksheet. So this Switch is line 5 in full for every return that reaches the worksheet,
+        including the preferential-rate returns the knockout below refuses.
+
+        REPOINTED ONTO THE SHARED RATE-SCHEDULE KERNEL. This
+        was the SEVENTH copy of the ordinary-tax ladder, and K12's own measurement said six: it
+        carried the full outer filing-status Switch with all 76 Dollar literals written out, while
+        the six K12 named were re-pointed at taxCalculations /taxRateScheduleBracketTop* and
+        /taxRateScheduleBase*. It now reads the same twelve kernel facts, in the shipped
+        formulation lifted from /ordinaryTaxOnWorksheetOrdinaryIncome with only the input path
+        swapped: 948 lines of Derived became 153, and the 76 literals became 19 kernel
+        dependencies.
+
+        THE DIFFERENTIAL, IN VALUE AND IN KIND. Value: the 76 literals sat in 4 filing-status arms
+        of 19 slots each, and the template's 19 kernel dependencies stand in exactly those slots —
+        all 76 (status, slot) pairs were checked against the kernel facts' own per-status values and
+        all 76 matched, with the seven bracket rates and the Add/Multiply/Subtract counts identical
+        per arm. Kind: the pre-edit outer Switch had four filing-status cases (MFJ, QSS, HOH,
+        Single, MFS) and NO unconditional fallthrough, and each kernel fact has that same shape and
+        no fallthrough — which is why the kernel was authored without one — so a return whose filing
+        status is unanswerable resolves Incomplete on both formulations.
+
+        STRUCTURAL TWIN of /ordinaryTaxOnWorksheetOrdinaryIncome — and the twin is now a
+        SHARED READ rather than a copied bracket schedule, which is the point of the re-point: the
+        two Switches can no longer drift apart on a parameter, because there is only one statement
+        of each parameter left. What still has to stay in sync is the SHAPE (the seven-case bracket
+        ladder and its rates), not the numbers. ROUNDING: rounds at its own line; worksheet line 6
+        rounds again, idempotently.</Description>
+      
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Multiply>
+                  <Rational>10/100</Rational>
+                  <Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" />
+                </Multiply>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase12Pct" />
+                  <Multiply>
+                    <Rational>12/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop10Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase22Pct" />
+                  <Multiply>
+                    <Rational>22/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop12Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase24Pct" />
+                  <Multiply>
+                    <Rational>24/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop22Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase32Pct" />
+                  <Multiply>
+                    <Rational>32/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop24Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <LessThanOrEqual>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </LessThanOrEqual>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase35Pct" />
+                  <Multiply>
+                    <Rational>35/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop32Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+
+            <Case>
+              <When>
+                <GreaterThan>
+                  <Left><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Left>
+                  <Right><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Right>
+                </GreaterThan>
+              </When>
+              <Then>
+                <Add>
+                  <Dependency module="taxCalculations" path="/taxRateScheduleBase37Pct" />
+                  <Multiply>
+                    <Rational>37/100</Rational>
+                    <Subtract>
+                      <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine2cRounded" /></Minuend>
+                      <Subtrahends><Dependency module="taxCalculations" path="/taxRateScheduleBracketTop35Pct" /></Subtrahends>
+                    </Subtract>
+                  </Multiply>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/foreignEarnedIncomeTaxWorksheetTax">
+      <Name>Foreign Earned Income Tax Worksheet line 6 — the tax a Form 2555 filer reports on Form 1040 line 16</Name>
+      <Description>Worksheet line 6: "Subtract line 5 from line 4. Enter the result. If zero or
+        less, enter -0-. Also include this amount on the entry space on Form 1040 or 1040-SR,
+        line 16" (https://www.irs.gov/pub/irs-pdf/i1040gi.pdf, page 37). Fills the contract
+        of the same path.
+
+        CONSUMER: taxCalculations /tentativeTaxFromTaxableIncome, whose FIRST Switch arm fires on
+        /entersForeignEarnedIncomeTaxWorksheet. First rather than last is required, not
+        stylistic: the QDCGT and the Schedule D Tax Worksheet are what worksheet line 4 may USE,
+        so a Form 2555 return must be diverted before those arms are reached, and the Schedule D
+        Tax Worksheet's own line 47 redirects away from Form 1040 line 16 for exactly this
+        population (https://www.irs.gov/pub/irs-pdf/i1040sd.pdf, page 16).
+
+        SCOPE: ALL FOUR REPRESENTABLE ROUTES of line 4 — the Tax Table, the Tax Computation
+        Worksheet, the starred QUALIFIED DIVIDENDS AND CAPITAL GAIN TAX WORKSHEET and
+        the starred SCHEDULE D TAX WORKSHEET (scheduleD
+        /feiScheduleDTaxWorksheetTax). See the block banner above. Nothing this fact can be
+        asked is refused: /knockoutForeignEarnedIncomeTaxWorksheetPreferentialRate no longer
+        guards the SDTW population, and the value on that
+        population is the worksheet's own answer, not a bound on it. Form 8615 is
+        unreachable for want of any representation in this dictionary, not by a refusal here.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE (line 6 floors at zero). Rounded
+        at this line, the printed entry line; lines 4 and 5 are separately-figured taxes and
+        round at their own lines, so this Round is idempotent and is kept for the entry-line
+        identity.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Derived>
+        <Round>
+          <GreaterOf>
+            <Subtract>
+              <Minuend><Dependency path="/foreignEarnedIncomeTaxWorksheetLine4" /></Minuend>
+              <Subtrahends><Dependency path="/foreignEarnedIncomeTaxWorksheetLine5" /></Subtrahends>
+            </Subtract>
+            <Dollar>0</Dollar>
+          </GreaterOf>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+  </Facts>
+</FactDictionaryModule>

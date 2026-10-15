@@ -1,0 +1,262 @@
+{
+  "candidate_repository": "ytax release-candidate repository (private)",
+  "code_headers": {
+    "exclude": []
+  },
+  "dictionary": {
+    "baseline": "dictionary_baseline",
+    "component": "ytax-dictionary",
+    "dest": "dictionary/ty2025",
+    "path": "dictionary/ty2025",
+    "repo": "development"
+  },
+  "external_hosts": {
+    "allowed": [
+      "ytax.ai",
+      "www.gnu.org",
+      "gnu.org",
+      "json-schema.org",
+      "www.w3.org",
+      "schemas.openxmlformats.org",
+      "purl.org",
+      "docs.ollama.com",
+      "www.irs.gov",
+      "nodejs.org",
+      "github.com",
+      "www.python.org",
+      "pypi.org",
+      "www.apache.org",
+      "www.unicode.org"
+    ]
+  },
+  "frozen": [
+    {
+      "changed_component": "ytax-engine-changes",
+      "component": "irs-engine",
+      "dest": "engine/fact-graph-scala",
+      "label": "engine",
+      "path": "engine/fact-graph-scala",
+      "repo": "development",
+      "upstream_exclude": [
+        ".github"
+      ],
+      "upstream_path": "",
+      "upstream_repo": "engine"
+    },
+    {
+      "component": "irs-tax-baseline",
+      "dest": "upstream/direct-file-tax",
+      "label": "dictionary_baseline",
+      "path": "dictionary/ty2024-l0",
+      "repo": "development",
+      "upstream_path": "direct-file/backend/src/main/resources/tax",
+      "upstream_repo": "direct_file"
+    }
+  ],
+  "generator": {
+    "component": "dictionary-generator",
+    "dest": "js/fact-dictionary",
+    "files": [
+      "FactTypes.ts",
+      "Path.ts",
+      "aliases.ts",
+      "generate-src/dependencyGraph.ts",
+      "generate-src/generate.ts",
+      "generate-src/processFactsToDigestWrapper.ts",
+      "generate-src/readRawFacts.ts",
+      "generate-src/subfields.ts"
+    ],
+    "path": "js/fact-dictionary",
+    "repo": "development",
+    "upstream_component": "irs-generator-baseline",
+    "upstream_dest": "upstream/direct-file-generator",
+    "upstream_path": "direct-file/df-client/df-client-app/src/fact-dictionary",
+    "upstream_repo": "direct_file"
+  },
+  "gitignore": [
+    "**/target/",
+    "**/node_modules/",
+    "**/__pycache__/",
+    "js/fact-dictionary/generated/",
+    "js/fact-dictionary/generate-src/xml-src",
+    ".DS_Store",
+    "**/.venv/",
+    "**/dist/",
+    "prep/tmp/"
+  ],
+  "identical_files": [
+    {
+      "component": "irs-notice",
+      "dest": "upstream/direct-file/LICENSE",
+      "path": "docs-upstream/LICENSE",
+      "repo": "development",
+      "upstream_path": "LICENSE",
+      "upstream_repo": "direct_file"
+    },
+    {
+      "component": "ytax-js-runtime",
+      "dest": "js/src/persistenceWrappers.ts",
+      "path": "js/src/persistenceWrappers.ts",
+      "repo": "development",
+      "upstream_path": "direct-file/df-client/df-client-app/src/test/persistenceWrappers.ts",
+      "upstream_repo": "direct_file"
+    }
+  ],
+  "limitations": [
+    "State rules and the development registers kept beside the dictionary are not selected by this profile",
+    "The JVM scenario runner is a development tool and does not ship; the application runs the linked JavaScript engine (owner, 2026-10-11)",
+    "Of dictionary/pdf, only what the ytax-prep application reads ships (dictionary/pdf/2025: each form's configuration.yml and boxes.tsv, and form-modules.tsv); the other registers, the blank IRS PDFs (the ytax-prep package build downloads the ones it prints by pinned SHA-256), and the development reviews and reports are not shipped (owner, 2026-10-11)"
+  ],
+  "package": "ytax-facts",
+  "prepared": {
+    "BUILD.md": "packages/ytax-facts/prepared/BUILD.md",
+    "LICENSE": "prepared/polyform-strict/LICENSE",
+    "LICENSES/LicenseRef-PolyForm-Strict-1.0.0.txt": "prepared/polyform-strict/LICENSE",
+    "LICENSING.md": "packages/ytax-facts/prepared/LICENSING.md",
+    "js/LICENSE": "prepared/polyform-strict/LICENSE",
+    "legal/COMMERCIAL-LICENSING.md": "prepared/polyform-strict/legal/COMMERCIAL-LICENSING.md",
+    "legal/COMPONENT-SCOPE.md": "packages/ytax-facts/prepared/legal/COMPONENT-SCOPE.md",
+    "legal/LICENSE-REFERENCE.md": "prepared/polyform-strict/legal/LICENSE-REFERENCE.md",
+    "legal/NOTICE.md": "packages/ytax-facts/prepared/legal/NOTICE.md",
+    "prep/BUILD.md": "packages/ytax-facts/prepared/prep/BUILD.md",
+    "prep/README.md": "packages/ytax-facts/prepared/prep/README.md"
+  },
+  "public_repository": "ytax-ai/ytax-facts",
+  "readme": "packages/ytax-facts/README.template.md",
+  "release_id": "ytax-facts-ty2025-alpha-0.1.0-rc.11",
+  "repositories": {
+    "development": {
+      "commit": "4cdc717ac1d86d9d2daa51894bb4607dfe85f10b",
+      "name": "ytax development repository (private)"
+    },
+    "direct_file": {
+      "commit": "e365f9f43446010af36cccf7edecc52953c00fe9",
+      "name": "IRS-Public/direct-file"
+    },
+    "engine": {
+      "commit": "5599f75ba3047294c1b46e16eb3141dcde046643",
+      "name": "IRS-Public/fact-graph"
+    },
+    "service": {
+      "commit": "0a07f63dc67fa8bfa301687ef09662e13b2463d2",
+      "name": "ytax application repository (private)"
+    }
+  },
+  "schema_version": 3,
+  "selections": [
+    {
+      "component": "ytax-build-support",
+      "files": [
+        "js/package.json",
+        "js/package-lock.json",
+        "js/tsconfig.json",
+        "js/fact-dictionary/VENDORED.md",
+        "js/scripts/generate-dictionary.sh",
+        "js/src/snapshot.ts",
+        "js/src/generatedDictionary.ts",
+        "js/src/persisterCompat.ts",
+        "js/scripts/periodDates.ts",
+        "js/src/factgraphTypes.ts"
+      ],
+      "repo": "development"
+    },
+    {
+      "component": "ytax-js-runtime",
+      "files": [
+        "js/src/setupFactGraph.ts",
+        "js/src/constants.ts",
+        "js/src/flow/Path.ts"
+      ],
+      "repo": "development"
+    },
+    {
+      "component": "linked-engine",
+      "files": [
+        "js/engine/factgraph.js",
+        "js/engine/package.json",
+        "js/engine/factgraph.libraries.tsv",
+        "js/engine/THIRD-PARTY-NOTICES.md"
+      ],
+      "repo": "development",
+      "trees": [
+        "js/engine/third-party"
+      ]
+    },
+    {
+      "component": "ytax-form-maps",
+      "exclude_globs": [
+        "dictionary/pdf/2025/*.pdf",
+        "dictionary/pdf/2025/*.md",
+        "dictionary/pdf/2025/gates.tsv",
+        "dictionary/pdf/2025/column-axes.tsv",
+        "dictionary/pdf/2025/continuations.tsv",
+        "dictionary/pdf/2025/transforms.tsv",
+        "dictionary/pdf/2025/box-aliases.tsv",
+        "dictionary/pdf/2025/field-index.json",
+        "dictionary/pdf/2025/*/printed-boxes-source.tsv"
+      ],
+      "repo": "development",
+      "trees": [
+        "dictionary/pdf/2025"
+      ]
+    },
+    {
+      "component": "ytax-prep",
+      "dest": "prep",
+      "exclude": [
+        "schema/common/compute-request.mcp.schema.json",
+        "src/ytax_prep/intake/qa_fixture.py"
+      ],
+      "exclude_globs": [
+        "collector/collector/strategy/*",
+        "collector/collector/integration/*",
+        "src/ytax_prep/intake/pilot*"
+      ],
+      "files": [
+        "collector/README.md",
+        "collector/pyproject.toml",
+        "collector/setup.sh",
+        "scripts/client.py",
+        "scripts/demo_intake.py",
+        "scripts/fetch_irs_forms.py",
+        "schema/README.md",
+        "schema/rename-table.json",
+        "schema/operations/prepare_return.request.schema.json",
+        "schema/operations/prepare_return.response.schema.json",
+        "schema/operations/calculate_return.request.schema.json",
+        "schema/operations/calculate_return.response.schema.json",
+        "schema/operations/coverage.request.schema.json",
+        "schema/operations/coverage.response.schema.json",
+        "examples/README.md"
+      ],
+      "repo": "service",
+      "trees": [
+        "src/ytax_prep",
+        "generated",
+        "schema/common",
+        "collector/collector",
+        "tests/fixtures/contract",
+        "examples/forms",
+        "examples/profiles",
+        "packaging"
+      ]
+    }
+  ],
+  "service_pin": {
+    "development": "development",
+    "path": "ops/ENGINE-PIN.md",
+    "repo": "service"
+  },
+  "upstream_md": {
+    "commits_of": [
+      "engine",
+      "direct_file"
+    ],
+    "mentions": [
+      "engine/fact-graph-scala",
+      "dictionary/ty2024-l0"
+    ],
+    "path": "UPSTREAM.md",
+    "repo": "development"
+  }
+}

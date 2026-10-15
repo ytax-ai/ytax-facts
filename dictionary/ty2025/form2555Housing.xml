@@ -1,0 +1,1006 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+    <Fact path="/form2555HousingLocationOptions">
+      <Name>Notice 2025-16 housing-limit localities plus the ordinary default</Name>
+      <Export downstreamFacts="true" />
+      <Derived><EnumOptions><String>default</String><String>angola-luanda</String><String>argentina-buenos-aires</String><String>aruba-oranjestad</String><String>aruba-other</String><String>australia-sydney</String><String>australia-wollongong</String><String>bahamas-the-nassau</String><String>bahrain-bahrain</String><String>bermuda-bermuda</String><String>brazil-sao-paulo</String><String>canada-calgary</String><String>canada-montreal</String><String>canada-ottawa</String><String>canada-toronto</String><String>canada-vancouver</String><String>canada-victoria</String><String>cayman-islands-grand-cayman</String><String>china-beijing</String><String>china-hong-kong</String><String>china-shanghai</String><String>colombia-bogota</String><String>colombia-all-cities-other-than-bogota</String><String>democratic-republic-of-the-congo-kinshasa</String><String>denmark-copenhagen</String><String>dominican-republic-santo-domingo</String><String>estonia-tallinn</String><String>france-garches</String><String>france-paris</String><String>france-sevres</String><String>france-suresnes</String><String>france-versailles</String><String>germany-berlin</String><String>germany-boeblingen</String><String>germany-bonn</String><String>germany-cologne</String><String>germany-gelnhausen</String><String>germany-hanau</String><String>germany-ingolstadt</String><String>germany-kaiserslautern-landkreis</String><String>germany-ludwigsburg</String><String>germany-mainz</String><String>germany-munich</String><String>germany-nellingen</String><String>germany-pirmasens</String><String>germany-sembach</String><String>germany-stuttgart</String><String>germany-wahn</String><String>germany-wiesbaden</String><String>germany-zweibrucken</String><String>guatemala-guatemala-city</String><String>guinea-conakry</String><String>holy-see-the-holy-see-the</String><String>india-mumbai</String><String>india-new-delhi</String><String>israel-beer-sheva</String><String>israel-jerusalem</String><String>israel-tel-aviv</String><String>israel-west-bank</String><String>italy-genoa</String><String>italy-la-spezia</String><String>italy-milan</String><String>italy-naples</String><String>italy-rome</String><String>jamaica-kingston</String><String>japan-gifu</String><String>japan-komaki</String><String>japan-nagoya</String><String>japan-okinawa-prefecture</String><String>japan-osaka-kobe</String><String>japan-tokyo</String><String>kazakhstan-almaty</String><String>korea-camp-colbern</String><String>korea-camp-mercer</String><String>korea-k-16</String><String>korea-kimpo-airfield</String><String>korea-seoul</String><String>korea-suwon</String><String>kuwait-kuwait-city</String><String>kuwait-all-cities-other-than-kuwait-city</String><String>luxembourg-luxembourg</String><String>malaysia-kuala-lumpur</String><String>malta-malta</String><String>mexico-mexico-city</String><String>mexico-all-cities-other-than-ciudad-juarez-cuernavaca-guadalajara-hermosillo-matamoros-mazatlan-merida-mexico-city-monterrey-nogales-nuevo-laredo-tijuana-and-veracruz</String><String>mozambique-maputo</String><String>netherlands-amsterdam</String><String>netherlands-hague-the</String><String>netherlands-schiphol</String><String>netherlands-antilles-curacao</String><String>oman-muscat</String><String>panama-panama-city</String><String>peru-lima</String><String>poland-warsaw</String><String>portugal-alverca</String><String>portugal-lisbon</String><String>qatar-doha</String><String>romania-bucharest</String><String>russia-moscow</String><String>russia-saint-petersburg</String><String>saudi-arabia-riyadh</String><String>singapore-singapore</String><String>slovenia-ljubljana</String><String>south-africa-pretoria</String><String>spain-barcelona</String><String>spain-madrid</String><String>switzerland-bern</String><String>switzerland-geneva</String><String>switzerland-zurich</String><String>taiwan-taipei</String><String>tanzania-dar-es-salaam</String><String>thailand-bangkok</String><String>trinidad-and-tobago-port-of-spain</String><String>ukraine-kiev</String><String>united-arab-emirates-abu-dhabi</String><String>united-arab-emirates-dubai</String><String>united-kingdom-basingstoke</String><String>united-kingdom-bath</String><String>united-kingdom-bracknell</String><String>united-kingdom-caversham</String><String>united-kingdom-cheltenham</String><String>united-kingdom-croughton</String><String>united-kingdom-farnborough</String><String>united-kingdom-gibraltar</String><String>united-kingdom-harrogate</String><String>united-kingdom-high-wycombe</String><String>united-kingdom-lakenheath</String><String>united-kingdom-london</String><String>united-kingdom-loudwater</String><String>united-kingdom-menwith-hill</String><String>united-kingdom-mildenhall</String><String>united-kingdom-reading</String><String>united-kingdom-southampton</String><String>united-kingdom-surrey</String><String>venezuela-caracas</String><String>vietnam-hanoi</String><String>vietnam-ho-chi-minh-city</String></EnumOptions></Derived>
+    </Fact>
+    <Fact path="/form2555HousingLocations">
+      <Name>Foreign housing locations used during the qualifying period</Name>
+      <Description>One item per location when the filer moved. An empty collection selects the ordinary non-table limit.</Description>
+      <Writable><Collection /></Writable>
+    </Fact>
+    <Fact path="/form2555HousingLocations/*/location">
+      <Name>Notice 2025-16 locality</Name>
+      <Writable><Enum optionsPath="/form2555HousingLocationOptions" /></Writable>
+    </Fact>
+    <Fact path="/form2555HousingLocations/*/days">
+      <Name>Qualifying days at this housing location</Name>
+      <Description>Days of the qualifying period spent at this housing location — line 1 of the
+        Limit on Housing Expenses Worksheet, one worksheet per location
+        (https://www.irs.gov/pub/irs-pdf/i2555.pdf, page 6).
+
+        ASK: "How many days of your qualifying period did you incur housing expenses at this
+        location?" HELP: "Count the days of your qualifying period that fall within your 2025 tax
+        year and that you spent at this location. If you moved during the year, add one entry per
+        location; the days across all your entries may not add up to more than the number of days
+        on Form 2555 line 38" (https://www.irs.gov/pub/irs-pdf/i2555.pdf, page 6).
+
+        ASKED WHEN: the filer answered Yes at Form 2555 line 27
+        (/writableForm2555Line27ClaimingHousingExclusionOrDeduction) and added an item to
+        /form2555HousingLocations. An empty collection is the ordinary case and asks nothing — it
+        routes line 29b to the unlisted-locality figures instead.
+
+        UNANSWERED: this item's ../limit is incomplete, so /form2555Line29bLimitOnHousingExpenses
+        is incomplete and Form 2555 line 29b prints blank. No default is guessed: the day count is
+        the whole of the worksheet's line 1 and nothing else on the return supplies it.
+
+        VALIDATION: a whole number, Min 1, Max 366. The maximum is 366 rather than 365 to agree
+        with form2555:/writableForm2555Line38QualifyingPeriodDays, whose own Max is 366 because an
+        ordinary (non-52-53-week) fiscal-year filer's 12-month accounting period can span February
+        29 of a leap year — a real, if rare, shape (a 52-53-week fiscal year, by contrast, is
+        always 364 or 371 days, never 366; 366 comes from a month-end fiscal year overlapping a
+        leap day, not from the 52-53-week election). The two facts count the same days, so a Max of
+        365 here would reject at intake the very entry line 38 accepts, and would force the filer
+        to 365 — the one value that routes the item to the full-year column. The real ceiling is
+        /form2555HousingLocationDaysExceedQualifyingPeriod, which blocks submission when the days
+        across all locations exceed line 38.
+
+        FEEDS: ../limit, worksheet line 4. Exactly 365 days takes the locality's Notice 2025-16
+        full-year column; every other count, 366 included, multiplies the locality's daily column
+        by the day count. The worksheet's own No branch reads "If the amount on line 1 is less than
+        365, skip line 2 and go to line 3" (https://www.irs.gov/pub/irs-pdf/i2555.pdf, page 6) — it is
+        SILENT on a count above 365, which the worksheet never anticipates; this is a gap in the
+        source, not a branch it prescribes. The daily arm for 366 instead follows from printed Form
+        2555 line 32's identical shape ("Multiply $56.99 by the number of days on line 31. If 365
+        is entered on line 31, enter $20,800", https://www.irs.gov/pub/irs-pdf/f2555.pdf, page 3) and from
+        IRC 911(c)(2)(A), a daily rate multiplied by the number of days in the applicable period
+        with no days-in-tax-year divisor (26 U.S.C. 911, https://uscode.house.gov/view.xhtml?req=granuleid:USC-2024-title26-section911&amp;num=0&amp;edition=2024). The
+        per-location limits sum to Form 2555 line 29b, which caps line 30 and through it the
+        housing exclusion at line 36 and the housing deduction at line 50.</Description>
+      <Writable><Int /><Limit type="Min">
+        <Int>1</Int>
+      </Limit><Limit type="Max">
+        <Int>366</Int> 
+      </Limit></Writable>
+    </Fact>
+    <Fact path="/form2555HousingLocations/*/fullYearLimit">
+      <Name>Notice 2025-16 full-year limit for this locality</Name>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">angola-luanda</Enum></Right></Equal></When><Then>
+        <Dollar>84000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">argentina-buenos-aires</Enum></Right></Equal></When><Then>
+        <Dollar>56500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">aruba-oranjestad</Enum></Right></Equal></When><Then>
+        <Dollar>46200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">aruba-other</Enum></Right></Equal></When><Then>
+        <Dollar>46200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">australia-sydney</Enum></Right></Equal></When><Then>
+        <Dollar>62300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">australia-wollongong</Enum></Right></Equal></When><Then>
+        <Dollar>43700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">bahamas-the-nassau</Enum></Right></Equal></When><Then>
+        <Dollar>49700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">bahrain-bahrain</Enum></Right></Equal></When><Then>
+        <Dollar>48300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">bermuda-bermuda</Enum></Right></Equal></When><Then>
+        <Dollar>90000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">brazil-sao-paulo</Enum></Right></Equal></When><Then>
+        <Dollar>56600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-calgary</Enum></Right></Equal></When><Then>
+        <Dollar>43400</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-montreal</Enum></Right></Equal></When><Then>
+        <Dollar>50100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-ottawa</Enum></Right></Equal></When><Then>
+        <Dollar>46800</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-toronto</Enum></Right></Equal></When><Then>
+        <Dollar>57400</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-vancouver</Enum></Right></Equal></When><Then>
+        <Dollar>56600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-victoria</Enum></Right></Equal></When><Then>
+        <Dollar>39200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">cayman-islands-grand-cayman</Enum></Right></Equal></When><Then>
+        <Dollar>48000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">china-beijing</Enum></Right></Equal></When><Then>
+        <Dollar>66600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">china-hong-kong</Enum></Right></Equal></When><Then>
+        <Dollar>114300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">china-shanghai</Enum></Right></Equal></When><Then>
+        <Dollar>57001</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">colombia-bogota</Enum></Right></Equal></When><Then>
+        <Dollar>58700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">colombia-all-cities-other-than-bogota</Enum></Right></Equal></When><Then>
+        <Dollar>49400</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">democratic-republic-of-the-congo-kinshasa</Enum></Right></Equal></When><Then>
+        <Dollar>42000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">denmark-copenhagen</Enum></Right></Equal></When><Then>
+        <Dollar>43704</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">dominican-republic-santo-domingo</Enum></Right></Equal></When><Then>
+        <Dollar>45500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">estonia-tallinn</Enum></Right></Equal></When><Then>
+        <Dollar>46600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-garches</Enum></Right></Equal></When><Then>
+        <Dollar>65700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-paris</Enum></Right></Equal></When><Then>
+        <Dollar>65700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-sevres</Enum></Right></Equal></When><Then>
+        <Dollar>65700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-suresnes</Enum></Right></Equal></When><Then>
+        <Dollar>65700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-versailles</Enum></Right></Equal></When><Then>
+        <Dollar>65700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-berlin</Enum></Right></Equal></When><Then>
+        <Dollar>39300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-boeblingen</Enum></Right></Equal></When><Then>
+        <Dollar>41200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-bonn</Enum></Right></Equal></When><Then>
+        <Dollar>42000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-cologne</Enum></Right></Equal></When><Then>
+        <Dollar>56200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-gelnhausen</Enum></Right></Equal></When><Then>
+        <Dollar>40600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-hanau</Enum></Right></Equal></When><Then>
+        <Dollar>40600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-ingolstadt</Enum></Right></Equal></When><Then>
+        <Dollar>46000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-kaiserslautern-landkreis</Enum></Right></Equal></When><Then>
+        <Dollar>39500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-ludwigsburg</Enum></Right></Equal></When><Then>
+        <Dollar>41200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-mainz</Enum></Right></Equal></When><Then>
+        <Dollar>44000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-munich</Enum></Right></Equal></When><Then>
+        <Dollar>46000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-nellingen</Enum></Right></Equal></When><Then>
+        <Dollar>41200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-pirmasens</Enum></Right></Equal></When><Then>
+        <Dollar>39500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-sembach</Enum></Right></Equal></When><Then>
+        <Dollar>39500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-stuttgart</Enum></Right></Equal></When><Then>
+        <Dollar>41200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-wahn</Enum></Right></Equal></When><Then>
+        <Dollar>42000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-wiesbaden</Enum></Right></Equal></When><Then>
+        <Dollar>44000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-zweibrucken</Enum></Right></Equal></When><Then>
+        <Dollar>39500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">guatemala-guatemala-city</Enum></Right></Equal></When><Then>
+        <Dollar>42000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">guinea-conakry</Enum></Right></Equal></When><Then>
+        <Dollar>51300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">holy-see-the-holy-see-the</Enum></Right></Equal></When><Then>
+        <Dollar>43700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">india-mumbai</Enum></Right></Equal></When><Then>
+        <Dollar>67920</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">india-new-delhi</Enum></Right></Equal></When><Then>
+        <Dollar>56124</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-beer-sheva</Enum></Right></Equal></When><Then>
+        <Dollar>55300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-jerusalem</Enum></Right></Equal></When><Then>
+        <Dollar>49000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-tel-aviv</Enum></Right></Equal></When><Then>
+        <Dollar>50800</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-west-bank</Enum></Right></Equal></When><Then>
+        <Dollar>49000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-genoa</Enum></Right></Equal></When><Then>
+        <Dollar>41800</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-la-spezia</Enum></Right></Equal></When><Then>
+        <Dollar>40400</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-milan</Enum></Right></Equal></When><Then>
+        <Dollar>65300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-naples</Enum></Right></Equal></When><Then>
+        <Dollar>44900</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-rome</Enum></Right></Equal></When><Then>
+        <Dollar>43700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">jamaica-kingston</Enum></Right></Equal></When><Then>
+        <Dollar>41200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-gifu</Enum></Right></Equal></When><Then>
+        <Dollar>74300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-komaki</Enum></Right></Equal></When><Then>
+        <Dollar>74300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-nagoya</Enum></Right></Equal></When><Then>
+        <Dollar>74300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-okinawa-prefecture</Enum></Right></Equal></When><Then>
+        <Dollar>41600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-osaka-kobe</Enum></Right></Equal></When><Then>
+        <Dollar>90664</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-tokyo</Enum></Right></Equal></When><Then>
+        <Dollar>67700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">kazakhstan-almaty</Enum></Right></Equal></When><Then>
+        <Dollar>48000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-camp-colbern</Enum></Right></Equal></When><Then>
+        <Dollar>54200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-camp-mercer</Enum></Right></Equal></When><Then>
+        <Dollar>54200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-k-16</Enum></Right></Equal></When><Then>
+        <Dollar>44500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-kimpo-airfield</Enum></Right></Equal></When><Then>
+        <Dollar>44500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-seoul</Enum></Right></Equal></When><Then>
+        <Dollar>44500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-suwon</Enum></Right></Equal></When><Then>
+        <Dollar>44500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">kuwait-kuwait-city</Enum></Right></Equal></When><Then>
+        <Dollar>64400</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">kuwait-all-cities-other-than-kuwait-city</Enum></Right></Equal></When><Then>
+        <Dollar>57700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">luxembourg-luxembourg</Enum></Right></Equal></When><Then>
+        <Dollar>51700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">malaysia-kuala-lumpur</Enum></Right></Equal></When><Then>
+        <Dollar>46200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">malta-malta</Enum></Right></Equal></When><Then>
+        <Dollar>55100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">mexico-mexico-city</Enum></Right></Equal></When><Then>
+        <Dollar>47900</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">mexico-all-cities-other-than-ciudad-juarez-cuernavaca-guadalajara-hermosillo-matamoros-mazatlan-merida-mexico-city-monterrey-nogales-nuevo-laredo-tijuana-and-veracruz</Enum></Right></Equal></When><Then>
+        <Dollar>39400</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">mozambique-maputo</Enum></Right></Equal></When><Then>
+        <Dollar>39500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-amsterdam</Enum></Right></Equal></When><Then>
+        <Dollar>52900</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-hague-the</Enum></Right></Equal></When><Then>
+        <Dollar>52100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-schiphol</Enum></Right></Equal></When><Then>
+        <Dollar>52900</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-antilles-curacao</Enum></Right></Equal></When><Then>
+        <Dollar>45800</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">oman-muscat</Enum></Right></Equal></When><Then>
+        <Dollar>41300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">panama-panama-city</Enum></Right></Equal></When><Then>
+        <Dollar>39500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">peru-lima</Enum></Right></Equal></When><Then>
+        <Dollar>39100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">poland-warsaw</Enum></Right></Equal></When><Then>
+        <Dollar>55000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">portugal-alverca</Enum></Right></Equal></When><Then>
+        <Dollar>40000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">portugal-lisbon</Enum></Right></Equal></When><Then>
+        <Dollar>40000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">qatar-doha</Enum></Right></Equal></When><Then>
+        <Dollar>45888</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">romania-bucharest</Enum></Right></Equal></When><Then>
+        <Dollar>41200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">russia-moscow</Enum></Right></Equal></When><Then>
+        <Dollar>108000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">russia-saint-petersburg</Enum></Right></Equal></When><Then>
+        <Dollar>60000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">saudi-arabia-riyadh</Enum></Right></Equal></When><Then>
+        <Dollar>40000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">singapore-singapore</Enum></Right></Equal></When><Then>
+        <Dollar>82900</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">slovenia-ljubljana</Enum></Right></Equal></When><Then>
+        <Dollar>45900</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">south-africa-pretoria</Enum></Right></Equal></When><Then>
+        <Dollar>39300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">spain-barcelona</Enum></Right></Equal></When><Then>
+        <Dollar>40600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">spain-madrid</Enum></Right></Equal></When><Then>
+        <Dollar>53300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">switzerland-bern</Enum></Right></Equal></When><Then>
+        <Dollar>72100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">switzerland-geneva</Enum></Right></Equal></When><Then>
+        <Dollar>102600</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">switzerland-zurich</Enum></Right></Equal></When><Then>
+        <Dollar>39219</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">taiwan-taipei</Enum></Right></Equal></When><Then>
+        <Dollar>46188</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">tanzania-dar-es-salaam</Enum></Right></Equal></When><Then>
+        <Dollar>44000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">thailand-bangkok</Enum></Right></Equal></When><Then>
+        <Dollar>59000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">trinidad-and-tobago-port-of-spain</Enum></Right></Equal></When><Then>
+        <Dollar>54500</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">ukraine-kiev</Enum></Right></Equal></When><Then>
+        <Dollar>72000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-arab-emirates-abu-dhabi</Enum></Right></Equal></When><Then>
+        <Dollar>49687</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-arab-emirates-dubai</Enum></Right></Equal></When><Then>
+        <Dollar>57174</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-basingstoke</Enum></Right></Equal></When><Then>
+        <Dollar>41099</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-bath</Enum></Right></Equal></When><Then>
+        <Dollar>41000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-bracknell</Enum></Right></Equal></When><Then>
+        <Dollar>62100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-caversham</Enum></Right></Equal></When><Then>
+        <Dollar>73800</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-cheltenham</Enum></Right></Equal></When><Then>
+        <Dollar>47300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-croughton</Enum></Right></Equal></When><Then>
+        <Dollar>43100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-farnborough</Enum></Right></Equal></When><Then>
+        <Dollar>54700</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-gibraltar</Enum></Right></Equal></When><Then>
+        <Dollar>44616</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-harrogate</Enum></Right></Equal></When><Then>
+        <Dollar>42300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-high-wycombe</Enum></Right></Equal></When><Then>
+        <Dollar>62100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-lakenheath</Enum></Right></Equal></When><Then>
+        <Dollar>43300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-london</Enum></Right></Equal></When><Then>
+        <Dollar>67000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-loudwater</Enum></Right></Equal></When><Then>
+        <Dollar>54300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-menwith-hill</Enum></Right></Equal></When><Then>
+        <Dollar>42300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-mildenhall</Enum></Right></Equal></When><Then>
+        <Dollar>43300</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-reading</Enum></Right></Equal></When><Then>
+        <Dollar>62100</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-southampton</Enum></Right></Equal></When><Then>
+        <Dollar>44200</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-surrey</Enum></Right></Equal></When><Then>
+        <Dollar>48402</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">venezuela-caracas</Enum></Right></Equal></When><Then>
+        <Dollar>57000</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">vietnam-hanoi</Enum></Right></Equal></When><Then>
+        <Dollar>46800</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">vietnam-ho-chi-minh-city</Enum></Right></Equal></When><Then>
+        <Dollar>42000</Dollar>
+        </Then></Case><Case><When><True /></When><Then>
+        <Dollar>39000</Dollar>
+        </Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form2555HousingLocations/*/dailyLimit">
+      <Name>Notice 2025-16 daily limit for this locality</Name>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">angola-luanda</Enum></Right></Equal></When><Then>
+        <Dollar>230.14</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">argentina-buenos-aires</Enum></Right></Equal></When><Then>
+        <Dollar>154.79</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">aruba-oranjestad</Enum></Right></Equal></When><Then>
+        <Dollar>126.58</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">aruba-other</Enum></Right></Equal></When><Then>
+        <Dollar>126.58</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">australia-sydney</Enum></Right></Equal></When><Then>
+        <Dollar>170.68</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">australia-wollongong</Enum></Right></Equal></When><Then>
+        <Dollar>119.73</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">bahamas-the-nassau</Enum></Right></Equal></When><Then>
+        <Dollar>136.16</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">bahrain-bahrain</Enum></Right></Equal></When><Then>
+        <Dollar>132.33</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">bermuda-bermuda</Enum></Right></Equal></When><Then>
+        <Dollar>246.58</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">brazil-sao-paulo</Enum></Right></Equal></When><Then>
+        <Dollar>155.07</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-calgary</Enum></Right></Equal></When><Then>
+        <Dollar>118.90</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-montreal</Enum></Right></Equal></When><Then>
+        <Dollar>137.26</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-ottawa</Enum></Right></Equal></When><Then>
+        <Dollar>128.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-toronto</Enum></Right></Equal></When><Then>
+        <Dollar>157.26</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-vancouver</Enum></Right></Equal></When><Then>
+        <Dollar>155.07</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">canada-victoria</Enum></Right></Equal></When><Then>
+        <Dollar>107.40</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">cayman-islands-grand-cayman</Enum></Right></Equal></When><Then>
+        <Dollar>131.51</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">china-beijing</Enum></Right></Equal></When><Then>
+        <Dollar>182.47</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">china-hong-kong</Enum></Right></Equal></When><Then>
+        <Dollar>313.15</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">china-shanghai</Enum></Right></Equal></When><Then>
+        <Dollar>156.17</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">colombia-bogota</Enum></Right></Equal></When><Then>
+        <Dollar>160.82</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">colombia-all-cities-other-than-bogota</Enum></Right></Equal></When><Then>
+        <Dollar>135.34</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">democratic-republic-of-the-congo-kinshasa</Enum></Right></Equal></When><Then>
+        <Dollar>115.07</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">denmark-copenhagen</Enum></Right></Equal></When><Then>
+        <Dollar>119.74</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">dominican-republic-santo-domingo</Enum></Right></Equal></When><Then>
+        <Dollar>124.66</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">estonia-tallinn</Enum></Right></Equal></When><Then>
+        <Dollar>127.67</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-garches</Enum></Right></Equal></When><Then>
+        <Dollar>180.00</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-paris</Enum></Right></Equal></When><Then>
+        <Dollar>180.00</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-sevres</Enum></Right></Equal></When><Then>
+        <Dollar>180.00</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-suresnes</Enum></Right></Equal></When><Then>
+        <Dollar>180.00</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">france-versailles</Enum></Right></Equal></When><Then>
+        <Dollar>180.00</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-berlin</Enum></Right></Equal></When><Then>
+        <Dollar>107.67</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-boeblingen</Enum></Right></Equal></When><Then>
+        <Dollar>112.88</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-bonn</Enum></Right></Equal></When><Then>
+        <Dollar>115.07</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-cologne</Enum></Right></Equal></When><Then>
+        <Dollar>153.97</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-gelnhausen</Enum></Right></Equal></When><Then>
+        <Dollar>111.23</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-hanau</Enum></Right></Equal></When><Then>
+        <Dollar>111.23</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-ingolstadt</Enum></Right></Equal></When><Then>
+        <Dollar>126.03</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-kaiserslautern-landkreis</Enum></Right></Equal></When><Then>
+        <Dollar>108.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-ludwigsburg</Enum></Right></Equal></When><Then>
+        <Dollar>112.88</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-mainz</Enum></Right></Equal></When><Then>
+        <Dollar>120.55</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-munich</Enum></Right></Equal></When><Then>
+        <Dollar>126.03</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-nellingen</Enum></Right></Equal></When><Then>
+        <Dollar>112.88</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-pirmasens</Enum></Right></Equal></When><Then>
+        <Dollar>108.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-sembach</Enum></Right></Equal></When><Then>
+        <Dollar>108.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-stuttgart</Enum></Right></Equal></When><Then>
+        <Dollar>112.88</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-wahn</Enum></Right></Equal></When><Then>
+        <Dollar>115.07</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-wiesbaden</Enum></Right></Equal></When><Then>
+        <Dollar>120.55</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">germany-zweibrucken</Enum></Right></Equal></When><Then>
+        <Dollar>108.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">guatemala-guatemala-city</Enum></Right></Equal></When><Then>
+        <Dollar>115.07</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">guinea-conakry</Enum></Right></Equal></When><Then>
+        <Dollar>140.55</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">holy-see-the-holy-see-the</Enum></Right></Equal></When><Then>
+        <Dollar>119.73</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">india-mumbai</Enum></Right></Equal></When><Then>
+        <Dollar>186.08</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">india-new-delhi</Enum></Right></Equal></When><Then>
+        <Dollar>153.76</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-beer-sheva</Enum></Right></Equal></When><Then>
+        <Dollar>151.51</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-jerusalem</Enum></Right></Equal></When><Then>
+        <Dollar>134.25</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-tel-aviv</Enum></Right></Equal></When><Then>
+        <Dollar>139.18</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">israel-west-bank</Enum></Right></Equal></When><Then>
+        <Dollar>134.25</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-genoa</Enum></Right></Equal></When><Then>
+        <Dollar>114.52</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-la-spezia</Enum></Right></Equal></When><Then>
+        <Dollar>110.68</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-milan</Enum></Right></Equal></When><Then>
+        <Dollar>178.90</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-naples</Enum></Right></Equal></When><Then>
+        <Dollar>123.01</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">italy-rome</Enum></Right></Equal></When><Then>
+        <Dollar>119.73</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">jamaica-kingston</Enum></Right></Equal></When><Then>
+        <Dollar>112.88</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-gifu</Enum></Right></Equal></When><Then>
+        <Dollar>203.56</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-komaki</Enum></Right></Equal></When><Then>
+        <Dollar>203.56</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-nagoya</Enum></Right></Equal></When><Then>
+        <Dollar>203.56</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-okinawa-prefecture</Enum></Right></Equal></When><Then>
+        <Dollar>113.97</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-osaka-kobe</Enum></Right></Equal></When><Then>
+        <Dollar>248.39</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">japan-tokyo</Enum></Right></Equal></When><Then>
+        <Dollar>185.48</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">kazakhstan-almaty</Enum></Right></Equal></When><Then>
+        <Dollar>131.51</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-camp-colbern</Enum></Right></Equal></When><Then>
+        <Dollar>148.49</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-camp-mercer</Enum></Right></Equal></When><Then>
+        <Dollar>148.49</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-k-16</Enum></Right></Equal></When><Then>
+        <Dollar>121.92</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-kimpo-airfield</Enum></Right></Equal></When><Then>
+        <Dollar>121.92</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-seoul</Enum></Right></Equal></When><Then>
+        <Dollar>121.92</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">korea-suwon</Enum></Right></Equal></When><Then>
+        <Dollar>121.92</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">kuwait-kuwait-city</Enum></Right></Equal></When><Then>
+        <Dollar>176.44</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">kuwait-all-cities-other-than-kuwait-city</Enum></Right></Equal></When><Then>
+        <Dollar>158.08</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">luxembourg-luxembourg</Enum></Right></Equal></When><Then>
+        <Dollar>141.64</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">malaysia-kuala-lumpur</Enum></Right></Equal></When><Then>
+        <Dollar>126.58</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">malta-malta</Enum></Right></Equal></When><Then>
+        <Dollar>150.96</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">mexico-mexico-city</Enum></Right></Equal></When><Then>
+        <Dollar>131.23</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">mexico-all-cities-other-than-ciudad-juarez-cuernavaca-guadalajara-hermosillo-matamoros-mazatlan-merida-mexico-city-monterrey-nogales-nuevo-laredo-tijuana-and-veracruz</Enum></Right></Equal></When><Then>
+        <Dollar>107.95</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">mozambique-maputo</Enum></Right></Equal></When><Then>
+        <Dollar>108.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-amsterdam</Enum></Right></Equal></When><Then>
+        <Dollar>144.93</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-hague-the</Enum></Right></Equal></When><Then>
+        <Dollar>142.74</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-schiphol</Enum></Right></Equal></When><Then>
+        <Dollar>144.93</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">netherlands-antilles-curacao</Enum></Right></Equal></When><Then>
+        <Dollar>125.48</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">oman-muscat</Enum></Right></Equal></When><Then>
+        <Dollar>113.15</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">panama-panama-city</Enum></Right></Equal></When><Then>
+        <Dollar>108.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">peru-lima</Enum></Right></Equal></When><Then>
+        <Dollar>107.12</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">poland-warsaw</Enum></Right></Equal></When><Then>
+        <Dollar>150.68</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">portugal-alverca</Enum></Right></Equal></When><Then>
+        <Dollar>109.59</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">portugal-lisbon</Enum></Right></Equal></When><Then>
+        <Dollar>109.59</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">qatar-doha</Enum></Right></Equal></When><Then>
+        <Dollar>125.72</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">romania-bucharest</Enum></Right></Equal></When><Then>
+        <Dollar>112.88</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">russia-moscow</Enum></Right></Equal></When><Then>
+        <Dollar>295.89</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">russia-saint-petersburg</Enum></Right></Equal></When><Then>
+        <Dollar>164.38</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">saudi-arabia-riyadh</Enum></Right></Equal></When><Then>
+        <Dollar>109.59</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">singapore-singapore</Enum></Right></Equal></When><Then>
+        <Dollar>227.12</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">slovenia-ljubljana</Enum></Right></Equal></When><Then>
+        <Dollar>125.75</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">south-africa-pretoria</Enum></Right></Equal></When><Then>
+        <Dollar>107.67</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">spain-barcelona</Enum></Right></Equal></When><Then>
+        <Dollar>111.23</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">spain-madrid</Enum></Right></Equal></When><Then>
+        <Dollar>146.03</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">switzerland-bern</Enum></Right></Equal></When><Then>
+        <Dollar>197.53</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">switzerland-geneva</Enum></Right></Equal></When><Then>
+        <Dollar>281.10</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">switzerland-zurich</Enum></Right></Equal></When><Then>
+        <Dollar>107.45</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">taiwan-taipei</Enum></Right></Equal></When><Then>
+        <Dollar>126.54</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">tanzania-dar-es-salaam</Enum></Right></Equal></When><Then>
+        <Dollar>120.55</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">thailand-bangkok</Enum></Right></Equal></When><Then>
+        <Dollar>161.64</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">trinidad-and-tobago-port-of-spain</Enum></Right></Equal></When><Then>
+        <Dollar>149.32</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">ukraine-kiev</Enum></Right></Equal></When><Then>
+        <Dollar>197.26</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-arab-emirates-abu-dhabi</Enum></Right></Equal></When><Then>
+        <Dollar>136.13</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-arab-emirates-dubai</Enum></Right></Equal></When><Then>
+        <Dollar>156.64</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-basingstoke</Enum></Right></Equal></When><Then>
+        <Dollar>112.60</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-bath</Enum></Right></Equal></When><Then>
+        <Dollar>112.33</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-bracknell</Enum></Right></Equal></When><Then>
+        <Dollar>170.14</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-caversham</Enum></Right></Equal></When><Then>
+        <Dollar>202.19</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-cheltenham</Enum></Right></Equal></When><Then>
+        <Dollar>129.59</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-croughton</Enum></Right></Equal></When><Then>
+        <Dollar>118.08</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-farnborough</Enum></Right></Equal></When><Then>
+        <Dollar>149.86</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-gibraltar</Enum></Right></Equal></When><Then>
+        <Dollar>122.24</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-harrogate</Enum></Right></Equal></When><Then>
+        <Dollar>115.89</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-high-wycombe</Enum></Right></Equal></When><Then>
+        <Dollar>170.14</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-lakenheath</Enum></Right></Equal></When><Then>
+        <Dollar>118.63</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-london</Enum></Right></Equal></When><Then>
+        <Dollar>183.56</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-loudwater</Enum></Right></Equal></When><Then>
+        <Dollar>148.77</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-menwith-hill</Enum></Right></Equal></When><Then>
+        <Dollar>115.89</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-mildenhall</Enum></Right></Equal></When><Then>
+        <Dollar>118.63</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-reading</Enum></Right></Equal></When><Then>
+        <Dollar>170.14</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-southampton</Enum></Right></Equal></When><Then>
+        <Dollar>121.10</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">united-kingdom-surrey</Enum></Right></Equal></When><Then>
+        <Dollar>132.61</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">venezuela-caracas</Enum></Right></Equal></When><Then>
+        <Dollar>156.16</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">vietnam-hanoi</Enum></Right></Equal></When><Then>
+        <Dollar>128.22</Dollar>
+        </Then></Case><Case><When><Equal><Left><Dependency path="../location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">vietnam-ho-chi-minh-city</Enum></Right></Equal></When><Then>
+        <Dollar>115.07</Dollar>
+        </Then></Case><Case><When><True /></When><Then>
+        <Dollar>106.85</Dollar>
+        </Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form2555HousingLocations/*/limit">
+      <Name>Limit on Housing Expenses Worksheet line 4 for this locality</Name>
+      <Derived><Switch>
+        <Case><When><Equal><Left><GreaterOf><Dependency path="../days" />
+          <Int>1</Int>
+        </GreaterOf></Left><Right><Int>365</Int></Right></Equal></When><Then><Dependency path="../fullYearLimit" /></Then></Case>
+        <Case><When><True /></When><Then><Round><Multiply><Dependency path="../dailyLimit" /><GreaterOf><Dependency path="../days" /><Int>1</Int></GreaterOf></Multiply></Round></Then></Case>
+      </Switch></Derived>
+    </Fact>
+    <Fact path="/form2555HousingLocationDays">
+      <Name>Total qualifying days assigned across housing locations</Name>
+      <Derived><Switch>
+        <Case>
+          <When><IsComplete><Dependency path="/form2555HousingLocations" /></IsComplete></When>
+          <Then><GreaterOf><CollectionSum><Dependency path="/form2555HousingLocations/*/days" /></CollectionSum><Int>1</Int></GreaterOf></Then>
+        </Case>
+        <Case>
+          <When><True /></When>
+          <Then><Int>1</Int></Then>
+        </Case>
+      </Switch></Derived>
+    </Fact>
+    <Fact path="/form2555HousingLocationDaysExceedQualifyingPeriod">
+      <Name>Housing-location days exceed the Form 2555 qualifying period</Name>
+      <BlockSubmissionOnTrue />
+      <Derived><GreaterThan><Left><Dependency path="/form2555HousingLocationDays" /></Left><Right><Dependency module="form2555" path="/writableForm2555Line38QualifyingPeriodDays" /></Right></GreaterThan></Derived>
+    </Fact>
+    <Fact path="/form2555Line29bLimitOnHousingExpenses">
+      <Name>Form 2555 line 29b limit on housing expenses</Name>
+      <Description>Form 2555 line 29b: the sum of the Limit on Housing Expenses Worksheet results, one per location in /form2555HousingLocations; with no location item, the unlisted-location figures, $39,000 for a 365-day qualifying period and $106.85 a day otherwise. The unlisted-location figures are NOT taken when the filer entered a location on line 29a but chose no listed Notice 2025-16 locality in the collection: the instructions say to fill line 29a only if the location is listed in Notice 2025-16 and otherwise to leave it blank, so a line 29a entry says the location is listed, and the default for an unlisted location would contradict it. Such a return leaves line 29b Incomplete until a listed locality is chosen (or line 29a is cleared), rather than taking a limit the filer's own answer rules out. A collection that is unanswered while line 29a is blank still reaches the unlisted-location arms as before.</Description>
+      <Derived><Switch>
+        <Case><When><All><GreaterThan><Left><CollectionSize><Dependency path="/form2555HousingLocations" /></CollectionSize></Left><Right><Int>0</Int></Right></GreaterThan><Any><Not><IsComplete><Dependency path="/writableForm2555Line29aHousingExpenseLocation" /></IsComplete></Not><GreaterThan><Left><Count><Not><Equal><Left><Dependency path="/form2555HousingLocations/*/location" /></Left><Right><Enum optionsPath="/form2555HousingLocationOptions">default</Enum></Right></Equal></Not></Count></Left><Right><Int>0</Int></Right></GreaterThan></Any></All></When><Then><CollectionSum><Dependency path="/form2555HousingLocations/*/limit" /></CollectionSum></Then></Case>
+        <Case><When><All><Not><IsComplete><Dependency path="/writableForm2555Line29aHousingExpenseLocation" /></IsComplete></Not><Equal><Left><Dependency module="form2555" path="/writableForm2555Line38QualifyingPeriodDays" /></Left><Right><Int>365</Int></Right></Equal></All></When><Then>
+          <Dollar>39000</Dollar>
+          </Then></Case>
+        <Case><When><Not><IsComplete><Dependency path="/writableForm2555Line29aHousingExpenseLocation" /></IsComplete></Not></When><Then><Round><Multiply>
+        <Dollar>106.85</Dollar>
+          <GreaterOf><Dependency module="form2555" path="/writableForm2555Line38QualifyingPeriodDays" /><Int>0</Int></GreaterOf></Multiply></Round></Then></Case>
+      </Switch></Derived>
+    </Fact>
+    <Fact path="/writableForm2555Line28QualifiedHousingExpenses">
+      <Name>Form 2555 line 28 qualified housing expenses</Name>
+      <Description>Form 2555 line 28, the filer's total qualified housing expenses for the tax year.
+        ASK: "What were your total qualified foreign housing expenses for 2025?" HELP: the
+        reasonable expenses paid or incurred by you, or on your behalf, for your foreign housing and
+        that of your spouse and dependents who lived with you: rent, utilities other than telephone,
+        property insurance, nonrefundable lease fees, rented furniture, residential parking, household
+        repairs, and the fair rental value of employer-provided housing you did not exclude on line
+        25. You may include the expenses of a second foreign household kept for your spouse and
+        dependents because living conditions at your tax home were dangerous, unhealthful or
+        otherwise adverse. Do NOT include deductible interest and taxes, amounts deductible by a
+        cooperative tenant-stockholder, the cost of buying or improving a house, mortgage principal,
+        depreciation, domestic labor, pay television, furniture purchases, lavish or extravagant
+        amounts, expenses for any period in which the value of your housing is excluded under
+        section 119 (unless you kept a second foreign household), or housing expenses in Cuba (or for
+        your spouse or dependents elsewhere while you were in Cuba) during travel in violation of
+        U.S. travel restrictions (i2555 Line 28 and Travel to Cuba).
+        ASKED WHEN: line 27 is answered Yes. UNANSWERED: line 30 and every housing line below it are
+        Incomplete; nothing is defaulted. VALIDATION: Dollar, Min $0.
+        WHY THE ENTRY IS TRUSTED: every exclusion above is a property of receipts and travel the
+        return never sees, so the graph takes the qualified total the filer states. FEEDS: /form2555Line30HousingExpensesAfterLimit (the smaller of
+        line 28 and line 29b).</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2555Line30HousingExpensesAfterLimit">
+      <Name>Form 2555 line 30</Name>
+      <Derived><LesserOf><GreaterOf><Dependency path="/writableForm2555Line28QualifiedHousingExpenses" /><Dollar>0</Dollar></GreaterOf><Dependency path="/form2555Line29bLimitOnHousingExpenses" /></LesserOf></Derived>
+    </Fact>
+    <Fact path="/form2555Line31QualifyingPeriodDays">
+      <Name>Form 2555 line 31</Name>
+      <Derived><GreaterOf><Dependency module="form2555" path="/writableForm2555Line38QualifyingPeriodDays" /><Int>0</Int></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2555Line32BaseHousingAmount">
+      <Name>Form 2555 line 32 base housing amount</Name>
+      <Derived><Switch><Case><When><Equal><Left><Dependency path="/form2555Line31QualifyingPeriodDays" /></Left><Right><Int>365</Int></Right></Equal></When><Then>
+        <Dollar>20800</Dollar>
+        </Then></Case><Case><When><True /></When><Then><Round><Multiply>
+        <Dollar>56.99</Dollar>
+        <Dependency path="/form2555Line31QualifyingPeriodDays" /></Multiply></Round></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/writableForm2555GovernmentHousingAllowance">
+      <Name>Nontaxable U.S. Government housing allowance received for this period</Name>
+      <Description>The taxpayer's or spouse's nontaxable housing allowance received as a
+        military or civilian employee of the U.S. Government for the period this Form 2555
+        housing exclusion or deduction claim covers. Pub. 54's "U.S. Government allowance" rule
+        requires the housing amount, Form 2555 line 33, to be reduced by it, so that a filer does
+        not both exclude the allowance from income under its own separate exclusion and also
+        exclude or deduct the same housing costs a second time under the foreign housing
+        exclusion or deduction.
+
+        ASK: "Did you or your spouse receive a nontaxable housing allowance as a military or
+        civilian employee of the U.S. Government for this period?" If yes, "How much was that
+        allowance?" HELP: "You must reduce your housing amount by any U.S. Government allowance
+        or similar nontaxable allowance intended to compensate you or your spouse for the
+        expenses of housing during the period you claim the foreign housing exclusion or
+        deduction" (Pub. 54, "U.S. Government allowance").
+
+        ASKED WHEN: the return is claiming the housing exclusion or deduction —
+        /writableForm2555Line27ClaimingHousingExclusionOrDeduction is true.
+
+        UNANSWERED: DEFAULTED to $0 — no reduction, the behavior every return had before this
+        question existed. That is the only safe default here: a return not yet asked this
+        question must resolve exactly as it did before the question was added.
+
+        VALIDATION: Dollar, Min $0. A negative entry is floored to $0 by
+        /form2555GovernmentHousingAllowanceOrZero below, not by this Limit, which is not enforced
+        on resolution.
+
+        FEEDS: /form2555GovernmentHousingAllowanceOrZero, then /form2555Line33HousingCostAmount
+        as a new subtrahend, then /form2555ComputedLine36HousingExclusion and
+        /form2555Line46HousingCostAfterExclusion.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2555GovernmentHousingAllowanceOrZero">
+      <Name>Government housing allowance, floored at zero and complete-safe when unanswered</Name>
+      <Derived>
+        <Switch>
+          <Case>
+            <When><IsComplete><Dependency path="/writableForm2555GovernmentHousingAllowance" /></IsComplete></When>
+            <Then><GreaterOf><Dependency path="/writableForm2555GovernmentHousingAllowance" /><Dollar>0</Dollar></GreaterOf></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2555Line33HousingCostAmount">
+      <Name>Form 2555 line 33 housing cost amount</Name>
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/form2555Line30HousingExpensesAfterLimit" /></Minuend><Subtrahends><Dependency path="/form2555Line32BaseHousingAmount" /><Dependency path="/form2555GovernmentHousingAllowanceOrZero" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2555Line35RatioThousandthsRoundedAfterCentSnap">
+      <Name>Form 2555 line 35 ratio in thousandths, as the division and rounding nodes first produce it</Name>
+      <Description>1000 times line 34 divided by line 27, rounded to a whole number of thousandths, when line 27 is above $0; $0 otherwise. This is an intermediate figure and not the printed line 35. A Dollar division is reduced to cents (half to even) before the outer Round takes it to whole thousandths (half up), so a true quotient a fraction of a cent below one half of a thousandth is rounded up: line 34 $5,004.96 over line 27 $10,000.00 is 500.496 thousandths, reduced to 500.50 and then rounded to 501, where one rounding gives 500. /form2555Line35EmployerProvidedRatioThousandths corrects that step with exact cent arithmetic. The cent reduction moves a value by at most half a cent, so the only possible error is one thousandth too high.</Description>
+      <Derived><Switch><Case><When><GreaterThan><Left><Dependency module="form2555" path="/form2555Line27ForeignEarnedIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></When><Then><Round><Divide><Dividend><Multiply>
+        <Dollar>1000</Dollar>
+        <GreaterOf><Dependency module="form2555" path="/writableForm2555Line34EmployerProvidedAmounts" />
+          <Dollar>0</Dollar>
+        </GreaterOf></Multiply></Dividend><Divisors><Dependency module="form2555" path="/form2555Line27ForeignEarnedIncome" /></Divisors></Divide></Round></Then></Case><Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form2555Line35EmployerProvidedRatioThousandths">
+      <Name>Form 2555 line 35 employer-provided ratio, encoded as thousandths</Name>
+      <Description>Line 35: line 34 divided by line 27, rounded to three decimal places (half up) and not more than 1.000, carried as a whole number of thousandths (1000 is 1.000). The rounding is a single rounding of the true quotient. It starts from /form2555Line35RatioThousandthsRoundedAfterCentSnap and steps it down by one thousandth exactly when 2000 times line 34 is less than (2 times that figure minus 1) times line 27, which is the exact cent comparison saying the true quotient is below the lower half-thousandth boundary. Every product in that comparison is a whole number of cents, so no rounding enters the test. $0 when line 27 is not above $0.</Description>
+      <Derived><Switch><Case><When><GreaterThan><Left><Dependency module="form2555" path="/form2555Line27ForeignEarnedIncome" /></Left><Right><Dollar>0</Dollar></Right></GreaterThan></When><Then><LesserOf>
+        <Dollar>1000</Dollar>
+        <Switch>
+          <Case>
+            <When><LessThan><Left><Multiply><Dollar>2000</Dollar>
+              <GreaterOf><Dependency module="form2555" path="/writableForm2555Line34EmployerProvidedAmounts" /><Dollar>0</Dollar></GreaterOf></Multiply></Left><Right><Multiply><Subtract><Minuend><Multiply>
+              <Dollar>2</Dollar>
+              <Dependency path="/form2555Line35RatioThousandthsRoundedAfterCentSnap" /></Multiply></Minuend><Subtrahends><Dollar>1</Dollar>
+              </Subtrahends></Subtract><Dependency module="form2555" path="/form2555Line27ForeignEarnedIncome" /></Multiply></Right></LessThan></When>
+            <Then><Subtract><Minuend><Dependency path="/form2555Line35RatioThousandthsRoundedAfterCentSnap" /></Minuend><Subtrahends><Dollar>1</Dollar>
+              </Subtrahends></Subtract></Then>
+          </Case>
+          <Case><When><True /></When><Then><Dependency path="/form2555Line35RatioThousandthsRoundedAfterCentSnap" /></Then></Case>
+        </Switch></LesserOf></Then></Case><Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case></Switch></Derived>
+    </Fact>
+    <Fact path="/form2555Line36ExclusionRoundedAfterCentSnap">
+      <Name>Form 2555 line 36 product in whole dollars, before the line 34 cap</Name>
+      <Description>Line 33 times the line 35 thousandths, divided by 1000 and rounded to whole dollars. The division gives the product in dollars and cents and the Round then takes that amount to whole dollars (half up), which is how the form is worked on paper: the product is written to the cent and the whole-dollar rounding of the Form 1040 instructions applies to that amount. A product of $500.495 is written $500.50 and entered as $501. This is the same rounding as form2555:/form2555Line40ProratedMaximumExclusion, the other money-times-ratio line of this form. /form2555ComputedLine36HousingExclusion caps it at line 34.</Description>
+      <Derived><Round><Divide><Dividend><Multiply><Dependency path="/form2555Line33HousingCostAmount" /><Dependency path="/form2555Line35EmployerProvidedRatioThousandths" /></Multiply></Dividend><Divisors><Int>1000</Int></Divisors></Divide></Round></Derived>
+    </Fact>
+    <Fact path="/form2555ComputedLine36HousingExclusion">
+      <Name>Computed Form 2555 line 36 housing exclusion</Name>
+      <Description>Line 36: line 33 times line 35, in whole dollars, but not more than line 34. The product is taken to the cent and then rounded to whole dollars (half up), the same cents-then-dollars rounding as form2555:/form2555Line40ProratedMaximumExclusion, read from /form2555Line36ExclusionRoundedAfterCentSnap. Line 35 itself is a ratio and keeps its own single rounding to three places.</Description>
+      <Export downstreamFacts="true" />
+      <Derived><LesserOf><Dependency path="/form2555Line36ExclusionRoundedAfterCentSnap" /><GreaterOf><Dependency module="form2555" path="/writableForm2555Line34EmployerProvidedAmounts" /><Dollar>0</Dollar></GreaterOf></LesserOf></Derived>
+    </Fact>
+    <Fact path="/form2555Line46HousingCostAfterExclusion">
+      <Name>Form 2555 line 46</Name>
+      <Derived><GreaterOf><Subtract><Minuend><Dependency path="/form2555Line33HousingCostAmount" /></Minuend><Subtrahends><Dependency path="/form2555ComputedLine36HousingExclusion" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2555Line47ForeignIncomeAfterExclusions">
+      <Name>Form 2555 line 47</Name>
+      <Derived><GreaterOf><Subtract><Minuend><Dependency module="form2555" path="/form2555Line27ForeignEarnedIncome" /></Minuend><Subtrahends><Dependency module="form2555" path="/form2555Line43Section911TotalExclusions" /></Subtrahends></Subtract><Dollar>0</Dollar></GreaterOf></Derived>
+    </Fact>
+    <Fact path="/form2555Line48CurrentHousingDeduction">
+      <Name>Form 2555 line 48</Name>
+      <Derived><LesserOf><Dependency path="/form2555Line46HousingCostAfterExclusion" /><Dependency path="/form2555Line47ForeignIncomeAfterExclusions" /></LesserOf></Derived>
+    </Fact>
+    <Fact path="/writableForm2555Line49HousingDeductionCarryoverFromPriorTaxYear">
+      <Name>Form 2555 line 49 housing deduction carryover from 2024</Name>
+      <Description>The taxpayer's Form 2555 line 49 entry — line 3 of the Housing Deduction
+        Carryover Worksheet: the part of their 2024 foreign housing deduction the 2024 limit would
+        not let them deduct, that is 2024 Form 2555 line 46 minus 2024 Form 2555 line 48
+        (https://www.irs.gov/pub/irs-pdf/i2555.pdf, page 7).
+
+        ASK: "How much of your 2024 foreign housing deduction were you unable to deduct because of
+        the 2024 limit?" HELP: "Take this from your 2024 Form 2555: subtract line 48 from line 46.
+        If the result is zero, enter 0 — you have no carryover. Only the part you could not deduct
+        in 2024 carries forward, and it can be carried only to 2025"
+        (https://www.irs.gov/pub/irs-pdf/i2555.pdf, page 7).
+
+        ASKED WHEN: the return has room left for a carryover —
+        /form2555Line47ForeignIncomeAfterExclusions is more than
+        /form2555Line48CurrentHousingDeduction (the statute's clause (ii) limitation, IRC
+        911(c)(4)(C)). It is asked even when line 33 is not more than line 36: the statute allows the
+        carryover whatever the current year's own housing cost amount (owner ruling NE-7). Without room, /form2555Line49HousingDeductionCarryover below is $0 whatever is
+        entered here.
+
+        UNANSWERED: DEFAULTED to $0 — printed line 49 is $0 and line 50 is line 48 alone. That
+        withholds a deduction the filer may be entitled to and so over-states AGI, the conservative
+        direction, and it is the only safe default: nothing else on the return supplies a
+        prior-year figure.
+
+        VALIDATION: Dollar, Min $0. No Max is set here. The statutory ceiling is line 47 minus line
+        48, and it is enforced on the derived fact rather than at intake because both of its inputs
+        are computed from answers given later in the return, which a Limit cannot read.
+
+        FEEDS: /form2555Line49HousingDeductionCarryover, the printed line 49, where it is gated and
+        capped; then /form2555ComputedLine50HousingDeduction, form2555:/form2555Line50HousingDeduction
+        and /schedule1Line24jHousingDeduction to Schedule 1 line 24j, line 25, line 26 and Form 1040
+        line 10, where it reduces AGI.</Description>
+      <Writable><Dollar /><Limit type="Min"><Dollar>0</Dollar></Limit></Writable>
+    </Fact>
+    <Fact path="/form2555Line49HousingDeductionCarryover">
+      <Name>Form 2555 line 49 housing deduction carryover, gated and capped</Name>
+      <Description>Form 2555 line 49: the taxpayer's carryover entry, allowed to the extent of the
+        room the current year leaves for it under IRC 911(c)(4)(C).
+
+        THE GATE FOLLOWS THE STATUTE, NOT THE PRINTED PART IX HEADING (owner ruling NE-7). IRC 911(c)(4)(C)(i) treats the prior-year amount as a deduction for the
+        succeeding year "to the extent of the limitation of clause (ii)", and clause (ii) depends only
+        on the subparagraph (B) limitation (line 47) and the current subparagraph (A) deduction (line
+        48); Publication 54 says the same ("The amount of carryover you can deduct is limited to your
+        foreign earned income for the year of the carryover minus" the exclusions and the housing
+        deduction). The printed form adds a condition the statute does not: Part IX is completed
+        "only if (a) line 33 is more than line 36" (https://www.irs.gov/pub/irs-pdf/f2555.pdf, page 3), so a
+        filer with no current-year housing cost amount would lose the carryover, which can be carried
+        only one year. This fact therefore reads only the Note's
+        room test under line 48, line 47 more than line 48, which is the statute's own limitation;
+        condition (b) of the heading (line 27 more than line 43) follows from it, because line 48 is
+        never below $0. Without room this fact is $0 however much the taxpayer entered.
+
+        THE CAP. IRC 911(c)(4)(C)(i) allows the 2024 amount as a deduction for 2025 "to the extent
+        of the limitation of clause (ii) for such succeeding taxable year", and clause (ii) itself
+        defines that limitation as the excess of "(I) the limitation of subparagraph (B) for such
+        taxable year, over (II) amounts treated as a deduction under subparagraph (A) for such
+        taxable year." Subparagraph (B)'s limitation is foreign earned income over the amount
+        excluded under 911(a) — line 27 minus line 43, which is line 47; the amount already
+        treated as a deduction under subparagraph (A) for the current year is line 48. So clause
+        (ii) IS line 47 minus line 48 on the statute's own face — not a netting the worksheet adds
+        on top of the statute, but the same subtraction the statute itself performs: exactly line 6
+        of the Housing Deduction Carryover Worksheet, whose line 7 then takes "the smaller of line
+        3 or line 6" (https://www.irs.gov/pub/irs-pdf/i2555.pdf, page 7). A larger entry is reduced
+        to that ceiling, as the worksheet reduces it, and the worksheet is explicit that the excess
+        "cannot be carried over to any future tax year".
+
+        COMPLETE-SAFE. Unanswered, or with line 48 not yet computable, this fact is $0, so
+        /form2555ComputedLine50HousingDeduction stays computable and line 49 prints $0 rather than
+        blank. The IsComplete conjuncts guard the two dependencies that are genuinely not
+        complete-safe, /writableForm2555Line49HousingDeductionCarryoverFromPriorTaxYear and
+        /form2555Line48CurrentHousingDeduction (which goes incomplete when line 28 or the line-29b
+        inputs are unanswered), and they come first so the All short-circuits before the comparisons
+        are forced. /form2555Line47ForeignIncomeAfterExclusions is complete-safe and is therefore
+        compared directly, never wrapped in an IsComplete.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE, and NOT rounded to whole dollars.
+        Cents pass through from either operand — the entry accepts them, and line 47 carries them
+        whenever Form 2555 line 27 does. Both LesserOf operands are non-negative under the gate:
+        the entry carries a Min $0 Limit, and line 47 minus line 48 is positive exactly when the
+        gate's second conjunct holds.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete><Dependency path="/writableForm2555Line49HousingDeductionCarryoverFromPriorTaxYear" /></IsComplete>
+                <IsComplete><Dependency path="/form2555Line48CurrentHousingDeduction" /></IsComplete>
+                <GreaterThan>
+                  <Left><Dependency path="/form2555Line47ForeignIncomeAfterExclusions" /></Left>
+                  <Right><Dependency path="/form2555Line48CurrentHousingDeduction" /></Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <LesserOf>
+                <GreaterOf>
+                  <Dependency path="/writableForm2555Line49HousingDeductionCarryoverFromPriorTaxYear" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+                <Subtract>
+                  <Minuend><Dependency path="/form2555Line47ForeignIncomeAfterExclusions" /></Minuend>
+                  <Subtrahends><Dependency path="/form2555Line48CurrentHousingDeduction" /></Subtrahends>
+                </Subtract>
+              </LesserOf>
+            </Then>
+          </Case>
+          <Case><When><True /></When><Then><Dollar>0</Dollar></Then></Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/form2555ComputedLine50HousingDeduction">
+      <Name>Computed Form 2555 line 50 housing deduction</Name>
+      <Export downstreamFacts="true" />
+      <Derived><Add><Dependency path="/form2555Line48CurrentHousingDeduction" /><Dependency path="/form2555Line49HousingDeductionCarryover" /></Add></Derived>
+    </Fact>
+
+    <Fact path="/form2555Line27NotClaimingHousingExclusionOrDeduction">
+      <Name>Form 2555 line 27 No box</Name>
+      <Description>The printed No box of the Yes and No pair under Form 2555 line 27, the negation of /writableForm2555Line27ClaimingHousingExclusionOrDeduction. Incomplete while the question is unanswered, so a return that never reached Part V prints neither box.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Not>
+          <Dependency path="/writableForm2555Line27ClaimingHousingExclusionOrDeduction" />
+        </Not>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableForm2555Line27ClaimingHousingExclusionOrDeduction">
+      <Name>Form 2555 line 27 Yes box, the filer is claiming the housing exclusion or housing deduction</Name>
+      <Description>The filer's answer to the question printed under Form 2555 line 27, "Are you claiming the housing exclusion or housing deduction?" A Yes routes the return into Part VI and a No sends it straight to Part VII. The printed Yes box is this Bool and the printed No box is its negation below, so an unanswered question prints neither box.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm2555Line29aHousingExpenseLocation">
+      <Name>Form 2555 line 29a location where housing expenses were incurred</Name>
+      <Description>The taxpayer's Form 2555 line 29a entry, the location where the housing expenses were incurred. HELP: the instructions say to enter the city or other location and the country ONLY IF the location is listed in Notice 2025-16, and otherwise to leave line 29a blank (i2555 Line 29a). An entry here therefore says the location is a listed one, and the same location must also be chosen in the locality list (/form2555HousingLocations); while no listed locality is chosen there, /form2555Line29bLimitOnHousingExpenses is Incomplete rather than taking the unlisted-location $39,000 / $106.85 figures the entry rules out. A String because the printed box is a free text write in line. The graph already models the localities that set the line 29b limit as the Enum collection /form2555HousingLocations, whose items drive /form2555Line29bLimitOnHousingExpenses; no template renders an Enum collection as the one line of text line 29a prints, so this intake carries the printed caption and the collection continues to carry the limit.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableForm2555SpousesFigureHousingSeparately">
+      <Name>On a joint return, both spouses qualify and figure their housing amounts separately or keep separate foreign households</Name>
+      <Description>QUESTION, asked on a joint return that claims the Form 2555 housing exclusion or deduction: "Does your spouse also qualify for the Form 2555 benefits, with the two of you either figuring your housing amounts separately or living in separate foreign households?" No means one housing amount for the return: only one spouse qualifies, or the spouses share a foreign household and figure the amount jointly, which this form computes. Yes, and a question left unanswered, refuse the return through /knockoutForm2555SpousesHousingFiguredSeparatelyUnbuilt, because each spouse then figures a separate housing amount with his or her own base housing amount and limit, which this return does not compute.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/knockoutForm2555SpousesHousingFiguredSeparatelyUnbuilt">
+      <Name>Knockout: both spouses figure separate Form 2555 housing amounts</Name>
+      <Description>Refuses a joint return that claims the Form 2555 exclusion and the housing exclusion or deduction unless the filer answers that the return has one housing amount (/writableForm2555SpousesFigureHousingSeparately answered No). When both spouses qualify and figure their housing amounts separately, "each spouse must figure the housing amounts separately using such spouse's respective base housing amount", and spouses in separate foreign households each claim the expenses of their own household: two housing amounts, each with its own qualifying period, line 29b limit and base housing amount. This form carries one housing amount per return, so that return is refused rather than filed without the second spouse's amount. An unanswered question refuses too, because nothing else on the return tells the regimes apart. False on every return that does not claim the exclusion, is not a joint return, or does not claim the housing exclusion or deduction.
+
+        ADDITIVE TODAY: form2555:/knockoutFilesForm2555 refuses every Form 2555 return, so this fact does its work only after that knockout retires. It blocks submission on its own and is a member of flow:/flowIsKnockedOut.</Description>
+      <Export downstreamFacts="true" />
+      <BlockSubmissionOnTrue />
+      <Derived>
+        <All>
+          <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+          <IsComplete><Dependency module="filingStatus" path="/isFilingStatusMFJ" /></IsComplete>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <IsComplete><Dependency path="/writableForm2555Line27ClaimingHousingExclusionOrDeduction" /></IsComplete>
+          <Dependency path="/writableForm2555Line27ClaimingHousingExclusionOrDeduction" />
+          <Not>
+            <All>
+              <IsComplete><Dependency path="/writableForm2555SpousesFigureHousingSeparately" /></IsComplete>
+              <Not><Dependency path="/writableForm2555SpousesFigureHousingSeparately" /></Not>
+            </All>
+          </Not>
+        </All>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>

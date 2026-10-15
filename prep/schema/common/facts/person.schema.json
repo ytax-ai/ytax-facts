@@ -1,0 +1,412 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ytax.ai/schema/common/facts/person.schema.json",
+  "title": "Filer or dependent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "birth_year",
+    "tin_type"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "primary",
+        "spouse",
+        "dependent"
+      ]
+    },
+    "birth_year": {
+      "type": "integer",
+      "minimum": 1900,
+      "maximum": 2026
+    },
+    "birth_month": {
+      "description": "1-12. Month only \u2014 never a day (a day is a forbidden identifier).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12
+    },
+    "tin_type": {
+      "description": "The TIN's computational TYPE \u2014 never its digits.",
+      "enum": [
+        "ssn_valid_for_employment",
+        "ssn_other",
+        "ssn_dhs_authorization",
+        "ssn_dhs_authorization_expired",
+        "itin",
+        "atin",
+        "none"
+      ]
+    },
+    "relationship": {
+      "description": "How a dependent is related to the filer \u2014 the pinned dictionary's own relationship vocabulary (/relationshipOptions), in its order, spelled in this schema's snake_case. Dependent rows are refused at compute today; this enum closes the ask-side hole where free text passed the workbook and was refused later.",
+      "type": "string",
+      "enum": [
+        "biological_child",
+        "adopted_child",
+        "step_child",
+        "foster_child",
+        "grand_child_or_other_descendant_of_child",
+        "child_in_law",
+        "sibling",
+        "child_of_sibling",
+        "half_sibling",
+        "child_of_half_sibling",
+        "step_sibling",
+        "child_of_step_sibling",
+        "other_descendant_of_sibling",
+        "other_descendant_of_half_sibling",
+        "other_descendant_of_step_sibling",
+        "siblings_spouse",
+        "sibling_in_law",
+        "parent",
+        "foster_parent",
+        "sibling_of_parent",
+        "grand_parent",
+        "other_ancestor_of_parent",
+        "step_parent",
+        "step_grand_parent",
+        "step_sibling_of_parent",
+        "parent_in_law",
+        "none_of_the_above"
+      ]
+    },
+    "months_in_home": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 12,
+      "description": "Months this dependent lived with the filer during the tax year. Asked on every claimed dependent. 6 maps to the not-more-than-half branch deliberately: the statute says MORE than one-half, and a tie is not rounded in the credit's favour. For a child born (or who died) during the year: 12, if the filer's home was theirs for more than half the time they were alive (Pub 501's own rule) \u2014 that is the encoding the engine reads as the full-year test met."
+    },
+    "is_student": {
+      "type": "boolean",
+      "description": "Whether this person was enrolled as a full-time student during any part of five calendar months of the year. On a dependent row, one of the qualifying-child tests. On a filer row it is Form 8880's student test: asked as a gap once that filer has retirement contributions on the return (a box 12 deferral code or IRA and ABLE contributions), because a student cannot take the retirement savings contributions credit and an unanswered row would default to not a student."
+    },
+    "is_permanently_disabled": {
+      "type": "boolean",
+      "description": "Whether this person was permanently and totally disabled at any time during the year. On a dependent row it is the qualifying-child age test's disability arm (a disabled qualifying child meets it at any age) and the benefit split's: required on a claimed dependent with a qualifying-child relationship who is 18 or older on July 2 of the tax year, or not younger than the oldest filer (asked as a gap); accepted unasked elsewhere. On a filer row it is Form 2441's disabled-spouse arm, optional and taken as no when absent."
+    },
+    "unable_to_care_for_self": {
+      "type": "boolean",
+      "description": "Form 2441's other qualifying-person arm: was this claimed dependent physically or mentally unable to care for themselves? Accepted on a dependent's row (a filer's own incapacity is is_permanently_disabled). Required on a claimed dependent's row 13 or older by birth year (asked as a gap); it decides where the age arm fails — a claimed dependent of any age who is unable to care for themselves is a qualifying person, so care_expenses_cents may be entered on their row (a dependent born in January of the boundary year is served on a yes; otherwise that row is refused as day-ambiguous). Inert where the age arm already qualifies the row: under 13, and February–December of the boundary year. Reaches Form 1040 line 24 through Schedule 3 line 2."
+    },
+    "is_married": {
+      "type": "boolean",
+      "description": "Whether this dependent is married. Asked on every claimed dependent; a true opens the joint-return test, which is asked as up to three further questions on this row (filing a joint return, required to file, filing only for a refund). A dependent the joint-return test fails is simply not claimed \u2014 a computed outcome, not a refusal."
+    },
+    "files_joint_return_with_spouse": {
+      "type": "boolean",
+      "description": "Whether this dependent and their spouse are filing a joint return. Asked on a married dependent row only; a false settles the joint-return test and the two questions below are not asked. Refused elsewhere: a filer's own marital status is the return's filing status, and on an unmarried dependent row the test does not arise."
+    },
+    "required_to_file_with_spouse": {
+      "type": "boolean",
+      "description": "Whether this dependent and their spouse are required to file. Asked only of a married dependent who is filing a joint return; a true settles the joint-return test as failed and the question below is not asked. Refused anywhere the chain does not reach it."
+    },
+    "joint_return_only_for_refund": {
+      "type": "boolean",
+      "description": "Whether this dependent and their spouse are filing a return only to claim a refund of income tax withheld or estimated tax paid. Asked only of a married dependent filing a joint return they are not required to file \u2014 the one case in which a dependent who files jointly still passes the joint-return test. Refused anywhere the chain does not reach it."
+    },
+    "provided_own_support": {
+      "type": "boolean",
+      "description": "Whether this person provided more than half of their OWN support (the qualifying-child support test reads its no)."
+    },
+    "gross_income_under_limit": {
+      "type": "boolean",
+      "description": "Whether this person's own gross income is under the qualifying-relative limit for the year (the form's gross income test)."
+    },
+    "filer_provided_over_half_support": {
+      "type": "boolean",
+      "description": "Whether the filer provided more than half of this person's support (the qualifying-relative support test)."
+    },
+    "could_be_qualifying_child_of_another": {
+      "type": "boolean",
+      "description": "Whether this person could be the qualifying child of ANOTHER taxpayer."
+    },
+    "child_residence_state": {
+      "enum": [
+        "al",
+        "ak",
+        "az",
+        "ar",
+        "ca",
+        "co",
+        "ct",
+        "de",
+        "dc",
+        "fl",
+        "ga",
+        "hi",
+        "id",
+        "il",
+        "in",
+        "ia",
+        "ks",
+        "ky",
+        "la",
+        "me",
+        "md",
+        "ma",
+        "mi",
+        "mn",
+        "ms",
+        "mo",
+        "mt",
+        "ne",
+        "nv",
+        "nh",
+        "nj",
+        "nm",
+        "ny",
+        "nc",
+        "nd",
+        "oh",
+        "ok",
+        "or",
+        "pa",
+        "ri",
+        "sc",
+        "sd",
+        "tn",
+        "tx",
+        "ut",
+        "vt",
+        "va",
+        "wa",
+        "wv",
+        "wi",
+        "wy",
+        "pr",
+        "gu",
+        "vi",
+        "as",
+        "mp",
+        "outsideUnitedStates"
+      ],
+      "description": "The state or U.S. territory this dependent lived in on July 2 of the tax year, or outsideUnitedStates. It sets the age of majority at which a parent's custody ends for the rule for children of divorced or separated parents (19 in al and ne, 21 in ms and pr, 18 elsewhere). Asked on a claimed dependent with a qualifying-child relationship who is 18 or older at the end of the year and is not answered permanently and totally disabled; refused on any other row."
+    },
+    "child_emancipated": {
+      "type": "boolean",
+      "description": "Whether this dependent was emancipated under the law of the state they lived in, at any time up to the end of the tax year. Asked once child_residence_state is answered and the dependent is at or over that state's age of majority at the end of the year; a false keeps the child in a parent's custody, a true asks child_emancipated_after_july_2. Refused anywhere the chain does not reach it."
+    },
+    "child_emancipated_after_july_2": {
+      "type": "boolean",
+      "description": "Whether this dependent's emancipation was after July 2 of the tax year. Asked once child_emancipated is true; a false (on or before July 2, including an earlier year) means the child was not in a parent's custody for more than half the year, and the rule for children of divorced or separated parents does not apply. Refused anywhere the chain does not reach it."
+    },
+    "was_spouse_during_year": {
+      "type": "boolean",
+      "description": "Whether this person was the filer's spouse on any day of the tax year, even if divorced, separated or living apart later in the year. Asked on a claimed dependent not related to the filer in one of the listed ways (a relationship outside the qualifying-relative list, such as none_of_the_above) who lived with the filer all year (months_in_home 12): a person who was the filer's spouse at any time in the year does not meet the member-of-household test. Refused on any other row."
+    },
+    "relationship_violates_local_law": {
+      "type": "boolean",
+      "description": "Whether the relationship between the filer and this person violated local law at any time in the tax year. Asked on a claimed dependent not related to the filer in one of the listed ways who lived with the filer all year (such a person does not meet the member-of-household test), and on a Form 2441 qualifying person's row on a return that claims care expenses (such a person is not a qualifying person for the credit). Refused on any other row."
+    },
+    "has_other_biological_or_adoptive_parent": {
+      "type": "boolean",
+      "description": "Whether this child has another living biological or adoptive parent. Asked on the filer's own biological or adopted child who can still be in a parent's custody \u2014 under 18 at the end of the tax year, under the age of majority of the state they lived in, not emancipated, or permanently and totally disabled \u2014 the one place the engine reads the answer; on any other row it is refused as an answer the engine does not ask. A true opens the benefit-split gate, which is asked as up to five further questions on this row (the parents' situation, legal custody, living with a parent, the parents' support, the written declaration). Any answer that closes that gate leaves the child claimed under the ordinary rules."
+    },
+    "parents_situation": {
+      "type": "string",
+      "enum": [
+        "divorced_or_separated",
+        "lived_apart_last_six_months",
+        "other"
+      ],
+      "description": "The filer's situation with this child's other legal parent. Asked on a biological or adopted child's row once another legal parent is answered; other closes the benefit-split gate and the four questions below are not asked. Refused anywhere the chain does not reach it."
+    },
+    "child_in_parents_custody": {
+      "type": "boolean",
+      "description": "Whether this child was still in the legal custody of their biological or adoptive parents as of July 2. On the filer's own child: asked once the parents are answered divorced, separated or living apart; a false closes the benefit-split gate. On a child the filer is not the parent of: asked once a parent has signed a declaration not to claim; a false claims the child under the ordinary rules. Refused anywhere neither chain reaches it."
+    },
+    "child_lived_with_parents_over_half_year": {
+      "type": "boolean",
+      "description": "Whether this child lived with the filer and/or the other legal parent for more than six months of the year. Asked once the child is answered in the parents' legal custody; a false closes the benefit-split gate. Refused anywhere the chain does not reach it."
+    },
+    "parents_provided_over_half_support": {
+      "type": "boolean",
+      "description": "Whether the filer and/or the other legal parent paid more than half of this child's support. Asked once the child is answered as having lived with a parent for more than six months; a false closes the benefit-split gate. Refused anywhere the chain does not reach it."
+    },
+    "written_declaration": {
+      "type": "string",
+      "enum": [
+        "i_did",
+        "they_did",
+        "nobody_did"
+      ],
+      "description": "Which parent signed a written declaration not to claim this child, sometimes on Form 8332. Asked once every earlier answer has kept the benefit-split gate open; nobody_did closes it and the child is claimed under the ordinary rules. i_did and they_did open the custodial-parent questions that follow, and every outcome of those is the engine's own \u2014 computed or knocked out \u2014 never a refusal."
+    },
+    "nights_with_filer_vs_other_parent": {
+      "type": "string",
+      "enum": [
+        "more",
+        "less",
+        "equal"
+      ],
+      "description": "Whether this child spent more nights with the filer than with the other parent, fewer, or the same number. Asked once a parent has signed a written declaration not to claim the child; with equal nights the higher-AGI question below decides who is the custodial parent. Refused anywhere the chain does not reach it."
+    },
+    "filer_agi_higher_than_other_parent": {
+      "type": "boolean",
+      "description": "Whether the filer's adjusted gross income was higher than the other parent's. Asked only when the child's nights with each parent are equal; it then decides who is the custodial parent. Refused anywhere the chain does not reach it."
+    },
+    "child_parents_living": {
+      "type": "boolean",
+      "description": "Whether this person's own biological or adoptive parents are living. Asked on a claimed dependent the filer is not the parent of \u2014 a sibling, half- or step-sibling, stepchild, foster child, grandchild, or a sibling's child or other descendant \u2014 who can still be in a parent's custody (under 18 at the end of the year, under the age of majority of the state they lived in, not emancipated, or permanently and totally disabled); the dictionary's claim chain waits on it for those rows. A false claims the person under the ordinary rules. A true opens the non-parental split's questions (the four below, with the legal-custody question between them). Refused on a row the engine does not ask it of."
+    },
+    "parents_meet_divorced_or_separated_rule": {
+      "type": "boolean",
+      "description": "Whether this child's parents meet the rule for children of divorced or separated parents, or parents who lived apart. Asked on a child the filer is not the parent of once the child's own parents are answered as living; a false claims the child under the ordinary rules. Refused anywhere the chain does not reach it."
+    },
+    "a_parent_signed_declaration_not_to_claim": {
+      "type": "boolean",
+      "description": "Whether either of this child's parents signed a written declaration not to claim them. Asked once the parents meet the divorced-or-separated rule; a false claims the child under the ordinary rules. Refused anywhere the chain does not reach it."
+    },
+    "custodial_parent_claims_child_as_qualifying_person": {
+      "type": "boolean",
+      "description": "Whether the custodial parent claims this child as their qualifying person for head of household, the earned income credit or another credit. Asked once the child is in their parents' custody with a declaration signed; a true means the child cannot be claimed on this return. Refused anywhere the chain does not reach it."
+    },
+    "filer_agi_higher_than_custodial_parent": {
+      "type": "boolean",
+      "description": "Whether the filer's adjusted gross income was higher than the custodial parent's. Asked once the custodial parent does not use the child as their qualifying person; a true lets the filer take the split's benefits (the earned income credit) without claiming the child as a dependent, a false means the child cannot be claimed on this return. Refused anywhere the chain does not reach it."
+    },
+    "is_blind": {
+      "type": "boolean",
+      "description": "Whether this person is blind \u2014 Form 1040 line 12's checkbox (\u201cYou: Are blind\u201d, and \u201cSpouse: Is blind\u201d on a joint return). Asked on every filer row of every filing status; true adds the additional standard deduction amount for blindness (IRC 63(f)(2)). Refused on a dependent row \u2014 the checkbox is not printed for a dependent, and the answer would move nothing on this return. On a separate return the spouse has no row here; that checkbox is the separate-return spouse question."
+    },
+    "k12_educator": {
+      "type": "boolean",
+      "description": "Whether this person was a kindergarten through grade 12 teacher, instructor, counselor, principal or aide in a school for at least 900 hours during a school year (IRC 62(d)(1)(A)). Asked on every filer row \u2014 the primary, and the spouse on a joint return; a true reaches educator_expenses_cents. Refused on a dependent row: the educator expenses adjustment (Schedule 1 line 11) is the filer's and the spouse's only."
+    },
+    "educator_expenses_cents": {
+      "$ref": "cents.schema.json",
+      "description": "The unreimbursed classroom expenses this person paid this year, in integer cents. Asked once this row's k12_educator is true; refused anywhere it is not. The engine applies the per-educator cap ($300 for 2025) and zeroes the adjustment on a claimed joint return itself."
+    },
+    "made_ira_contributions": {
+      "type": "boolean",
+      "description": "Whether this person contributed to an IRA or an ABLE account for the year (traditional or Roth IRA, or an ABLE account of which they are the designated beneficiary, including a contribution made by the return's due date). the ABLE saver with no IRA answers yes — the credit on Form 8880 line 1 turns on this answer (measured: 2,000 of ABLE contributions at 25,000 of wages, 928.00 → 528.00). Asked on every filer row \u2014 the primary, and the spouse on a joint return; a true reaches traditional_ira_contributions_cents and contributed_to_inherited_ira. Refused on a dependent row."
+    },
+    "traditional_ira_contributions_cents": {
+      "$ref": "cents.schema.json",
+      "description": "This person's traditional IRA contributions for the year, in integer cents; 0 when the contributions were to a Roth IRA or an ABLE account only. Asked once this row's made_ira_contributions is true; refused anywhere it is not. The annual limit, the employer-plan phase-out (from W-2 box 13) and the spousal-IRA compensation rule are the engine's; an amount over the limit is served as the engine's own excess-contribution knockout."
+    },
+    "contributed_to_inherited_ira": {
+      "type": "boolean",
+      "description": "Whether any of this person's contributions were made to an inherited IRA. Asked once this row's made_ira_contributions is true; refused anywhere it is not. A true reaches inherited_ira_contribution_cents, the amount paid in to that account."
+    },
+    "inherited_ira_contribution_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "How much of this person's traditional IRA contributions was new money paid in to an IRA inherited from someone other than a spouse, in integer cents; a trustee-to-trustee transfer of the original owner's balance is not a contribution and is not counted. Required once contributed_to_inherited_ira is true, refused anywhere else, and no more than traditional_ira_contributions_cents. Section 219(d)(4) denies the deduction for this amount only, and the engine treats it as an excess contribution: 0 keeps the full deduction (Schedule 1 line 20), and an amount above 0 is served as the engine's own excess-contribution knockout."
+    },
+    "made_hsa_contributions": {"type": "boolean", "description": "Whether this person contributed to a health savings account themselves for the year — outside the employer's payroll contributions reported on Form W-2 box 12 code W (Form 8889 line 2). a qualified HSA funding distribution transferred from an IRA counts as a yes (the transfer is asked on the Form 1099-R; this amount is then 0). Asked on every filer row, as made_ira_contributions is (the engine asks the activity question on every return); a true reaches hsa_own_contributions_cents and opens Form 8889 Part I's coverage questions (hsa_medicare first) as a code W amount does. Refused on a dependent row."},
+    "hsa_own_contributions_cents": {"$ref": "cents.schema.json", "minimum": 0, "description": "Form 8889 line 2: the HSA contributions this filer made for the year themselves, in integer cents. 0 when the only contribution was a qualified HSA funding distribution transferred from an IRA (carried on the Form 1099-R). Required once made_hsa_contributions is true (unanswered, the engine computed the deduction as zero in silence, measured); refused elsewhere. Measured: 2,000 is the line 13 deduction (Schedule 1 line 13), line 24 928.00 → 728.00 on wages-single-low; over the line 8 limit the excess is a 6% excise on Form 5329, not income."},
+    "hsa_own_contributions_after_year_end_cents": {"$ref": "cents.schema.json", "minimum": 0, "description": "Form 8889 line 2, the part contributed after December 31 of the tax year and before the due date, for that year, in integer cents. Optional once made_hsa_contributions is true; absent means 0 and is stated (measured: 500 adds to the deduction, 728.00 → 678.00). Refused elsewhere."},
+    "hsa_prior_year_excess_cents": {"$ref": "cents.schema.json", "minimum": 0, "description": "Form 5329 line 42: the excess HSA contribution still in this person's account at the end of 2024 — line 48 of their 2024 Form 5329, only if its line 49 was more than zero; 0 otherwise, in integer cents. Optional on a filer row with HSA activity; absent means 0 and is stated (the yes/no the engine reads is derived: a positive amount is the yes). Line 43 absorbs it against the room under Form 8889 line 12 and what remains joins line 48 for the 6% (measured: 2,000 on a 3,000 code W filer, 928.00 → 970.00). A positive amount on a filer row with no 2025 HSA activity (no code W, own contributions, funding transfer or coverage answers) is refused: Form 8889 Part I is not asked there, so line 43's room cannot be established. Refused on a dependent row."},
+    "hsa_december_31_value_cents": {"$ref": "cents.schema.json", "minimum": 0, "description": "Form 5329 line 49: the total value of this person's HSAs on December 31 of the tax year, including that year's contributions made by the due date, in integer cents. Optional on a filer row with 2025 HSA activity (a W-2 box 12 code W amount, own contributions, a qualified HSA funding distribution, or the coverage questions reached — a joint return's spouse opened by the other's transfer); line 49 taxes 6% of the SMALLER of the excess contribution and this value, so it can only lower that tax. Absent sends nothing and is stated; where Form 5329 line 48 shows an excess the value is required by the engine, which refuses that return without it (measured: 700 of excess with 200 in the account, 1,010.00; with 5,000, 1,040.00). A 0 is the person's own statement that the accounts were empty — never pre-fill it. Refused elsewhere."},
+    "roth_ira_and_able_contributions_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "This person's Roth IRA and ABLE account contributions for the year, in integer cents; 0 if none. Asked once this row's made_ira_contributions is true (the third follow-up, beside the traditional amount and the inherited-IRA answer); refused anywhere it is not. Form 8880 line 1 is the traditional amount plus this one; it moves line 24 through the retirement savings contributions credit (measured). On a JOINT return above 0 it also reaches roth_ira_contributions_cents, whose Roth half cuts the compensation left for the other spouse's Schedule 1 line 20 deduction; the combined amount itself never reaches that deduction."
+    },
+    "roth_ira_contributions_cents": {"type": "integer", "minimum": 0, "description": "How much of this person's combined Roth IRA and ABLE account contributions went to the Roth IRA, in integer cents. Asked on a JOINT return, on a filer row that contributed, once that row reports a combined amount above 0; refused anywhere it is not, and required where it is. It is IRC 219(c)(1)(B)(ii)(III)'s reduction term in the OTHER spouse's spousal-IRA limit, so it decides that spouse's Schedule 1 line 20 deduction; the ABLE remainder belongs to Form 8880 line 1 and to nothing here. Must be between 0 and the combined amount."},
+      "received_retirement_distributions_2023_2024": {
+      "type": "boolean",
+      "description": "Form 8880 line 4: whether this filer received any distribution from a retirement plan, an IRA or an ABLE account in 2023 or 2024. Asked as a gap of a filer 18 or older, not a student, with retirement contributions on the return; a true reaches the two amounts. Refused elsewhere."
+    },
+    "retirement_distributions_2023_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The distributions this filer received in 2023, in integer cents (Form 8880 line 4); 0 if none. Asked once received_retirement_distributions_2023_2024 is true. On a joint return an amount above 0 asks filed_jointly_2023."
+    },
+    "retirement_distributions_2024_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The distributions this filer received in 2024, in integer cents (Form 8880 line 4); 0 if none. Asked once received_retirement_distributions_2023_2024 is true. On a joint return an amount above 0 asks filed_jointly_2024."
+    },
+    "received_retirement_distributions_after_year_end": {
+      "type": "boolean",
+      "description": "Form 8880 line 4: whether this filer received, or will receive, a distribution from a retirement plan, an IRA or an ABLE account after December 31 of the tax year and before the return's due date, including extensions. Asked as a gap of a filer with retirement contributions; a true reaches the amount. Refused elsewhere."
+    },
+    "retirement_distributions_after_year_end_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "That distribution amount, in integer cents (Form 8880 line 4). Asked once received_retirement_distributions_after_year_end is true."
+    },
+    "hsa_exception_amount_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 8889 line 17b's input: of this filer's taxable HSA distributions (line 16), how much was distributed after they became disabled, after the account beneficiary died, or after they turned 65 — exempt from the additional 20% tax. 0 means none of it. Asked, together with hsa_exception_reason, once this filer's Forms 1099-SA (hsa_distributions) show gross above qualified medical expenses, every one carrying code 1, and the filer is under 66 at the close of the year (66 or older, the engine derives the whole exception); refused anywhere else. Reaches Form 1040 line 24 (Schedule 2)."
+    },
+    "hsa_exception_reason": {
+      "type": "string",
+      "enum": ["age65", "disability", "death_of_beneficiary", "none"],
+      "description": "The ground the exception amount rests on — the instructions' three grounds, or none. Required beside the amount (the engine refuses either half missing); it changes no dollar, being the audit trail behind line 17a."
+    },
+    "hsa_medicare": {"type": "string", "enum": ["all_year", "part_of_year", "none"], "description": "Form 8889 Part I, the first of its questions on a filer row with a W-2 box 12 code W amount (employer HSA contributions) — and, since on a joint return's spouse row without an HSA where the other spouse's funding distribution is above the line 8 base limitation (IRC 223(b)(5)(A) reads the spouse's coverage for the couple's cap; that chain stops after the coverage type; it goes on past a Medicare answer too — all year is carried as twelve months of yes, part of the year asks hsa_medicare_first_month): whether this filer was enrolled in Medicare all year, part of the year, or not at all. Asked as a gap; all_year goes on to the coverage chain and is carried as twelve months of yes on the Medicare vector (line 3 is 0 and the employer contributions are the excess — Schedule 1 line 8z and the 6% on Form 5329; behind no coverage it stays the engine's knockout); part_of_year reaches hsa_medicare_first_month and then, like none, hsa_hdhp_coverage. Refused where no code W amount reaches it."},
+    "hsa_medicare_first_month": {"type": "string", "enum": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the month of 2025 in which this filer's Medicare enrollment began — IRC 223(b)(7) zeroes the monthly limitation from that month on, so the twelve-month Medicare vector (/filers/*/writableHsaEnrolledInMedicareMonth01..12) is sent no before it and yes from it. Asked once hsa_medicare is part_of_year on a filer row with HSA contributions, or on a joint return's spouse row that the other spouse's funding distribution opens — not of a filer who can be claimed as a dependent (the engine's knockout there); on a separate return the spouse's coverage rows follow it; jan is refused (that is all_year); required there, refused elsewhere. Measured: 3,000 code W with Medicare from July → line 3 2,150, 1,064.00."},
+    "hsa_hdhp_coverage": {"type": "string", "enum": ["all_year", "part_of_year", "none"], "description": "Form 8889 line 1: whether this filer was covered by a high deductible health plan all year, part of the year, or not at all. Asked once hsa_medicare is none; none is the engine's own knockout; all_year and part_of_year reach hsa_hdhp_type, and part_of_year then the twelve coverage months. On a joint return's spouse row without an HSA none is twelve months of no coverage and computes; part_of_year reaches the type and the months."},
+    "hsa_hdhp_type": {"type": "string", "enum": ["self_only", "family", "both"], "description": "Form 8889 line 1: self-only or family coverage, or both during the year (both then reaches the twelve coverage months). Asked once hsa_hdhp_coverage is all_year or part_of_year — on a joint return's spouse row without an HSA it is the chain's last question unless the months follow it. Decides the line 3 limit: 4,300 self-only, 8,550 family for 2025, plus 1,000 at 55 by birth year (measured day-invariant); on a joint return family coverage on either filer splits the family limit between them (the engine's line 6 allocation)."},
+    "hsa_coverage_jan": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of January 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth01). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_feb": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of February 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth02). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_mar": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of March 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth03). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_apr": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of April 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth04). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_may": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of May 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth05). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_jun": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of June 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth06). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_jul": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of July 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth07). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_aug": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of August 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth08). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_sep": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of September 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth09). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_oct": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of October 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth10). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_nov": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of November 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth11). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_coverage_dec": {"type": "string", "enum": ["none", "self_only", "family"], "description": "Form 8889 line 3, the Line 3 Limitation Chart: the high deductible health plan coverage this filer had on the first day of December 2025 — none, self-only or family (/filers/*/writableHsaCoverageTypeMonth12). Asked once hsa_hdhp_coverage is part_of_year or hsa_hdhp_type is both, with the type answered (not of a filer who can be claimed as a dependent, nor on a separate return: the engine's knockout there); prefilled from the all-year answer otherwise, and stated; refused elsewhere."},
+    "hsa_other_coverage": {"type": "string", "enum": ["whole_year", "part_of_year", "none"], "description": "Form 8889 Part I: whether this filer had other health coverage that is not a high deductible health plan for the whole year, part of it, or none of it. Asked once hsa_hdhp_type is self_only or family; whole_year and part_of_year are the engine's own knockouts; none reaches hsa_funding_distribution."},
+    "hsa_funding_distribution": {"type": "boolean", "description": "Form 8889 line 10: whether this filer made a qualified HSA funding distribution from an IRA in the year (a trustee-to-trustee transfer into the HSA). Asked once hsa_other_coverage is none. a yes is asked for the amount on each of the filer's IRA Forms 1099-R (r1099s[].qualified_hsa_funding_distribution_cents); with an amount carried the transfer leaves Form 1040 line 4b and lands on line 10, and hsa_prior_funding_distribution_election is asked next; with no amount carried, true is the engine's own knockout. Refused elsewhere."},
+    "hsa_prior_funding_distribution_election": {"type": "boolean", "description": "Whether this filer made a qualified HSA funding distribution in an earlier year — the election can be made once in a lifetime. Asked once a Form 1099-R of this filer carries a funding distribution above 0; true is the engine's own knockout (a second election is not figured). Refused elsewhere."},
+    "qcd_prior_deducted_ira_contributions_cents": {"$ref": "cents.schema.json", "minimum": 0, "description": "Pub 590-B Appendix D line 1: the traditional IRA contributions this filer deducted in earlier years in which they were 70½ or older that have not already reduced a qualified charitable distribution — the engine's per-filer post-70½ offset history (/primaryFilerQcdOffsetCarryover, /secondaryFilerQcdOffsetCarryover). Asked once a Form 1099-R of this filer carries a qualified charitable distribution; 0 if none; required there, refused elsewhere. Measured: a history of 1,000 against a 10,000 distribution taxes 1,000 on line 4b (126.00 → 226.00)."},
+    "hsa_funding_distribution_transfer_month": {"type": "string", "enum": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], "description": "The month of 2025 in which the IRA trustee transferred the qualified HSA funding distribution into this filer's HSA (/filers/*/writableHsaFundingDistributionTransferMonth). Asked once the filer's funding distribution is above the Form 8889 line 8 base limitation for their coverage (4,300 self-only, 8,550 family) — or, since beside an asked coverage vector with any transfer — with the coverage answers carried for every filer on the return; required there, refused elsewhere. With it the engine clamps the exclusion to the IRC 408(d)(9)(C)(i) cap and the overflow lands on Form 1040 line 4b (measured: 5,000 transferred with self-only coverage all year, 700 on line 4b, 1,040.00; before, the engine's knockout)."},
+    "hsa_testing_period_first_ineligible_month": {"type": "string", "enum": ["none", "jan2025", "feb2025", "mar2025", "apr2025", "may2025", "jun2025", "jul2025", "aug2025", "sep2025", "oct2025", "nov2025", "dec2025", "jan2026", "feb2026", "mar2026", "apr2026", "may2026", "jun2026", "jul2026", "aug2026", "sep2026", "oct2026", "nov2026", "dec2026"], "description": "Form 8889 Part III: the first month of the testing period the IRA-to-HSA transfer opened (the transfer month through the last day of the 12th month after it) in which this filer was not an eligible individual, or none if eligible throughout (/filers/*/writableHsaTestingPeriodFirstIneligibleMonth). Asked once the filer's funding distribution is above 0 and hsa_hdhp_coverage is part_of_year with the twelve months answered; required there, refused elsewhere. A 2025 month puts the whole line 10 on line 19 with 10% on Schedule 2 (measured: 5,000, jul2025 → 2,488.00; none or a 2026 month → 1,388.00)."},
+    "hsa_spouse_contributed": {"type": "boolean", "description": "Form 8889 line 6 on a married-filing-separately return: whether this filer's spouse had HSA contributions for the year. Asked once hsa_funding_distribution is false on a separate return where hsa_hdhp_type is family; true is the engine's own knockout (the family limit would have to be divided). Refused elsewhere."},
+    "hsa_marital_status_changed": {"type": "boolean", "description": "Form 8889 line 3: whether this filer's marital status changed during the year (a marriage, a divorce, or the loss of a spouse). Asked of a married or widowed filer (a joint, separate or qualifying-surviving-spouse return) once hsa_funding_distribution is false and, on a separate return with family coverage, hsa_spouse_contributed is false; true reaches hsa_marital_change_affects_limit. Refused on a single or head-of-household return."},
+    "hsa_marital_change_affects_limit": {"type": "boolean", "description": "Form 8889 line 3: whether that change of marital status affects this filer's contribution limit (the coverage type changed with it). Asked once hsa_marital_status_changed is true; true is the engine's own knockout (the month-by-month limit is not carried). Refused elsewhere."},
+    "care_expenses_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 2441 line 2 column (d): qualified child or dependent care expenses paid in 2025 for this person's care, counting only amounts paid to a provider who was not your spouse, not the child's parent, not your dependent, and not your child under 19. Optional; absent means none were entered for this person. Accepted only on a qualifying person: a claimed dependent under 13 at the close of the year or who turned 13 after January 1 (born in January of that year, the answer is refused — the birth day decides and this service does not carry it), or, on a joint return, a filer who is permanently and totally disabled and lived with their spouse more than half the year. Any amount above 0 wants at least one care_providers[] row. Reaches Form 1040 line 24 through Schedule 3 line 2.",
+      "type": "integer"
+    },
+    "self_employed_dependent_care_benefits_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "Form 2441 line 12's instruction: the amount this filer received in 2025 under a dependent care assistance program of their own sole proprietorship or partnership. Optional; absent means 0. Accepted on a filer row whose W-2s carry box 10 or whose Schedule C or partnership K-1 is on the return; above 0 it opens Form 2441 Part III like box 10 does. Reaches Form 1040 lines 1e and 24.",
+      "type": "integer"
+    },
+    "dependent_care_plan_maximum_cents": {
+      "$ref": "cents.schema.json",
+      "minimum": 0,
+      "description": "The most this filer's employer's dependent care assistance plan allows for the year (from the plan's own documents; Direct File's question, not a printed line). Required once this filer's Form W-2 box 10 or own sole-proprietorship benefit is above 0 — Form 2441 Part III stalls without it — and accepted only then; 0 is refused (it makes every dollar taxable in silence). Caps the excluded benefit. Reaches Form 1040 lines 1e and 24.",
+      "type": "integer"
+    },
+    "someone_can_claim_you": {
+      "type": "boolean",
+      "description": "Form 1040 page 1, \u201cSomeone can claim: You as a dependent\u201d (and \u201cYour spouse as a dependent\u201d on a spouse row). Asked on every filer row. On the primary filer a yes opens the questions below; a filer someone claims gets the dependent's standard deduction (the greater of $1,350 or earned income + $450, capped at the regular amount) and no earned income credit. On a spouse row a yes is refused: the joint filing-requirement questions that decide a spouse's claim are not asked here. Refused on a dependent row."
+    },
+    "expect_to_be_claimed": {
+      "type": "boolean",
+      "description": "Whether the filer expects the person who can claim them to do so this year. Asked on the primary row once someone can claim them. Refused anywhere the chain does not reach it."
+    },
+    "potential_claimer_must_file": {
+      "type": "boolean",
+      "description": "Whether the person who could claim the filer is required to file a tax return. Asked on the primary row once someone can claim them; a yes settles the claim. Refused anywhere the chain does not reach it."
+    },
+    "potential_claimer_filed": {
+      "type": "boolean",
+      "description": "Whether the person who could claim the filer filed a tax return although not required to. Asked once that person need not file; a no leaves the filer unclaimed. Refused anywhere the chain does not reach it."
+    },
+    "potential_claimer_filed_only_for_refund": {
+      "type": "boolean",
+      "description": "Whether that person filed only to get a refund of tax withheld or estimated tax paid. Asked once they filed anyway; a yes leaves the filer unclaimed. Refused anywhere the chain does not reach it."
+    },
+    "filer_paid_most_of_home_upkeep": {
+      "type": "boolean",
+      "description": "Whether the filer paid more than half the cost of keeping up the home this person lived in. Asked on every dependent row of a head-of-household or qualifying-surviving-spouse return, and on a single return of every dependent row the engine asks it of \u2014 a qualifying-child relationship, or a qualifying-relative one with the person in the home more than half the year. On a married return (joint or separate) it is asked exactly when the lived-together answers say the spouses lived apart for the last six months of the year \u2014 apart all year, or together six months or less and apart the last six \u2014 and refused otherwise; on a single row outside that population the engine does not ask it at all. On a head-of-household or qualifying-surviving-spouse return the engine's own eligibility test reads it, and a return whose answers do not establish the declared status is refused after the engine answers; on a single return it moves no served line and completes the household section."
+    }
+  }
+}

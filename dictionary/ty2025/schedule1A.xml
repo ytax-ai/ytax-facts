@@ -1,0 +1,2902 @@
+<?xml-model href="./FactDictionaryModule.rng"?>
+<!--
+ytax Tax Rules
+ytax is a product and project of TRIPLE J AI LLC.
+Product website: https://ytax.ai
+Copyright (c) 2026 TRIPLE J AI LLC, solely in its original
+copyrightable contributions to this file.
+
+Contains original tax-rule material from the ytax project.
+
+The PolyForm Strict License 1.0.0 (LicenseRef-PolyForm-Strict-1.0.0)
+applies only to original copyrightable ytax contributions in this file
+that TRIPLE J AI LLC owns or is authorized to license. Other material
+in this file keeps its own status and terms.
+
+See the release-root LICENSE, LICENSING.md and legal/COMPONENT-SCOPE.md.
+Other permissions need a separate written agreement with
+TRIPLE J AI LLC: license@ytax.ai
+
+No rights are claimed in tax law, facts, methods, or public-domain
+material. Provided as is, without warranty; see LICENSE.
+This is not an official IRS release.
+-->
+
+<FactDictionaryModule>
+  <Facts>
+
+
+    <Fact path="/schedule1AMagi">
+      <Name>Schedule 1-A MAGI</Name>
+      <Description>Schedule 1-A Part I line 3: AGI plus excluded Puerto Rico / Form 2555 /
+        Form 4563 income. The exclusions (lines 2a-2d) are modeled — this fact adds them, per the
+        Derived below.
+
+        Both possession intakes are complete-safe with a $0 tail, so a filer who is
+        never asked reaches this fact with the add-backs at $0 and MAGI equal to AGI — a
+        faithful-input limitation, not a derivation gap. The section 911 limb remains refused by
+        form2555 /knockoutFilesForm2555.
+
+        This fact is a direct alias of ctcOdc /modifiedAgiWithForeignAndPossessionExclusions, the
+        single root for the AGI + sections 911/931/933 modified AGI that this and four sibling
+        surfaces define identically; the add-back list this description reads from the printed
+        form is unchanged and lives on the root.
+
+        For example, $20,000 of section 933 exclusion against $259,190 of AGI gives $279,190 here.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Dependency module="ctcOdc" path="/modifiedAgiWithForeignAndPossessionExclusions" />
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/receivedQualifiedTips">
+      <Name>Received qualified tips</Name>
+      <Description>Whether the taxpayer (or spouse on a joint return) received qualified tips
+        in an occupation listed at IRS.gov/TippedOccupations. Gate for Part II.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableQualifiedTipsAmount">
+      <Name>Qualified tips amount</Name>
+      <Description>The FILER-TYPED line 6 total: total qualified tips, Schedule 1-A line 6 (employee
+        tips line 4c plus trade-or-business tips line 5).
+
+        NO LONGER THE FACT THE DEDUCTION READS. The per-employer / Form 4137 detail (lines 4a, 4b) and
+        the trade-or-business share (line 5) ARE modeled, and the computed line 6
+        /schedule1ALine6QualifiedTips adds line 4c (itself computed from 4a/4b where answered) and the
+        net-income-limited line 5. This attestation is now the FALL-THROUGH arm of that fact, taken
+        only on a return that answers none of the line 4/5 detail, and it keeps its printed-form
+        mapping.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/receivedQualifiedOvertime">
+      <Name>Received qualified overtime</Name>
+      <Description>Whether the taxpayer (or spouse on a joint return) received qualified
+        overtime compensation. Gate for Part III.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableQualifiedOvertimeAmount">
+      <Name>Qualified overtime compensation amount</Name>
+      <Description>The FILER-TYPED line 14c total: total qualified overtime compensation, the W-2 box 1
+        portion plus the 1099 portion.
+
+        THE FALL-THROUGH ARM OF THE COMPUTED LINE 14c. Lines 14a and 14b are separately modeled —
+        /writableSchedule1ALine14aQualifiedOvertimeFromW2Box1 and
+        /writableSchedule1ALine14bQualifiedOvertimeFrom1099 — and the computed line 14c
+        /schedule1ALine14cQualifiedOvertime adds them when either is answered. This attestation is the
+        fall-through arm of that fact, taken only on a return that answers neither printed component,
+        and it keeps its IRS1040S1A f1_24[0] mapping.
+
+        KEPT RATHER THAN RETIRED: the typed line 14c total is still reachable as the only source on a
+        return that answers neither line 14a nor line 14b, which is exactly the arm
+        /schedule1ALine14cQualifiedOvertime falls through to. Retiring it would force a register
+        re-point of the printed line 14c box for no change in any computed value on a supported return.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/paidQualifiedCarLoanInterest">
+      <Name>Paid qualified car loan interest</Name>
+      <Description>Whether the taxpayer paid or accrued qualified passenger vehicle loan
+        interest (QPVLI). Gate for Part IV.</Description>
+
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableQualifiedCarLoanInterestAmount">
+      <Name>Qualified car loan interest amount</Name>
+      <Description>The FILER-TYPED line 23 total: total QPVLI for Schedule 1-A line 23, net of any
+        amounts deducted on Schedules C/E/F.
+
+        THE FALL-THROUGH ARM OF THE COMPUTED LINE 23. The per-vehicle line 22 detail is modeled —
+        two VIN rows with their column (ii) and column (iii) intakes — and the computed line 23
+        /schedule1ALine23QualifiedCarLoanInterest adds the two column (iii) figures when either row is
+        answered. This attestation is the fall-through arm of that fact, taken only on a return that
+        answers neither printed row, and it keeps its IRS1040S1A f2_07[0] mapping.
+
+        KEPT RATHER THAN RETIRED: the typed line 23 total is still reachable as the only source on a
+        return that answers neither line 22a nor line 22b column (iii), which is exactly the arm
+        /schedule1ALine23QualifiedCarLoanInterest falls through to. Retiring it would force a register
+        re-point of the printed line 23 box for no change in any computed value on a supported return.</Description>
+
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/writableQualifiedTipsAmountTradeOrBusiness">
+      <Name>Qualified tips received in the course of a trade or business (Schedule 1-A line 5)</Name>
+      <Description>The line-5 share of the qualified tips total: tips received in the course of a
+        trade or business, as opposed to the line-4c share received as an employee. A SUBSET of
+        /writableQualifiedTipsAmount (line 6 = line 4c + line 5), which is left exactly as it is —
+        this fact is additive, so a return that does not answer it is unchanged and reads 0.
+
+        WHY THE SPLIT MATTERS: only the line-5 share sits inside Schedule C gross receipts, so only
+        it can double-count against QBI. Employee tips are reported on a W-2 and never enter
+        Schedule C net profit, so they must not reduce QBI. Consumed by
+        qbi:/qbiScheduleCTipsExclusion, which clamps it at the line-6 total so a data-entry error
+        cannot exclude more than the filer reported.</Description>
+      <Export downstreamFacts="true" />
+      
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+
+    <Fact path="/writableExcludedTerritoryQualifiedTips">
+      <Name>Qualified tips excluded from U.S. gross income as section 931/933 territory income</Name>
+      <Description>The part of /writableQualifiedTipsAmount that is EXCLUDED from U.S. gross income
+        under section 931 or 933. Optional, $0 when unanswered.
+
+        THIS RULE IS NOT THE APPORTIONMENT FRACTION, and modelling it as one would be wrong.
+        Publication 570 chapter 4 gives the tips and overtime deductions their own treatment: they
+        "may be claimed on a U.S. tax return only with respect to income that is included in your
+        U.S. gross income", and where part is excluded "you may take a deduction ... only with
+        respect to the qualified tips or qualified overtime compensation that you did not exclude"
+        (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 33, the RIGHT column of a two-column
+        extraction). That is a SUBTRACTION of an identified amount, not a share of income — the
+        publication's own example of how it arises is a filer who "worked part of the year within
+        the United States and part of the year within a territory", which is a split of the tips
+        themselves. Applying the gross-income fraction here would produce a different number for the
+        same filer and cite a rule the publication did not write for this line.
+
+        WHICH IS WHY THIS IS AN INTAKE. The graph cannot derive the split: it holds one qualified-tips
+        figure and no geography for it. Asking is the only faithful option, and it mints one question
+        rather than inventing an allocation.
+
+        THE $0 TAIL IS TAXPAYER-FAVOURABLE and is stated rather than buried: a filer with excluded
+        tips who is never asked deducts them all. Same posture as every optional intake in this unit,
+        and the population is refused today by ctcOdc /knockoutPossessionOrPuertoRicoIncomeExclusion.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE. Not cross-checked against
+        /writableQualifiedTipsAmount — the engine has no cross-fact Limit. interpretation:provisional.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/allowableQualifiedTipsAmount">
+      <Name>Qualified tips eligible for the section 224 deduction after the Pub. 570 territory limit</Name>
+      <Description>= /writableQualifiedTipsAmount MINUS the part excluded from U.S. gross income,
+        floored at zero. With nothing excluded this IS /writableQualifiedTipsAmount, so no committed
+        return moves.
+
+        IT FEEDS THE DEDUCTION BASIS, BEFORE THE CAP AND THE PHASE-OUT, because the publication's
+        limit is on WHICH tips may be counted at all rather than on the finished deduction — the
+        opposite end from /allowableQualifiedCarLoanInterestDeduction, whose printed instruction
+        multiplies "the full amount of the otherwise allowable deduction". Three rules, three
+        placements, all in the same chapter; they are not interchangeable.
+
+        THE RAW READ IS SAFE BY CONSTRUCTION: qbi
+        /qualifiedTipsDeductedAttributableToScheduleC reads the raw /writableQualifiedTipsAmount for
+        the section 224 carve-out, and the algebra is short enough to check rather than assert. That
+        carve-out is
+        min(D, min(L5, L6)), where D is /qualifiedTipsDeduction, L5 is
+        /writableQualifiedTipsAmountTradeOrBusiness and L6 is the raw /writableQualifiedTipsAmount. D
+        is built FROM this fact — GreaterOf($0, LesserOf(/allowableQualifiedTipsAmount, cap) minus
+        the phase-out) — so D is at most A, and A is at most L6, where A is this fact. Then
+        min(D, L5, L6) = min(D, L5) and
+        min(D, L5, A) = min(D, L5): THE TWO ARE EQUAL, because the bound by the deduction actually
+        taken dominates the line-6 clamp either way. The raw read is inert, causing no adverse effect on
+        the deduction. qbi's line-6 clamp is a data-entry sanity bound and is looser
+        than it could be. That costs nothing while D is derived from this fact, and it is left as-is
+        deliberately. Nothing downstream depends on it.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/schedule1ALine6QualifiedTips" />
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableExcludedTerritoryQualifiedTips" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency path="/writableExcludedTerritoryQualifiedTips" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+              <Dependency path="/schedule1ATipsReceivedByIneligibleSsnSpouse" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableExcludedTerritoryQualifiedOvertime">
+      <Name>Qualified overtime compensation excluded from U.S. gross income as section 931/933 territory income</Name>
+      <Description>The part of /writableQualifiedOvertimeAmount that is EXCLUDED from U.S. gross income
+        under section 931 or 933. Optional, $0 when unanswered.
+
+        THIS RULE IS NOT THE APPORTIONMENT FRACTION, and modelling it as one would be wrong.
+        Publication 570 chapter 4 gives the tips and overtime deductions their own treatment: they
+        "may be claimed on a U.S. tax return only with respect to income that is included in your
+        U.S. gross income", and where part is excluded "you may take a deduction ... only with
+        respect to the qualified tips or qualified overtime compensation that you did not exclude"
+        (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 33, the RIGHT column of a two-column
+        extraction). That is a SUBTRACTION of an identified amount, not a share of income — the
+        publication's own example of how it arises is a filer who "worked part of the year within
+        the United States and part of the year within a territory", which is a split of the tips
+        themselves. Applying the gross-income fraction here would produce a different number for the
+        same filer and cite a rule the publication did not write for this line.
+
+        WHICH IS WHY THIS IS AN INTAKE. The graph cannot derive the split: it holds one qualified-tips
+        figure and no geography for it. Asking is the only faithful option, and it mints one question
+        rather than inventing an allocation.
+
+        THE $0 TAIL IS TAXPAYER-FAVOURABLE and is stated rather than buried: a filer with excluded
+        tips who is never asked deducts them all. Same posture as every optional intake in this unit,
+        and the population is refused today by ctcOdc /knockoutPossessionOrPuertoRicoIncomeExclusion.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON-NEGATIVE. Not cross-checked against
+        /writableQualifiedOvertimeAmount — the engine has no cross-fact Limit. interpretation:provisional.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/schedule1ALine14cQualifiedOvertime">
+      <Name>Qualified overtime compensation, Schedule 1-A line 14c</Name>
+      <Description>Schedule 1-A Part III line 14c, “Add lines 14a and 14b”. THE COMPUTED LINE 14c, and
+        the fact the Part III deduction chain reads: /allowableQualifiedOvertimeAmount takes it as the
+        minuend of the Publication 570 territory limit, and /possessionUntreatedTipsOrOvertime tests it.
+
+        TWO ARMS, DETAIL FIRST, ATTESTATION BEHIND A REAL PREDICATE.
+        1. When EITHER printed component is answered, this is 14a + 14b, each component read
+           complete-safe so a return that answers only one of them still foots. The predicate is
+           IsComplete on the RAW writables, which are ordinary optional intakes with no $0 tail, so it
+           is a genuine “was the printed detail answered” test and not the always-true IsComplete on a
+           complete-safe fact that rule 3 of the reconciliation brief forbids.
+        2. Otherwise the filer-typed line 14c total, unchanged. The attestation is retained, keeps its
+           path and keeps its IRS1040S1A f1_24[0] mapping; only the CONSUMERS moved. This is the
+           scheduleE /farmRentalNetIncome over form4835 /form4835IncomeLinesAnswered precedent.
+
+        WHY NOT A BARE Add. A bare Add of two complete-safe components would be Complete at $0 on every
+        return that never answers overtime, where the typed total is Incomplete today. That flips
+        /allowableQualifiedOvertimeAmount and the Part III gate from Incomplete to $0 on returns with no
+        overtime at all, i.e. on scenarios outside the overtime set, and is why the reconciliation brief
+        refuses the in-place Writable to Derived flip. The fall-through arm reproduces the typed
+        total's completeness exactly: this fact is Incomplete on exactly the returns where
+        /writableQualifiedOvertimeAmount is Incomplete and no component is answered.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, non-negative (both components carry Limit Min $0 and
+        the typed total does too). Not rounded here; the deduction chain rounds downstream.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine14aQualifiedOvertimeFromW2Box1" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine14bQualifiedOvertimeFrom1099" />
+                </IsComplete>
+              </Any>
+            </When>
+            <Then>
+              <Add>
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/writableSchedule1ALine14aQualifiedOvertimeFromW2Box1" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <GreaterOf>
+                        <Dependency path="/writableSchedule1ALine14aQualifiedOvertimeFromW2Box1" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/writableSchedule1ALine14bQualifiedOvertimeFrom1099" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <GreaterOf>
+                        <Dependency path="/writableSchedule1ALine14bQualifiedOvertimeFrom1099" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableQualifiedOvertimeAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/allowableQualifiedOvertimeAmount">
+      <Name>Qualified overtime compensation eligible for the section 225 deduction after the Pub. 570 territory limit</Name>
+      <Description>= the line 14c qualified overtime total MINUS the part excluded from U.S. gross
+        income, floored at zero. With nothing excluded this IS line 14c, so no committed return moves.
+
+        THE MINUEND IS THE COMPUTED /schedule1ALine14cQualifiedOvertime, which adds the printed
+        lines 14a and 14b when either is answered and falls through to the filer-typed
+        /writableQualifiedOvertimeAmount attestation when neither is.
+
+        IT FEEDS THE DEDUCTION BASIS, BEFORE THE CAP AND THE PHASE-OUT, because the publication's
+        limit is on WHICH overtime compensation may be counted at all rather than on the finished deduction — the
+        opposite end from /allowableQualifiedCarLoanInterestDeduction, whose printed instruction
+        multiplies "the full amount of the otherwise allowable deduction". Three rules, three
+        placements, all in the same chapter; they are not interchangeable.
+
+        NO qbi INTERACTION, unlike the tips sibling: qbi's section 224 carve-out is about TIPS
+        attributable to a Schedule C and reads no overtime path at all.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/schedule1ALine14cQualifiedOvertime" />
+            </Minuend>
+            <Subtrahends>
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency path="/writableExcludedTerritoryQualifiedOvertime" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency path="/writableExcludedTerritoryQualifiedOvertime" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+              <Dependency path="/schedule1AOvertimeReceivedByIneligibleSsnSpouse" />
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/possessionUntreatedTipsOrOvertime">
+      <Name>Qualified tips or overtime are claimed but their excluded-territory part was never asked</Name>
+      <Description>TRUE when this return claims qualified tips or qualified overtime AND does not
+        say how much of that amount was excluded from U.S. gross income as section 931/933 territory
+        income. A KNOCKOUT INPUT and nothing else: it feeds ctcOdc
+        /knockoutPossessionOrPuertoRicoIncomeExclusion, which refuses a possession
+        return only where the Publication 570 chapter 4 treatment cannot be applied to the whole of
+        it. It changes no deduction.
+
+        WHY AN UNANSWERED INTAKE IS THE FAILURE AND NOT MERELY A DEFAULT. The tips and overtime rule
+        is not the fraction — it is a SUBTRACTION: "you may take a deduction on your U.S. tax return
+        for qualified tips or qualified overtime compensation only with respect to the qualified
+        tips or qualified overtime compensation that you did not exclude from your U.S. gross
+        income" (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 33, the RIGHT column of a two-column
+        extraction). /allowableQualifiedTipsAmount and /allowableQualifiedOvertimeAmount implement it
+        by subtracting /writableExcludedTerritoryQualifiedTips and
+        /writableExcludedTerritoryQualifiedOvertime, each behind a $0 complete-safe tail — so a filer
+        with territory income who is never ASKED the excluded part has the whole limit go INERT and
+        deducts the full amount. Direction: deduction too LARGE, taxpayer-FAVOURABLE, the same class
+        the knockout exists to prevent. The $0 tail is right for every return with no exclusion at
+        all and wrong for exactly the population this knockout screens, which is why the test belongs
+        here rather than as a change to the tail.
+
+        AN ANSWERED $0 DISCHARGES IT, which is the whole point of testing IsComplete rather than the
+        amount: a filer who says none of their tips were excluded has ANSWERED the question, and the
+        subtraction is then correct at zero rather than merely absent. So this is a
+        DATA-COMPLETENESS test, the same class as formW2s /hasW2ValidationErrors, not a scope test —
+        and it gives the filer a route through the knockout rather than a wall.
+
+        COMPLETE ON EVERY RETURN BY CONSTRUCTION, because it feeds a knockout and an Incomplete
+        member would leave flow:/flowIsKnockedOut unresolved on returns that resolve it today. Both
+        limbs sit inside a Switch whose When is an IsComplete guard, and IsComplete never propagates
+        incompleteness, so this resolves FALSE on every return that claims neither amount — which is
+        every committed scenario.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Any>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableQualifiedTipsAmount" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableQualifiedTipsAmount" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </When>
+              <Then>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableExcludedTerritoryQualifiedTips" />
+                  </IsComplete>
+                </Not>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+          </Switch>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/schedule1ALine14cQualifiedOvertime" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/schedule1ALine14cQualifiedOvertime" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </When>
+              <Then>
+                <Not>
+                  <IsComplete>
+                    <Dependency path="/writableExcludedTerritoryQualifiedOvertime" />
+                  </IsComplete>
+                </Not>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <False />
+              </Then>
+            </Case>
+          </Switch>
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/claimsTipsDeduction">
+      <Name>Claims the tips deduction</Name>
+      <Description>Complete-safe gate: true only when /receivedQualifiedTips is answered and
+        true. Unanswered resolves Complete false so prior returns still resolve.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/receivedQualifiedTips" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/receivedQualifiedTips" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/claimsOvertimeDeduction">
+      <Name>Claims the overtime deduction</Name>
+      <Description>Complete-safe gate: true only when /receivedQualifiedOvertime is answered
+        and true.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/receivedQualifiedOvertime" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/receivedQualifiedOvertime" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/claimsCarLoanInterestDeduction">
+      <Name>Claims the car loan interest deduction</Name>
+      <Description>Complete-safe gate: true only when /paidQualifiedCarLoanInterest is
+        answered and true.</Description>
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/paidQualifiedCarLoanInterest" />
+              </IsComplete>
+            </When>
+            <Then>
+              <Dependency path="/paidQualifiedCarLoanInterest" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/tipsDeductionCap">
+      <Name>Tips deduction cap</Name>
+      <Description>Maximum qualified tips deduction, Schedule 1-A line 7.</Description>
+      
+
+      <Derived>
+        <Dollar>25000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/overtimeDeductionCap">
+      <Name>Overtime deduction cap</Name>
+      <Description>Maximum qualified overtime deduction, Schedule 1-A line 15:
+        $12,500 ($25,000 MFJ).</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>25000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>12500</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipsOvertimePhaseoutThreshold">
+      <Name>Tips/overtime MAGI phaseout threshold</Name>
+      <Description>MAGI threshold above which the tips and overtime deductions phase out,
+        Schedule 1-A lines 9 and 17: $150,000 ($300,000 MFJ).</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>300000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carLoanInterestDeductionCap">
+      <Name>Car loan interest deduction cap</Name>
+      <Description>Maximum QPVLI deduction, Schedule 1-A line 24.</Description>
+      
+
+      <Derived>
+        <Dollar>10000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carLoanPhaseoutThreshold">
+      <Name>Car loan interest MAGI phaseout threshold</Name>
+      <Description>MAGI threshold above which the QPVLI deduction phases out, Schedule 1-A
+        line 26: $100,000 ($200,000 MFJ).</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>200000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>100000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorDeductionMaxAmount">
+      <Name>Enhanced senior deduction maximum</Name>
+      <Description>Maximum enhanced deduction for seniors per qualifying individual,
+        Schedule 1-A lines 33/35.</Description>
+      
+
+      <Derived>
+        <Dollar>6000</Dollar>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorDeductionPhaseoutThreshold">
+      <Name>Senior deduction MAGI phaseout threshold</Name>
+      <Description>MAGI threshold above which the senior deduction phases out, Schedule 1-A
+        line 32: $75,000 ($150,000 MFJ).</Description>
+      
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+            </When>
+            <Then>
+              <Dollar>150000</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>75000</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/tipsOvertimeMagiExcess">
+      <Name>Tips/overtime MAGI excess</Name>
+      <Description>Schedule 1-A lines 10 and 18: MAGI in excess of the $150,000/$300,000
+        threshold, floored at zero.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/schedule1AMagi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/tipsOvertimePhaseoutThreshold" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/tipsOvertimePhaseoutReduction">
+      <Name>Tips/overtime phaseout reduction</Name>
+      <Description>Schedule 1-A lines 11-12 and 19-20: $100 for each whole $1,000 of MAGI
+        excess (the line 11/19 division rounds DOWN to the next lower whole number).
+        StepwiseMultiply pays $100 per completed $1,000, which is exactly that floor.</Description>
+
+      <Derived>
+        <StepwiseMultiply>
+          <Multiplicand>
+            <Dependency path="/tipsOvertimeMagiExcess" />
+          </Multiplicand>
+          <Rate>
+            <Rational>100/1000</Rational>
+          </Rate>
+        </StepwiseMultiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carLoanMagiExcess">
+      <Name>Car loan MAGI excess</Name>
+      <Description>Schedule 1-A line 27: MAGI in excess of the $100,000/$200,000 threshold,
+        floored at zero.</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/schedule1AMagi" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/carLoanPhaseoutThreshold" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/carLoanPhaseoutReduction">
+      <Name>Car loan phaseout reduction</Name>
+      <Description>Schedule 1-A lines 28-29: $200 for each $1,000 of MAGI excess, with the
+        line 28 division rounded UP to the next higher whole number. Implemented as the
+        floor of (excess + $999.99) per $1,000 - exact for cent-precision amounts (the
+        same round-up-to-$1,000 idiom as Schedule 8812 line 10 in ctcOdc.xml). When the
+        excess is zero the reduction is zero.</Description>
+
+      <Derived>
+        <StepwiseMultiply>
+          <Multiplicand>
+            <Add>
+              <Dependency path="/carLoanMagiExcess" />
+              
+              <Dollar>999.99</Dollar>
+            </Add>
+          </Multiplicand>
+          <Rate>
+            <Rational>200/1000</Rational>
+          </Rate>
+        </StepwiseMultiply>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn">
+      <Name>Joint return on which exactly one spouse has an SSN valid for employment</Name>
+      <Description>TRUE on a joint return (filingStatus /treatAsMFJ and /isFilingStatusMFJ) whose two
+        spouses differ on filers /ssnValidForCtc, the section 24(h)(7) valid-SSN test section 224(e)(2)
+        borrows: the only return on which the spouse who received the tips or overtime decides the
+        section 224(e)(1) condition. FALSE on a return that is not joint, and on a joint return whose
+        spouses both have, or both lack, a valid SSN. Incomplete while the filing status or either
+        spouse's SSN validity is unknown. Read by /schedule1ATipsReceivedByIneligibleSsnSpouse,
+        /schedule1AOvertimeReceivedByIneligibleSsnSpouse and the two receiving-spouse gates, so the
+        spouse's SSN is read in one place, behind the joint-return fence.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </IsComplete>
+                <Not>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <False />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                </IsComplete>
+                <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+                <IsComplete>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </IsComplete>
+                <Dependency module="filingStatus" path="/treatAsMFJ" />
+                <IsComplete>
+                  <Dependency module="filers" path="/primaryFiler/ssnValidForCtc" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency module="filers" path="/secondaryFiler/ssnValidForCtc" />
+                </IsComplete>
+              </All>
+            </When>
+            <Then>
+              <Not>
+                <Equal>
+                  <Left>
+                    <Dependency module="filers" path="/primaryFiler/ssnValidForCtc" />
+                  </Left>
+                  <Right>
+                    <Dependency module="filers" path="/secondaryFiler/ssnValidForCtc" />
+                  </Right>
+                </Equal>
+              </Not>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableTipsReceivedByIneligibleSsnSpouse">
+      <Name>Ineligible-SSN spouse received qualified tips</Name>
+      <Description>Asked ONLY on a joint return where exactly one spouse has an SSN valid for
+        employment: did the spouse WITHOUT a valid SSN receive any of the qualified tips shown on
+        Schedule 1-A line 6? Section 224(e)(1) conditions the deduction on "such individual's"
+        (the RECEIVING individual's) SSN, not just any filer's, so this narrow population is the
+        only one where the identity of the receiver can change the outcome.
+
+        A Yes answer is followed by the amount that spouse received
+        (/writableTipsReceivedByIneligibleSsnSpouseAmount); only that part is left out of the deduction.
+
+        UNANSWERED IS INCOMPLETE ON A CLAIMING RETURN, not a silent grant: only reached inside
+        /qualifiedTipsDeduction's claiming branch (/claimsTipsDeduction true), so a filer who does
+        not claim the deduction at all is never asked and never blocked.
+
+        TYPE: Boolean.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+        <Fact path="/writableTipsReceivedByIneligibleSsnSpouseAmount">
+      <Name>Qualified tips received by the spouse without a valid SSN</Name>
+      <Description>On a joint return where exactly one spouse has a social security number valid for employment and the
+        spouse without one received some of the qualified tips on Schedule 1-A line 6: how much of it that spouse
+        received. That part is not deductible; the rest, received by the spouse with a valid SSN, is.
+        Question: "How much of the qualified tips on line 6 did your spouse without a valid social security number
+        receive?"
+        Help: "If you are married filing jointly, the spouse who received the qualified tips must have a valid SSN
+        (2025 Instructions for Schedule 1-A). Enter the part received by the spouse who does not have one."
+        Asked when: /writableTipsReceivedByIneligibleSsnSpouse is answered Yes.
+        Unanswered: the deduction waits for the answer (Incomplete), as the Yes/No question already does.
+        Validation: dollars, not less than $0 and not more than line 6. Feeds /schedule1ATipsReceivedByIneligibleSsnSpouse.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/schedule1ATipsReceivedByIneligibleSsnSpouse">
+      <Name>Qualified tips left out of the deduction because the receiving spouse has no valid SSN</Name>
+      <Description>The part of line 6 that the spouse without a valid SSN received (/writableTipsReceivedByIneligibleSsnSpouseAmount), on a claiming joint
+        return where exactly one spouse has an SSN valid for employment and /writableTipsReceivedByIneligibleSsnSpouse is Yes; $0 on every other
+        return. It is taken out of /allowableQualifiedTipsAmount, so only the qualified tips of the spouse with a valid SSN are
+        deducted. Incomplete while the Yes answer waits for the amount.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/claimsTipsDeduction" />
+                </IsComplete>
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                    </IsComplete>
+                    <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/claimsTipsDeduction" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/claimsTipsDeduction" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableTipsReceivedByIneligibleSsnSpouse" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/writableTipsReceivedByIneligibleSsnSpouse" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableTipsReceivedByIneligibleSsnSpouse" />
+                </IsComplete>
+                <Dependency path="/writableTipsReceivedByIneligibleSsnSpouse" />
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableTipsReceivedByIneligibleSsnSpouseAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+<Fact path="/schedule1ATipsReceivingSpouseSsnGateSatisfied">
+      <Name>Receiving-spouse SSN condition satisfied for the qualified tips deduction</Name>
+      <Description>Section 224(e)(1)/(2)'s SSN condition, read for the RECEIVING individual, not
+        "any" filer. filers:/someFilerHasSsnValidForCtc is the statutorily correct DEFINITION of a
+        valid SSN (section 224(e)(2) borrows section 24(h)(7) verbatim) but the wrong POPULATION
+        (at-least-one filer rather than the receiver) whenever exactly one spouse holds a valid
+        SSN.
+
+        THREE ARMS. 1. Not a joint return (or not MFJ): the "any" filer and the receiving filer are
+        the same person, so filers:/someFilerHasSsnValidForCtc is already exactly right. 2. Joint
+        return, both spouses valid or both invalid: the receiving-spouse question cannot change the
+        outcome either way, so it is not asked; reads filers:/someFilerHasSsnValidForCtc, which then equals either spouse's value (the arm is decided by /schedule1AJointReturnWithOneSpouseWithoutValidSsn). 3. Joint
+        return, exactly one spouse valid: the receiver's identity now controls the outcome
+        (section 224(e)(1) denies the deduction "unless the taxpayer includes ... such
+        individual's" SSN), so /writableTipsReceivedByIneligibleSsnSpouse is read: No satisfies the gate, and Yes
+        satisfies it once the amount that spouse received is answered.
+
+        Reading filers:/someFilerHasSsnValidForCtc directly (the population this fact
+        replaces) would let a joint return where the tip-earning spouse held an ITIN or a
+        not-valid-for-employment SSN, while the other spouse held a valid one, pass the gate and
+        deduct up to $25,000 the statute disallows.
+
+        A YES ANSWER NO LONGER DENIES THE WHOLE DEDUCTION: the spouse without a valid SSN's share is
+        asked (/writableTipsReceivedByIneligibleSsnSpouseAmount) and taken out of
+        /allowableQualifiedTipsAmount, so the tips of the spouse with a valid SSN stay deductible.
+        The gate holds once that amount is answered and waits (Incomplete) until then.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </IsComplete>
+                <Not>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/someFilerHasSsnValidForCtc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/someFilerHasSsnValidForCtc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Any>
+                <Not>
+                  <Dependency path="/writableTipsReceivedByIneligibleSsnSpouse" />
+                </Not>
+                <All>
+                  <Dependency path="/writableTipsReceivedByIneligibleSsnSpouse" />
+                  <GreaterThanOrEqual>
+                    <Left>
+                      <Dependency path="/writableTipsReceivedByIneligibleSsnSpouseAmount" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </Any>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableOvertimeReceivedByIneligibleSsnSpouse">
+      <Name>Ineligible-SSN spouse received qualified overtime compensation</Name>
+      <Description>Asked ONLY on a joint return where exactly one spouse has an SSN valid for
+        employment: did the spouse WITHOUT a valid SSN receive any of the qualified overtime
+        compensation shown on Schedule 1-A line 14c? Section 225(d)(1) conditions the deduction on
+        "such individual's" (the RECEIVING individual's) SSN, not just any filer's — the overtime
+        sibling of /writableTipsReceivedByIneligibleSsnSpouse.
+
+        A Yes answer is followed by the amount that spouse received
+        (/writableOvertimeReceivedByIneligibleSsnSpouseAmount); only that part is left out of the deduction.
+
+        UNANSWERED IS INCOMPLETE ON A CLAIMING RETURN, not a silent grant: only reached inside
+        /qualifiedOvertimeDeduction's claiming branch (/claimsOvertimeDeduction true).
+
+        TYPE: Boolean.</Description>
+      <Writable>
+        <Boolean />
+      </Writable>
+    </Fact>
+
+        <Fact path="/writableOvertimeReceivedByIneligibleSsnSpouseAmount">
+      <Name>Qualified overtime compensation received by the spouse without a valid SSN</Name>
+      <Description>On a joint return where exactly one spouse has a social security number valid for employment and the
+        spouse without one received some of the qualified overtime compensation on Schedule 1-A line 14c: how much of it that spouse
+        received. That part is not deductible; the rest, received by the spouse with a valid SSN, is.
+        Question: "How much of the qualified overtime compensation on line 14c did your spouse without a valid social security number
+        receive?"
+        Help: "If you are married filing jointly, the spouse who received the qualified overtime compensation must have a valid SSN
+        (2025 Instructions for Schedule 1-A). Enter the part received by the spouse who does not have one."
+        Asked when: /writableOvertimeReceivedByIneligibleSsnSpouse is answered Yes.
+        Unanswered: the deduction waits for the answer (Incomplete), as the Yes/No question already does.
+        Validation: dollars, not less than $0 and not more than line 14c. Feeds /schedule1AOvertimeReceivedByIneligibleSsnSpouse.</Description>
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/schedule1AOvertimeReceivedByIneligibleSsnSpouse">
+      <Name>Qualified overtime compensation left out of the deduction because the receiving spouse has no valid SSN</Name>
+      <Description>The part of line 14c that the spouse without a valid SSN received (/writableOvertimeReceivedByIneligibleSsnSpouseAmount), on a claiming joint
+        return where exactly one spouse has an SSN valid for employment and /writableOvertimeReceivedByIneligibleSsnSpouse is Yes; $0 on every other
+        return. It is taken out of /allowableQualifiedOvertimeAmount, so only the qualified overtime compensation of the spouse with a valid SSN are
+        deducted. Incomplete while the Yes answer waits for the amount.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/claimsOvertimeDeduction" />
+                </IsComplete>
+                <Not>
+                  <All>
+                    <IsComplete>
+                      <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                    </IsComplete>
+                    <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                  </All>
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/claimsOvertimeDeduction" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/claimsOvertimeDeduction" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouse" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouse" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouse" />
+                </IsComplete>
+                <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouse" />
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouseAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+<Fact path="/schedule1AOvertimeReceivingSpouseSsnGateSatisfied">
+      <Name>Receiving-spouse SSN condition satisfied for the qualified overtime deduction</Name>
+      <Description>The overtime sibling of /schedule1ATipsReceivingSpouseSsnGateSatisfied — same
+        three arms, same section 24(h)(7) SSN definition, same residue (no per-receiver split of
+        the joint line-14c total). See that fact's Description for the full reasoning; the sole
+        difference is the underlying attestation
+        (/writableOvertimeReceivedByIneligibleSsnSpouse) and the governing subsection
+        (section 225(d)(1)/(2) rather than 224(e)(1)/(2)).
+
+        The overtime analog of the same replaced population (see the tips sibling's
+        Description).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </IsComplete>
+                <Not>
+                  <Dependency module="filingStatus" path="/treatAsMFJ" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/someFilerHasSsnValidForCtc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                </IsComplete>
+                <Not>
+                  <Dependency path="/schedule1AJointReturnWithOneSpouseWithoutValidSsn" />
+                </Not>
+              </All>
+            </When>
+            <Then>
+              <Dependency module="filers" path="/someFilerHasSsnValidForCtc" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Any>
+                <Not>
+                  <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouse" />
+                </Not>
+                <All>
+                  <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouse" />
+                  <GreaterThanOrEqual>
+                    <Left>
+                      <Dependency path="/writableOvertimeReceivedByIneligibleSsnSpouseAmount" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThanOrEqual>
+                </All>
+              </Any>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/qualifiedTipsDeduction">
+      <Name>Qualified tips deduction</Name>
+      <Description>Schedule 1-A line 13. Zero unless claimed; zero for married filing
+        separately (Part II caution: "If married, you must file jointly to claim this
+        deduction"); requires the RECEIVING filer's SSN valid for employment
+        (/schedule1ATipsReceivingSpouseSsnGateSatisfied; previously any filer's, per that
+        fact's own residue note). The
+        IRS tipped-occupations list is attested by the /receivedQualifiedTips gate.</Description>
+      
+      <Export mef="true" downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/claimsTipsDeduction" />
+                  <Not>
+                    <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                  </Not>
+                  <Dependency path="/schedule1ATipsReceivingSpouseSsnGateSatisfied" />
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Subtract>
+                    <Minuend>
+                      <LesserOf>
+                        <Dependency path="/allowableQualifiedTipsAmount" />
+                        <Dependency path="/tipsDeductionCap" />
+                      </LesserOf>
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/tipsOvertimePhaseoutReduction" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedOvertimeDeduction">
+      <Name>Qualified overtime compensation deduction</Name>
+      <Description>Schedule 1-A line 21. Zero unless claimed; zero for married filing
+        separately (Part III caution); requires the RECEIVING filer's SSN valid for employment
+        (/schedule1AOvertimeReceivingSpouseSsnGateSatisfied; previously any filer's).</Description>
+      
+      <Export downstreamFacts="true" mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <All>
+                  <Dependency path="/claimsOvertimeDeduction" />
+                  <Not>
+                    <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+                  </Not>
+                  <Dependency path="/schedule1AOvertimeReceivingSpouseSsnGateSatisfied" />
+                </All>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Subtract>
+                    <Minuend>
+                      <LesserOf>
+                        <Dependency path="/allowableQualifiedOvertimeAmount" />
+                        <Dependency path="/overtimeDeductionCap" />
+                      </LesserOf>
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/tipsOvertimePhaseoutReduction" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/allowableQualifiedCarLoanInterestDeduction">
+      <Name>Qualified passenger vehicle loan interest deduction after the Pub. 570 apportionment</Name>
+      <Description>Schedule 1-A line 13 as CLAIMED: /qualifiedCarLoanInterestDeduction apportioned by the
+        Publication 570 chapter 4 fraction when the return excludes section 931/933 territory income,
+        and the full deduction otherwise.
+
+        THE PLACEMENT IS THE OPPOSITE OF SCHEDULE A'S, AND IT IS PRINTED RATHER THAN INFERRED. For
+        the itemized deductions the publication apportions the INPUTS and lets Schedule A's own limits
+        run on top (scheduleA /allowableMedicalExpenses records that argument). Here it says the
+        reverse in as many words: "first calculate the full amount of the qualified passenger vehicle
+        loan interest payment deduction otherwise allowable. Then multiply the full amount of the
+        otherwise allowable deduction by the following fraction"
+        (https://www.irs.gov/pub/irs-pdf/p570.pdf, page 33, the RIGHT column of a two-column
+        extraction). So the apportionment lands AFTER the 10,000 cap and after the modified-AGI
+        phase-out, on the finished deduction. Reading the two rules as one and apportioning the input
+        here would be wrong whenever either limit binds.
+
+        THE ELIGIBILITY HALF ALREADY LANDED AND IS A DIFFERENT RULE. "For purposes of determining
+        eligibility for this deduction, you must include your excluded territory income in your
+        modified adjusted gross income" (lines 2290-2293) is /schedule1AMagi.
+        That half decides WHETHER the phase-out bites; this half decides how much of what
+        survives may be claimed. Both are needed and neither implies the other.
+
+        ⚠ THE SENIOR DEDUCTION IS EXPRESSLY NOT APPORTIONED, recorded here because this fact is the
+        precedent a later unit would copy and the publication forbids that copy: "Enhanced deduction
+        for seniors. For purposes of determining eligibility for this deduction, you must include
+        your excluded territory income in your modified adjusted gross income. If you are eligible
+        for this deduction, you may claim the FULL amount of the allowed deduction on your U.S. tax
+        return" (lines 2309-2314). So /seniorDeductionPerQualifyingFiler takes the MAGI half and NOT
+        the apportionment half. A blanket apportionment across Schedule 1-A would be wrong.
+
+        ⚠ THE TIPS AND OVERTIME DEDUCTIONS ARE A THIRD RULE AGAIN, and are NOT closed by this fill:
+        they "may be claimed on a U.S. tax return only with respect to income that is included in
+        your U.S. gross income", so the limit is the non-excluded PORTION of the tips or overtime
+        rather than a fraction of the deduction (lines 2271-2288). That needs an intake split this
+        dictionary does not have, and it stays a disclosed taxpayer-favourable gap.
+
+        Complete-safe by construction: with no exclusion, or with the gross-income denominator
+        unanswered, this IS /qualifiedCarLoanInterestDeduction.</Description>
+      <Export downstreamFacts="true" />
+
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+                <Dependency module="standardDeduction" path="/hasPossessionExclusionProration" />
+              </All>
+            </When>
+            <Then>
+              <Round>
+                <LesserOf>
+                  <Divide>
+                    <Dividend>
+                      <Multiply>
+                        <Dependency path="/qualifiedCarLoanInterestDeduction" />
+                        <Dependency module="income" path="/grossIncomeSubjectToUsTax" />
+                      </Multiply>
+                    </Dividend>
+                    <Divisors>
+                      <GreaterOf>
+                        <Dependency module="income" path="/writableGrossIncomeFromAllSources" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Divisors>
+                  </Divide>
+                  <Dependency path="/qualifiedCarLoanInterestDeduction" />
+                </LesserOf>
+              </Round>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dependency path="/qualifiedCarLoanInterestDeduction" />
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/qualifiedCarLoanInterestDeduction">
+      <Name>Qualified passenger vehicle loan interest deduction</Name>
+      <Description>Schedule 1-A line 30. Zero unless claimed. Available to all filing
+        statuses including MFS (the Part IV caution has no joint-filing requirement, and the
+        2025 Form 1040 instructions state the $100,000 threshold applies to "all other
+        filing statuses").</Description>
+      
+      <Export mef="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency path="/claimsCarLoanInterestDeduction" />
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Subtract>
+                    <Minuend>
+                      <LesserOf>
+                        <Dependency path="/schedule1ALine23QualifiedCarLoanInterest" />
+                        <Dependency path="/carLoanInterestDeductionCap" />
+                      </LesserOf>
+                    </Minuend>
+                    <Subtrahends>
+                      <Dependency path="/carLoanPhaseoutReduction" />
+                    </Subtrahends>
+                  </Subtract>
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorDeductionPerQualifyingFiler">
+      <Name>Senior deduction per qualifying filer</Name>
+      <Description>Schedule 1-A line 35: $6,000 reduced by 6% of MAGI in excess of the
+        $75,000/$150,000 threshold, floored at zero. The same line 35 amount applies to each
+        qualifying filer (lines 36a/36b).</Description>
+
+      <Derived>
+        <GreaterOf>
+          <Subtract>
+            <Minuend>
+              <Dependency path="/seniorDeductionMaxAmount" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency path="/schedule1ALine34SeniorDeductionPhaseoutAmount" />
+            </Subtrahends>
+          </Subtract>
+          <Dollar>0</Dollar>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/primaryFilerQualifiesForSeniorDeduction">
+      <Name>Primary filer qualifies for the senior deduction</Name>
+      <Description>Schedule 1-A line 36a: the primary filer was born before January 2, 1961
+        (the existing age65OrOlder fact, which encodes the same January 1 convention) and
+        has a valid SSN. The 2025 instructions define a valid SSN as one "valid for
+        employment" and issued by the return due date - the identical definition the
+        CTC/ACTC uses, so the existing ssnValidForCtc fact is reused.
+
+        DEATH-BEFORE-65 EXCEPTION, AND IT IS A DEATH IN THE TAX YEAR. The instructions head
+        the rule "Death of a taxpayer in 2025" and state it of a taxpayer who "died in 2025
+        before reaching age 65"; a person is considered to reach age 65 on the day before the
+        person's 65th birthday. The condition is therefore
+        filers:/primaryFilerDeceasedInTaxYear, a date of death falling in the tax year. Only then
+        is the filer aged at death, by filers:/primaryFilerAgeDayBeforeDeath. A taxpayer who dies
+        in 2026 before filing the 2025 return closed the 2025 taxable year alive and keeps the
+        end-of-year age, and a living filer is unaffected.
+
+        THIS FACT DOES NOT RE-DERIVE THE EXCEPTION.
+        filers:/filers/*/age65OrOlder IS this rule: its first Switch arm is
+        gated on filers:/primaryFilerDeceasedInTaxYear and reads filers:/primaryFilerAgeDayBeforeDeath
+        against 65, and its fall-through arm is the end-of-year comparison. This fact reads
+        filers:/primaryFiler/age65OrOlder once and nothing else. One quantity, one fact.</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filers" path="/primaryFiler/age65OrOlder" />
+          <Dependency module="filers" path="/primaryFiler/ssnValidForCtc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/secondaryFilerQualifiesForSeniorDeduction">
+      <Name>Secondary filer qualifies for the senior deduction</Name>
+      <Description>Schedule 1-A line 36b: on a joint return, the spouse was born before
+        January 2, 1961 and has an SSN valid for employment (same definition as line 36a).
+
+        DEATH-BEFORE-65 EXCEPTION, for the secondary filer (the joint-return case is the one
+        the instructions illustrate). The condition is filers:/secondaryFilerDeceasedInTaxYear,
+        a date of death falling in the tax year, and it is deliberately independent of the
+        marital-status answer: section 7703(a)(1) determines status at the time of death, so a
+        return that answers "married" and records a spouse's date of death must still take the
+        branch. Only then is the spouse aged at death, by the existing
+        filers:/secondaryFilerAgeDayBeforeDeath (built for the standard deduction's own
+        death-of-spouse population, same day-before-birthday convention applied at the death
+        date). A spouse who died before the tax year, or in 2026 before the 2025 return was
+        filed, keeps the end-of-year age, and a living spouse is unaffected.
+
+        THIS FACT DOES NOT RE-DERIVE THE EXCEPTION EITHER. filers:/filers/*/age65OrOlder's
+        SECOND Switch arm is exactly the paragraph above - gated on
+        filers:/secondaryFilerDeceasedInTaxYear and ../isSecondaryFiler, reading
+        filers:/MFJDeceasedSpouseReachedAge65ForStandardD, which is itself
+        GreaterThanOrEqual(filers:/secondaryFilerAgeDayBeforeDeath, 65) - and its fall-through arm
+        is the end-of-year comparison. So this fact reads filers:/secondaryFiler/age65OrOlder once.
+        The /isFilingStatusMFJ conjunct still comes first and still short-circuits, which is what
+        keeps a return with no secondary filer off that read.</Description>
+
+      <Derived>
+        <All>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency module="filers" path="/secondaryFiler/age65OrOlder" />
+          <Dependency module="filers" path="/secondaryFiler/ssnValidForCtc" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/seniorDeduction">
+      <Name>Enhanced deduction for seniors</Name>
+      <Description>Schedule 1-A line 37: the line 35 amount for each qualifying filer.
+        Zero for married filing separately (Part V caution: "If married, you must file
+        jointly to claim this deduction"). Unlike the other three deductions this is fully
+        derived - no gate question - so 65+ filers in existing scenarios receive it
+        automatically.</Description>
+      
+      <Export mef="true" downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Switch>
+            <Case>
+              <When>
+                <Dependency module="filingStatus" path="/isFilingStatusMFS" />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Add>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Dependency path="/primaryFilerQualifiesForSeniorDeduction" />
+                      </When>
+                      <Then>
+                        <Dependency path="/seniorDeductionPerQualifyingFiler" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                  <Switch>
+                    <Case>
+                      <When>
+                        <Dependency path="/secondaryFilerQualifiesForSeniorDeduction" />
+                      </When>
+                      <Then>
+                        <Dependency path="/seniorDeductionPerQualifyingFiler" />
+                      </Then>
+                    </Case>
+                    <Case>
+                      <When>
+                        <True />
+                      </When>
+                      <Then>
+                        <Dollar>0</Dollar>
+                      </Then>
+                    </Case>
+                  </Switch>
+                </Add>
+              </Then>
+            </Case>
+          </Switch>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/schedule1ATotalDeductions">
+      <Name>Schedule 1-A total additional deductions</Name>
+      <Description>Schedule 1-A line 38 = lines 13 + 21 + 30 + 37. Flows to Form 1040
+        line 13b and into Form 1040 line 14 total deductions.</Description>
+      
+      <Export mef="true" downstreamFacts="true" />
+
+      <Derived>
+        <Round>
+          <Add>
+            <Dependency path="/qualifiedTipsDeduction" />
+            <Dependency path="/qualifiedOvertimeDeduction" />
+            <Dependency path="/allowableQualifiedCarLoanInterestDeduction" />
+            <Dependency path="/seniorDeduction" />
+          </Add>
+        </Round>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/schedule1AEligibleFilingStatusForSeniorDeduction">
+      <Name>Filing status permits the enhanced deduction for seniors</Name>
+      <Description>True for every filing status except married filing separately, which the Part V caution bars: “If married, you must file jointly to claim this deduction.” Expressed as the disjunction of the four permitted statuses (married filing jointly, single, head of household, qualifying surviving spouse) because the filing status set is exhaustive and mutually exclusive, and because the template set renders Any but not a negation.
+
+WHY IT LIVES IN schedule1A RATHER THAN filingStatus. It states a Schedule 1-A Part V eligibility rule, not a general property of a filing status, and it exists to serve the line 36a candidate below. Candidates are accepted only into the modules this form declares, and schedule1A is the only one.
+
+TYPE: Bool. Complete whenever /filingStatus is answered.</Description>
+      <Derived>
+        <Any>
+          <Dependency module="filingStatus" path="/isFilingStatusMFJ" />
+          <Dependency module="filingStatus" path="/isFilingStatusSingle" />
+          <Dependency module="filingStatus" path="/isFilingStatusHOH" />
+          <Dependency module="filingStatus" path="/isFilingStatusQSS" />
+        </Any>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine23QualifiedCarLoanInterest">
+      <Name>Qualified passenger vehicle loan interest total, Schedule 1-A line 23</Name>
+      <Description>Schedule 1-A Part IV line 23, “Add lines 22a and 22b, column (iii)”. THE COMPUTED
+        LINE 23, and the fact the Part IV chain reads: /schedule1ALine24CarLoanInterestAfterCap caps it
+        at $10,000 and /qualifiedCarLoanInterestDeduction runs the phase-out off the same minimum.
+
+        Section 163(h)(4)(B)(iii): interest is QPVLI "unless the taxpayer includes the vehicle
+        identification number of the applicable passenger vehicle ... on the return." Each per-row arm
+        requires its paired VIN answered before including that row; the typed-total fallback requires
+        at least one of the two VIN boxes answered. An amount answered without its VIN is Incomplete,
+        not a silent grant.
+
+        TWO ARMS, DETAIL FIRST, ATTESTATION BEHIND A REAL PREDICATE.
+        1. When EITHER printed row's column (iii) is answered, this is 22a(iii) + 22b(iii), each read
+           complete-safe so a one-vehicle return still foots. The predicate is IsComplete on the RAW
+           writables, which are ordinary optional intakes with no $0 tail, so it is a genuine “was the
+           printed table filled” test rather than the always-true IsComplete on a complete-safe fact
+           that rule 3 of the reconciliation brief forbids.
+        2. Otherwise the filer-typed line 23 total, unchanged. The attestation is retained, keeps its
+           path and keeps its IRS1040S1A f2_07[0] mapping; only the CONSUMERS moved. Same precedent as
+           the Part III sibling /schedule1ALine14cQualifiedOvertime.
+
+        COLUMN (ii) IS ALREADY NETTED OUT AND IS NOT SUBTRACTED HERE. The printed caution defines
+        column (iii) as “the total QPVLI paid in 2025 less the amounts reported in column (ii)”, so the
+        business-schedule amounts /writableSchedule1ALine22aInterestDeductedOnBusinessSchedules and
+        …22bInterestDeductedOnBusinessSchedules are already excluded from the figures this fact adds.
+        Subtracting them again would double-count the netting; line 23 adds column (iii) only, which is
+        exactly what the printed line says.
+
+        WHY NOT A BARE Add: the completeness argument on the Part III sibling applies unchanged. A bare
+        Add over complete-safe rows would be Complete at $0 on every return with no car loan, where the
+        typed total is Incomplete today, moving /schedule1ALine24CarLoanInterestAfterCap on scenarios
+        that have nothing to do with Part IV.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, non-negative (both rows carry Limit Min $0, as does
+        the typed total). Not rounded here.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine22aQpvliOnSchedule1A" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine22bQpvliOnSchedule1A" />
+                </IsComplete>
+              </Any>
+            </When>
+            <Then>
+              <Add>
+                <Switch>
+                  <Case>
+                    <When>
+                      <All>
+                        <IsComplete>
+                          <Dependency path="/writableSchedule1ALine22aQpvliOnSchedule1A" />
+                        </IsComplete>
+                        <IsComplete>
+                          <Dependency path="/writableSchedule1ALine22aVehicleIdentificationNumber" />
+                        </IsComplete>
+                      </All>
+                    </When>
+                    <Then>
+                      <GreaterOf>
+                        <Dependency path="/writableSchedule1ALine22aQpvliOnSchedule1A" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <Not>
+                        <IsComplete>
+                          <Dependency path="/writableSchedule1ALine22aQpvliOnSchedule1A" />
+                        </IsComplete>
+                      </Not>
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+                <Switch>
+                  <Case>
+                    <When>
+                      <All>
+                        <IsComplete>
+                          <Dependency path="/writableSchedule1ALine22bQpvliOnSchedule1A" />
+                        </IsComplete>
+                        <IsComplete>
+                          <Dependency path="/writableSchedule1ALine22bVehicleIdentificationNumber" />
+                        </IsComplete>
+                      </All>
+                    </When>
+                    <Then>
+                      <GreaterOf>
+                        <Dependency path="/writableSchedule1ALine22bQpvliOnSchedule1A" />
+                        <Dollar>0</Dollar>
+                      </GreaterOf>
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <Not>
+                        <IsComplete>
+                          <Dependency path="/writableSchedule1ALine22bQpvliOnSchedule1A" />
+                        </IsComplete>
+                      </Not>
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableQualifiedCarLoanInterestAmount" />
+                </IsComplete>
+                <Any>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule1ALine22aVehicleIdentificationNumber" />
+                  </IsComplete>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule1ALine22bVehicleIdentificationNumber" />
+                  </IsComplete>
+                </Any>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableQualifiedCarLoanInterestAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine24CarLoanInterestAfterCap">
+      <Name>Qualified passenger vehicle loan interest after the $10,000 cap (Schedule 1-A line 24)</Name>
+      <Description>Schedule 1-A Part IV line 24, “Enter the smaller of the amount on line 23 or $10,000”: the lesser of the line 23 QPVLI total (/schedule1ALine23QualifiedCarLoanInterest) and the $10,000 statutory cap (/carLoanInterestDeductionCap).
+
+WHY A SEPARATE FACT. The module computes this minimum INLINE inside /qualifiedCarLoanInterestDeduction, as the minuend of the line 30 subtraction, so no existing fact isolates the printed line 24 amount. This candidate names exactly that LesserOf over the same two facts, so line 24 prints the value line 30 already runs off and the printed identity line 30 = line 24 minus line 29 (floored at zero) holds. It adds no new arithmetic: it lifts an expression the dictionary already evaluates into a fact the form can print.
+
+TYPE/SIGN/ROUNDING: Dollar. Both inputs are non negative, so the minimum is too. Complete whenever the line 23 total is answered; the cap is a constant and always complete.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/schedule1ALine23QualifiedCarLoanInterest" />
+          <Dependency path="/carLoanInterestDeductionCap" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine2bForm2555Line45Exclusions">
+      <Name>Schedule 1-A line 2b, the Form 2555 line 45 exclusions add back</Name>
+      <Description>Schedule 1-A Part I line 2b, “Enter the amount from Form 2555, line 45”. = form2555 /form2555Line45ExclusionsNetOfAllocableDeductions when the return asserts the Form 2555 foreign earned income exclusion, else $0.
+
+GATED ON /filesForm2555ForeignEarnedIncomeExclusion FOR THE SAME REASON ctcOdc /sched8812Line2bForm2555Exclusions is gated, and the gate is what keeps the printed identity line 2e = 2a + 2b + 2c + 2d true on this form. Line 2e is already claimed by ctcOdc /sched8812Line2dTotalExcludedIncome and line 3 by /schedule1AMagi, and BOTH read the section 911 limb through that gated composite. An ungated line 2b would print a non zero amount on a return whose lines 2e and 3 treat the same amount as $0, which is the MAGI surface inconsistency the retraction inside /schedule1AMagi records. It is also the substantively right answer: the two Schedule 1 legs that carry the exclusion out of AGI are gated on the same attestation, so on a gate false return the exclusion never left AGI and there is nothing to add back.
+
+TYPE/SIGN/ROUNDING: Dollar, whole dollars. NOT floored, because Form 2555 line 45 prints no “if zero or less” instruction and its own fact carries none.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+            </When>
+            <Then>
+              <Dependency module="form2555" path="/form2555Line45ExclusionsNetOfAllocableDeductions" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine2cForm2555Line50HousingDeduction">
+      <Name>Schedule 1-A line 2c, the Form 2555 line 50 housing deduction add back</Name>
+      <Description>Schedule 1-A Part I line 2c, “Enter the amount from Form 2555, line 50”. = form2555 /form2555Line50HousingDeduction when the return asserts the Form 2555 foreign earned income exclusion, else $0. The line 2b sibling above carries the full argument for the gate; the short version is that lines 2e and 3 are already claimed by facts that read this amount through the gated ctcOdc /sched8812Line2bForm2555Exclusions composite, so an ungated line 2c would break the printed identity line 2e = 2a + 2b + 2c + 2d.
+
+TYPE/SIGN/ROUNDING: Dollar, whole dollars, non negative.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency module="form2555" path="/filesForm2555ForeignEarnedIncomeExclusion" />
+            </When>
+            <Then>
+              <Dependency module="form2555" path="/form2555Line50HousingDeduction" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine36aPrimaryFilerQualifiesForSeniorDeduction">
+      <Name>The primary filer meets every Schedule 1-A line 36a condition</Name>
+      <Description>The full line 36a test: the existing /primaryFilerQualifiesForSeniorDeduction (a valid SSN and born before January 2, 1961) AND a filing status that permits the deduction at all.
+
+WHY THE FILING STATUS LIMB IS ADDED HERE. /primaryFilerQualifiesForSeniorDeduction carries only the age and SSN halves. Line 37 is /seniorDeduction, which zeroes the whole deduction for married filing separately per the Part V caution, so a bare age plus SSN switch would print the line 35 amount on line 36a and $0 on line 37 for an MFS senior, breaking the printed identity line 37 = line 36a + line 36b. Adding the status limb keeps the two lines consistent and matches the caution the form prints above Part V. Its line 36b sibling needs no such limb: /secondaryFilerQualifiesForSeniorDeduction already carries /isFilingStatusMFJ.
+
+TYPE: Bool.</Description>
+      <Derived>
+        <All>
+          <Dependency path="/primaryFilerQualifiesForSeniorDeduction" />
+          <Dependency path="/schedule1AEligibleFilingStatusForSeniorDeduction" />
+        </All>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine36aSeniorDeductionForPrimaryFiler">
+      <Name>Enhanced senior deduction for the primary filer (Schedule 1-A line 36a)</Name>
+      <Description>Schedule 1-A Part V line 36a: the line 35 per qualifying filer amount (/seniorDeductionPerQualifyingFiler) when the primary filer qualifies, and $0 otherwise.
+
+This is exactly the primary filer limb the existing /seniorDeduction (line 37) already adds internally, lifted into a fact so the printed line can carry it. The condition is the composite above, so the MFS bar reaches this line and line 37 = line 36a + line 36b holds in every state.
+
+TYPE/SIGN/ROUNDING: Dollar, non negative because line 35 is floored at zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/schedule1ALine36aPrimaryFilerQualifiesForSeniorDeduction" />
+            </When>
+            <Then>
+              <Dependency path="/seniorDeductionPerQualifyingFiler" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine36bSeniorDeductionForSecondaryFiler">
+      <Name>Enhanced senior deduction for the spouse (Schedule 1-A line 36b)</Name>
+      <Description>Schedule 1-A Part V line 36b: the line 35 per qualifying filer amount (/seniorDeductionPerQualifyingFiler) when the spouse qualifies on a joint return, and $0 otherwise.
+
+The condition is the existing /secondaryFilerQualifiesForSeniorDeduction, which already ANDs the joint filing requirement (/isFilingStatusMFJ) with the spouse's age and SSN tests, so it carries the Part V caution on its own and needs no extra filing status limb. This is the secondary filer limb /seniorDeduction (line 37) already adds internally.
+
+TYPE/SIGN/ROUNDING: Dollar, non negative because line 35 is floored at zero.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Dependency path="/secondaryFilerQualifiesForSeniorDeduction" />
+            </When>
+            <Then>
+              <Dependency path="/seniorDeductionPerQualifyingFiler" />
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine14aQualifiedOvertimeFromW2Box1">
+      <Name>Qualified overtime compensation included in Form W-2 box 1 (Schedule 1-A line 14a)</Name>
+      <Description>Schedule 1-A Part III line 14a: the qualified overtime compensation included in the filer’s Form W-2 box 1, with the printed line redirecting to the instructions for qualified overtime not reported in box 1.
+
+WHY AN INTAKE. Box 1 is total wages, tips and other compensation; the section 225 qualified overtime part of it is the premium half of statutorily required overtime pay, which the graph does not hold and cannot separate from /formW2s/*/wages. Asking is the only faithful option.
+
+FEEDS THE COMPUTED LINE 14c. /schedule1ALine14cQualifiedOvertime is line 14a + line 14b whenever either is answered, and the Part III deduction chain reads that fact, so this printed component now foots. The filer-typed total /writableQualifiedOvertimeAmount survives as the fall-through arm for a return that answers neither component. The engine still has no cross fact Limit, but the identity no longer needs enforcing on a return that answers the detail: the total is computed from it.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete. </Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine14bQualifiedOvertimeFrom1099">
+      <Name>Qualified overtime compensation included on Form 1099-NEC or 1099-MISC (Schedule 1-A line 14b)</Name>
+      <Description>Schedule 1-A Part III line 14b: the qualified overtime compensation included in Form 1099-NEC box 1 or Form 1099-MISC box 3.
+
+WHY AN INTAKE. Neither payer form is modeled as a collection in this dictionary, and even where an amount were held, the qualified overtime part of a nonemployee compensation or other income box is not an attribute the graph carries. Asking is the only faithful option.
+
+FEEDS THE COMPUTED LINE 14c. /schedule1ALine14cQualifiedOvertime is line 14a + line 14b whenever either is answered, and the Part III deduction chain reads that fact, so this printed component now foots. The filer-typed total /writableQualifiedOvertimeAmount survives as the fall-through arm for a return that answers neither component.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete. </Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine22aInterestDeductedOnBusinessSchedules">
+      <Name>Interest on the first vehicle loan deducted on Schedule C, E or F (Schedule 1-A line 22a, column (ii))</Name>
+      <Description>Schedule 1-A Part IV line 22a, column (ii): the part of this vehicle loan's 2025 interest that the return already deducts as a business or rental expense on Schedule C, Schedule E or Schedule F, and which therefore may not be deducted again under section 163 on Schedule 1-A.
+
+WHY AN INTAKE. Schedules C, E and F are not modeled at this line's granularity: the dictionary carries no expense breakdown that isolates passenger vehicle loan interest inside a business or rental deduction, so no derivation can reach this amount. Only the filer knows how the interest on this particular loan was split.
+
+STILL NOT AN ADDEND OF LINE 23, AND THAT IS THE PRINTED RULE, NOT A GAP. The printed caution defines column (iii) as “the total QPVLI paid in 2025 less the amounts reported in column (ii)”, so this figure is ALREADY netted out of the column (iii) row that /schedule1ALine23QualifiedCarLoanInterest adds. Subtracting it again at line 23 would double-count the netting. It is a disclosure column: it prints, and no fact-graph consumer is owed.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine22aQpvliOnSchedule1A">
+      <Name>Qualified passenger vehicle loan interest claimed on Schedule 1-A for the first vehicle (line 22a, column (iii))</Name>
+      <Description>Schedule 1-A Part IV line 22a, column (iii): the qualified passenger vehicle loan interest paid on this loan in 2025 that the return claims on Schedule 1-A. The printed caution defines the column as “the total QPVLI paid in 2025 less the amounts reported in column (ii)”.
+
+WHY AN INTAKE RATHER THAN A DIFFERENCE. The gross QPVLI paid on this loan in 2025 is not a fact the graph holds for a single vehicle: no lender statement, loan or vehicle is modeled, so the minuend of that subtraction has no source. Even if the column (ii) sibling is answered, the difference cannot be formed. Asking for the column (iii) figure directly is the only faithful route, and it is the figure the filer transcribes onto the form.
+
+FEEDS THE COMPUTED LINE 23. /schedule1ALine23QualifiedCarLoanInterest adds the two column (iii) rows whenever either is answered, and /schedule1ALine24CarLoanInterestAfterCap and /qualifiedCarLoanInterestDeduction read that fact, so this printed row foots. The filer-typed total /writableQualifiedCarLoanInterestAmount survives as the fall-through arm for a return that answers neither row.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete. </Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine22aVehicleIdentificationNumber">
+      <Name>Vehicle identification number for the first passenger vehicle (Schedule 1-A line 22a, column (i))</Name>
+      <Description>Schedule 1-A Part IV line 22a, column (i): the vehicle identification number of the first applicable passenger vehicle whose loan interest the return deducts.
+
+WHY AN INTAKE. A VIN is an identifier the return reports, not a quantity any fact can compute. The dictionary models no vehicle, no vehicle loan and no lender, so there is no collection to read a VIN from and no derivation that could produce one. The printed table has exactly two fixed rows (22a and 22b) and sends a filer with more than two VINs to the instructions, so two addressable scalar intakes match the printed form exactly and no collection axis is needed to fill it.
+
+Section 163(h)(4)(B)(iii): "Interest shall not be treated as qualified passenger vehicle loan interest ... unless the taxpayer includes the vehicle identification number ... on the return." /schedule1ALine23QualifiedCarLoanInterest requires this VIN answered before it will include row 22a's column (iii) amount; a return that answers the amount but not the VIN is Incomplete rather than silently granted.
+
+TYPE: String. Optional (no claim on this row); required once the paired amount is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine22bInterestDeductedOnBusinessSchedules">
+      <Name>Interest on the second vehicle loan deducted on Schedule C, E or F (Schedule 1-A line 22b, column (ii))</Name>
+      <Description>Schedule 1-A Part IV line 22b, column (ii): the part of this vehicle loan's 2025 interest that the return already deducts as a business or rental expense on Schedule C, Schedule E or Schedule F, and which therefore may not be deducted again under section 163 on Schedule 1-A.
+
+WHY AN INTAKE. Schedules C, E and F are not modeled at this line's granularity: the dictionary carries no expense breakdown that isolates passenger vehicle loan interest inside a business or rental deduction, so no derivation can reach this amount. Only the filer knows how the interest on this particular loan was split.
+
+STILL NOT AN ADDEND OF LINE 23, AND THAT IS THE PRINTED RULE, NOT A GAP. The printed caution defines column (iii) as “the total QPVLI paid in 2025 less the amounts reported in column (ii)”, so this figure is ALREADY netted out of the column (iii) row that /schedule1ALine23QualifiedCarLoanInterest adds. Subtracting it again at line 23 would double-count the netting. It is a disclosure column: it prints, and no fact-graph consumer is owed.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine22bQpvliOnSchedule1A">
+      <Name>Qualified passenger vehicle loan interest claimed on Schedule 1-A for the second vehicle (line 22b, column (iii))</Name>
+      <Description>Schedule 1-A Part IV line 22b, column (iii): the qualified passenger vehicle loan interest paid on this loan in 2025 that the return claims on Schedule 1-A. The printed caution defines the column as “the total QPVLI paid in 2025 less the amounts reported in column (ii)”.
+
+WHY AN INTAKE RATHER THAN A DIFFERENCE. The gross QPVLI paid on this loan in 2025 is not a fact the graph holds for a single vehicle: no lender statement, loan or vehicle is modeled, so the minuend of that subtraction has no source. Even if the column (ii) sibling is answered, the difference cannot be formed. Asking for the column (iii) figure directly is the only faithful route, and it is the figure the filer transcribes onto the form.
+
+FEEDS THE COMPUTED LINE 23. /schedule1ALine23QualifiedCarLoanInterest adds the two column (iii) rows whenever either is answered, and /schedule1ALine24CarLoanInterestAfterCap and /qualifiedCarLoanInterestDeduction read that fact, so this printed row foots. The filer-typed total /writableQualifiedCarLoanInterestAmount survives as the fall-through arm for a return that answers neither row.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete. </Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine22bVehicleIdentificationNumber">
+      <Name>Vehicle identification number for the second passenger vehicle (Schedule 1-A line 22b, column (i))</Name>
+      <Description>Schedule 1-A Part IV line 22b, column (i): the vehicle identification number of the second applicable passenger vehicle whose loan interest the return deducts.
+
+WHY AN INTAKE. A VIN is an identifier the return reports, not a quantity any fact can compute. The dictionary models no vehicle, no vehicle loan and no lender, so there is no collection to read a VIN from and no derivation that could produce one. The printed table has exactly two fixed rows (22a and 22b) and sends a filer with more than two VINs to the instructions, so two addressable scalar intakes match the printed form exactly and no collection axis is needed to fill it.
+
+Same section 163(h)(4)(B)(iii) VIN requirement as the row 22a sibling; /schedule1ALine23QualifiedCarLoanInterest requires this VIN answered before it will include row 22b's column (iii) amount.
+
+TYPE: String. Optional (no claim on this row); required once the paired amount is answered.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <String />
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7">
+      <Name>Qualified tips included on Form W-2 box 7 (Schedule 1-A line 4a)</Name>
+      <Description>Schedule 1-A Part II line 4a: the QUALIFIED part of the social security tips the filer’s Form W-2 reports in box 7.
+
+WHY AN INTAKE RATHER THAN A SUM OVER /formW2s/*/oasdiTips. Box 7 holds every tip reported to the employer; only tips received in an occupation listed at IRS.gov/TippedOccupations, and voluntarily paid, are QUALIFIED tips under section 224. The graph holds the box 7 figure and no occupation attribute for it, so summing box 7 would OVER state line 4a for any filer whose tips are partly outside a listed occupation. The printed line also redirects to the instructions when box 5 exceeds $176,100 or the tips are not subject to social security and Medicare taxes, which is a second computation the graph does not hold. Asking is the only faithful option.
+
+RELATIONSHIP TO THE EXISTING TOTALS, NOT ENGINE ENFORCED. Line 4c is the larger of this and line 4b for a one employer filer, and line 6 = line 4c + line 5 is the existing /writableQualifiedTipsAmount. The engine has no cross fact Limit, so nothing here stops a return whose 4a exceeds its line 6 total; the same posture /writableExcludedTerritoryQualifiedTips states for its own subset relationship.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete and no committed scenario moves, because nothing derived reads it yet.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine4bQualifiedTipsFromForm4137">
+      <Name>Qualified tips included on Form 4137 line 1 column (c) (Schedule 1-A line 4b)</Name>
+      <Description>Schedule 1-A Part II line 4b: the QUALIFIED part of the tips the filer reports on Form 4137, line 1, row A, column (c). The printed line says to enter zero when no Form 4137 is filed.
+
+WHY AN INTAKE RATHER THAN A READ OF form4137 /form4137Employers/*/writableTotalTipsReceived. Two reasons, either one sufficient. The Form 4137 column holds ALL cash and charge tips received from that employer, qualified or not, and the graph holds no occupation attribute to select the qualified part. And the printed line names ROW A only, the first employer row, while the collection is unordered, so there is no row A to address. Asking is the only faithful option.
+
+RELATIONSHIP TO THE EXISTING TOTALS, NOT ENGINE ENFORCED, exactly as on line 4a: line 4c is the larger of line 4a and this for a one employer filer, and line 6 = line 4c + line 5 is the existing /writableQualifiedTipsAmount. The engine has no cross fact Limit.
+
+TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/writableSchedule1ALine4cEmployeeQualifiedTips">
+      <Name>Qualified tips received as an employee (Schedule 1-A line 4c)</Name>
+      <Description>Schedule 1-A Part II line 4c: the employee share of the qualified tips total. For a
+        filer with ONE employer the printed rule is the larger of line 4a and line 4b; for every other
+        filer the printed line redirects to the instructions, and it redirects again for a filer with
+        tips in more than one occupation.
+
+        FALL-THROUGH ARM of the computed /schedule1ALine4cEmployeeQualifiedTips, taken only on a
+        return that answers neither line 4a nor line 4b (the multi-employer/multi-occupation
+        worksheet case the printed line redirects to the instructions for, which this dictionary does
+        not model). On a return that answers 4a or 4b the computed successor reads those instead and
+        this attestation's own value stops mattering to the deduction.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, NON NEGATIVE. Optional; unanswered is Incomplete.</Description>
+      <Export downstreamFacts="true" />
+      <Writable>
+        <Dollar />
+        <Limit type="Min">
+          <Dollar>0</Dollar>
+        </Limit>
+      </Writable>
+    </Fact>
+
+    <Fact path="/schedule1ALine4cEmployeeQualifiedTips">
+      <Name>Employee qualified tips, Schedule 1-A line 4c, as computed from lines 4a and 4b</Name>
+      <Description>Schedule 1-A Part II line 4c, employee qualified tips. THE COMPUTED LINE, and the
+        fact /schedule1ALine6QualifiedTips reads for its line-4c addend. The form computes line 4c
+        only for a single employer: "If you only received qualified tips as an employee with
+        respect to employment with one employer, enter the larger of line 4a or line 4b.
+        Otherwise, see the instructions to determine the amount to enter on line 4c." A filer with
+        more than one employer is told to "enter -0- on lines 4a and 4b" and to determine line 4c
+        from the instructions (the Qualified Tips From More Than One Employer Worksheet, which is
+        not modeled; that filer types line 4c).
+
+        FIVE ARMS, in order. 1. Line 4a or line 4b answered with a POSITIVE amount: GreaterOf(4a,
+        4b), each side read through its complete-safe alias ($0 when its writable is unanswered). 2. Otherwise
+        the typed line 4c, /writableSchedule1ALine4cEmployeeQualifiedTips, floored at $0 - the
+        multi-employer filer who followed the form entered $0 on 4a and 4b and typed line 4c, and
+        that typed figure is the line.
+        3. Line 4a or 4b answered (at $0) and no typed line 4c: GreaterOf(4a, 4b), $0. 4. The
+        typed line 6 total and a POSITIVE typed line 5 business share, with no line-4 detail at
+        all: the total minus the business share, floored at $0, so line 6 = line 4c + line 5 foots.
+        5. Otherwise the typed line 4c, which leaves this fact Incomplete when it is unanswered.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, non-negative.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/schedule1ALine4aQualifiedTipsOrZero" />
+                <Dependency path="/schedule1ALine4bQualifiedTipsOrZero" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/schedule1ALine4aQualifiedTipsOrZero" />
+                <Dependency path="/schedule1ALine4bQualifiedTipsOrZero" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule1ALine4cEmployeeQualifiedTips" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule1ALine4cEmployeeQualifiedTips" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <Any>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+                </IsComplete>
+              </Any>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/schedule1ALine4aQualifiedTipsOrZero" />
+                <Dependency path="/schedule1ALine4bQualifiedTipsOrZero" />
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <All>
+                <IsComplete>
+                  <Dependency path="/writableQualifiedTipsAmount" />
+                </IsComplete>
+                <IsComplete>
+                  <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                </IsComplete>
+                <GreaterThan>
+                  <Left>
+                    <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                  </Left>
+                  <Right>
+                    <Dollar>0</Dollar>
+                  </Right>
+                </GreaterThan>
+              </All>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dollar>0</Dollar>
+                <Subtract>
+                  <Minuend>
+                    <Dependency path="/writableQualifiedTipsAmount" />
+                  </Minuend>
+                  <Subtrahends>
+                    <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                  </Subtrahends>
+                </Subtract>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule1ALine4cEmployeeQualifiedTips" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/schedule1ALine4aQualifiedTipsOrZero">
+      <Name>Schedule 1-A line 4a, read as $0 when unanswered</Name>
+      <Description>The filer's Schedule 1-A line 4a entry (qualified tips included on Form W-2, box 7) when answered, and $0 when it is not: the complete-safe side of the larger-of in /schedule1ALine4cEmployeeQualifiedTips.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+    <Fact path="/schedule1ALine4bQualifiedTipsOrZero">
+      <Name>Schedule 1-A line 4b, read as $0 when unanswered</Name>
+      <Description>The filer's Schedule 1-A line 4b entry (qualified tips included on Form 4137, line 1, row A, column (c)) when answered, and $0 when it is not: the complete-safe side of the larger-of in /schedule1ALine4cEmployeeQualifiedTips.</Description>
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <IsComplete>
+                <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+              </IsComplete>
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <Dollar>0</Dollar>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine5QualifiedTipsTradeOrBusinessNetIncomeLimit">
+      <Name>Net income limitation on Schedule 1-A line 5, trade-or-business qualified tips (section 224(c))</Name>
+      <Description>The section 224(c) ceiling on /writableQualifiedTipsAmountTradeOrBusiness: "such
+        qualified tips shall be taken into account under subsection (a) only to the extent that the
+        gross income for the taxpayer from such trade or business ... exceeds the sum of the
+        deductions (other than the deduction allowed under this section) allocable to the trade or
+        business" (IRC 224(c)). The instructions name those deductions: net profit is reduced by
+        "the total of all deductions allocable to that trade or business, including the deductible
+        part of self-employment tax; the deduction for contributions to self-employed SEP, SIMPLE,
+        and qualified plans; and the self-employed health insurance deduction, but not including the
+        deduction for qualified tips", and not below zero (2025 Form 1040 instructions, Schedule 1-A
+        line 5, Net income limitation).
+
+        = GreaterOf($0, scheduleC:/scheduleCNetProfit - scheduleSE:/fullSelfEmploymentTaxDeduction
+        (Schedule 1 line 15) - scheduleSE:/schedule1Line16SelfEmployedRetirementPlansOrZero
+        (Schedule 1 line 16) - scheduleSE:/selfEmployedHealthInsuranceDeduction (Schedule 1 line
+        17, read as $0 while it is Incomplete so this fact stays complete)). SINGLE AGGREGATE POOL, NOT A PER-BUSINESS ALLOCATION. Section 224(c) and the instructions' own
+        Multiple Trades or Businesses Worksheet apply the limit PER trade or business, and this
+        dictionary does not attribute the line-5 tips figure to a specific business, so the pool is
+        every entered Schedule C combined, less the three return-level deductions. EXACT for a filer
+        with one business; OVER-STATES the pool for a filer with more than one Schedule C business
+        who received tips in only one of them (residue: the per-business allocation is not modeled,
+        nor are the Schedule E line 28(g)-(k) and Schedule F line 34 net-profit sources).
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, non-negative (floored at $0).</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dollar>0</Dollar>
+          <Subtract>
+            <Minuend>
+              <Dependency module="scheduleC" path="/scheduleCNetProfit" />
+            </Minuend>
+            <Subtrahends>
+              <Dependency module="scheduleSE" path="/fullSelfEmploymentTaxDeduction" />
+              <Dependency module="scheduleSE" path="/schedule1Line16SelfEmployedRetirementPlansOrZero" />
+              <Switch>
+                <Case>
+                  <When>
+                    <IsComplete>
+                      <Dependency module="scheduleSE" path="/selfEmployedHealthInsuranceDeduction" />
+                    </IsComplete>
+                  </When>
+                  <Then>
+                    <Dependency module="scheduleSE" path="/selfEmployedHealthInsuranceDeduction" />
+                  </Then>
+                </Case>
+                <Case>
+                  <When>
+                    <True />
+                  </When>
+                  <Then>
+                    <Dollar>0</Dollar>
+                  </Then>
+                </Case>
+              </Switch>
+            </Subtrahends>
+          </Subtract>
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine5QualifiedTipsTradeOrBusinessClamped">
+      <Name>Schedule 1-A line 5, trade-or-business qualified tips, after the section 224(c) net income limit</Name>
+      <Description>= LesserOf(/writableQualifiedTipsAmountTradeOrBusiness read complete-safe at $0,
+        /schedule1ALine5QualifiedTipsTradeOrBusinessNetIncomeLimit). THE COMPUTED LINE 5, and the fact
+        /schedule1ALine6QualifiedTips reads for its line-5 addend, applying the net income
+        limit for the single-business case.
+
+        THE RAW WRITABLE IS UNCHANGED AND STILL WHAT qbi:/qbiScheduleCTipsExclusion READS for the QBI
+        carve-out — a different question (keeping employee-vs-business tips out of QBI double
+        counting) from the one this clamp answers (whether the deduction may take the tips at all).
+        Complete-safe on every return: the raw writable is read through an IsComplete guard defaulting
+        to $0, and the limit fact (above) is complete-safe by construction.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, non-negative.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Switch>
+            <Case>
+              <When>
+                <IsComplete>
+                  <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                </IsComplete>
+              </When>
+              <Then>
+                <GreaterOf>
+                  <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                  <Dollar>0</Dollar>
+                </GreaterOf>
+              </Then>
+            </Case>
+            <Case>
+              <When>
+                <True />
+              </When>
+              <Then>
+                <Dollar>0</Dollar>
+              </Then>
+            </Case>
+          </Switch>
+          <Dependency path="/schedule1ALine5QualifiedTipsTradeOrBusinessNetIncomeLimit" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine6QualifiedTips">
+      <Name>Schedule 1-A line 6, total qualified tips, as computed from lines 4c and 5</Name>
+      <Description>Schedule 1-A line 6, "Add lines 4c and 5":
+        /schedule1ALine4cEmployeeQualifiedTips (the computed/fallback line 4c) plus
+        /schedule1ALine5QualifiedTipsTradeOrBusinessClamped (line 5 after the section 224(c) net
+        income limit). THE COMPUTED LINE 6, and the fact /allowableQualifiedTipsAmount reads it
+        instead of the raw typed total.
+
+        TWO ARMS, DETAIL FIRST. 1. When ANY line-4 detail intake (4a, 4b, the typed 4c fallback) is
+        answered, OR the typed line-5 amount is answered WITH A POSITIVE VALUE, this is
+        /schedule1ALine4cEmployeeQualifiedTips (read complete-safe at $0, so a line-5-only return
+        still foots) plus /schedule1ALine5QualifiedTipsTradeOrBusinessClamped (already
+        complete-safe). 2. Otherwise the filer-typed line 6 total /writableQualifiedTipsAmount,
+        unchanged — retained for a return that answers no printed Part II detail (the
+        multi-employer/multi-occupation worksheet population).
+
+        WHY LINE 5's TRIGGER DIFFERS FROM 4a/4b's (bare IsComplete). Unlike 4a/4b,
+        /writableQualifiedTipsAmountTradeOrBusiness is a PRE-EXISTING intake other modules already
+        read (qbi's Schedule C tips exclusion) and other modules' fixtures already answer
+        defensively, including at exactly $0.00, alongside the typed line 6 total — a $0 answer
+        there means "no business tips," not "I chose the detail path." A bare IsComplete trigger on
+        it would zero a real deduction on such a fixture (qbi-224-employee-tips-do-not-reduce-qbi);
+        the positive-value guard avoids that while still correctly triggering for a genuine
+        business-tips-only claim.
+
+        THE POSITIVE-VALUE GUARD IS ON ALL FOUR TRIGGERS (4a, 4b, the typed 4c fallback, and line
+        5), not only the trade-or-business one — a return that answers any trigger with a POSITIVE
+        amount selects the detail arm.
+
+        THE LINE-4c ADDEND CARRIES A RESIDUAL ARM (the typed total minus the typed line 5 business
+        share, floored at $0) for a return that answers both the typed line 6 total and the typed
+        line 5 business share, so the printed identity line 6 = line 4c + line 5 foots instead of
+        collapsing to the clamped line 5 alone.
+
+        TYPE/SIGN/ROUNDING: Dollar, integer cents, non-negative.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Switch>
+          <Case>
+            <When>
+              <Any>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableSchedule1ALine4aQualifiedTipsFromW2Box7" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableSchedule1ALine4bQualifiedTipsFromForm4137" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableSchedule1ALine4cEmployeeQualifiedTips" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableSchedule1ALine4cEmployeeQualifiedTips" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+                <All>
+                  <IsComplete>
+                    <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                  </IsComplete>
+                  <GreaterThan>
+                    <Left>
+                      <Dependency path="/writableQualifiedTipsAmountTradeOrBusiness" />
+                    </Left>
+                    <Right>
+                      <Dollar>0</Dollar>
+                    </Right>
+                  </GreaterThan>
+                </All>
+              </Any>
+            </When>
+            <Then>
+              <Add>
+                <Switch>
+                  <Case>
+                    <When>
+                      <IsComplete>
+                        <Dependency path="/schedule1ALine4cEmployeeQualifiedTips" />
+                      </IsComplete>
+                    </When>
+                    <Then>
+                      <Dependency path="/schedule1ALine4cEmployeeQualifiedTips" />
+                    </Then>
+                  </Case>
+                  <Case>
+                    <When>
+                      <True />
+                    </When>
+                    <Then>
+                      <Dollar>0</Dollar>
+                    </Then>
+                  </Case>
+                </Switch>
+                <Dependency path="/schedule1ALine5QualifiedTipsTradeOrBusinessClamped" />
+              </Add>
+            </Then>
+          </Case>
+          <Case>
+            <When>
+              <True />
+            </When>
+            <Then>
+              <GreaterOf>
+                <Dependency path="/writableQualifiedTipsAmount" />
+                <Dollar>0</Dollar>
+              </GreaterOf>
+            </Then>
+          </Case>
+        </Switch>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine15QualifiedOvertimeAfterCap">
+      <Name>Schedule 1-A line 15, qualified overtime compensation after the cap</Name>
+      <Description>Printed Schedule 1-A line 15, the smaller of the line 14c qualified overtime compensation and the $12,500 cap ($25,000 if married filing jointly). The line 14c amount is /allowableQualifiedOvertimeAmount and the cap is /overtimeDeductionCap, which already switches on the filing status. /qualifiedOvertimeDeduction computes the same LesserOf inline before subtracting the phaseout, so no shipping fact isolated the printed line.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/allowableQualifiedOvertimeAmount" />
+          <Dependency path="/overtimeDeductionCap" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine33MagiOverThresholdBeforeFloor">
+      <Name>Schedule 1-A line 33 before the zero floor</Name>
+      <Description>The raw subtraction of the Part V line 32 threshold from the line 31 modified adjusted gross income. It is an intermediate, not a printed line: the printed line 33 is this difference floored at zero, which the sibling fact computes.</Description>
+      <Derived>
+        <Subtract>
+          <Minuend>
+            <Dependency path="/schedule1AMagi" />
+          </Minuend>
+          <Subtrahends>
+            <Dependency path="/seniorDeductionPhaseoutThreshold" />
+          </Subtrahends>
+        </Subtract>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine33SeniorDeductionMagiExcess">
+      <Name>Schedule 1-A line 33, modified adjusted gross income over the senior deduction threshold</Name>
+      <Description>Printed Schedule 1-A Part V line 33, the line 31 modified adjusted gross income less the line 32 threshold, floored at zero because the form sends a filer whose result is zero or less straight to line 35 with the full $6,000. /seniorDeductionPerQualifyingFiler computes the identical GreaterOf over a Subtract inline inside its own phaseout, so no shipping fact isolated the printed line.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <GreaterOf>
+          <Dependency path="/schedule1ALine33MagiOverThresholdBeforeFloor" />
+          <Dependency path="/schedule1AZeroDollarFloor" />
+        </GreaterOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine34SeniorDeductionPhaseoutAmount">
+      <Name>Schedule 1-A line 34, 6 percent of the line 33 excess</Name>
+      <Description>Printed Schedule 1-A Part V line 34, the line 33 excess multiplied by 6 percent.
+        The rate was encoded as the integer fraction 6/100, which is what the dollar_rate template
+        renders as Round(Multiply(Rational, base)). /seniorDeductionPerQualifyingFiler computed the
+        same product inline as its subtrahend, so no shipping fact isolated the printed line.
+
+        Line 35 now reads this fact. The
+        rate literal moved from Rational 6/100 to the value-identical Dollar 0.06 in the same edit
+        so the senior-deduction-phaseout-rate param-ledger annotation, which lived on the inline
+        product that was removed, stays reachable - the param lint scans Dollar and Int literals
+        only. Direction of the change: line 35 rises by up to $0.99 when the cents round down and
+        falls by up to $0.99 when they round up, which is why the finding declines to claim a fixed
+        sign; what is unconditional is that the printed identity now holds.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Round>
+          <Multiply>
+            <Dollar>0.06</Dollar>
+            <Dependency path="/schedule1ALine33SeniorDeductionMagiExcess" />
+          </Multiply>
+        </Round>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine7QualifiedTipsAfterCap">
+      <Name>Schedule 1-A line 7, qualified tips after the $25,000 cap</Name>
+      <Description>Printed Schedule 1-A line 7, the smaller of the line 6 qualified tips and the $25,000 cap. The line 6 amount is /allowableQualifiedTipsAmount, the tips eligible after the Publication 570 territory limit, which is the operand /qualifiedTipsDeduction itself clamps; the cap is /tipsDeductionCap. /qualifiedTipsDeduction computes the same LesserOf inline before subtracting the phaseout, so no shipping fact isolated the printed line.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <LesserOf>
+          <Dependency path="/allowableQualifiedTipsAmount" />
+          <Dependency path="/tipsDeductionCap" />
+        </LesserOf>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1AZeroDollarFloor">
+      <Name>Zero dollars, the Schedule 1-A floor</Name>
+      <Description>A structural $0 used as the floor of the Part V line 33 excess. Printed line 33 stops at zero, because the form sends a filer whose line 32 threshold is not exceeded straight to line 35, so the printed value never goes negative. It mirrors the per module zero floors the dictionary already carries, such as /form1116ZeroDollarFloor and /scheduleEZeroDollarFloor.</Description>
+      <Derived>
+        <Dollar>0</Dollar>
+      </Derived>
+    </Fact>
+
+
+    <Fact path="/schedule1ALine11TipsOvertimeMagiExcessThousands">
+      <Name>Schedule 1-A line 11 (and line 19): the MAGI excess in whole thousands, rounded down</Name>
+      <Description>Schedule 1-A Part II line 11, printed Divide line 10 by $1,000 and decrease a non whole result to the next lower whole number: the number of complete thousands in /tipsOvertimeMagiExcess, the amount by which modified adjusted gross income exceeds the tips and overtime phaseout threshold. Part III line 19 prints the identical computation over line 18, which is the same /tipsOvertimeMagiExcess, so the register maps this one fact on both lines (one quantity, one fact). Built on the engine's StepwiseMultiply integer division, exact for whole dollar amounts; a Dollar Divide would round to cents before any floor. Zero when the MAGI excess is zero. Lines 12 and 20 multiply this count by $100 to phase the deductions out.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <StepwiseMultiply>
+          <Multiplicand>
+              <Dependency path="/tipsOvertimeMagiExcess" />
+          </Multiplicand>
+          <Rate>
+            <Rational>1/1000</Rational>
+          </Rate>
+        </StepwiseMultiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1ALine28CarLoanMagiExcessThousandsRoundedUp">
+      <Name>Schedule 1-A line 28: the car loan MAGI excess in whole thousands, rounded up</Name>
+      <Description>Schedule 1-A Part IV line 28, printed Divide line 27 by $1,000 and increase a non whole result to the next higher whole number: the number of thousands, or part thousands, in /carLoanMagiExcess, the amount by which modified adjusted gross income exceeds the car loan interest phaseout threshold. Built as StepwiseMultiply over the excess plus $999, the engine's integer division idiom, exact for whole dollar amounts; a Dollar Divide would round to cents before any ceiling. Zero when the MAGI excess is zero. Line 29 multiplies this count by $200 to phase the deduction out.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <StepwiseMultiply>
+          <Multiplicand>
+            <Add>
+                <Dependency path="/carLoanMagiExcess" />
+              
+              <Dollar>999.99</Dollar>
+            </Add>
+          </Multiplicand>
+          <Rate>
+            <Rational>1/1000</Rational>
+          </Rate>
+        </StepwiseMultiply>
+      </Derived>
+    </Fact>
+
+    <Fact path="/schedule1AIsRequired">
+      <Name>Schedule 1-A is required for this return</Name>
+      <Description>THE RENDER GATE for Schedule 1-A, Additional Deductions (Form 1040 line 13b).
+        The schedule has FOUR independent deduction parts and any one of them puts it on the
+        return, so the gate is an Any over all four rather than over the three that need a
+        taxpayer claim:
+
+          * Part II, No Tax on Tips (/claimsTipsDeduction)
+          * Part III, No Tax on Overtime (/claimsOvertimeDeduction)
+          * Part IV, No Tax on Car Loan Interest (/claimsCarLoanInterestDeduction)
+          * Part V, Enhanced Deduction for Seniors — which is NOT a claim. Lines 36a and 36b read
+            "If you have a valid social security number (see instructions) and were born before
+            January 2, 1961, enter the amount from line 35" and its spouse twin, so a qualifying
+            filer reaches Part V on age and SSN alone, with no question to answer. The primary
+            leg is /schedule1ALine36aPrimaryFilerQualifiesForSeniorDeduction (already the full
+            line 36a test: age, a valid SSN, and a filing status the Part V caution permits); the
+            secondary leg is /secondaryFilerQualifiesForSeniorDeduction conjoined with
+            /schedule1AEligibleFilingStatusForSeniorDeduction, which is how the module's own line
+            36b amount reads it.
+
+        GATING ON THE THREE CLAIMS ALONE WOULD DROP EVERY SENIOR-ONLY RETURN — a filer aged 65 or
+        over with no tips, no overtime and no car loan interest still files Schedule 1-A for the
+        Part V deduction and for the Part VI total that Form 1040 line 13b carries.
+
+        Complete-safe: the three claim gates are complete-safe by their own statement ("Unanswered
+        resolves Complete false"), and both senior legs resolve Complete on every return — the
+        module's own line 36b Switch reads /secondaryFilerQualifiesForSeniorDeduction directly as
+        its When, which it could not do if that fact went Incomplete off a joint return.</Description>
+      <Export downstreamFacts="true" />
+      <Derived>
+        <Any>
+          <Dependency path="/claimsTipsDeduction" />
+          <Dependency path="/claimsOvertimeDeduction" />
+          <Dependency path="/claimsCarLoanInterestDeduction" />
+          <Dependency path="/schedule1ALine36aPrimaryFilerQualifiesForSeniorDeduction" />
+          <All>
+            <Dependency path="/secondaryFilerQualifiesForSeniorDeduction" />
+            <Dependency path="/schedule1AEligibleFilingStatusForSeniorDeduction" />
+          </All>
+        </Any>
+      </Derived>
+    </Fact>
+
+  </Facts>
+</FactDictionaryModule>
